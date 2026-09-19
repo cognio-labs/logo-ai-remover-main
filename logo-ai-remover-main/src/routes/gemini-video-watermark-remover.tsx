@@ -43,147 +43,168 @@ const INSPIRATION_ITEMS = [
     img: "/inspirations/insp_1.webp",
     title: "Cool Puppy Sunglasses",
     category: "Character Design",
-    prompt: "A stylish cute golden puppy wearing sunglasses and yellow turtleneck knitted sweater, soft lighting, 8k",
+    prompt:
+      "A stylish cute golden puppy wearing sunglasses and yellow turtleneck knitted sweater, soft lighting, 8k",
   },
   {
     id: 2,
     img: "/inspirations/insp_2.webp",
     title: "Astronaut in Floral Cave",
     category: "Illustration",
-    prompt: "An astronaut standing in a surreal blooming orange flower cavern tunnel, golden hour glow, volumetric rays",
+    prompt:
+      "An astronaut standing in a surreal blooming orange flower cavern tunnel, golden hour glow, volumetric rays",
   },
   {
     id: 3,
     img: "/inspirations/insp_3.webp",
     title: "Baseball Batter Motion",
     category: "Video Storyboard",
-    prompt: "Dynamic slow motion shot of a professional baseball player hitting a fastball under stadium floodlights",
+    prompt:
+      "Dynamic slow motion shot of a professional baseball player hitting a fastball under stadium floodlights",
   },
   {
     id: 4,
     img: "/inspirations/insp_4.webp",
     title: "Cyberpunk VR Visor",
     category: "Product Design",
-    prompt: "Futuristic VR headset eyewear worn by a model in a neon purple cyber room, photorealistic reflections",
+    prompt:
+      "Futuristic VR headset eyewear worn by a model in a neon purple cyber room, photorealistic reflections",
   },
   {
     id: 5,
     img: "/inspirations/insp_5.webp",
     title: "Pastel Flower Portrait",
     category: "Poster Advertising",
-    prompt: "Editorial beauty portrait of a Korean woman holding pink wildflowers against vivid sky blue background",
+    prompt:
+      "Editorial beauty portrait of a Korean woman holding pink wildflowers against vivid sky blue background",
   },
   {
     id: 6,
     img: "/inspirations/insp_6.webp",
     title: "Pop Art Mouth Logo",
     category: "Brand Design",
-    prompt: "Bold minimalist vector illustration of an open smiling mouth with teeth and red tongue, sticker art style",
+    prompt:
+      "Bold minimalist vector illustration of an open smiling mouth with teeth and red tongue, sticker art style",
   },
   {
     id: 7,
     img: "/inspirations/insp_7.webp",
     title: "Neon Studio Headphones",
     category: "UI Design",
-    prompt: "Woman with closed eyes enjoying music with wireless headphones, split green and magenta neon gel lighting",
+    prompt:
+      "Woman with closed eyes enjoying music with wireless headphones, split green and magenta neon gel lighting",
   },
   {
     id: 8,
     img: "/inspirations/insp_8.webp",
     title: "Classic B&W Editorial",
     category: "Poster Advertising",
-    prompt: "High fashion black and white studio portrait with dramatic textured concrete backdrop and soft directional light",
+    prompt:
+      "High fashion black and white studio portrait with dramatic textured concrete backdrop and soft directional light",
   },
   {
     id: 9,
     img: "/inspirations/insp_9.webp",
     title: "Futuristic Sports Car",
     category: "Product Design",
-    prompt: "Sleek aerodynamic concept hypercar glowing with red rear LED lightbars parked in a reflective wet hangar",
+    prompt:
+      "Sleek aerodynamic concept hypercar glowing with red rear LED lightbars parked in a reflective wet hangar",
   },
   {
     id: 10,
     img: "/inspirations/insp_10.webp",
     title: "Glassmorphism UI Concept",
     category: "UI Design",
-    prompt: "Ultra-modern iOS and web dashboard with transparent frosted glass widgets, pink accents and smooth charts",
+    prompt:
+      "Ultra-modern iOS and web dashboard with transparent frosted glass widgets, pink accents and smooth charts",
   },
   {
     id: 11,
     img: "/inspirations/insp_11.webp",
     title: "Architectural Villa Sunset",
     category: "Architecture Design",
-    prompt: "Minimalist concrete desert villa with infinity pool reflecting warm orange sunset and silhouette palms",
+    prompt:
+      "Minimalist concrete desert villa with infinity pool reflecting warm orange sunset and silhouette palms",
   },
   {
     id: 12,
     img: "/inspirations/insp_12.webp",
     title: "Anime City Sunset",
     category: "Illustration",
-    prompt: "Makoto Shinkai style anime rooftop overlooking Tokyo metropolis during golden dusk with fluffy clouds",
+    prompt:
+      "Makoto Shinkai style anime rooftop overlooking Tokyo metropolis during golden dusk with fluffy clouds",
   },
   {
     id: 13,
     img: "/inspirations/insp_13.webp",
     title: "Liquid Splash Cosmetics",
     category: "Product Design",
-    prompt: "Luxury glass perfume bottle emerging from crystal clear aqua water ripples with floating rose petals",
+    prompt:
+      "Luxury glass perfume bottle emerging from crystal clear aqua water ripples with floating rose petals",
   },
   {
     id: 14,
     img: "/inspirations/insp_14.webp",
     title: "Fantasy Dragon Castle",
     category: "Video Storyboard",
-    prompt: "Cinematic drone shot flying through jagged mountain peaks towards a glowing mystical medieval citadel",
+    prompt:
+      "Cinematic drone shot flying through jagged mountain peaks towards a glowing mystical medieval citadel",
   },
   {
     id: 15,
     img: "/inspirations/insp_15.webp",
     title: "Vibrant Typography Poster",
     category: "Poster Advertising",
-    prompt: "Swiss style typography poster with overlapping 3D gradient letters, geometric shapes and chromatic aberration",
+    prompt:
+      "Swiss style typography poster with overlapping 3D gradient letters, geometric shapes and chromatic aberration",
   },
   {
     id: 16,
     img: "/inspirations/insp_16.webp",
     title: "Vintage Cinema Color Grading",
     category: "Video Storyboard",
-    prompt: "35mm film still with warm nostalgic amber tones of a couple sitting in an American diner at midnight",
+    prompt:
+      "35mm film still with warm nostalgic amber tones of a couple sitting in an American diner at midnight",
   },
   {
     id: 17,
     img: "/inspirations/insp_17.webp",
     title: "Isometric Smart Home",
     category: "Architecture Design",
-    prompt: "3D isometric cutaway diagram of an eco-friendly modern smart home with solar panels and rooftop garden",
+    prompt:
+      "3D isometric cutaway diagram of an eco-friendly modern smart home with solar panels and rooftop garden",
   },
   {
     id: 18,
     img: "/inspirations/insp_18.webp",
     title: "Geometric Brand Identity",
     category: "Brand Design",
-    prompt: "Stationery mockup showcasing minimalist embossed business cards, copper foil logo and linen paper textures",
+    prompt:
+      "Stationery mockup showcasing minimalist embossed business cards, copper foil logo and linen paper textures",
   },
   {
     id: 19,
     img: "/inspirations/insp_19.webp",
     title: "Cybernetic Android Robot",
     category: "Character Design",
-    prompt: "Close up portrait of an elegant white ceramic humanoid android with glowing blue optical sensors",
+    prompt:
+      "Close up portrait of an elegant white ceramic humanoid android with glowing blue optical sensors",
   },
   {
     id: 20,
     img: "/inspirations/insp_20.webp",
     title: "Bioluminescent Jellyfish",
     category: "Illustration",
-    prompt: "Deep ocean underwater shot of translucent glowing jellyfish emitting soft cyan and violet light pulses",
+    prompt:
+      "Deep ocean underwater shot of translucent glowing jellyfish emitting soft cyan and violet light pulses",
   },
   {
     id: 21,
     img: "/inspirations/insp_21.webp",
     title: "Claymation Retro Drive",
     category: "Character Design",
-    prompt: "Stop-motion claymation animated scene of a girl with wavy clay hair driving a vintage teal convertible at sunset",
+    prompt:
+      "Stop-motion claymation animated scene of a girl with wavy clay hair driving a vintage teal convertible at sunset",
   },
 ];
 
@@ -196,7 +217,7 @@ const VIDEO_FAQS = [
   {
     question: "Will the output keep the original quality?",
     answer:
-      "The interface is designed to preserve the source frame size. Final quality depends on the processing service connected to this page and the source video.",
+      "Yes. Full export keeps the source dimensions, frame rate, duration, and audio while using high-quality H.264 encoding.",
   },
   {
     question: "Where is the Gemini mark shown?",
@@ -206,7 +227,7 @@ const VIDEO_FAQS = [
   {
     question: "Can I download the result?",
     answer:
-      "The included demonstration has a downloadable 1080p MP4. Production downloads require a processing backend that returns the completed file for each upload.",
+      "Yes. Video downloads as MP4 and images download as full-resolution PNG. JPG uploads also get a quality-95 JPG option.",
   },
 ];
 
@@ -230,7 +251,9 @@ function GeminiVideoRemoverPage() {
 
   // Inspiration category filter & modal
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [activeModalItem, setActiveModalItem] = useState<(typeof INSPIRATION_ITEMS)[0] | null>(null);
+  const [activeModalItem, setActiveModalItem] = useState<(typeof INSPIRATION_ITEMS)[0] | null>(
+    null,
+  );
 
   // Synchronize the Before & After video players
   useEffect(() => {
@@ -345,7 +368,6 @@ function GeminiVideoRemoverPage() {
                 />
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -400,11 +422,11 @@ function GeminiVideoRemoverPage() {
             <div className="p-8 sm:p-10 rounded-3xl bg-white border border-[#FCE7EC] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.06)] hover:shadow-[0_20px_45px_-10px_rgba(225,29,72,0.15)] transition-all flex flex-col justify-between">
               <div className="space-y-4">
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-950">
-                  Cloud processing on any device
+                  Private local processing
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Start from a phone, tablet, or computer with no software to install. You can leave
-                  the page while the task runs and return for the result.
+                  Your media stays in browser memory and is never sent to a server. Keep this tab
+                  open until the full-quality export finishes.
                 </p>
               </div>
               <div className="mt-8 flex justify-end">
@@ -421,8 +443,8 @@ function GeminiVideoRemoverPage() {
                   Full-frame aware cleanup
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Cleans the mark area instead of cutting away the edges, so the original frame stays
-                  intact.
+                  Cleans the mark area instead of cutting away the edges, so the original frame
+                  stays intact.
                 </p>
               </div>
               <div className="mt-8 flex justify-end">
@@ -465,10 +487,10 @@ function GeminiVideoRemoverPage() {
               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
                 Step 02
               </span>
-              <h3 className="text-lg font-bold text-gray-950 mb-2">Let AI clean the frames</h3>
+              <h3 className="text-lg font-bold text-gray-950 mb-2">Mark and clean the logo</h3>
               <p className="text-sm text-gray-600 leading-relaxed font-normal">
-                PixelRefine processes the visible watermark in the cloud. You do not need to mark
-                the area or keep the tab open.
+                Place the editor box over the logo, adjust padding, and start the local FFmpeg
+                cleanup. Auto-detect can suggest a starting area.
               </p>
             </div>
 
@@ -501,7 +523,8 @@ function GeminiVideoRemoverPage() {
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600">
               Notice the Google Gemini star mark in the lower right of the windshield. Our neural
-              in-painting erases the mark while preserving the girl's hand, wheel, and palm tree motion.
+              in-painting erases the mark while preserving the girl's hand, wheel, and palm tree
+              motion.
             </p>
           </div>
 
@@ -556,16 +579,25 @@ function GeminiVideoRemoverPage() {
       <section className="border-y border-[#FCE7EC] bg-[#FFF8FA] px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#E11D48]">Clear answers</p>
-            <h2 className="mt-3 font-serif text-4xl tracking-tight text-gray-950 sm:text-5xl">Questions before you start</h2>
-            <p className="mt-5 max-w-md text-sm leading-relaxed text-gray-600">A simple workflow, an easy-to-read comparison, and clear expectations about processing and downloads.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#E11D48]">
+              Clear answers
+            </p>
+            <h2 className="mt-3 font-serif text-4xl tracking-tight text-gray-950 sm:text-5xl">
+              Questions before you start
+            </h2>
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-gray-600">
+              A simple workflow, an easy-to-read comparison, and clear expectations about processing
+              and downloads.
+            </p>
           </div>
           <div className="divide-y divide-[#F7DCE4] rounded-3xl border border-[#FCE7EC] bg-white px-5 shadow-[0_18px_45px_-30px_rgba(225,29,72,0.35)] sm:px-7">
             {VIDEO_FAQS.map((faq) => (
               <details key={faq.question} className="group py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-left text-sm font-bold text-gray-900 marker:content-none">
                   {faq.question}
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#FFF1F4] text-lg font-normal text-[#E11D48] transition-transform group-open:rotate-45">+</span>
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#FFF1F4] text-lg font-normal text-[#E11D48] transition-transform group-open:rotate-45">
+                    +
+                  </span>
                 </summary>
                 <p className="max-w-xl pt-3 text-sm leading-relaxed text-gray-600">{faq.answer}</p>
               </details>
@@ -657,8 +689,8 @@ function GeminiVideoRemoverPage() {
               </span>
               <h3 className="text-xl font-bold text-gray-950 mt-1">{activeModalItem.title}</h3>
               <div className="mt-3 p-3.5 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-700 font-mono">
-                <span className="font-bold text-gray-500 block mb-1">Prompt:</span>
-                "{activeModalItem.prompt}"
+                <span className="font-bold text-gray-500 block mb-1">Prompt:</span>"
+                {activeModalItem.prompt}"
               </div>
             </div>
 
