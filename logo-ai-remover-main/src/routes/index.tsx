@@ -239,10 +239,9 @@ function HeroSection() {
 /* 2. INFINITE SLIDE RUN MARQUEE (SUPPORTED AI PLATFORMS WITH REAL LOGOS)     */
 /* -------------------------------------------------------------------------- */
 function SlideRunMarquee() {
-  const [selectedId, setSelectedId] = useState<string>("gemini");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const renderCard = (m: AIModelData, keyPrefix: string) => {
-    const isSelected = selectedId === m.id;
     return (
       <div
         key={`${keyPrefix}-${m.id}`}
@@ -255,11 +254,7 @@ function SlideRunMarquee() {
             setSelectedId(m.id);
           }
         }}
-        className={`group relative inline-flex items-center gap-3.5 px-4 py-2.5 rounded-2xl cursor-pointer select-none transition-all duration-200 border text-left shrink-0 ${
-          isSelected
-            ? "bg-gradient-to-r from-rose-950/60 via-[#14080D] to-rose-950/40 border-rose-500 ring-1 ring-rose-500/40 shadow-[0_0_20px_rgba(225,29,72,0.35)] -translate-y-0.5"
-            : "bg-white/[0.04] hover:bg-white/[0.08] border-white/10 hover:border-rose-500/40 hover:-translate-y-0.5 hover:shadow-[0_6px_22px_rgba(225,29,72,0.18)]"
-        }`}
+        className="group relative inline-flex items-center gap-3.5 px-4 py-2.5 rounded-2xl cursor-pointer select-none transition-all duration-200 border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/20 hover:-translate-y-0.5 text-left shrink-0"
       >
         {/* Left: Official Brand Vector Logo Container (36x36 desktop, 32x32 mobile, rounded-10px) */}
         <ModelIcon modelId={m.id} name={m.name} size="md" />
@@ -267,14 +262,10 @@ function SlideRunMarquee() {
         {/* Center: Model Details */}
         <div className="flex flex-col text-left min-w-0 pr-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-base font-semibold text-white tracking-tight truncate group-hover:text-rose-200 transition-colors">
+            <span className="text-sm sm:text-base font-semibold text-white tracking-tight truncate group-hover:text-gray-100 transition-colors">
               {m.name}
             </span>
-            {isSelected ? (
-              <CheckCircle2 className="size-3.5 text-rose-400 shrink-0 animate-in fade-in zoom-in-75 duration-200" />
-            ) : (
-              <span className="size-1.5 rounded-full bg-rose-500/60 group-hover:bg-rose-400 shrink-0 transition-colors" />
-            )}
+            <span className="size-1.5 rounded-full bg-emerald-500/60 shrink-0" />
           </div>
           <div className="flex items-center gap-1.5 text-[11px] font-mono text-gray-400 tracking-tight">
             <span className="truncate text-gray-300 font-semibold">{m.version}</span>
@@ -287,11 +278,7 @@ function SlideRunMarquee() {
 
         {/* Right: Supported Mode Text (No box) */}
         <div className="flex items-center gap-1.5 shrink-0 pl-1 text-[11px] font-mono font-medium text-emerald-400">
-          <span
-            className={`size-1.5 rounded-full ${
-              isSelected ? "bg-rose-400 animate-pulse" : "bg-emerald-400"
-            }`}
-          />
+          <span className="size-1.5 rounded-full bg-emerald-400" />
           <span>{m.mode}</span>
         </div>
       </div>

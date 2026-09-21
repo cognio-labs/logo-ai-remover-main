@@ -20,8 +20,9 @@ import {
   Check,
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
-import { LocalMediaCleaner } from "@/components/site/LocalMediaCleaner";
+import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
+import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
 
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
@@ -305,8 +306,11 @@ function GeminiVideoRemoverPage() {
 
           {/* Primary Upload Area */}
           <div className="pt-6 max-w-3xl mx-auto">
-            <LocalMediaCleaner />
+            <JobVideoCleaner />
           </div>
+
+          {/* Trust Guarantees: 100% Local Processing | No Upload Required | Open Source Pipeline */}
+          <VideoTrustBadges />
         </div>
       </section>
 

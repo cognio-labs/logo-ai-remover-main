@@ -14,6 +14,7 @@ import { PinkButton } from "@/components/site/PinkButton";
 import { VideoBeforeAfterSlider } from "@/components/site/VideoBeforeAfterSlider";
 import { UploadZone } from "@/components/site/UploadZone";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
+import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/video-enhancer")({
@@ -123,6 +124,9 @@ function VideoEnhancerPage() {
                 </Link>
               </PinkButton>
             </div>
+
+            {/* Trust Badges: 100% Local Processing | No Upload Required | Open Source Pipeline */}
+            <VideoTrustBadges />
           </div>
         ) : (
           <div className="space-y-6">
