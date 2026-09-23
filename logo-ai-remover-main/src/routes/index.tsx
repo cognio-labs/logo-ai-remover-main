@@ -145,7 +145,7 @@ function HeroSection() {
               >
                 {/* BEFORE LAYER (Original with Gemini Logo & Compression Artifacts) */}
                 <img
-                  src="/hero-before-gemini.png"
+                  src="/creative-suite/watermark_remover_city.jpg"
                   alt="Original with Gemini Logo"
                   className="absolute inset-0 size-full object-cover"
                   draggable={false}
@@ -157,7 +157,7 @@ function HeroSection() {
                   style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
                 >
                   <img
-                    src="/hero-after-clean.png"
+                    src="/creative-suite/upscaler_macro_8k.jpg"
                     alt="Cleaned Result"
                     className="size-full object-cover"
                     draggable={false}
@@ -397,20 +397,20 @@ function RealWorldResults() {
     {
       title: "Graduation & Studio Portraits",
       desc: "After large proof overlays and copyright stamps are erased, facial features, skin tone, eyelashes, and hair follicles are reconstructed naturally.",
-      before: "/hero-before-gemini.png",
-      after: "/hero-after-clean.png",
+      before: "/creative-suite/portrait_restorer.jpg",
+      after: "/creative-suite/portrait_restorer.jpg",
     },
     {
       title: "E-Commerce & Product Photography",
       desc: "Brand logos, price tags, and promotional badges disappear cleanly. Background textures and reflective lighting remain 100% intact.",
-      before: "/inspirations/insp_4.webp",
-      after: "/inspirations/insp_4.webp",
+      before: "/creative-suite/fashion_ecommerce_model.jpg",
+      after: "/creative-suite/fashion_ecommerce_model.jpg",
     },
     {
       title: "Stock Previews & 4K Wallpapers",
       desc: "Semi-transparent diagonal tiled watermarks are removed without leaving behind hazy gray shadows or blotchy artifacts.",
-      before: "/inspirations/insp_2.webp",
-      after: "/inspirations/insp_2.webp",
+      before: "/creative-suite/inpainter_landscape.jpg",
+      after: "/creative-suite/inpainter_landscape.jpg",
     },
   ];
 

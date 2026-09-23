@@ -177,13 +177,13 @@ export const Lid = ({
               {/* Central Visual Showcase */}
               <div className="grid grid-cols-2 gap-3 my-auto">
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/60 aspect-[16/10] group">
-                  <img src="/hero-before-gemini.png" alt="Before watermark" className="size-full object-cover" />
+                  <img src="/creative-suite/watermark_remover_city.jpg" alt="Before watermark" className="size-full object-cover" />
                   <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded text-[9px] font-bold bg-black/80 text-white border border-white/10">
                     BEFORE (Marked)
                   </span>
                 </div>
                 <div className="relative rounded-xl overflow-hidden border border-[#E11D48]/50 bg-black/60 aspect-[16/10] shadow-[0_0_20px_rgba(225,29,72,0.3)]">
-                  <img src="/hero-after-clean.png" alt="After clean 4K" className="size-full object-cover" />
+                  <img src="/creative-suite/upscaler_macro_8k.jpg" alt="After clean 4K" className="size-full object-cover" />
                   <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded text-[9px] font-bold bg-[#E11D48] text-white">
                     AFTER (100% Clean)
                   </span>

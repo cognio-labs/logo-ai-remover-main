@@ -245,10 +245,10 @@ function HowItWorksPage() {
 
         <div className="rounded-3xl p-3 sm:p-4 bg-white border border-[#FCE7EC] shadow-[0_20px_50px_-15px_rgba(225,29,72,0.18)]">
           <BeforeAfterSlider
-            beforeSrc="/hero-before-gemini.png"
-            src="/hero-after-clean.png"
-            labelBefore="Original (Gemini Mark)"
-            labelAfter="Neural Inpainted (4K Output)"
+            beforeSrc="/creative-suite/watermark_remover_city.jpg"
+            src="/creative-suite/upscaler_macro_8k.jpg"
+            labelBefore="Original (Stock Watermark)"
+            labelAfter="Neural Inpainted (8K Output)"
             badge="100% Cleaned"
           />
         </div>
