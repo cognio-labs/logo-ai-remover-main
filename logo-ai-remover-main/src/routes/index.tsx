@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
 import { Keyboard } from "@/components/ui/keyboard";
-import Scene from "@/Scene";
+import { HeroParallax } from "@/components/ui/hero-parallax";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 
@@ -803,7 +803,7 @@ function FinalCTA() {
 function HomePage() {
   return (
     <>
-      <Scene />
+      <HeroParallax />
       <SlideRunMarquee />
       <VideoCleanupResultSection />
       <RealWorldResults />
