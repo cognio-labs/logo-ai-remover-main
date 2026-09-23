@@ -1,0 +1,32 @@
+# Dependencies and environment
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Logs & temp
+logs/
+*.log
+.output/
+.vinxi/
+.tanstack/
+.nitro/
+*.local
+.env
+backend/.env
+logo-ai-remover-main/.env
+logo-ai-remover-main/backend/.env
+
+# Temporary storage & large models
+logo-ai-remover-main/backend/storage/*_jobs/*
+!logo-ai-remover-main/backend/storage/*_jobs/.gitkeep
+logo-ai-remover-main/backend/storage/jobs/*
+!logo-ai-remover-main/backend/storage/jobs/.gitkeep
+logo-ai-remover-main/backend/models/weights/*
+!logo-ai-remover-main/backend/models/weights/.gitkeep
+*.tsbuildinfo
+*.onnx
+
+# Vercel
+.vercel/
+logo-ai-remover-main/.vercel/

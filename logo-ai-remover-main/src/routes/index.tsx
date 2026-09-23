@@ -46,24 +46,9 @@ export const Route = createFileRoute("/")({
 /* 1. HERO SECTION WITH BEFORE & AFTER SLIDER & AUTO SLIDE-RUN               */
 /* -------------------------------------------------------------------------- */
 function HeroSection() {
-  const [sliderPos, setSliderPos] = useState(52);
-  const [isAutoRunning, setIsAutoRunning] = useState(true);
+  const [sliderPos, setSliderPos] = useState(50);
   const sliderRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
-
-  // Auto-running "Slide Run" animation: smoothly sweeps back and forth
-  useEffect(() => {
-    if (!isAutoRunning) return;
-    let forward = true;
-    const interval = setInterval(() => {
-      setSliderPos((prev) => {
-        if (prev >= 82) forward = false;
-        if (prev <= 18) forward = true;
-        return forward ? prev + 0.4 : prev - 0.4;
-      });
-    }, 28);
-    return () => clearInterval(interval);
-  }, [isAutoRunning]);
 
   const handlePointerMove = (clientX: number) => {
     const el = sliderRef.current;
@@ -139,7 +124,7 @@ function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column: Interactive Before/After Comparison Card with Slide Run */}
+          {/* Right Column: Interactive Before/After Comparison Card */}
           <div className="lg:col-span-6">
             <div className="rounded-3xl p-3 sm:p-4 bg-white border-2 border-[#FCE7EC] shadow-[0_20px_50px_-15px_rgba(225,29,72,0.22)]">
               {/* Slider Container */}
@@ -148,7 +133,6 @@ function HeroSection() {
                 className="relative aspect-[16/10] w-full cursor-ew-resize select-none overflow-hidden rounded-2xl border border-gray-100 bg-gray-900 group"
                 onPointerDown={(e) => {
                   isDragging.current = true;
-                  setIsAutoRunning(false); // pause auto run when user grabs handle
                   e.currentTarget.setPointerCapture(e.pointerId);
                   handlePointerMove(e.clientX);
                 }}
@@ -208,19 +192,7 @@ function HeroSection() {
 
               {/* Slider Controls Bar Below Card */}
               <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-2">
-                <button
-                  onClick={() => setIsAutoRunning((v) => !v)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-semibold transition-all ${
-                    isAutoRunning
-                      ? "bg-[#FFF1F4] border-[#FCE7EC] text-[#E11D48]"
-                      : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
-                  }`}
-                  title="Toggle continuous auto slide run"
-                >
-                  <span className={`size-2 rounded-full ${isAutoRunning ? "bg-[#E11D48] animate-ping" : "bg-gray-400"}`} />
-                  <span>{isAutoRunning ? "Slide Run: Active" : "Start Slide Run"}</span>
-                </button>
-
+                <span className="text-gray-500 font-medium">Drag slider to compare</span>
                 <span className="flex items-center gap-1 text-[#E11D48] font-mono font-bold text-xs">
                   <CheckCircle2 className="size-3.5 text-green-600" />
                   <span>100% Logo Free • 4K Detail</span>
@@ -254,31 +226,31 @@ function SlideRunMarquee() {
             setSelectedId(m.id);
           }
         }}
-        className="group relative inline-flex items-center gap-3.5 px-4 py-2.5 rounded-2xl cursor-pointer select-none transition-all duration-200 border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-white/20 hover:-translate-y-0.5 text-left shrink-0"
+        className="group relative inline-flex items-center gap-3.5 px-3 py-1.5 cursor-pointer select-none transition-all duration-200 text-left shrink-0 hover:opacity-85"
       >
-        {/* Left: Official Brand Vector Logo Container (36x36 desktop, 32x32 mobile, rounded-10px) */}
+        {/* Left: Official Brand Vector Logo Container */}
         <ModelIcon modelId={m.id} name={m.name} size="md" />
 
         {/* Center: Model Details */}
         <div className="flex flex-col text-left min-w-0 pr-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-base font-semibold text-white tracking-tight truncate group-hover:text-gray-100 transition-colors">
+            <span className="text-sm font-semibold text-gray-900 tracking-tight truncate group-hover:text-rose-600 transition-colors">
               {m.name}
             </span>
-            <span className="size-1.5 rounded-full bg-emerald-500/60 shrink-0" />
+            <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-mono text-gray-400 tracking-tight">
-            <span className="truncate text-gray-300 font-semibold">{m.version}</span>
-            <span className="text-gray-600 hidden sm:inline">•</span>
-            <span className="text-gray-500 text-[10px] hidden sm:inline truncate max-w-[150px]">
+          <div className="flex items-center gap-1.5 text-[11px] font-mono text-gray-500 tracking-tight">
+            <span className="truncate text-gray-700 font-semibold">{m.version}</span>
+            <span className="text-gray-300 hidden sm:inline">•</span>
+            <span className="text-gray-500 text-[10px] hidden sm:inline truncate max-w-[160px]">
               {m.description}
             </span>
           </div>
         </div>
 
-        {/* Right: Supported Mode Text (No box) */}
-        <div className="flex items-center gap-1.5 shrink-0 pl-1 text-[11px] font-mono font-medium text-emerald-400">
-          <span className="size-1.5 rounded-full bg-emerald-400" />
+        {/* Right: Supported Mode Text */}
+        <div className="flex items-center gap-1.5 shrink-0 pl-1 text-[11px] font-mono font-medium text-emerald-600">
+          <span className="size-1.5 rounded-full bg-emerald-500" />
           <span>{m.mode}</span>
         </div>
       </div>
@@ -286,10 +258,10 @@ function SlideRunMarquee() {
   };
 
   return (
-    <div className="relative w-full py-5 sm:py-6 bg-gradient-to-r from-[#050203] via-[#0D0408] to-[#050203] border-y border-[#290E16] overflow-hidden whitespace-nowrap select-none shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)]">
+    <div className="relative w-full py-5 sm:py-6 bg-white border-y border-[#FCE7EC] overflow-hidden whitespace-nowrap select-none shadow-2xs">
       {/* Edge gradient masks for seamless smooth fade */}
-      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-r from-[#050203] via-[#050203]/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-l from-[#050203] via-[#050203]/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none" />
 
       {/* Infinite Single-Line Sliding Track */}
       <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">

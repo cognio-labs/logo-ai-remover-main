@@ -20,6 +20,33 @@ watermark is visible return:
 {"watermark_detected":false,"confidence":0,"regions":[]}
 Do not describe the frames and do not hallucinate a watermark."""
 
+DOCUMENT_DETECTION_PROMPT = """You are analyzing a document image to identify visible, user-added annotation or removable overlay regions.
+
+Identify candidate:
+- marker strokes
+- pen scribbles
+- highlighter strokes
+- decorative overlays
+- ordinary watermark overlays
+
+Do not classify signatures, official seals, certification marks, security features, or authentication marks as removable.
+
+Return JSON only.
+
+For every candidate provide:
+x
+y
+width
+height
+type
+confidence
+
+Coordinates must be normalized from 0 to 1.
+
+If no safe removable candidate exists:
+{"regions": []}"""
+
+
 
 class OpenRouterUnavailable(RuntimeError):
     pass
@@ -90,5 +117,57 @@ class OpenRouterService:
     def detect_watermark(self, jpeg_frames: list[bytes]) -> dict:
         return asyncio.run(self.analyze_video_sample(jpeg_frames))
 
+    async def analyze_document_image(self, jpeg_image: bytes) -> dict:
+        if not settings.openrouter_api_key:
+            raise OpenRouterUnavailable(
+                "AI detection temporarily unavailable. Configure OPENROUTER_API_KEY or use automatic local detection."
+            )
+        encoded = base64.b64encode(jpeg_image).decode("ascii")
+        content: list[dict] = [
+            {"type": "text", "text": DOCUMENT_DETECTION_PROMPT},
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{encoded}"},
+            },
+        ]
+        last_error = "AI document detection temporarily unavailable."
+        for model in (settings.openrouter_model, settings.openrouter_fallback_model):
+            for attempt in range(2):
+                try:
+                    async with httpx.AsyncClient(timeout=settings.openrouter_timeout_seconds) as client:
+                        response = await client.post(
+                            self.endpoint,
+                            headers={
+                                "Authorization": f"Bearer {settings.openrouter_api_key}",
+                                "Content-Type": "application/json",
+                                "HTTP-Referer": "https://pixelrefine.app",
+                                "X-Title": "PixelRefine Document Detector",
+                            },
+                            json={
+                                "model": model,
+                                "messages": [{"role": "user", "content": content}],
+                                "temperature": 0,
+                                "response_format": {"type": "json_object"},
+                            },
+                        )
+                    if response.status_code in {429, 408, 500, 502, 503, 504}:
+                        last_error = f"OpenRouter returned {response.status_code}"
+                        await asyncio.sleep(1.2 * (attempt + 1))
+                        continue
+                    response.raise_for_status()
+                    body = response.json()
+                    result = _json_payload(body["choices"][0]["message"]["content"])
+                    result["model"] = model
+                    return result
+                except (httpx.HTTPError, KeyError, ValueError, json.JSONDecodeError) as exc:
+                    last_error = str(exc)
+                    if attempt < 1:
+                        await asyncio.sleep(1.0)
+        raise OpenRouterUnavailable(f"AI document detection unavailable ({last_error})")
+
+    def detect_document_watermark(self, jpeg_image: bytes) -> dict:
+        return asyncio.run(self.analyze_document_image(jpeg_image))
+
 
 openrouter_service = OpenRouterService()
+

@@ -55,12 +55,16 @@ export function JobVideoCleaner() {
   const [originalVideo, setOriginalVideo] = useState<OriginalVideo | null>(null);
   const [processingJob, setProcessingJob] = useState<ProcessingJob | null>(null);
   const [cleanedVideo, setCleanedVideo] = useState<CleanedVideo | null>(null);
+  const [cleaningStarted, setCleaningStarted] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeJobRef = useRef<string | null>(null);
   const localUrlRef = useRef<string | null>(null);
   const uploadAbortRef = useRef<AbortController | null>(null);
+  const processingVideoRef = useRef<HTMLVideoElement>(null);
+  const cleanedVideoRef = useRef<HTMLVideoElement>(null);
+  const lastPlaybackTimeRef = useRef<number>(0);
 
   const assertCurrentJob = useCallback((jobId: string) => {
     if (activeJobRef.current !== jobId) {
@@ -69,23 +73,27 @@ export function JobVideoCleaner() {
   }, []);
 
   const applyCompletedResult = useCallback(
-    async (jobId: string, fileName: string, signal?: AbortSignal) => {
-      const result = await getVideoResult(jobId, signal);
-      assertCurrentJob(result.jobId);
-      setCleanedVideo({
-        jobId: result.jobId,
-        fileName: cleanName(fileName),
-        url: apiUrl(
-          `${result.cleanedVideoUrl}?job=${encodeURIComponent(jobId)}&v=${result.resultVersion}`,
-        ),
-      });
-      setProcessingJob({
-        jobId,
-        status: "completed",
-        progress: 100,
-        stage: "Complete",
-        message: "Clean MP4 is ready",
-      });
+    async (jobId: string, fileName: string) => {
+      try {
+        const result = await getVideoResult(jobId);
+        assertCurrentJob(result.jobId);
+        setCleanedVideo({
+          jobId: result.jobId,
+          fileName: cleanName(fileName),
+          url: apiUrl(
+            `${result.cleanedVideoUrl}?job=${encodeURIComponent(jobId)}&v=${result.resultVersion}`,
+          ),
+        });
+        setProcessingJob({
+          jobId,
+          status: "completed",
+          progress: 100,
+          stage: "Complete",
+          message: "Clean MP4 is ready",
+        });
+      } catch (problem) {
+        setError(problem instanceof Error ? problem.message : String(problem));
+      }
     },
     [assertCurrentJob],
   );
@@ -93,7 +101,6 @@ export function JobVideoCleaner() {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
-    const controller = new AbortController();
     try {
       const stored = JSON.parse(saved) as {
         jobId: string;
@@ -105,49 +112,72 @@ export function JobVideoCleaner() {
         ...stored,
         url: apiUrl(`/api/video/original/${stored.jobId}?job=${stored.jobId}`),
       });
-      void getVideoStatus(stored.jobId, controller.signal)
+      void getVideoStatus(stored.jobId)
         .then(async (status) => {
           assertCurrentJob(status.jobId);
           setProcessingJob(status);
           if (status.status === "completed") {
-            await applyCompletedResult(stored.jobId, stored.fileName, controller.signal);
+            setCleaningStarted(true);
+            await applyCompletedResult(stored.jobId, stored.fileName);
+          } else if (ACTIVE_STATUSES.has(status.status)) {
+            setCleaningStarted(true);
           }
         })
         .catch(() => localStorage.removeItem(STORAGE_KEY));
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
-    return () => controller.abort();
   }, [applyCompletedResult, assertCurrentJob]);
 
   useEffect(() => {
     const jobId = processingJob?.jobId;
-    if (!jobId || !ACTIVE_STATUSES.has(processingJob.status)) return;
-    const controller = new AbortController();
-    const timer = window.setInterval(() => {
-      void getVideoStatus(jobId, controller.signal)
-        .then(async (status) => {
-          assertCurrentJob(status.jobId);
-          setProcessingJob(status);
-          if (status.status === "completed" && originalVideo) {
-            window.clearInterval(timer);
-            await applyCompletedResult(status.jobId, originalVideo.fileName, controller.signal);
+    const isJobActive = processingJob ? ACTIVE_STATUSES.has(processingJob.status) : false;
+    if (!jobId || !isJobActive) return;
+
+    let isSubscribed = true;
+    let isPollingTick = false;
+
+    const timer = window.setInterval(async () => {
+      if (isPollingTick || !isSubscribed) return;
+      isPollingTick = true;
+      try {
+        const status = await getVideoStatus(jobId);
+        if (!isSubscribed) return;
+        assertCurrentJob(status.jobId);
+        setProcessingJob(status);
+        if (status.status === "completed") {
+          window.clearInterval(timer);
+          await applyCompletedResult(status.jobId, originalVideo?.fileName || "video.mp4");
+          if (isSubscribed) {
             toast.success("AI frame cleaning completed. Clean MP4 is ready.");
-          } else if (status.status === "failed") {
-            window.clearInterval(timer);
+          }
+        } else if (status.status === "failed") {
+          window.clearInterval(timer);
+          if (isSubscribed) {
             setCleanedVideo(null);
             setError(status.error || "Video processing failed. Please try again.");
           }
-        })
-        .catch((problem) => {
-          if (!controller.signal.aborted) setError(problem instanceof Error ? problem.message : String(problem));
-        });
+        }
+      } catch (problem) {
+        if (isSubscribed) {
+          setError(problem instanceof Error ? problem.message : String(problem));
+        }
+      } finally {
+        isPollingTick = false;
+      }
     }, 1000);
+
     return () => {
-      controller.abort();
+      isSubscribed = false;
       window.clearInterval(timer);
     };
-  }, [applyCompletedResult, assertCurrentJob, originalVideo, processingJob?.jobId, processingJob?.status]);
+  }, [
+    applyCompletedResult,
+    assertCurrentJob,
+    originalVideo?.fileName,
+    processingJob?.jobId,
+    Boolean(processingJob && ACTIVE_STATUSES.has(processingJob.status)),
+  ]);
 
   useEffect(
     () => () => {
@@ -170,6 +200,8 @@ export function JobVideoCleaner() {
     const localUrl = URL.createObjectURL(file);
     localUrlRef.current = localUrl;
     activeJobRef.current = jobId;
+    lastPlaybackTimeRef.current = 0;
+    setCleaningStarted(false);
     setOriginalVideo({ jobId, url: localUrl, fileName: file.name });
     setCleanedVideo(null);
     setError("");
@@ -209,6 +241,7 @@ export function JobVideoCleaner() {
     if (!originalVideo || processingJob?.status === "uploading") return;
     setError("");
     setCleanedVideo(null);
+    setCleaningStarted(true);
     setProcessingJob({
       jobId: originalVideo.jobId,
       status: "queued",
@@ -232,10 +265,12 @@ export function JobVideoCleaner() {
     if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
     localUrlRef.current = null;
     activeJobRef.current = null;
+    lastPlaybackTimeRef.current = 0;
     localStorage.removeItem(STORAGE_KEY);
     setOriginalVideo(null);
     setProcessingJob(null);
     setCleanedVideo(null);
+    setCleaningStarted(false);
     setError("");
   };
 
@@ -380,26 +415,75 @@ export function JobVideoCleaner() {
         </section>
 
         <section>
-          <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#E11D48]">
-            <CheckCircle2 className="size-3.5" /> 2. Cleaned Output (Watermark Removed)
-          </p>
-          <div className="flex min-h-48 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
+          <p className="mb-2 flex items-center justify-between text-xs font-semibold text-[#E11D48]">
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle2 className="size-3.5" /> 2. Cleaned Output (100% Logo Free)
+            </span>
             {cleanedVideo && cleanedVideo.jobId === originalVideo.jobId ? (
-              <video
-                key={cleanedVideo.url}
-                src={cleanedVideo.url}
-                controls
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="max-h-[460px] w-full object-contain"
-              />
+              <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
+                100% CLEANED
+              </span>
+            ) : (cleaningStarted || busy) ? (
+              <span className="rounded-md border border-pink-200 bg-pink-50 px-2 py-0.5 text-[11px] font-bold text-[#E11D48] animate-pulse">
+                AI REMOVAL IN PROGRESS
+              </span>
+            ) : null}
+          </p>
+          <div className="relative flex min-h-48 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
+            {cleanedVideo && cleanedVideo.jobId === originalVideo.jobId ? (
+              <>
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-950/85 px-3 py-1.5 text-xs font-semibold text-emerald-300 shadow-lg backdrop-blur-md">
+                  <CheckCircle2 className="size-3.5 text-emerald-400" />
+                  <span>Gemini Watermark Removed (100% Clean)</span>
+                </div>
+                <video
+                  ref={cleanedVideoRef}
+                  key={cleanedVideo.url}
+                  src={cleanedVideo.url}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onLoadedMetadata={(e) => {
+                    if (lastPlaybackTimeRef.current > 0) {
+                      try {
+                        e.currentTarget.currentTime = lastPlaybackTimeRef.current;
+                      } catch {
+                        // ignore if seek not permitted
+                      }
+                    }
+                  }}
+                  className="max-h-[460px] w-full object-contain"
+                />
+              </>
+            ) : (cleaningStarted || busy) ? (
+              <>
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-[#E11D48]/40 bg-black/80 px-3 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur-md animate-pulse">
+                  <LoaderCircle className="size-3.5 animate-spin text-[#FF4FA3]" />
+                  <span>AI Neutralizing Watermark ({processingJob?.progress ?? 6}%)</span>
+                </div>
+                <video
+                  ref={processingVideoRef}
+                  src={originalVideo.url}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onTimeUpdate={(e) => {
+                    lastPlaybackTimeRef.current = e.currentTarget.currentTime;
+                  }}
+                  className="max-h-[460px] w-full object-contain"
+                />
+              </>
             ) : (
-              <div className="flex flex-col items-center px-6 text-center text-gray-400">
-                {busy ? <LoaderCircle className="mb-2 size-7 animate-spin text-[#E11D48]" /> : <Video className="mb-2 size-7 text-[#FF4FA3]" />}
-                <p className="text-xs">{busy ? "Processing this exact uploaded video…" : "Your cleaned video will appear here."}</p>
+              <div className="flex min-h-56 flex-col items-center justify-center px-6 text-center text-gray-400">
+                <Sparkles className="mb-2 size-8 text-[#FF4FA3]" />
+                <p className="text-sm font-medium text-gray-300">Ready for AI Removal</p>
+                <p className="mt-1 text-xs text-gray-500">Click &ldquo;Clean Gemini Watermark&rdquo; below to start</p>
               </div>
             )}
           </div>
@@ -425,7 +509,7 @@ export function JobVideoCleaner() {
         )}
         {cleanedVideo && (
           <PinkButton type="button" onClick={() => void downloadCleaned()}>
-            <Download className="size-4" /> Download Clean MP4
+            <Download className="size-4" /> Download Clean {metadata ? `${metadata.height}p ` : ""}MP4 (Watermark-Free)
           </PinkButton>
         )}
         <span className="text-xs text-gray-500">

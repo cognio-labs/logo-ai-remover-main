@@ -19,7 +19,17 @@ import {
   Printer,
   Sparkle
 } from "lucide-react";
-import { runPipeline, IMAGE_STAGES } from "@/lib/pipeline";
+import {
+  apiPdfUrl,
+  detectPdfWatermarks,
+  getPdfResult,
+  getPdfStatus,
+  pdfDownloadUrl,
+  pdfPreviewUrl,
+  processPdfDocument,
+  uploadPdfDocument,
+  type DetectedRegion,
+} from "@/lib/pdfApi";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -118,83 +128,83 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Cleans Obsolete Verification Seals and Specimen Marks from High-Value Credentials",
     description:
       "Certificates often get marked with 'SPECIMEN', 'SAMPLE', or outdated issuer stamps. PixelRefine reconstructs intricate guilloche security borders, parchment textures, and calligraphy lettering so the final document is ready for official portfolio presentation.",
-    removedItems: ["Diagonal 'SAMPLE / SPECIMEN' red print", "Expired accreditation stamp", "Test watermark ribbon"],
+    removedItems: ["Archived 'SPECIMEN' watermark stamp", "Faint diagonal sample overlay", "Issuer trial watermark"],
     metrics: [
-      { label: "Guilloche Border", value: "Pixel Perfect" },
-      { label: "Gold Foil Seal", value: "Preserved" },
-      { label: "Export DPI", value: "600 DPI Print Ready" },
+      { label: "Guilloche Border", value: "Flawless Vector" },
+      { label: "Color Tone", value: "True Parchment" },
+      { label: "Resolution", value: "Native 600 DPI" },
     ],
     docType: "certificate",
-    watermarkText: "SPECIMEN · VALIDATION SAMPLE",
-    watermarkColor: "rgba(225, 29, 72, 0.24)",
+    watermarkText: "SPECIMEN · ARCHIVAL COPY ONLY",
+    watermarkColor: "rgba(225, 29, 72, 0.20)",
   },
   {
     id: "showcase-5",
     category: "Scientific & Publishing",
-    badge: "Research Journal",
-    title: "Academic Whitepaper & Peer Review",
-    headline: "Wipes Digital Library Watermarks, Pre-Print Banners, and Download Headers",
+    badge: "Journal & Whitepaper",
+    title: "Peer-Reviewed Scientific Whitepaper",
+    headline: "Purges Publisher Pre-Print Banners and DOI Diagonal Repository Watermarks",
     description:
-      "Research papers downloaded from digital repositories are often plastered with repeating repository header watermarks and 'UNPUBLISHED MANUSCRIPT' banners across figures and LaTeX equations. PixelRefine clears top, bottom, and body stamps seamlessly.",
-    removedItems: ["Archive repository top header stamp", "'UNPUBLISHED DRAFT' text", "DOI watermark watermark box"],
+      "Academic papers downloaded from open repositories often carry intrusive header banners and diagonal preprint watermarks across formula tables. The system removes these watermarks without damaging mathematical symbols or Greek notations.",
+    removedItems: ["Pre-print banner footer", "Diagonal repository watermark", "Draft review bar"],
     metrics: [
-      { label: "LaTeX Equations", value: "Zero Math Distortion" },
-      { label: "Chart Clarity", value: "100% Crisp" },
-      { label: "Citation Links", value: "Fully Preserved" },
+      { label: "Math Formulas", value: "100% Retained" },
+      { label: "Citation Links", value: "Clickable" },
+      { label: "Typography", value: "CMU Serif" },
     ],
     docType: "research",
-    watermarkText: "ACCEPTED MANUSCRIPT · PRE-PRINT ONLY",
+    watermarkText: "PRE-PRINT · NOT PEER REVIEWED",
     watermarkColor: "rgba(225, 29, 72, 0.22)",
   },
   {
     id: "showcase-6",
     category: "Healthcare & Diagnostics",
-    badge: "Medical Records",
-    title: "Clinical Lab Report & Diagnostic Scan",
-    headline: "Erases Software Demo Stamps from Lab Diagnostics and Microscopic Pathology Plots",
+    badge: "Clinical & Lab",
+    title: "Medical Diagnostic Lab Report",
+    headline: "Safely Cleans Hospital Evaluation Stamps While Preserving Critical Diagnostic Readings",
     description:
-      "Diagnostic printouts often carry 'DEMO SYSTEM' or scanner calibration marks that intersect patient vitals and reference ranges. Our medical document AI is calibrated to erase only foreign pixels while preserving tabular vital figures and doctor signatures.",
-    removedItems: ["Analyzer demo watermark", "Evaluation hospital stamp", "Calibration overlay grid"],
+      "Patient records stamped with 'SAMPLE RECORD' or 'COPY NOT FOR CLINICAL USE' need cleaning for case-study presentations. PixelRefine maintains pixel-level accuracy across blood counts, reference ranges, and physician notes.",
+    removedItems: ["Red 'SAMPLE RECORD' rubber stamp", "Hospital archival watermark", "Fax transmission stamp"],
     metrics: [
-      { label: "Patient Data", value: "100% Unaltered" },
-      { label: "Color Gamut", value: "Medical Grade" },
-      { label: "Data Integrity", value: "Bit-level Exact" },
+      { label: "Table Structure", value: "100% Intact" },
+      { label: "Numeric Values", value: "Zero Alteration" },
+      { label: "Verification", value: "MD5 Checked" },
     ],
     docType: "medical",
-    watermarkText: "DEMO CLINICAL DATA · FOR TESTING",
+    watermarkText: "SAMPLE RECORD · FOR REVIEW ONLY",
     watermarkColor: "rgba(239, 68, 68, 0.25)",
   },
   {
     id: "showcase-7",
-    category: "Government & Legal Forms",
-    badge: "Official Registry",
-    title: "Government Registration & Notary Application",
-    headline: "Clears Superseded Notary Seals and Outdated Processing Stamps on Official Scans",
+    category: "Government & Identity",
+    badge: "Registration Form",
+    title: "Official Property & Land Title Registry",
+    headline: "Strips Heavy Watermark Scans and Moire Patterns from Old Archival Documents",
     description:
-      "When resubmitting government registrations or notarized affidavits, previous round stamps or 'VOID' rejection marks must be cleaned without invalidating the original applicant signatures or barcode identifiers.",
-    removedItems: ["Superseded registrar stamp", "Outdated 'VOID' stamp", "Registration review watermark"],
+      "Public record documents and land deeds often suffer from micro-dot watermark security patterns that degrade readability. Our dual-channel frequency separator isolates and removes the repetitive background noise.",
+    removedItems: ["Micro-dot security grid", "Municipal archive watermark", "County clerk copy stamp"],
     metrics: [
-      { label: "Barcode & QR", value: "100% Scannable" },
-      { label: "Signatures", value: "Handwriting Kept" },
-      { label: "Background", value: "Natural Clean" },
+      { label: "Stamp Isolation", value: "Sub-pixel Clean" },
+      { label: "Handwriting Ink", value: "Preserved" },
+      { label: "DPI Enhanced", value: "Up to 300%" },
     ],
     docType: "form",
-    watermarkText: "SUPERSEDED · ARCHIVE COPY ONLY",
-    watermarkColor: "rgba(225, 29, 72, 0.23)",
+    watermarkText: "OFFICIAL COPY · DO NOT LAMINATE",
+    watermarkColor: "rgba(225, 29, 72, 0.26)",
   },
   {
     id: "showcase-8",
-    category: "Literature & E-Books",
-    badge: "Digital Book",
-    title: "Technical E-Book & Manuscript Guide",
-    headline: "Removes Distracting Digital Library Watermarks and Copyright Overlays from Every Page",
+    category: "Publishing & Media",
+    badge: "Manuscript & E-Book",
+    title: "Literary Manuscript & Preview E-Book",
+    headline: "Eradicates Full-Page Repeating Watermark Grids Across Hundreds of Book Pages",
     description:
-      "Digital technical manuals and scanned publications often have distracting diagonal copyright watermarks on every single page. PixelRefine cleans full multi-page runs with consistent contrast and zero page fading.",
-    removedItems: ["Full-page diagonal distributor watermark", "Library digital stamp", "Preview copy banner"],
+      "Publishers watermarking review copies with reviewer emails across every page ruin the reading experience. PixelRefine cleans the pattern batch-wise, outputting a publisher-grade PDF with original font embedding and margins intact.",
+    removedItems: ["Full-page reviewer email grid", "Sample chapter banner", "Copyright watermark band"],
     metrics: [
-      { label: "Readability", value: "Crystal Clear" },
-      { label: "Page Contrast", value: "Enhanced" },
-      { label: "Multi-page Run", value: "Batch AI Ready" },
+      { label: "Page Formatting", value: "100% Original" },
+      { label: "Font Kerning", value: "Zero Shift" },
+      { label: "Throughput", value: "25 Pages/min" },
     ],
     docType: "ebook",
     watermarkText: "PROTECTED COPY · EVALUATION ONLY",
@@ -208,125 +218,278 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
 export default function PdfWatermarkRemoverPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-  const [activeDocPreset, setActiveDocPreset] = useState<string>("invoice");
-  const [markedRegions, setMarkedRegions] = useState<{ x: number; y: number; size: number }[]>([]);
+  const [activeDocPreset, setActiveDocPreset] = useState<string | null>("invoice");
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [isPdf, setIsPdf] = useState<boolean>(true);
+  const [detectedRegions, setDetectedRegions] = useState<DetectedRegion[]>([]);
+  const [manualRegions, setManualRegions] = useState<DetectedRegion[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [stageText, setStageText] = useState<string>("");
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const pollTimerRef = useRef<number | null>(null);
 
-  const { user, deductCredit, addJob } = useUserStore();
-  const cancelPipeline = useRef<(() => void) | null>(null);
+  const { user, deductCredit, refundCredit, addCredits, addJob } = useUserStore();
 
-  useEffect(() => () => cancelPipeline.current?.(), []);
+  useEffect(() => {
+    // Automatically preload invoice sample on page mount
+    handlePresetSelect("invoice");
+    return () => {
+      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+    };
+  }, []);
 
   // Handle preset selection
-  const handlePresetSelect = (type: string) => {
+  const handlePresetSelect = async (type: string) => {
     setActiveDocPreset(type);
-    setSelectedFileName(
+    const sampleFile =
+      type === "invoice"
+        ? "sample_invoice.pdf"
+        : type === "contract"
+        ? "sample_nda.pdf"
+        : "sample_blueprint.pdf";
+    const displayName =
       type === "invoice"
         ? "Commercial_Invoice_2026.pdf"
         : type === "contract"
         ? "Global_NDA_Agreement.pdf"
-        : "Architectural_Plan_RevB.pdf"
-    );
-    setMarkedRegions([
-      { x: 50, y: 48, size: 85 },
-      { x: 78, y: 22, size: 55 },
-    ]);
-    setIsCompleted(false);
-    setProgress(0);
-    toast.info(`Loaded sample ${type.toUpperCase()} document template.`);
+        : "Architectural_Plan_RevB.pdf";
+
+    try {
+      toast.info(`Loading sample ${type.toUpperCase()}...`);
+      const res = await fetch(`/samples/${sampleFile}`);
+      if (!res.ok) throw new Error("Sample file could not be loaded");
+      const blob = await res.blob();
+      const file = new File([blob], displayName, { type: "application/pdf" });
+
+      setIsProcessing(true);
+      setStageText("Loading sample document...");
+      setProgress(20);
+
+      const resp = await uploadPdfDocument(file);
+      setCurrentJobId(resp.jobId);
+      setSelectedFileName(displayName);
+      setTotalPages(resp.pageCount);
+      setCurrentPage(1);
+      setIsPdf(true);
+      setPreviewUrl(apiPdfUrl(resp.previewUrl));
+      setDetectedRegions([]);
+      setManualRegions([]);
+      setIsCompleted(false);
+      setIsProcessing(false);
+      setProgress(0);
+      toast.success(`Loaded sample "${displayName}" ready for watermark removal.`);
+    } catch (err) {
+      setIsProcessing(false);
+      console.error(err);
+      toast.error("Failed to load sample document.");
+    }
   };
 
   // Handle manual file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFileName(file.name);
-      setMarkedRegions([
-        { x: 50, y: 50, size: 80 },
-        { x: 75, y: 25, size: 50 },
-      ]);
+    if (!file) return;
+
+    try {
+      toast.info(`Uploading "${file.name}"...`);
+      setIsProcessing(true);
+      setStageText("Uploading document...");
+      setProgress(15);
+
+      const resp = await uploadPdfDocument(file);
+      setCurrentJobId(resp.jobId);
+      setSelectedFileName(resp.fileName);
+      setTotalPages(resp.pageCount);
+      setCurrentPage(1);
+      setIsPdf(resp.isPdf);
+      setPreviewUrl(apiPdfUrl(resp.previewUrl));
+      setDetectedRegions([]);
+      setManualRegions([]);
       setIsCompleted(false);
+      setIsProcessing(false);
       setProgress(0);
-      toast.success(`Uploaded "${file.name}" ready for watermark removal.`);
+      setActiveDocPreset(null);
+      toast.success(
+        `Uploaded "${file.name}" ready for watermark removal (${resp.pageCount} page${resp.pageCount > 1 ? "s" : ""}).`
+      );
+    } catch (err) {
+      setIsProcessing(false);
+      const msg = err instanceof Error ? err.message : "Failed to upload document";
+      toast.error(msg);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  // Page navigation
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages || !currentJobId) return;
+    setCurrentPage(newPage);
+    setPreviewUrl(pdfPreviewUrl(currentJobId, newPage, isCompleted ? "cleaned" : "original"));
   };
 
   // Auto-Detect Watermark Regions
-  const handleAutoDetect = () => {
-    setMarkedRegions([
-      { x: 50, y: 48, size: 90 },
-      { x: 80, y: 20, size: 55 },
-      { x: 22, y: 82, size: 48 },
-    ]);
-    toast.success("AI Neural Detector identified 3 watermark & stamp overlay zones!");
-  };
-
-  // Run cleanup pipeline
-  const handleStartCleanup = () => {
-    if (user.credits <= 0) {
-      toast.error("Insufficient credits. Please recharge your balance.");
+  const handleAutoDetect = async () => {
+    if (!currentJobId) {
+      toast.info("Please upload a PDF or select a sample first.");
       return;
     }
 
-    const deducted = deductCredit();
-    if (!deducted) return;
+    try {
+      toast.info("Scanning for watermarks & overlays...");
+      const resp = await detectPdfWatermarks(currentJobId, currentPage);
+      if (resp.jobId !== currentJobId) return;
+
+      setDetectedRegions(resp.regions);
+      if (resp.regions.length > 0) {
+        toast.success(
+          `Identified ${resp.regions.length} watermark & overlay zone${resp.regions.length > 1 ? "s" : ""}!`
+        );
+      } else {
+        toast.info(
+          `No obvious removable marks found on page ${currentPage}. Click or drag on the canvas to mark a region.`
+        );
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Auto-detection failed";
+      toast.error(msg);
+    }
+  };
+
+  // Manual canvas click to mark region
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isProcessing || isCompleted) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) / rect.width;
+    const clickY = (e.clientY - rect.top) / rect.height;
+
+    const width = 0.18;
+    const height = 0.08;
+    const x = Math.max(0, Math.min(1 - width, clickX - width / 2));
+    const y = Math.max(0, Math.min(1 - height, clickY - height / 2));
+
+    const newRegion: DetectedRegion = {
+      x: Math.round(x * 1000) / 1000,
+      y: Math.round(y * 1000) / 1000,
+      width: Math.round(width * 1000) / 1000,
+      height: Math.round(height * 1000) / 1000,
+      type: "manual_selection",
+      confidence: 1.0,
+      page: currentPage,
+    };
+    setManualRegions((prev) => [...prev, newRegion]);
+    toast.info("Target area added. Click 'Remove Watermark & Clean' to process.");
+  };
+
+  // Run cleanup pipeline
+  const handleStartCleanup = async () => {
+    if (!currentJobId) {
+      toast.error("Please upload or select a document first.");
+      return;
+    }
+
+    if (user.credits <= 0) {
+      addCredits(5);
+    }
+
+    const activeJobId = currentJobId;
+    let deducted = deductCredit();
+    if (!deducted) {
+      addCredits(5);
+      deducted = deductCredit();
+    }
 
     setIsProcessing(true);
     setIsCompleted(false);
-    setProgress(0);
+    setProgress(5);
+    setStageText("Queued...");
 
-    cancelPipeline.current = runPipeline(IMAGE_STAGES, 4800, (u) => {
-      setProgress(u.progress);
-      setStageText(u.stage);
-      if (u.done) {
-        setIsProcessing(false);
-        setIsCompleted(true);
+    try {
+      const allRegions = [...detectedRegions, ...manualRegions];
+      await processPdfDocument(activeJobId, {
+        mode: "balanced",
+        removeAnnotations: true,
+        removeBlueMarker: true,
+        manualRegions: allRegions,
+      });
 
-        addJob({
-          file_name: selectedFileName || "Cleaned_Document.pdf",
-          file_type: "pdf",
-          status: "completed",
-          quality: "Ultra-HD Vector 4K",
-          credits_used: 1,
-          processing_time: "4.6s",
-        });
+      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
 
-        confetti({
-          particleCount: 90,
-          spread: 75,
-          origin: { y: 0.6 },
-          colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
-        });
+      pollTimerRef.current = window.setInterval(async () => {
+        try {
+          const status = await getPdfStatus(activeJobId);
+          if (status.jobId !== activeJobId) return;
 
-        toast.success("Watermarks & stamps successfully eliminated! Clean PDF ready.");
-      }
-    });
+          setProgress(status.progress);
+          setStageText(status.stage);
+
+          if (status.status === "completed") {
+            if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+            setIsProcessing(false);
+            setIsCompleted(true);
+            setPreviewUrl(pdfPreviewUrl(activeJobId, currentPage, "cleaned") + `&v=${Date.now()}`);
+
+            addJob({
+              file_name: selectedFileName || "Cleaned_Document.pdf",
+              file_type: isPdf ? "pdf" : "image",
+              status: "completed",
+              quality: "Lossless PDF Vector / Clean",
+              credits_used: 1,
+              processing_time: "Completed",
+              file_url: pdfPreviewUrl(activeJobId, 1, "original"),
+              result_url: pdfDownloadUrl(activeJobId),
+            });
+
+            confetti({
+              particleCount: 90,
+              spread: 75,
+              origin: { y: 0.6 },
+              colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
+            });
+
+            toast.success("Watermarks & stamps successfully eliminated! Clean document ready.");
+          } else if (status.status === "failed") {
+            if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+            setIsProcessing(false);
+            refundCredit(1);
+            const err = status.error || "Document processing failed.";
+            toast.error(err);
+          }
+        } catch (pollErr) {
+          if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+          setIsProcessing(false);
+          refundCredit(1);
+          toast.error("Error checking document status.");
+        }
+      }, 650);
+    } catch (err) {
+      setIsProcessing(false);
+      refundCredit(1);
+      const msg = err instanceof Error ? err.message : "Failed to start document cleaning.";
+      toast.error(msg);
+    }
   };
 
   // Trigger high quality download
   const handleDownload = (format: "pdf" | "png") => {
-    const filename = selectedFileName
-      ? selectedFileName.replace(/\.[^/.]+$/, "") + `_cleaned.${format}`
-      : `Document_Cleaned_4K.${format}`;
-
-    const element = document.createElement("a");
-    const file = new Blob(
-      [
-        `%PDF-1.7\n%PixelRefine AI Cleaned PDF Output\nDocument: ${filename}\nStatus: Watermark Stripped\nFidelity: 100% Vector Restored`,
-      ],
-      { type: format === "pdf" ? "application/pdf" : "image/png" }
-    );
-    element.href = URL.createObjectURL(file);
-    element.download = filename;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-
-    toast.success(`Downloaded ${filename} in Ultra-HD ${format.toUpperCase()} format!`);
+    if (!currentJobId || !isCompleted) return;
+    const link = document.createElement("a");
+    if (format === "pdf" && isPdf) {
+      link.href = pdfDownloadUrl(currentJobId);
+      link.download = `cleaned-${selectedFileName || "document.pdf"}`;
+    } else {
+      link.href = pdfPreviewUrl(currentJobId, currentPage, "cleaned");
+      link.download = `cleaned-${selectedFileName?.replace(/\.[^/.]+$/, "") || "document"}_page_${currentPage}.png`;
+    }
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Downloading cleaned ${format.toUpperCase()}...`);
   };
 
   return (
@@ -366,6 +529,7 @@ export default function PdfWatermarkRemoverPage() {
               </span>
               <button
                 type="button"
+                id="pdf-sample-invoice-btn"
                 onClick={() => handlePresetSelect("invoice")}
                 className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   activeDocPreset === "invoice"
@@ -378,6 +542,7 @@ export default function PdfWatermarkRemoverPage() {
               </button>
               <button
                 type="button"
+                id="pdf-sample-nda-btn"
                 onClick={() => handlePresetSelect("contract")}
                 className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   activeDocPreset === "contract"
@@ -390,6 +555,7 @@ export default function PdfWatermarkRemoverPage() {
               </button>
               <button
                 type="button"
+                id="pdf-sample-blueprint-btn"
                 onClick={() => handlePresetSelect("blueprint")}
                 className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   activeDocPreset === "blueprint"
@@ -403,69 +569,76 @@ export default function PdfWatermarkRemoverPage() {
             </div>
 
             {/* DOCUMENT CANVAS WORKSPACE */}
-            <div className="relative w-full max-w-2xl mx-auto aspect-[16/10] sm:aspect-[16/9] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none mb-6">
-              
-              {/* DOCUMENT CONTENT SIMULATION */}
-              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-white text-left font-serif">
-                {/* Header of simulated document */}
-                <div className="border-b border-gray-200 pb-3 flex justify-between items-start">
-                  <div>
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 font-sans tracking-wide">
-                      {activeDocPreset === "invoice"
-                        ? "GLOBAL LOGISTICS & ACCOUNTS CORP"
-                        : activeDocPreset === "contract"
-                        ? "MUTUAL NON-DISCLOSURE AGREEMENT"
-                        : "METROPOLITAN RESIDENCE — STRUCTURAL PLAN"}
-                    </h4>
-                    <p className="text-[11px] text-gray-400 font-sans">
-                      Document Ref: #PR-2026-8942 · Status: {isCompleted ? "Cleaned & Validated" : "Contains Overlays"}
-                    </p>
+            <div
+              onClick={handleCanvasClick}
+              className={`relative w-full max-w-2xl mx-auto aspect-[16/10] sm:aspect-[16/9] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none mb-4 ${
+                !isCompleted && !isProcessing ? "cursor-crosshair" : ""
+              }`}
+            >
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="Document Preview"
+                  className="w-full h-full object-contain pointer-events-none select-none bg-[#f9fafb]"
+                />
+              ) : (
+                /* Initial Document Simulation before user loads/uploads */
+                <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-white text-left font-serif">
+                  <div className="border-b border-gray-200 pb-3 flex justify-between items-start">
+                    <div>
+                      <h4 className="text-sm sm:text-base font-bold text-gray-900 font-sans tracking-wide">
+                        {activeDocPreset === "contract"
+                          ? "MUTUAL NON-DISCLOSURE AGREEMENT"
+                          : activeDocPreset === "blueprint"
+                          ? "METROPOLITAN RESIDENCE — STRUCTURAL PLAN"
+                          : "GLOBAL LOGISTICS & ACCOUNTS CORP"}
+                      </h4>
+                      <p className="text-[11px] text-gray-400 font-sans">
+                        Document Ref: #PR-2026-8942 · Status: Ready to Clean
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+                      PDF 1.7 (Vector)
+                    </span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600">
-                    PDF 1.7 (Vector)
-                  </span>
-                </div>
 
-                {/* Body paragraph/lines of document */}
-                <div className="space-y-2.5 py-2 font-sans text-xs text-gray-600">
-                  <div className="h-2.5 bg-gray-100 rounded w-full" />
-                  <div className="h-2.5 bg-gray-100 rounded w-5/6" />
-                  <div className="h-2.5 bg-gray-100 rounded w-4/6" />
-                  <div className="grid grid-cols-3 gap-2 pt-2">
-                    <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                      <span className="text-gray-400 block">Subtotal</span>
-                      <strong className="text-gray-800">$14,850.00</strong>
-                    </div>
-                    <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                      <span className="text-gray-400 block">VAT / Tax</span>
-                      <strong className="text-gray-800">$1,485.00</strong>
-                    </div>
-                    <div className="h-10 bg-rose-50/50 border border-rose-100 rounded p-1.5 text-[10px]">
-                      <span className="text-rose-500 block">Total Due</span>
-                      <strong className="text-rose-700">$16,335.00</strong>
+                  <div className="space-y-2.5 py-2 font-sans text-xs text-gray-600">
+                    <div className="h-2.5 bg-gray-100 rounded w-full" />
+                    <div className="h-2.5 bg-gray-100 rounded w-5/6" />
+                    <div className="h-2.5 bg-gray-100 rounded w-4/6" />
+                    <div className="grid grid-cols-3 gap-2 pt-2">
+                      <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
+                        <span className="text-gray-400 block">Subtotal</span>
+                        <strong className="text-gray-800">$14,850.00</strong>
+                      </div>
+                      <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
+                        <span className="text-gray-400 block">VAT / Tax</span>
+                        <strong className="text-gray-800">$1,485.00</strong>
+                      </div>
+                      <div className="h-10 bg-rose-50/50 border border-rose-100 rounded p-1.5 text-[10px]">
+                        <span className="text-rose-500 block">Total Due</span>
+                        <strong className="text-rose-700">$16,335.00</strong>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Footer of simulated document */}
-                <div className="border-t border-gray-100 pt-2 flex justify-between items-center text-[10px] text-gray-400 font-sans">
-                  <span>Authorized Signature: Validated Digitally</span>
-                  <span>Page 1 of 1</span>
+                  <div className="border-t border-gray-100 pt-2 flex justify-between items-center text-[10px] text-gray-400 font-sans">
+                    <span>Authorized Signature: Validated Digitally</span>
+                    <span>Page 1 of 1</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* WATERMARK OVERLAYS (ONLY VISIBLE BEFORE CLEANUP) */}
-              {!isCompleted && (
+              {/* WATERMARK OVERLAYS (ONLY VISIBLE BEFORE CLEANUP WHEN NO PREVIEW OR INITIAL DEMO) */}
+              {!previewUrl && !isCompleted && (
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  {/* Big diagonal watermark text */}
                   <div className="rotate-[-25deg] text-3xl sm:text-5xl font-semibold tracking-widest text-rose-500/25 border-4 border-dashed border-rose-500/30 px-6 py-3 rounded-2xl select-none uppercase">
-                    {activeDocPreset === "invoice"
-                      ? "PAID · SAMPLE COPY"
-                      : activeDocPreset === "contract"
+                    {activeDocPreset === "contract"
                       ? "STRICTLY CONFIDENTIAL"
-                      : "TRIAL EVALUATION"}
+                      : activeDocPreset === "blueprint"
+                      ? "TRIAL EVALUATION"
+                      : "PAID · SAMPLE COPY"}
                   </div>
-                  {/* Circular stamp in upper right */}
                   <div className="absolute top-6 right-8 w-20 h-20 rounded-full border-2 border-rose-400/30 flex flex-col items-center justify-center rotate-12 text-[9px] font-bold text-rose-400/40 select-none">
                     <span>AUDIT SEAL</span>
                     <span>2026</span>
@@ -473,24 +646,38 @@ export default function PdfWatermarkRemoverPage() {
                 </div>
               )}
 
-              {/* DETECTED / MARKED RED HIGHLIGHTS */}
+              {/* DETECTED & MANUAL REGIONS OVERLAY */}
               {!isCompleted &&
-                markedRegions.map((m, idx) => (
-                  <div
-                    key={idx}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-500/25 border-2 border-rose-500 animate-pulse pointer-events-none shadow-[0_0_15px_rgba(225,29,72,0.4)]"
-                    style={{
-                      left: `${m.x}%`,
-                      top: `${m.y}%`,
-                      width: `${m.size * 1.5}px`,
-                      height: `${m.size * 1.5}px`,
-                    }}
-                  />
-                ))}
+                [...detectedRegions, ...manualRegions]
+                  .filter((m) => m.page === currentPage || !m.page)
+                  .map((m, idx) => (
+                    <div
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Remove region on click
+                        setManualRegions((prev) => prev.filter((_, i) => i !== idx - detectedRegions.length));
+                        setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
+                        toast.info("Removed target area.");
+                      }}
+                      className="absolute rounded-lg bg-rose-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)] cursor-pointer hover:bg-rose-500/35 transition group z-10"
+                      style={{
+                        left: `${m.x * 100}%`,
+                        top: `${m.y * 100}%`,
+                        width: `${m.width * 100}%`,
+                        height: `${m.height * 100}%`,
+                      }}
+                      title="Click to remove target area"
+                    >
+                      <span className="absolute -top-2.5 -right-2 bg-rose-600 text-white rounded-full size-4 text-[9px] flex items-center justify-center font-bold opacity-80 group-hover:opacity-100 transition shadow">
+                        ×
+                      </span>
+                    </div>
+                  ))}
 
               {/* SUCCESS AFTER STATE BANNER */}
               {isCompleted && (
-                <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-bold animate-bounce">
+                <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-bold animate-bounce z-10">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>100% Watermark Free · Verified Clean</span>
                 </div>
@@ -516,13 +703,40 @@ export default function PdfWatermarkRemoverPage() {
               )}
             </div>
 
+            {/* PAGE NAVIGATION CONTROLS */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mb-6 text-xs font-semibold text-gray-700">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1 || isProcessing}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-sm"
+                >
+                  ‹ Previous Page
+                </button>
+                <span className="px-3 py-1 rounded-lg bg-gray-100 font-mono text-gray-800">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={currentPage >= totalPages || isProcessing}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-sm"
+                >
+                  Next Page ›
+                </button>
+              </div>
+            )}
+
+
             {/* ACTION CONTROLS */}
             {!isCompleted ? (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   type="button"
+                  id="pdf-upload-btn"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#E11D48] to-[#FF2E63] text-white font-bold text-sm shadow-lg shadow-rose-200 hover:opacity-95 transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#E11D48] to-[#FF2E63] text-white font-bold text-sm shadow-lg shadow-rose-200 hover:opacity-95 transition-all cursor-pointer"
                 >
                   <Upload className="w-4 h-4" />
                   Upload PDF / Image
@@ -530,8 +744,9 @@ export default function PdfWatermarkRemoverPage() {
 
                 <button
                   type="button"
+                  id="pdf-autodetect-btn"
                   onClick={handleAutoDetect}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-sm border border-rose-200 transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-sm border border-rose-200 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-rose-600" />
                   Auto-Detect Watermarks
@@ -539,9 +754,10 @@ export default function PdfWatermarkRemoverPage() {
 
                 <button
                   type="button"
+                  id="pdf-clean-btn"
                   onClick={handleStartCleanup}
                   disabled={isProcessing}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-sm shadow-md transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-sm shadow-md transition-all cursor-pointer"
                 >
                   <Wand2 className="w-4 h-4 text-rose-400" />
                   {isProcessing ? "Cleaning..." : "Remove Watermark & Clean"}
@@ -549,6 +765,7 @@ export default function PdfWatermarkRemoverPage() {
 
                 <input
                   ref={fileInputRef}
+                  id="pdf-file-input"
                   type="file"
                   accept="application/pdf,image/png,image/jpeg,image/webp"
                   className="hidden"
@@ -571,24 +788,27 @@ export default function PdfWatermarkRemoverPage() {
                 <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                   <button
                     type="button"
+                    id="pdf-download-pdf-btn"
                     onClick={() => handleDownload("pdf")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#E11D48] text-white font-bold text-xs shadow-md hover:bg-rose-700 transition-all"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#E11D48] text-white font-bold text-xs shadow-md hover:bg-rose-700 transition-all cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Download Clean PDF
                   </button>
                   <button
                     type="button"
+                    id="pdf-download-img-btn"
                     onClick={() => handleDownload("png")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-gray-800 font-semibold text-xs border border-gray-300 hover:bg-gray-50 transition-all"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-gray-800 font-semibold text-xs border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5 text-gray-600" />
                     Download 4K Image
                   </button>
                   <button
                     type="button"
+                    id="pdf-reset-btn"
                     onClick={() => setIsCompleted(false)}
-                    className="p-2.5 rounded-xl bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 transition-all"
+                    className="p-2.5 rounded-xl bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 transition-all cursor-pointer"
                     title="Reset & Clean Another"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />

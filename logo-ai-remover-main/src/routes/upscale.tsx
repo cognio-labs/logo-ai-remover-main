@@ -1,14 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChangeEvent, PointerEvent, useEffect, useRef, useState } from "react";
-import { ArrowLeftRight, ArrowRight, Check, ChevronRight, Download, Feather, ImageUp, Layers3, LockKeyhole, RefreshCw, RotateCcw, ScanSearch, ShieldCheck, SlidersHorizontal, Sparkles, Upload, WandSparkles, Zap } from "lucide-react";
+import { ChangeEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
+import { AlertTriangle, ArrowLeftRight, ArrowRight, Check, ChevronRight, Download, Feather, ImageUp, Layers3, LockKeyhole, RefreshCw, RotateCcw, ScanSearch, ShieldCheck, SlidersHorizontal, Sparkles, Upload, WandSparkles, Zap } from "lucide-react";
 import { FeatureComparisonCard, type FeatureCardData } from "@/components/upscale/FeatureComparisonCard";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import { HeroComparisonSlider } from "@/components/upscale/HeroComparisonSlider";
 import { ImageUploader, type ImageFileMetadata } from "@/components/upscale/ImageUploader";
-import { UPSCALE_STAGES, runPipeline } from "@/lib/pipeline";
-import { upscaleImageCanvas, getImageDimensions, formatBytes } from "@/lib/upscaleEngine";
+import { apiImageUrl, getImageResult, getImageStatus, upscaleImage } from "@/lib/imageApi";
+import { getImageDimensions, formatBytes } from "@/lib/upscaleEngine";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
+
+export const MAX_SAFE_IMAGE_PIXELS = 100_000_000; // 100 Megapixels max safe output
+export const MAX_SAFE_IMAGE_DIMENSION = 16_000; // 16,000 px max dimension on any axis
+
+export function calculateMaxSafeDimensions(
+  origW: number,
+  origH: number,
+  maxPixels: number = MAX_SAFE_IMAGE_PIXELS,
+  maxDim: number = MAX_SAFE_IMAGE_DIMENSION
+): { safeWidth: number; safeHeight: number; safeScale: number } {
+  if (origW <= 0 || origH <= 0) return { safeWidth: 0, safeHeight: 0, safeScale: 1 };
+  const sPixels = Math.sqrt(maxPixels / (origW * origH));
+  const sW = maxDim / origW;
+  const sH = maxDim / origH;
+  const maxSafeScale = Math.min(sPixels, sW, sH);
+  const safeWidth = Math.max(1, Math.round(origW * maxSafeScale));
+  const safeHeight = Math.max(1, Math.round(origH * maxSafeScale));
+  return { safeWidth, safeHeight, safeScale: Number(maxSafeScale.toFixed(2)) };
+}
 
 export const Route = createFileRoute("/upscale")({
   head: () => ({ meta: [{ title: "AI Upscaler — PixelRefine AI" }] }), component: UpscalePage,
@@ -100,6 +119,7 @@ function UpscalePage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileMetadata, setFileMetadata] = useState<ImageFileMetadata | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [scale, setScale] = useState<Scale>("4");
   const [mode, setMode] = useState("Natural");
@@ -108,6 +128,7 @@ function UpscalePage() {
   const [done, setDone] = useState(false);
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<{
     original: { width: number; height: number } | null;
     upscaled: { width: number; height: number } | null;
@@ -116,106 +137,193 @@ function UpscalePage() {
     upscaled: null,
   });
   const [resultSize, setResultSize] = useState<string>("");
-  const cancel = useRef<(() => void) | null>(null);
-  const { user, deductCredit, addJob } = useUserStore();
+  const pollTimerRef = useRef<number | null>(null);
+  const { addJob } = useUserStore();
+
+  const origW = fileMetadata?.width || dimensions.original?.width || 0;
+  const origH = fileMetadata?.height || dimensions.original?.height || 0;
+  const scaleNum = parseInt(scale, 10) || 2;
+  const targetW = origW * scaleNum;
+  const targetH = origH * scaleNum;
+  const targetPixels = targetW * targetH;
+
+  const safeInfo = useMemo(() => {
+    if (origW <= 0 || origH <= 0) {
+      return {
+        isExceeded: false,
+        safeWidth: 0,
+        safeHeight: 0,
+        safeScale: 1,
+        can2xFit: true,
+        message: "",
+      };
+    }
+    const isExceeded =
+      targetPixels > MAX_SAFE_IMAGE_PIXELS ||
+      targetW > MAX_SAFE_IMAGE_DIMENSION ||
+      targetH > MAX_SAFE_IMAGE_DIMENSION;
+    const { safeWidth, safeHeight, safeScale } = calculateMaxSafeDimensions(origW, origH);
+    const can2xFit =
+      origW * 2 * origH * 2 <= MAX_SAFE_IMAGE_PIXELS &&
+      origW * 2 <= MAX_SAFE_IMAGE_DIMENSION &&
+      origH * 2 <= MAX_SAFE_IMAGE_DIMENSION;
+
+    const suggestion =
+      scaleNum > 2 && can2xFit
+        ? "Choose 2× or reduce the source/output dimensions."
+        : "Reduce the source/output dimensions.";
+    const message = `${scale}× output exceeds the maximum supported image size. ${suggestion}`;
+
+    return {
+      isExceeded,
+      safeWidth,
+      safeHeight,
+      safeScale,
+      can2xFit,
+      message,
+    };
+  }, [origW, origH, targetPixels, targetW, targetH, scale, scaleNum]);
 
   useEffect(() => {
     return () => {
-      cancel.current?.();
+      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
     };
   }, []);
 
-  const start = async (source?: string, sourceName?: string, targetScale?: Scale) => {
-    const activeUrl = source || previewUrl;
-    const activeName = sourceName || fileMetadata?.name || "image.png";
-    const activeScale = targetScale || scale;
+  const start = async () => {
+    if (!uploadedFile) {
+      toast.error("Please upload an image first.");
+      return;
+    }
 
-    if (!activeUrl) {
-      toast.error("Please select or drop an image first.");
+    if (uploadedFile.size > 35 * 1024 * 1024) {
+      toast.error("Image must be smaller than 35MB.");
       return;
     }
-    if (user.credits <= 0 || !deductCredit()) {
-      toast.error("Insufficient credits. Please upgrade your plan or wait for the daily reset.");
+
+    if (safeInfo.isExceeded) {
+      setErrorMsg(safeInfo.message);
+      toast.error(safeInfo.message);
       return;
     }
+
+    const normMode = mode.toLowerCase();
+    const normFormat = format.toLowerCase();
 
     setRunning(true);
     setDone(false);
-    setProgress(0);
-
-    // Concurrently trigger real canvas upscaling calculation
-    const factorNum = parseInt(activeScale, 10);
-    const upscalePromise = upscaleImageCanvas(activeUrl, factorNum, mode, format);
-
-    cancel.current = runPipeline(UPSCALE_STAGES, 2800, async (u) => {
-      setProgress(u.progress);
-      setStage(u.stage);
-      if (u.done) {
-        try {
-          const res = await upscalePromise;
-          setResultUrl(res.blobUrl);
-          setDimensions({
-            original: { width: res.originalWidth, height: res.originalHeight },
-            upscaled: { width: res.upscaledWidth, height: res.upscaledHeight },
-          });
-          setResultSize(res.fileSizeFormatted);
-          setRunning(false);
-          setDone(true);
-
-          addJob({
-            file_name: activeName,
-            file_type: "upscale",
-            status: "completed",
-            quality: `${activeScale}× / ${mode} (${res.upscaledWidth}×${res.upscaledHeight})`,
-            credits_used: 1,
-            processing_time: "2.8s",
-            file_url: activeUrl,
-            result_url: res.blobUrl,
-          });
-
-          toast.success(`✦ Crystal-clear ${activeScale}× upscale complete! AI watermark removed (${res.upscaledWidth}×${res.upscaledHeight}px).`);
-        } catch (err) {
-          console.error("Upscaling error:", err);
-          setRunning(false);
-          toast.error("Upscaling processing error. Please try another image.");
-        }
-      }
-    });
-  };
-
-  const loadDemo = async (item = PRESETS[0], autoStart = false) => {
-    const demoUrl = item.image;
-    const demoName = `${item.name.toLowerCase().replaceAll(" ", "-")}.png`;
-    const demoScale = item.factor as Scale;
-
-    setUploadedFile(null);
-    setPreviewUrl(demoUrl);
-    setScale(demoScale);
-    setDone(false);
+    setProgress(5);
+    setStage("Preparing image...");
+    setErrorMsg(null);
     setResultUrl(null);
 
-    // Fetch natural dimensions of demo
-    const dims = await getImageDimensions(demoUrl);
-    const meta: ImageFileMetadata = {
-      name: demoName,
-      sizeBytes: 2 * 1024 * 1024,
-      sizeFormatted: "2.1 MB",
-      width: dims.width,
-      height: dims.height,
-      type: "image/png",
-    };
-    setFileMetadata(meta);
-    setDimensions({ original: dims, upscaled: null });
+    try {
+      const resp = await upscaleImage(uploadedFile, scaleNum, normMode, normFormat);
+      const activeJobId = resp.jobId;
+      setJobId(activeJobId);
 
-    if (autoStart) {
-      toast.info(`Starting instant demo upscale for "${item.name}"...`);
-      start(demoUrl, demoName, demoScale);
-    } else {
-      toast.success(`Loaded demo sample "${item.name}" (${dims.width} × ${dims.height}px)`);
+      if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+
+      pollTimerRef.current = window.setInterval(async () => {
+        try {
+          const status = await getImageStatus(activeJobId);
+          setProgress(status.progress);
+          setStage(status.stage);
+
+          if (status.status === "completed") {
+            if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+            const result = await getImageResult(activeJobId);
+            setResultUrl(apiImageUrl(`${result.upscaledImageUrl}?v=${result.resultVersion}`));
+            setDimensions({
+              original: { width: result.metadata.originalWidth, height: result.metadata.originalHeight },
+              upscaled: { width: result.metadata.upscaledWidth, height: result.metadata.upscaledHeight },
+            });
+            setResultSize(formatBytes(result.metadata.fileSizeBytes));
+            setRunning(false);
+            setDone(true);
+
+            addJob({
+              file_name: uploadedFile.name,
+              file_type: "upscale",
+              status: "completed",
+              quality: `${scale}× / ${mode} (${result.metadata.upscaledWidth}×${result.metadata.upscaledHeight})`,
+              credits_used: 1,
+              processing_time: "Completed",
+              file_url: previewUrl || "",
+              result_url: apiImageUrl(result.upscaledImageUrl),
+            });
+
+            toast.success(
+              `✦ Crystal-clear ${scale}× upscale complete! (${result.metadata.upscaledWidth}×${result.metadata.upscaledHeight}px)`
+            );
+          } else if (status.status === "failed") {
+            if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+            setRunning(false);
+            const err = status.error || "Image processing failed. Please try another image.";
+            setErrorMsg(err);
+            toast.error(err);
+          }
+        } catch (pollErr) {
+          if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
+          setRunning(false);
+          const err = pollErr instanceof Error ? pollErr.message : "Error checking upscale status.";
+          setErrorMsg(err);
+          toast.error(err);
+        }
+      }, 750);
+    } catch (err) {
+      setRunning(false);
+      const message = err instanceof Error ? err.message : "Failed to start image upscaling.";
+      setErrorMsg(message);
+      toast.error(message);
+    }
+  };
+
+  const loadDemo = async (item: (typeof PRESETS)[number] = PRESETS[0]) => {
+    try {
+      toast.info(`Loading sample "${item.name}"...`);
+      const response = await fetch(item.image);
+      if (!response.ok) throw new Error("Sample asset file could not be loaded");
+      const blob = await response.blob();
+      const ext = item.image.endsWith(".jpg") ? "jpg" : "png";
+      const fileName = `${item.name.toLowerCase().replaceAll(" ", "-")}.${ext}`;
+      const file = new File([blob], fileName, { type: blob.type || (ext === "jpg" ? "image/jpeg" : "image/png") });
+
+      const dims = await getImageDimensions(item.image);
+      const meta: ImageFileMetadata = {
+        name: fileName,
+        sizeBytes: file.size,
+        sizeFormatted: formatBytes(file.size),
+        width: dims.width,
+        height: dims.height,
+        type: file.type,
+      };
+
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      if (resultUrl && resultUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(resultUrl);
+      }
+
+      setUploadedFile(file);
+      setPreviewUrl(item.image);
+      setFileMetadata(meta);
+      setScale(item.factor as Scale);
+      setDimensions({ original: dims, upscaled: null });
+      setDone(false);
+      setResultUrl(null);
+      setJobId(null);
+      setErrorMsg(null);
+      toast.success(`Loaded sample "${item.name}" (${dims.width} × ${dims.height}px)`);
+    } catch (err) {
+      console.error("Failed to load sample:", err);
+      toast.error("Failed to load sample asset.");
     }
   };
 
   const resetAll = () => {
+    if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
     if (previewUrl && previewUrl.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -223,26 +331,27 @@ function UpscalePage() {
       URL.revokeObjectURL(resultUrl);
     }
     setDone(false);
+    setRunning(false);
     setResultUrl(null);
     setUploadedFile(null);
     setPreviewUrl(null);
     setFileMetadata(null);
+    setJobId(null);
+    setErrorMsg(null);
     setDimensions({ original: null, upscaled: null });
     setResultSize("");
   };
 
   const download = () => {
-    const downloadTarget = resultUrl || previewUrl;
-    if (!downloadTarget) return;
-    const a = document.createElement("a");
-    a.href = downloadTarget;
-    const cleanExt = format.toLowerCase();
-    const base = (fileMetadata?.name || "image").replace(/\.[^/.]+$/, "");
-    a.download = `pixelrefine-${base}-${scale}x.${cleanExt}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    toast.success(`Downloaded ${dimensions.upscaled ? `${dimensions.upscaled.width}×${dimensions.upscaled.height}px` : ""} high-resolution ${format}!`);
+    if (!jobId || !done) return;
+    const link = document.createElement("a");
+    link.href = apiImageUrl(`/api/image/download/${encodeURIComponent(jobId)}`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(
+      `Downloading ${dimensions.upscaled ? `${dimensions.upscaled.width}×${dimensions.upscaled.height}px ` : ""}${format} master...`
+    );
   };
 
   return (
@@ -291,10 +400,10 @@ function UpscalePage() {
                 <div className="up-running-box">
                   <PinkScanLoader progress={progress} stage={stage} />
                 </div>
-              ) : done && previewUrl && (resultUrl || previewUrl) ? (
+              ) : done && previewUrl && resultUrl ? (
                 <HeroComparisonSlider
                   beforeUrl={previewUrl}
-                  afterUrl={resultUrl || previewUrl}
+                  afterUrl={resultUrl}
                   beforeDims={dimensions.original}
                   afterDims={dimensions.upscaled}
                   scale={scale}
@@ -315,6 +424,25 @@ function UpscalePage() {
                     });
                     setDone(false);
                     setResultUrl(null);
+                    setErrorMsg(null);
+
+                    // If current scale exceeds safe limit, auto-switch to 2x if 2x fits
+                    const curScale = parseInt(scale, 10) || 2;
+                    const curPixels = meta.width * curScale * meta.height * curScale;
+                    if (
+                      curPixels > MAX_SAFE_IMAGE_PIXELS ||
+                      meta.width * curScale > MAX_SAFE_IMAGE_DIMENSION ||
+                      meta.height * curScale > MAX_SAFE_IMAGE_DIMENSION
+                    ) {
+                      const can2x =
+                        meta.width * 2 * meta.height * 2 <= MAX_SAFE_IMAGE_PIXELS &&
+                        meta.width * 2 <= MAX_SAFE_IMAGE_DIMENSION &&
+                        meta.height * 2 <= MAX_SAFE_IMAGE_DIMENSION;
+                      if (can2x && scale !== "2") {
+                        setScale("2");
+                        toast.info(`Large image (${meta.width}×${meta.height}px). Auto-switched to safe 2× scale.`);
+                      }
+                    }
                   }}
                   onImageRemoved={() => {
                     resetAll();
@@ -335,13 +463,62 @@ function UpscalePage() {
                     <button
                       key={x}
                       type="button"
-                      onClick={() => setScale(x)}
+                      onClick={() => {
+                        setScale(x);
+                        setErrorMsg(null);
+                      }}
                       className={scale === x ? "selected" : ""}
                     >
                       {x}<small>×</small>
                     </button>
                   ))}
                 </div>
+                {fileMetadata && fileMetadata.width > 0 ? (
+                  <div className="mt-1.5 flex items-center justify-between text-[11px] text-gray-500">
+                    <span className={safeInfo.isExceeded ? "text-rose-600 font-medium" : ""}>
+                      Target: <b>{targetW.toLocaleString()} × {targetH.toLocaleString()} px</b>
+                      {safeInfo.isExceeded && " (Exceeds Limit)"}
+                    </span>
+                    <span className={safeInfo.isExceeded ? "font-semibold text-rose-600" : "font-semibold text-[#E11D48]"}>
+                      {scale}× {scale === "8" ? "8K" : scale === "4" ? "4K" : "HD"}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-1 text-[11px] text-gray-400">
+                    Upload or select an image to preview target resolution
+                  </div>
+                )}
+
+                {safeInfo.isExceeded && (
+                  <div className="mt-2.5 rounded-xl border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-700 shadow-sm space-y-2">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="size-4 shrink-0 text-rose-500 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="font-semibold text-rose-800 leading-snug">
+                          {scale}× output exceeds the maximum supported image size. Choose 2× or reduce the source/output dimensions.
+                        </p>
+                        <p className="text-[11px] text-rose-600 leading-normal">
+                          Target pixel count ({Math.round(targetPixels / 1_000_000)}M px) exceeds safe processing limit ({Math.round(MAX_SAFE_IMAGE_PIXELS / 1_000_000)}M px).
+                        </p>
+                        <p className="text-[11px] text-rose-700">
+                          Max safe dimensions: <b>{safeInfo.safeWidth.toLocaleString()} × {safeInfo.safeHeight.toLocaleString()} px</b>
+                        </p>
+                      </div>
+                    </div>
+                    {safeInfo.can2xFit && scale !== "2" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setScale("2");
+                          setErrorMsg(null);
+                        }}
+                        className="w-full rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 transition"
+                      >
+                        Choose 2× ({origW * 2} × {origH * 2} px — Safe)
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <label>Enhancement mode</label>
@@ -374,7 +551,13 @@ function UpscalePage() {
                 </div>
               </div>
 
-              {done ? (
+              {errorMsg && (
+                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-red-600">
+                  {errorMsg}
+                </div>
+              )}
+
+              {done && resultUrl ? (
                 <>
                   <div className="up-result-meta">
                     <span><b>Original:</b> {dimensions.original?.width || 512} × {dimensions.original?.height || 512}</span>
@@ -386,24 +569,29 @@ function UpscalePage() {
                     className="up-start"
                     onClick={download}
                   >
-                    <Download /> Download {scale}× {format}
+                    <Download className="size-4" /> Download Upscaled Image ({scale}× {format})
                   </button>
                   <button
                     type="button"
                     className="up-reset-btn"
                     onClick={resetAll}
                   >
-                    <RotateCcw className="size-3" /> Upscale Another
+                    <RotateCcw className="size-3" /> Upscale Another Image
                   </button>
                 </>
               ) : (
                 <button
                   type="button"
                   className="up-start"
-                  disabled={running}
+                  disabled={running || !uploadedFile || safeInfo.isExceeded}
                   onClick={() => start()}
                 >
-                  <WandSparkles /> Start Upscaling
+                  <WandSparkles className="size-4" />{" "}
+                  {running
+                    ? "Upscaling Image…"
+                    : safeInfo.isExceeded
+                    ? "Safe Limit Exceeded"
+                    : "Start Upscaling"}
                 </button>
               )}
             </aside>

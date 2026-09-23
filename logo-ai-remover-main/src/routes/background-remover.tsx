@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect, ChangeEvent, DragEvent, PointerEvent } from "react";
+import { useState, useRef, useEffect, ChangeEvent, PointerEvent } from "react";
 import {
   Sparkles,
   Upload,
@@ -11,29 +11,27 @@ import {
   ChevronLeft,
   ShieldCheck,
   Zap,
-  Image as ImageIcon,
   Layers,
   ShoppingBag,
   UserCheck,
   Camera,
   Code2,
   Check,
-  SlidersHorizontal,
-  Wand2,
-  Palette,
   Eye,
   FileImage,
-  ArrowRight,
+  Sliders,
+  SplitSquareVertical,
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import {
   removeImageBackground,
+  recompositeCutout,
   SOLID_COLOR_PRESETS,
   BACKDROP_PRESETS,
   type BackgroundType,
   type CutoutResult,
 } from "@/lib/backgroundRemoverEngine";
-import { runPipeline, type Stage } from "@/lib/pipeline";
+import { getDownloadUrl, type QualityMode, type ExportFormat } from "@/lib/backgroundApi";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -51,13 +49,6 @@ export const Route = createFileRoute("/background-remover")({
   }),
   component: BackgroundRemoverPage,
 });
-
-const BG_STAGES: Stage[] = [
-  { label: "Analyzing subject saliency & contours…", weight: 1.2 },
-  { label: "Separating foreground from background…", weight: 2.0 },
-  { label: "Refining hair, fur & transparent edges…", weight: 1.8 },
-  { label: "Compositing high-resolution cutout…", weight: 1.0 },
-];
 
 const DEMO_PRESETS = [
   {
@@ -209,18 +200,18 @@ const FAQS = [
 ];
 
 const CODE_SNIPPETS = {
-  curl: `curl -X POST https://api.pixelrefine.ai/v1/remove-bg \\
+  curl: `curl -X POST https://api.pixelrefine.ai/v1/background/remove \\
   -H "X-API-Key: YOUR_API_KEY" \\
-  -F "image_file=@portrait.jpg" \\
-  -F "format=png" \\
-  -F "bg_color=transparent" \\
+  -F "image=@portrait.jpg" \\
+  -F "export_format=png" \\
+  -F "bg_type=transparent" \\
   -o "cutout.png"`,
   python: `import requests
 
-url = "https://api.pixelrefine.ai/v1/remove-bg"
+url = "https://api.pixelrefine.ai/v1/background/remove"
 headers = {"X-API-Key": "YOUR_API_KEY"}
-files = {"image_file": open("portrait.jpg", "rb")}
-data = {"format": "png", "bg_color": "transparent"}
+files = {"image": open("portrait.jpg", "rb")}
+data = {"export_format": "png", "bg_type": "transparent"}
 
 response = requests.post(url, headers=headers, files=files, data=data)
 
@@ -230,10 +221,11 @@ print("✓ Background removed with 100% precision!")`,
   javascript: `import fs from "node:fs";
 
 const formData = new FormData();
-formData.append("image_file", new Blob([fs.readFileSync("portrait.jpg")]));
-formData.append("format", "png");
+formData.append("image", new Blob([fs.readFileSync("portrait.jpg")]));
+formData.append("export_format", "png");
+formData.append("bg_type", "transparent");
 
-const response = await fetch("https://api.pixelrefine.ai/v1/remove-bg", {
+const response = await fetch("https://api.pixelrefine.ai/v1/background/remove", {
   method: "POST",
   headers: { "X-API-Key": "YOUR_API_KEY" },
   body: formData,
@@ -244,12 +236,13 @@ fs.writeFileSync("cutout.png", Buffer.from(buffer));
 console.log("✓ Cutout saved successfully!");`,
   php: `<?php
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://api.pixelrefine.ai/v1/remove-bg');
+curl_setopt($ch, CURLOPT_URL, 'https://api.pixelrefine.ai/v1/background/remove');
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-API-Key: YOUR_API_KEY']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
-    'image_file' => new CURLFile('portrait.jpg'),
-    'format' => 'png'
+    'image' => new CURLFile('portrait.jpg'),
+    'export_format' => 'png',
+    'bg_type' => 'transparent'
 ]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -323,10 +316,10 @@ function ShowcaseSlider({ image, title, category, description }: { image: string
         </div>
 
         {/* Badges */}
-        <span className="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 rounded-full bg-gray-900/85 text-white text-[10px] font-bold tracking-wider backdrop-blur-md">
+        <span className="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 rounded-full bg-gray-900/85 text-white text-[10px] font-medium tracking-wider backdrop-blur-md">
           ORIGINAL
         </span>
-        <span className="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 rounded-full bg-[#E11D48] text-white text-[10px] font-bold tracking-wider shadow-md backdrop-blur-md">
+        <span className="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 rounded-full bg-[#E11D48] text-white text-[10px] font-medium tracking-wider shadow-md backdrop-blur-md">
           TRANSPARENT PNG
         </span>
 
@@ -343,9 +336,103 @@ function ShowcaseSlider({ image, title, category, description }: { image: string
       </div>
 
       <div className="p-5 sm:p-6 bg-white border-t border-gray-100">
-        <p className="text-[10px] font-bold text-[#E11D48] uppercase tracking-widest">{category}</p>
-        <h3 className="text-lg font-bold text-gray-900 mt-1">{title}</h3>
+        <p className="text-[10px] font-medium text-[#E11D48] uppercase tracking-widest">{category}</p>
+        <h3 className="text-lg font-medium text-gray-900 mt-1">{title}</h3>
         <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function WorkspaceSplitSlider({
+  originalUrl,
+  cutoutUrl,
+  bgType,
+}: {
+  originalUrl: string;
+  cutoutUrl: string;
+  bgType: BackgroundType;
+}) {
+  const [position, setPosition] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const updatePos = (clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const pct = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
+    setPosition(pct);
+  };
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updatePos(e.clientX);
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      updatePos(e.clientX);
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none cursor-ew-resize touch-none"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+    >
+      {/* Checkerboard Pattern for Transparent */}
+      {bgType === "transparent" && (
+        <div
+          className="absolute inset-0 size-full"
+          style={{
+            backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
+            backgroundSize: "16px 16px",
+            backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+          }}
+        />
+      )}
+
+      {/* After Cutout (Full Canvas) */}
+      <img
+        src={cutoutUrl}
+        alt="AI Cutout"
+        className="absolute inset-0 size-full object-contain pointer-events-none filter drop-shadow-md"
+      />
+
+      {/* Before Original (Clipped to left side) */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ width: `${position}%` }}
+      >
+        <img
+          src={originalUrl}
+          alt="Original"
+          className="absolute inset-0 h-full max-w-none object-contain"
+          style={{ width: "100%", minWidth: "100%" }}
+        />
+      </div>
+
+      {/* Badges */}
+      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-medium backdrop-blur-md">
+        ORIGINAL
+      </span>
+      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#E11D48] text-white text-[10px] font-medium backdrop-blur-md shadow-xs">
+        {bgType === "transparent" ? "TRANSPARENT" : "CLEANED"}
+      </span>
+
+      {/* Divider */}
+      <div
+        className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-20 pointer-events-none shadow-[0_0_10px_rgba(225,29,72,0.8)]"
+        style={{ left: `${position}%` }}
+      >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-7 rounded-full bg-[#E11D48] border-2 border-white shadow-md flex items-center justify-center text-white">
+          <ChevronLeft className="size-3 -mr-0.5" />
+          <ChevronRight className="size-3 -ml-0.5" />
+        </div>
       </div>
     </div>
   );
@@ -365,18 +452,19 @@ function BackgroundRemoverPage() {
   const [solidColor, setSolidColor] = useState("#FFFFFF");
   const [backdropId, setBackdropId] = useState("luxury-studio");
   const [showOriginal, setShowOriginal] = useState(false);
+  const [useSplitView, setUseSplitView] = useState(false);
+  const [qualityMode, setQualityMode] = useState<QualityMode>("standard");
+  const [downloadFormat, setDownloadFormat] = useState<ExportFormat>("png");
 
   // Code snippet tabs & FAQ accordion
   const [activeCodeTab, setActiveCodeTab] = useState<keyof typeof CODE_SNIPPETS>("curl");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cancelPipeline = useRef<(() => void) | null>(null);
   const { user, deductCredit, addJob } = useUserStore();
 
   useEffect(() => {
     return () => {
-      cancelPipeline.current?.();
       if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
       if (cutoutResult?.transparentBlobUrl.startsWith("blob:")) URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
       if (cutoutResult?.compositeBlobUrl.startsWith("blob:")) URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
@@ -405,7 +493,7 @@ function BackgroundRemoverPage() {
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [bgType, solidColor, backdropId]);
+  }, [bgType, solidColor, backdropId, qualityMode]);
 
   const processFile = (file: File) => {
     if (!file.type.startsWith("image/")) {
@@ -432,52 +520,55 @@ function BackgroundRemoverPage() {
     executeRemoval(preset.image, `${preset.name.toLowerCase().replaceAll(" ", "-")}.png`);
   };
 
-  const executeRemoval = (url: string, fileName: string) => {
+  const executeRemoval = async (url: string, fileName: string) => {
     if (user.credits <= 0 || !deductCredit()) {
       toast.error("Insufficient credits. Please upgrade or wait for the daily reset.");
       return;
     }
 
     setRunning(true);
-    setProgress(0);
+    setProgress(5);
+    setStage("Initializing neural segmentation...");
 
-    const promise = removeImageBackground(url, bgType, solidColor, backdropId);
-
-    cancelPipeline.current = runPipeline(BG_STAGES, 2600, async (u) => {
-      setProgress(u.progress);
-      setStage(u.stage);
-      if (u.done) {
-        try {
-          const res = await promise;
-          setCutoutResult(res);
-          setRunning(false);
-
-          addJob({
-            file_name: fileName,
-            file_type: "background-remover",
-            status: "completed",
-            quality: `Transparent 4K (${res.width}×${res.height})`,
-            credits_used: 1,
-            processing_time: "2.6s",
-            file_url: url,
-            result_url: res.transparentBlobUrl,
-          });
-
-          confetti({
-            particleCount: 70,
-            spread: 60,
-            origin: { y: 0.6 },
-            colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#38BDF8"],
-          });
-
-          toast.success("✦ Background removed! Download transparent PNG or customize.");
-        } catch (err) {
-          console.error("Background removal error:", err);
-          setRunning(false);
-          toast.error("Processing failed. Please try another image.");
+    try {
+      const res = await removeImageBackground(
+        url,
+        bgType,
+        solidColor,
+        backdropId,
+        (currentStage, currentProgress) => {
+          setStage(currentStage);
+          setProgress(currentProgress);
         }
-      }
-    });
+      );
+
+      setCutoutResult(res);
+      setRunning(false);
+
+      addJob({
+        file_name: fileName,
+        file_type: "background-remover",
+        status: "completed",
+        quality: `Transparent (${res.width}×${res.height})`,
+        credits_used: 1,
+        processing_time: res.processingTimeMs ? `${(res.processingTimeMs / 1000).toFixed(1)}s` : "2.4s",
+        file_url: url,
+        result_url: res.transparentBlobUrl,
+      });
+
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#38BDF8"],
+      });
+
+      toast.success("✦ Background removed! Download transparent PNG or customize.");
+    } catch (err) {
+      console.error("Background removal error:", err);
+      setRunning(false);
+      toast.error("Processing failed. Please try another image.");
+    }
   };
 
   // Live re-compositing when user switches background colors or backdrops
@@ -486,13 +577,27 @@ function BackgroundRemoverPage() {
     if (color) setSolidColor(color);
     if (backdrop) setBackdropId(backdrop);
 
-    if (!sourceUrl) return;
+    if (!sourceUrl || !cutoutResult) return;
 
     try {
       const activeColor = color || solidColor;
       const activeBackdrop = backdrop || backdropId;
-      const updated = await removeImageBackground(sourceUrl, newType, activeColor, activeBackdrop);
-      setCutoutResult(updated);
+
+      if (cutoutResult.jobId) {
+        const recomputed = await recompositeCutout(cutoutResult.jobId, newType, activeColor, activeBackdrop);
+        setCutoutResult((prev) =>
+          prev
+            ? {
+                ...prev,
+                compositeBlobUrl: recomputed.compositeBlobUrl,
+                fileSizeFormatted: recomputed.sizeFormatted,
+              }
+            : null
+        );
+      } else {
+        const updated = await removeImageBackground(sourceUrl, newType, activeColor, activeBackdrop);
+        setCutoutResult(updated);
+      }
     } catch (err) {
       console.warn("Re-composite error:", err);
     }
@@ -500,14 +605,28 @@ function BackgroundRemoverPage() {
 
   const downloadResult = () => {
     if (!cutoutResult) return;
-    const a = document.createElement("a");
-    const isTrans = bgType === "transparent";
-    a.href = isTrans ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl;
     const base = (uploadedFile?.name || "image").replace(/\.[^/.]+$/, "");
-    a.download = `pixelrefine-${base}-${bgType === "transparent" ? "cutout" : bgType}.${isTrans ? "png" : "jpg"}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const isTrans = bgType === "transparent";
+    const selectedFormat = isTrans ? "png" : downloadFormat;
+
+    if (cutoutResult.jobId) {
+      // Direct backend download with correct headers
+      const downloadUrl = getDownloadUrl(cutoutResult.jobId, selectedFormat);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `pixelrefine-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      const a = document.createElement("a");
+      a.href = isTrans ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl;
+      a.download = `pixelrefine-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     toast.success(`Downloaded ${cutoutResult.width}×${cutoutResult.height}px ${isTrans ? "Transparent PNG" : "HD image"}!`);
   };
 
@@ -523,7 +642,11 @@ function BackgroundRemoverPage() {
     setRunning(false);
     setProgress(0);
     setBgType("transparent");
+    setUseSplitView(false);
   };
+
+  const activeCutoutDisplay =
+    bgType === "transparent" ? cutoutResult?.transparentBlobUrl : cutoutResult?.compositeBlobUrl;
 
   return (
     <main className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
@@ -532,25 +655,25 @@ function BackgroundRemoverPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Title & Pitch */}
           <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-bold text-[#E11D48] mb-4 shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-medium text-[#E11D48] mb-4 shadow-xs">
               <Sparkles className="size-3.5 text-[#E11D48]" />
               <span>100% AUTOMATIC &amp; FREE BACKGROUND REMOVER</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-950 tracking-tight leading-[1.08]">
+            <h1 className="text-4xl sm:text-6xl font-normal text-gray-950 tracking-tight leading-[1.08]">
               Remove Image Backgrounds{" "}
-              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent font-medium">
                 in 5 Seconds Free
               </span>
             </h1>
 
-            <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
+            <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto font-normal">
               Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and complex product silhouettes with sub-pixel edge matting.
             </p>
 
             {/* Quick Preset Pills */}
             <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider mr-1">
                 TRY SAMPLES:
               </span>
               {DEMO_PRESETS.map((p) => (
@@ -558,11 +681,11 @@ function BackgroundRemoverPage() {
                   key={p.name}
                   type="button"
                   onClick={() => loadDemo(p)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:border-[#E11D48] hover:bg-[#FFF5F7] text-xs font-semibold text-gray-800 transition-all cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:border-[#E11D48] hover:bg-[#FFF5F7] text-xs font-medium text-gray-800 transition-all cursor-pointer shadow-2xs"
                 >
                   <img src={p.image} alt={p.name} className="size-4 rounded-full object-cover" />
                   <span>{p.name}</span>
-                  <span className="text-[10px] font-bold text-[#E11D48] bg-[#FFE4E9] px-1.5 py-0.5 rounded-md">
+                  <span className="text-[10px] font-medium text-[#E11D48] bg-[#FFE4E9] px-1.5 py-0.5 rounded-md">
                     {p.badge}
                   </span>
                 </button>
@@ -583,7 +706,7 @@ function BackgroundRemoverPage() {
                   /* STATE: CUTOUT RESULT PREVIEW */
                   <div className="flex flex-col h-full space-y-3">
                     <div className="flex items-center justify-between text-xs text-gray-600 px-1">
-                      <span className="font-semibold flex items-center gap-1.5 text-gray-800">
+                      <span className="font-medium flex items-center gap-1.5 text-gray-800">
                         <FileImage className="size-4 text-[#E11D48]" />
                         <span>{uploadedFile?.name || "cutout-transparent.png"}</span>
                         <span className="text-gray-400 font-normal">
@@ -591,59 +714,81 @@ function BackgroundRemoverPage() {
                         </span>
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={resetAll}
-                        className="font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Upload another image"
-                      >
-                        <RefreshCw className="size-3.5" />
-                        <span>Upload New</span>
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setUseSplitView(!useSplitView)}
+                          className={`font-medium flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                            useSplitView ? "bg-[#FFE4E9] text-[#E11D48]" : "text-gray-600 hover:text-gray-900 bg-gray-100"
+                          }`}
+                          title="Toggle Before/After Split Slider"
+                        >
+                          <SplitSquareVertical className="size-3.5" />
+                          <span>{useSplitView ? "Single View" : "Split View"}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={resetAll}
+                          className="font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Upload another image"
+                        >
+                          <RefreshCw className="size-3.5" />
+                          <span>Upload New</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* The Canvas Frame */}
-                    <div className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none">
-                      {/* Checkerboard Pattern for Transparent */}
-                      {bgType === "transparent" && (
-                        <div
-                          className="absolute inset-0 size-full"
-                          style={{
-                            backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-                              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-                              linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-                              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
-                            backgroundSize: "16px 16px",
-                            backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-                          }}
-                        />
-                      )}
-
-                      {/* Displayed Cutout */}
-                      <img
-                        src={showOriginal ? sourceUrl : bgType === "transparent" ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl}
-                        alt="Cutout result"
-                        className="relative max-h-full max-w-full object-contain filter drop-shadow-md transition-all"
+                    {useSplitView && activeCutoutDisplay ? (
+                      <WorkspaceSplitSlider
+                        originalUrl={sourceUrl}
+                        cutoutUrl={activeCutoutDisplay}
+                        bgType={bgType}
                       />
+                    ) : (
+                      <div className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none bg-slate-50">
+                        {/* Checkerboard Pattern for Transparent */}
+                        {bgType === "transparent" && (
+                          <div
+                            className="absolute inset-0 size-full"
+                            style={{
+                              backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+                                linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+                                linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+                                linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
+                              backgroundSize: "16px 16px",
+                              backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+                            }}
+                          />
+                        )}
 
-                      {/* Hold to See Original Toggle Button */}
-                      <button
-                        type="button"
-                        onMouseDown={() => setShowOriginal(true)}
-                        onMouseUp={() => setShowOriginal(false)}
-                        onTouchStart={() => setShowOriginal(true)}
-                        onTouchEnd={() => setShowOriginal(false)}
-                        className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-gray-900/80 hover:bg-gray-950 text-white text-xs font-semibold backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
-                      >
-                        <Eye className="size-3.5" />
-                        <span>{showOriginal ? "Showing Original" : "Hold for Original"}</span>
-                      </button>
+                        {/* Displayed Cutout */}
+                        <img
+                          src={showOriginal ? sourceUrl : activeCutoutDisplay}
+                          alt="Cutout result"
+                          className="relative max-h-full max-w-full object-contain filter drop-shadow-md transition-all"
+                        />
 
-                      {/* Badge indicator */}
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-md shadow-xs">
-                        {showOriginal ? "Original Image" : bgType === "transparent" ? "Transparent PNG" : "Background Applied"}
-                      </span>
-                    </div>
+                        {/* Hold to See Original Toggle Button */}
+                        <button
+                          type="button"
+                          onMouseDown={() => setShowOriginal(true)}
+                          onMouseUp={() => setShowOriginal(false)}
+                          onTouchStart={() => setShowOriginal(true)}
+                          onTouchEnd={() => setShowOriginal(false)}
+                          className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-gray-900/80 hover:bg-gray-950 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+                        >
+                          <Eye className="size-3.5" />
+                          <span>{showOriginal ? "Showing Original" : "Hold for Original"}</span>
+                        </button>
+
+                        {/* Badge indicator */}
+                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-medium uppercase tracking-wider backdrop-blur-md shadow-xs">
+                          {showOriginal ? "Original Image" : bgType === "transparent" ? "Transparent PNG" : "Background Applied"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   /* STATE: EMPTY DROPZONE */
@@ -688,11 +833,11 @@ function BackgroundRemoverPage() {
                       <Upload className="size-8" />
                     </span>
 
-                    <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+                    <h3 className="text-xl font-medium text-gray-900 tracking-tight">
                       Drop your image here
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed">
-                      PNG, JPG, WebP or HEIC · Up to 35MB · Paste (<kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600">Ctrl+V</kbd>)
+                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
+                      PNG, JPG, WebP or HEIC · Up to 35MB · Paste (<kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">Ctrl+V</kbd>)
                     </p>
 
                     <button
@@ -701,13 +846,13 @@ function BackgroundRemoverPage() {
                         e.stopPropagation();
                         fileInputRef.current?.click();
                       }}
-                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-2"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-2"
                     >
                       <Upload className="size-4" />
                       <span>Upload Image</span>
                     </button>
 
-                    <span className="text-[11px] text-gray-400 mt-2">or click anywhere to browse</span>
+                    <span className="text-[11px] text-gray-400 mt-2 font-normal">or click anywhere to browse</span>
                   </div>
                 )}
               </div>
@@ -715,12 +860,12 @@ function BackgroundRemoverPage() {
               {/* RIGHT / SETTINGS & BACKGROUND REPLACEMENT PANEL */}
               <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
                 <div>
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">
                     BACKGROUND OPTIONS
                   </h4>
 
                   {/* Mode Selector */}
-                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-bold text-gray-600 mb-5">
+                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
                     <button
                       type="button"
                       onClick={() => updateBackgroundStyle("transparent")}
@@ -753,19 +898,19 @@ function BackgroundRemoverPage() {
                   {/* CONTROLS PER MODE */}
                   {bgType === "transparent" && (
                     <div className="rounded-xl p-4 bg-[#F8FAFC] border border-gray-200 text-xs space-y-2">
-                      <p className="font-semibold text-gray-800 flex items-center gap-1.5">
+                      <p className="font-medium text-gray-800 flex items-center gap-1.5">
                         <CheckCircle2 className="size-4 text-emerald-600" />
                         <span>32-Bit Transparent PNG</span>
                       </p>
-                      <p className="text-gray-500 leading-relaxed">
-                        Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web code with an alpha transparency channel.
+                      <p className="text-gray-500 leading-relaxed font-normal">
+                        Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web code with true alpha transparency.
                       </p>
                     </div>
                   )}
 
                   {bgType === "color" && (
                     <div className="space-y-3">
-                      <label className="text-xs font-bold text-gray-700">Choose Solid Color</label>
+                      <label className="text-xs font-medium text-gray-700">Choose Solid Color</label>
                       <div className="grid grid-cols-3 gap-2">
                         {SOLID_COLOR_PRESETS.map((c) => (
                           <button
@@ -782,8 +927,8 @@ function BackgroundRemoverPage() {
                               className="size-5 rounded-md border border-black/10 shadow-2xs"
                               style={{ backgroundColor: c.hex }}
                             />
-                            <span className="text-[11px] font-bold text-gray-900 leading-tight">{c.name}</span>
-                            <span className="text-[9px] text-gray-400 font-medium">{c.badge}</span>
+                            <span className="text-[11px] font-medium text-gray-900 leading-tight">{c.name}</span>
+                            <span className="text-[9px] text-gray-400 font-normal">{c.badge}</span>
                           </button>
                         ))}
                       </div>
@@ -796,8 +941,8 @@ function BackgroundRemoverPage() {
                           onChange={(e) => updateBackgroundStyle("color", e.target.value)}
                           className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
                         />
-                        <span className="text-xs font-semibold text-gray-600">
-                          Custom Hex: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900">{solidColor}</code>
+                        <span className="text-xs font-medium text-gray-600">
+                          Custom Hex: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">{solidColor}</code>
                         </span>
                       </div>
                     </div>
@@ -805,7 +950,7 @@ function BackgroundRemoverPage() {
 
                   {bgType === "backdrop" && (
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-gray-700">Select Studio Backdrop</label>
+                      <label className="text-xs font-medium text-gray-700">Select Studio Backdrop</label>
                       <div className="grid grid-cols-2 gap-2 max-h-[190px] overflow-y-auto pr-1">
                         {BACKDROP_PRESETS.map((bp) => (
                           <button
@@ -825,32 +970,73 @@ function BackgroundRemoverPage() {
                               }}
                             />
                             <div>
-                              <p className="text-xs font-bold text-gray-900 leading-tight">{bp.name}</p>
-                              <p className="text-[10px] text-gray-400">{bp.category}</p>
+                              <p className="text-xs font-medium text-gray-900 leading-tight">{bp.name}</p>
+                              <p className="text-[10px] text-gray-400 font-normal">{bp.category}</p>
                             </div>
                           </button>
                         ))}
                       </div>
                     </div>
                   )}
+
+                  {/* Quality & Processing Options */}
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                      <span className="font-medium flex items-center gap-1.5">
+                        <Sliders className="size-3.5 text-[#E11D48]" />
+                        <span>AI Quality Engine</span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-gray-600">
+                      {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setQualityMode(mode)}
+                          className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${
+                            qualityMode === mode
+                              ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-medium"
+                              : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
+                          }`}
+                        >
+                          {mode === "standard" ? "Balanced" : mode === "fast" ? "Fast" : "Ultra HD"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* ACTION BUTTONS & METRICS */}
                 <div className="space-y-3 pt-4 border-t border-gray-100">
                   {cutoutResult ? (
-                    <button
-                      type="button"
-                      onClick={downloadResult}
-                      className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Download className="size-4" />
-                      <span>Download {bgType === "transparent" ? "Transparent 4K PNG" : "HD Result"}</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={downloadResult}
+                        className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Download className="size-4" />
+                        <span>Download {bgType === "transparent" ? "Transparent PNG" : "HD Result"}</span>
+                      </button>
+
+                      {bgType !== "transparent" && (
+                        <select
+                          value={downloadFormat}
+                          onChange={(e) => setDownloadFormat(e.target.value as ExportFormat)}
+                          className="py-3 px-3 rounded-full border border-gray-200 text-xs font-medium bg-white text-gray-800 cursor-pointer shadow-xs focus:ring-1 focus:ring-[#E11D48]"
+                        >
+                          <option value="png">PNG</option>
+                          <option value="jpg">JPG</option>
+                          <option value="webp">WebP</option>
+                        </select>
+                      )}
+                    </div>
                   ) : (
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3.5 px-5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-medium shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Upload className="size-4" />
                       <span>Choose An Image</span>
@@ -858,7 +1044,7 @@ function BackgroundRemoverPage() {
                   )}
 
                   {/* Trust Micro-Bullets */}
-                  <div className="grid grid-cols-2 gap-2 text-[10.5px] font-medium text-gray-500 pt-1">
+                  <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-gray-500 pt-1">
                     <span className="flex items-center gap-1.5">
                       <Check className="size-3 text-emerald-500 shrink-0" />
                       <span>Zero Quality Loss</span>
@@ -869,7 +1055,7 @@ function BackgroundRemoverPage() {
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Zap className="size-3 text-amber-500 shrink-0" />
-                      <span>5-Second AI Matting</span>
+                      <span>Sub-Pixel AI Matting</span>
                     </span>
                     <span className="flex items-center gap-1.5">
                       <ShoppingBag className="size-3 text-blue-500 shrink-0" />
@@ -883,18 +1069,18 @@ function BackgroundRemoverPage() {
         </div>
       </section>
 
-      {/* 3. BEFORE / AFTER QUALITY SHOWCASE (remove.bg inspired) */}
+      {/* 3. BEFORE / AFTER QUALITY SHOWCASE */}
       <section className="py-20 sm:py-28 bg-[#FAFAFB] border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="text-xs font-bold text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               SUB-PIXEL AI MATTING QUALITY
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
               Stunning Results on Hair, Fur &amp; Complex Edges
             </h2>
-            <p className="mt-3 text-base text-gray-600">
-              Slide to inspect how our neural inpainting isolates difficult strands and textures without plastic halos or jagged cutouts.
+            <p className="mt-3 text-base text-gray-600 font-normal">
+              Slide to inspect how our neural matting isolates difficult strands and textures without halos or jagged cutouts.
             </p>
           </div>
 
@@ -916,13 +1102,13 @@ function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs font-bold text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               BUILT FOR EVERY WORKFLOW
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
               One Tool. Endless Possibilities.
             </h2>
-            <p className="mt-3 text-base text-gray-600">
+            <p className="mt-3 text-base text-gray-600 font-normal">
               Whether you need 100% white backgrounds for your e-commerce store or transparent stickers for social media.
             </p>
           </div>
@@ -942,16 +1128,16 @@ function BackgroundRemoverPage() {
                     >
                       <Icon className="size-6" />
                     </span>
-                    <h3 className="text-xl font-bold text-gray-900">{p.title}</h3>
-                    <p className="text-xs font-semibold text-[#E11D48] mt-0.5">{p.subtitle}</p>
-                    <p className="text-xs text-gray-600 mt-3 leading-relaxed">{p.desc}</p>
+                    <h3 className="text-xl font-medium text-gray-900">{p.title}</h3>
+                    <p className="text-xs font-medium text-[#E11D48] mt-0.5">{p.subtitle}</p>
+                    <p className="text-xs text-gray-600 mt-3 leading-relaxed font-normal">{p.desc}</p>
                   </div>
 
                   <ul className="mt-6 pt-5 border-t border-gray-100 space-y-2 text-xs text-gray-600">
                     {p.bullets.map((b) => (
                       <li key={b} className="flex items-center gap-2">
                         <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                        <span>{b}</span>
+                        <span className="font-normal">{b}</span>
                       </li>
                     ))}
                   </ul>
@@ -966,41 +1152,41 @@ function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-[#FFF9FA] border-y border-[#FFE4E9]/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-xs font-bold text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               EFFORTLESS 3-STEP PIPELINE
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
               Remove Backgrounds in 3 Steps
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-extrabold text-xl flex items-center justify-center mb-5">
+              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
                 1
               </span>
-              <h3 className="text-lg font-bold text-gray-900">Upload or Paste Image</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Drag and drop your JPG, PNG, WebP or HEIC file, or press <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700">Ctrl+V</kbd> from anywhere.
+              <h3 className="text-lg font-medium text-gray-900">Upload or Paste Image</h3>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
+                Drag and drop your JPG, PNG, WebP or HEIC file, or press <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700 font-normal">Ctrl+V</kbd> from anywhere.
               </p>
             </div>
 
             <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-extrabold text-xl flex items-center justify-center mb-5">
+              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
                 2
               </span>
-              <h3 className="text-lg font-bold text-gray-900">AI Isolates Subject</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+              <h3 className="text-lg font-medium text-gray-900">AI Isolates Subject</h3>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
                 Our sub-pixel neural matting separates fine hair, jewelry, and products from distracting backdrops in under 5 seconds.
               </p>
             </div>
 
             <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-extrabold text-xl flex items-center justify-center mb-5">
+              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
                 3
               </span>
-              <h3 className="text-lg font-bold text-gray-900">Customize &amp; Download</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+              <h3 className="text-lg font-medium text-gray-900">Customize &amp; Download</h3>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
                 Export transparent 4K PNGs or instantly replace the background with Amazon-compliant Pure White, studio colors, or scenic backdrops.
               </p>
             </div>
@@ -1013,17 +1199,17 @@ function BackgroundRemoverPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 space-y-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#FF4FA3] text-xs font-bold border border-white/15">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#FF4FA3] text-xs font-medium border border-white/15">
                 <Code2 className="size-3.5" />
                 <span>REST API INTEGRATION</span>
               </span>
-              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-normal tracking-tight leading-tight">
                 Integrate Background Removal in 1 Line of Code
               </h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-400 leading-relaxed font-normal">
                 Power your web app, e-commerce backend, or mobile tool with our high-speed global endpoints. Zero infrastructure headache.
               </p>
-              <div className="pt-2 flex flex-wrap gap-4 text-xs text-gray-400 font-medium">
+              <div className="pt-2 flex flex-wrap gap-4 text-xs text-gray-400 font-normal">
                 <span className="flex items-center gap-1.5">
                   <Check className="size-4 text-emerald-400" /> &lt;800ms Latency
                 </span>
@@ -1046,7 +1232,7 @@ function BackgroundRemoverPage() {
                         key={lang}
                         type="button"
                         onClick={() => setActiveCodeTab(lang)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium uppercase transition-all ${
                           activeCodeTab === lang
                             ? "bg-[#E11D48] text-white shadow-xs"
                             : "text-gray-400 hover:text-white"
@@ -1081,10 +1267,10 @@ function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               FREQUENTLY ASKED QUESTIONS
             </p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
               Everything You Need to Know
             </h2>
           </div>
@@ -1099,15 +1285,15 @@ function BackgroundRemoverPage() {
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     className="w-full text-left flex items-center justify-between gap-4 cursor-pointer group"
                   >
-                    <span className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#E11D48] transition-colors">
+                    <span className="text-base sm:text-lg font-medium text-gray-900 group-hover:text-[#E11D48] transition-colors">
                       {item.q}
                     </span>
-                    <span className="size-7 rounded-full bg-gray-100 group-hover:bg-[#FFE4E9] group-hover:text-[#E11D48] flex items-center justify-center font-bold text-sm text-gray-600 transition-all shrink-0">
+                    <span className="size-7 rounded-full bg-gray-100 group-hover:bg-[#FFE4E9] group-hover:text-[#E11D48] flex items-center justify-center font-medium text-sm text-gray-600 transition-all shrink-0">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>
                   {isOpen && (
-                    <p className="mt-3 text-sm text-gray-600 leading-relaxed pr-6 animate-in fade-in duration-200">
+                    <p className="mt-3 text-sm text-gray-600 leading-relaxed pr-6 animate-in fade-in duration-200 font-normal">
                       {item.a}
                     </p>
                   )}
@@ -1123,16 +1309,16 @@ function BackgroundRemoverPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] p-8 sm:p-14 text-white text-center shadow-2xl shadow-[#E11D48]/30 relative overflow-hidden">
             <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold backdrop-blur-md">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-md">
                 <Sparkles className="size-3.5" />
                 <span>TRY IT TODAY 100% FREE</span>
               </span>
 
-              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-normal tracking-tight leading-tight">
                 Make Every Image Ready to Use in 5 Seconds.
               </h2>
 
-              <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed">
+              <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed font-normal">
                 Join thousands of designers, e-commerce sellers, and photographers saving hours of manual cutout work every day.
               </p>
 
@@ -1143,7 +1329,7 @@ function BackgroundRemoverPage() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                     fileInputRef.current?.click();
                   }}
-                  className="px-8 py-3.5 rounded-full bg-white hover:bg-gray-50 text-[#E11D48] text-xs sm:text-sm font-extrabold shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-full bg-white hover:bg-gray-50 text-[#E11D48] text-xs sm:text-sm font-medium shadow-lg transition-all cursor-pointer flex items-center gap-2"
                 >
                   <Upload className="size-4" />
                   <span>Upload Image Free</span>

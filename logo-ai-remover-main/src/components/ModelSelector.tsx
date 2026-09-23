@@ -29,8 +29,8 @@ export function ModelCard({
       }}
       className={`group relative flex items-center justify-between gap-3.5 px-4 py-3 rounded-2xl cursor-pointer select-none transition-all duration-200 border text-left ${
         isSelected
-          ? "bg-gradient-to-r from-rose-950/40 via-black/80 to-rose-950/30 border-rose-500 shadow-[0_0_24px_rgba(225,29,72,0.35)] ring-1 ring-rose-500/40 -translate-y-0.5"
-          : "bg-white/[0.04] hover:bg-white/[0.08] border-white/10 hover:border-rose-500/40 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(225,29,72,0.18)]"
+          ? "bg-rose-50/80 border-rose-500 shadow-md ring-1 ring-rose-500/30 -translate-y-0.5"
+          : "bg-white hover:bg-rose-50/40 border-gray-200 hover:border-rose-300 hover:-translate-y-0.5 hover:shadow-md"
       } ${className}`}
     >
       {/* Left: Official Model Logo */}
@@ -40,14 +40,14 @@ export function ModelCard({
         {/* Center: Model Details */}
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-white tracking-tight truncate group-hover:text-rose-200 transition-colors">
+            <span className="text-sm font-semibold text-gray-900 tracking-tight truncate group-hover:text-rose-600 transition-colors">
               {model.name}
             </span>
             {isSelected && (
-              <CheckCircle2 className="size-3.5 text-rose-400 shrink-0 animate-in fade-in zoom-in-75 duration-200" />
+              <CheckCircle2 className="size-3.5 text-rose-500 shrink-0 animate-in fade-in zoom-in-75 duration-200" />
             )}
           </div>
-          <span className="text-[11px] font-mono text-gray-400 tracking-tight truncate">
+          <span className="text-[11px] font-mono text-gray-600 tracking-tight truncate font-semibold">
             {model.version}
           </span>
           <span className="text-[10px] text-gray-500 line-clamp-1">
@@ -56,11 +56,11 @@ export function ModelCard({
         </div>
       </div>
 
-      {/* Right: Mode Badge & Indicator (Frameless) */}
-      <div className="flex items-center gap-1.5 shrink-0 pl-2 text-[11px] font-mono font-medium text-emerald-400">
+      {/* Right: Mode Badge & Indicator */}
+      <div className="flex items-center gap-1.5 shrink-0 pl-2 text-[11px] font-mono font-medium text-emerald-600">
         <span
           className={`size-1.5 rounded-full ${
-            isSelected ? "bg-rose-400 animate-pulse" : "bg-emerald-400"
+            isSelected ? "bg-rose-500 animate-pulse" : "bg-emerald-500"
           }`}
         />
         <span>{model.mode}</span>
@@ -93,15 +93,15 @@ export function ModelSelector({
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/30 text-xs font-bold text-rose-300">
-            <Sparkles className="size-3.5 text-rose-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600">
+            <Sparkles className="size-3.5 text-rose-500" />
             <span>Supported Generative Video &amp; Image AI Engines</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-950 tracking-tight">
             Official AI Model Watermark Removal Registry
           </h3>
         </div>
-        <p className="text-xs text-gray-400 max-w-xs font-mono">
+        <p className="text-xs text-gray-500 max-w-xs font-mono">
           Select an AI model to apply calibrated neural inpainting profiles.
         </p>
       </div>

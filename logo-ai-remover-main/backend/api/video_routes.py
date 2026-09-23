@@ -45,7 +45,8 @@ def _metadata_payload(job: JobRecord) -> dict | None:
 def _urls(job: JobRecord) -> dict:
     return {
         "originalVideoUrl": f"/api/video/original/{job.id}",
-        "cleanedVideoUrl": f"/api/video/download/{job.id}" if job.status == JobStatus.COMPLETED else None,
+        "cleanedVideoUrl": f"/api/video/cleaned/{job.id}" if job.status == JobStatus.COMPLETED else None,
+        "downloadVideoUrl": f"/api/video/download/{job.id}" if job.status == JobStatus.COMPLETED else None,
     }
 
 
@@ -177,6 +178,25 @@ def original_video(job_id: str):
         original,
         media_type=job.mime_type,
         headers={"Cache-Control": "private, no-store, max-age=0", "X-Video-Job-Id": job.id},
+    )
+
+
+@router.get("/cleaned/{job_id}")
+def cleaned_video(job_id: str):
+    job = _job(job_id)
+    if job.status != JobStatus.COMPLETED or not job.result_path:
+        raise HTTPException(status_code=409, detail="Cleaned video is not ready")
+    result = assert_job_owned_path(job.id, job.result_path)
+    if not result.is_file():
+        raise HTTPException(status_code=404, detail="Cleaned video could not be generated. Please retry.")
+    return FileResponse(
+        result,
+        media_type="video/mp4",
+        headers={
+            "Cache-Control": "private, no-store, max-age=0",
+            "Content-Disposition": "inline",
+            "X-Video-Job-Id": job.id,
+        },
     )
 
 

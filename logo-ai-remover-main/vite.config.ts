@@ -11,6 +11,10 @@ export default defineConfig({
     server: {
       proxy: {
         "/api/video": "http://127.0.0.1:8000",
+        "/api/image": "http://127.0.0.1:8000",
+        "/api/pdf": "http://127.0.0.1:8000",
+        "/api/background": "http://127.0.0.1:8000",
+        "/api/v1": "http://127.0.0.1:8000",
       },
     },
     optimizeDeps: {

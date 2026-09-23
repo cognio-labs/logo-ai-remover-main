@@ -18,7 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
-import { HeroParallax, ProductCardItem } from "@/components/ui/hero-parallax";
+import { Keyboard } from "@/components/ui/keyboard";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -34,113 +34,6 @@ export const Route = createFileRoute("/features")({
   component: FeaturesPage,
 });
 
-const PIXELREFINE_PRODUCTS: ProductCardItem[] = [
-  {
-    title: "Gemini Video Remover",
-    link: "/gemini-video-watermark-remover",
-    thumbnail: "/preview_watermarked_frame.png",
-    badge: "New 60 FPS",
-    category: "Video Inpainting",
-  },
-  {
-    title: "PDF Watermark Remover",
-    link: "/pdf-watermark-remover",
-    thumbnail: "/clean_reconstructed_crop.png",
-    badge: "Structural",
-    category: "Document Restoration",
-  },
-  {
-    title: "4K / 8K AI Upscaler",
-    link: "/upscale",
-    thumbnail: "/hero-after-clean.png",
-    badge: "Gigapixel",
-    category: "Super Resolution",
-  },
-  {
-    title: "AI Image Cleaner",
-    link: "/remove/image",
-    thumbnail: "/hero-ai-content.png",
-    badge: "Zero Smudge",
-    category: "Image Inpainting",
-  },
-  {
-    title: "AI Video Enhancer",
-    link: "/video-enhancer",
-    thumbnail: "/videoframe_375_clean.png",
-    badge: "4K 60FPS",
-    category: "Motion Interpolation",
-  },
-  {
-    title: "AI Background Remover",
-    link: "/background-remover",
-    thumbnail: "/claymation_gemini_logo.png",
-    badge: "Instant Alpha",
-    category: "Cutout & PNG",
-  },
-  {
-    title: "Veo Sync Cleanup",
-    link: "/gemini-video-watermark-remover",
-    thumbnail: "/sample_after_frame.png",
-    badge: "Temporal AI",
-    category: "Optical Flow",
-  },
-  {
-    title: "Portrait Skin Synthesis",
-    link: "/upscale",
-    thumbnail: "/hero-before-gemini.png",
-    badge: "8K Micro-Pores",
-    category: "Real-ESRGAN Plus",
-  },
-  {
-    title: "Midjourney 8K Art",
-    link: "/upscale",
-    thumbnail: "/hero-ai-content.png",
-    badge: "Museum Grade",
-    category: "Concept Art Restorer",
-  },
-  {
-    title: "Vector & Typography",
-    link: "/upscale",
-    thumbnail: "/clean_375_crop.png",
-    badge: "Razor Sharp",
-    category: "Anti-Aliased Font",
-  },
-  {
-    title: "Neural Pro Keyboard",
-    link: "/",
-    thumbnail: "/hero-after.png",
-    badge: "Interactive",
-    category: "Studio Hotkeys",
-  },
-  {
-    title: "NVIDIA H100 Cloud",
-    link: "/pricing",
-    thumbnail: "/sample_before_frame.png",
-    badge: "Sub-3s GPU",
-    category: "Tensor Processing",
-  },
-  {
-    title: "Zero Storage Memory",
-    link: "/features",
-    thumbnail: "/preview_watermarked_frame.png",
-    badge: "256-Bit SSL",
-    category: "Transient Privacy",
-  },
-  {
-    title: "Batch Video Queue",
-    link: "/gemini-video-watermark-remover",
-    thumbnail: "/videoframe_375_watermarked.png",
-    badge: "Multi-Clip",
-    category: "Bulk Export",
-  },
-  {
-    title: "Pro Creator Studio",
-    link: "/pricing",
-    thumbnail: "/hero-after-clean.png",
-    badge: "Unlimited",
-    category: "Annual Master",
-  },
-];
 
 function FeaturesPage() {
   const [activeTab, setActiveTab] = useState(0);
@@ -241,8 +134,53 @@ function FeaturesPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans pb-24">
-      {/* 1. ACETERNITY 3D HERO PARALLAX GRID */}
-      <HeroParallax products={PIXELREFINE_PRODUCTS} />
+      {/* 1. HERO SECTION: INTERACTIVE STUDIO KEYBOARD & CONTROLS */}
+      <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA] border-b border-[#E5E5E5] relative overflow-hidden">
+        {/* Subtle ambient light gradient */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-white/70 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="relative mx-auto max-w-6xl text-center space-y-10">
+          <div className="max-w-2xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E5E5E5] text-xs font-bold text-[#171717] tracking-wider uppercase shadow-2xs">
+              <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
+              <span>Tactile Neural Workflow • Mac Hardware Showcase</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight text-[#171717]">
+              Interactive Studio{" "}
+              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+                Controls
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-[#737373] max-w-2xl mx-auto leading-relaxed">
+              Control PixelRefine AI at the speed of thought. Press keys on your physical keyboard, click the virtual keycaps, or interact with the precision wireless mouse to trigger neural shortcuts with authentic switch acoustics.
+            </p>
+          </div>
+
+          {/* Mac-Style White Studio Keyboard & Wireless Mouse Showcase */}
+          <div className="relative pb-2">
+            <Keyboard enableSound />
+          </div>
+
+          {/* Action quick links */}
+          <div className="pt-2 pb-2 flex flex-wrap items-center justify-center gap-4">
+            <PinkButton size="lg" className="px-8 py-3.5 font-bold shadow-md shadow-rose-200" asChild>
+              <Link to="/gemini-video-watermark-remover">
+                <span>Launch Studio Shortcut Hub</span>
+                <ArrowRight className="size-4 ml-1.5" />
+              </Link>
+            </PinkButton>
+
+            <Link
+              to="/upscale"
+              className="px-6 py-3.5 rounded-full text-sm font-bold text-[#171717] bg-[#FFFFFF] hover:bg-[#F5F5F5] border border-[#E5E5E5] shadow-xs transition-all hover:border-[#D4D4D4]"
+            >
+              Try 8K Upscaler (Key U)
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* 2. HERO HIGHLIGHTS & INTRO */}
       <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF5F8] via-white to-white text-center border-t border-[#FCE7EC]">
