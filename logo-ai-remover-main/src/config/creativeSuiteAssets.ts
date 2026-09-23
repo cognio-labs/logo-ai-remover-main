@@ -43,13 +43,13 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     description: "Micro-texture hallucination and artifact reconstruction up to 800% scale.",
   },
   {
-    id: "video-watermark-remover",
-    title: "AI Video Watermark Remover",
-    link: "/gemini-video-watermark-remover",
+    id: "image-watermark-remover",
+    title: "Image Watermark Remover",
+    link: "/remove/image",
     thumbnail: "/creative-suite/watermark_remover_city.jpg",
-    badge: "4K 60FPS",
+    badge: "Lossless Inpaint",
     category: "Temporal Inpainting",
-    description: "Optical flow-guided watermark eraser eliminating logos across dynamic frames.",
+    description: "Deep neural inpainting eliminating logos and stamps across photos seamlessly.",
   },
   {
     id: "pdf-watermark-remover",
@@ -112,7 +112,7 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
   {
     id: "audio-temporal",
     title: "Audio Temporal & Stem Cleaner",
-    link: "/gemini-video-watermark-remover",
+    link: "/video-enhancer",
     thumbnail: "/creative-suite/audio_temporal_studio.jpg",
     badge: "Studio Grade",
     category: "Temporal Frequency",

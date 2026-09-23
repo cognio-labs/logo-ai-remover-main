@@ -91,9 +91,9 @@ function HeroSection() {
             {/* Primary Action Buttons */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <PinkButton size="lg" className="px-7 py-3 text-sm font-bold shadow-lg" asChild>
-                <Link to="/gemini-video-watermark-remover" className="flex items-center gap-2">
+                <Link to="/video-enhancer" className="flex items-center gap-2">
                   <Video className="size-4" />
-                  <span>Gemini Video Remover</span>
+                  <span>Video Enhancer</span>
                   <ArrowRight className="size-4" />
                 </Link>
               </PinkButton>
@@ -375,9 +375,9 @@ function VideoCleanupResultSection() {
         {/* CTA Banner below video */}
         <div className="pt-6 flex items-center justify-center gap-4">
           <PinkButton size="md" className="px-6 py-2.5 font-bold shadow-md" asChild>
-            <Link to="/gemini-video-watermark-remover" className="flex items-center gap-2">
+            <Link to="/video-enhancer" className="flex items-center gap-2">
               <Video className="size-4" />
-              <span>Clean Your Gemini Video Now</span>
+              <span>Enhance Your Video Now</span>
               <ArrowRight className="size-4" />
             </Link>
           </PinkButton>
@@ -728,8 +728,8 @@ function FinalCTA() {
         </p>
         <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
           <PinkButton size="lg" className="px-8 py-3 font-bold shadow-md" asChild>
-            <Link to="/gemini-video-watermark-remover">
-              <span>Try Video Remover</span>
+            <Link to="/video-enhancer">
+              <span>Try Video Enhancer</span>
               <ArrowRight className="size-4 ml-1.5" />
             </Link>
           </PinkButton>

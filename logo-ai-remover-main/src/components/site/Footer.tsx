@@ -142,19 +142,13 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm text-gray-600">
               <li>
-                <Link to="/gemini-video-watermark-remover" className="hover:text-[#E11D48] font-semibold text-[#E11D48] transition-colors flex items-center gap-1.5">
-                  <span>Gemini Video Remover</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFE4E9] text-[#E11D48] font-bold">New</span>
+                <Link to="/upscale" className="hover:text-[#E11D48] transition-colors">
+                  4K / 8K Upscaler
                 </Link>
               </li>
               <li>
-                <Link to="/pdf-watermark-remover" className="hover:text-[#E11D48] transition-colors">
-                  Remove PDF Watermark
-                </Link>
-              </li>
-              <li>
-                <Link to="/remove/image" className="hover:text-[#E11D48] transition-colors">
-                  AI Image Cleaner
+                <Link to="/background-remover" className="hover:text-[#E11D48] transition-colors">
+                  AI Background Remover
                 </Link>
               </li>
               <li>
@@ -163,13 +157,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/upscale" className="hover:text-[#E11D48] transition-colors">
-                  4K / 8K Upscaler
+                <Link to="/pdf-watermark-remover" className="hover:text-[#E11D48] transition-colors">
+                  PDF Watermark Remover
                 </Link>
               </li>
               <li>
-                <Link to="/background-remover" className="hover:text-[#E11D48] transition-colors">
-                  Background Remover
+                <Link to="/remove/image" className="hover:text-[#E11D48] transition-colors">
+                  Image Watermark Remover
                 </Link>
               </li>
               <li>
@@ -180,7 +174,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources & Features */}
+          {/* Resources */}
           <div>
             <h4 className="text-xs uppercase font-bold tracking-wider text-gray-900 mb-4">
               Resources
@@ -193,7 +187,7 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/features" className="hover:text-[#E11D48] transition-colors">
-                  Neural Features
+                  Features
                 </Link>
               </li>
               <li>

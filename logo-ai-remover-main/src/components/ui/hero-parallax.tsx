@@ -185,11 +185,11 @@ export const Header = ({
       {/* Action Buttons */}
       <div className="mt-8 flex flex-wrap items-center gap-4 pointer-events-auto">
         <Link
-          to="/gemini-video-watermark-remover"
+          to="/video-enhancer"
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white font-semibold text-sm shadow-[0_0_25px_rgba(225,29,72,0.4)] hover:shadow-[0_0_35px_rgba(225,29,72,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <WandSparkles className="size-4" />
-          <span>Try AI Inpainter Free</span>
+          <span>Try Video Enhancer</span>
           <ArrowUpRight className="size-4 ml-0.5" />
         </Link>
         <Link
