@@ -209,17 +209,6 @@ export function Navbar() {
               Pricing
             </Link>
           </motion.div>
-
-          {/* 3. Features with Spring Magnification */}
-          <motion.div whileHover={{ scale: 1.12, y: -3 }} whileTap={{ scale: 0.94 }} transition={dockSpring}>
-            <Link
-              to="/features"
-              className="text-sm font-semibold text-gray-800 hover:text-[#E11D48] transition-colors py-2 px-3.5 rounded-2xl hover:bg-[#FFF5F7] block"
-              activeProps={{ className: "text-[#E11D48] font-bold bg-[#FFF1F4]" }}
-            >
-              Features
-            </Link>
-          </motion.div>
         </div>
 
         {/* Right CTA Button - Try Video Enhancer with Floating Spring Magnification & Glow */}
@@ -337,14 +326,6 @@ export function Navbar() {
               className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#FFF5F7] font-bold text-gray-800"
             >
               <span>Pricing Plans</span>
-            </Link>
-
-            <Link
-              to="/features"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#FFF5F7] font-bold text-gray-800"
-            >
-              <span>Features</span>
             </Link>
 
             <Link
