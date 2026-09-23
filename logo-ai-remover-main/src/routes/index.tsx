@@ -91,17 +91,24 @@ function HeroSection() {
             {/* Primary Action Buttons */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <PinkButton size="lg" className="px-7 py-3 text-sm font-bold shadow-lg" asChild>
+                <Link to="/gemini-video-watermark-remover" className="flex items-center gap-2">
+                  <Sparkles className="size-4" />
+                  <span>Gemini Video Watermark Remover</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </PinkButton>
+
+              <PinkButton variant="outline" size="lg" className="px-6 py-3 text-sm font-bold" asChild>
                 <Link to="/video-enhancer" className="flex items-center gap-2">
                   <Video className="size-4" />
                   <span>Video Enhancer</span>
-                  <ArrowRight className="size-4" />
                 </Link>
               </PinkButton>
 
               <PinkButton variant="outline" size="lg" className="px-6 py-3 text-sm font-bold" asChild>
                 <Link to="/remove/image" className="flex items-center gap-2">
                   <WandSparkles className="size-4" />
-                  <span>Open Image Cleaner</span>
+                  <span>Image Cleaner</span>
                 </Link>
               </PinkButton>
             </div>
@@ -749,6 +756,7 @@ function HomePage() {
   return (
     <>
       <HeroParallax />
+      <HeroSection />
       <SlideRunMarquee />
       <VideoCleanupResultSection />
       <RealWorldResults />

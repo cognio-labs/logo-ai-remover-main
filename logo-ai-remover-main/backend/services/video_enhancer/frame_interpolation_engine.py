@@ -7,21 +7,28 @@ logger = logging.getLogger(__name__)
 
 class FrameInterpolationEngine:
     """
-    Real dense optical-flow frame synthesizer.
+    High-performance, dense optical-flow frame synthesizer.
     Generates true in-between frames using DIS (Dense Inverse Search) optical flow
-    with bidirectional motion compensation and occlusion blending.
+    with cached coordinate meshgrids, bidirectional motion compensation, and occlusion blending.
     """
 
     def __init__(self) -> None:
         # DIS optical flow preset: FAST for responsive video throughput, high quality motion vectors
         self.dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST)
+        self._grid_cache: dict[tuple[int, int], tuple[np.ndarray, np.ndarray]] = {}
+
+    def _get_meshgrid(self, w: int, h: int) -> tuple[np.ndarray, np.ndarray]:
+        key = (w, h)
+        if key not in self._grid_cache:
+            gx, gy = np.meshgrid(np.arange(w, dtype=np.float32), np.arange(h, dtype=np.float32))
+            self._grid_cache[key] = (gx, gy)
+        return self._grid_cache[key]
 
     def _warp_frame(self, img: np.ndarray, flow: np.ndarray) -> np.ndarray:
         h, w = flow.shape[:2]
-        # Meshgrid of pixel coordinates
-        grid_x, grid_y = np.meshgrid(np.arange(w), np.arange(h))
-        map_x = (grid_x + flow[:, :, 0]).astype(np.float32)
-        map_y = (grid_y + flow[:, :, 1]).astype(np.float32)
+        grid_x, grid_y = self._get_meshgrid(w, h)
+        map_x = grid_x + flow[:, :, 0]
+        map_y = grid_y + flow[:, :, 1]
         return cv2.remap(
             img,
             map_x,
@@ -48,16 +55,20 @@ class FrameInterpolationEngine:
         gray0 = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
         gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
 
-        # Downscale for optical flow calculation if frame is high res to optimize speed
+        # Scale for optical flow: 640px is optimal for speed and eliminates sub-pixel noise
         h, w = gray0.shape
-        flow_scale = 1.0
-        if max(h, w) > 1280:
-            flow_scale = 1280.0 / max(h, w)
+        max_dim = max(h, w)
+        if max_dim > 640:
+            flow_scale = 640.0 / max_dim
             flow_w = int(w * flow_scale)
             flow_h = int(h * flow_scale)
+            # Ensure even dimensions
+            flow_w = flow_w if flow_w % 2 == 0 else flow_w + 1
+            flow_h = flow_h if flow_h % 2 == 0 else flow_h + 1
             g0_scaled = cv2.resize(gray0, (flow_w, flow_h), interpolation=cv2.INTER_AREA)
             g1_scaled = cv2.resize(gray1, (flow_w, flow_h), interpolation=cv2.INTER_AREA)
         else:
+            flow_scale = 1.0
             g0_scaled, g1_scaled = gray0, gray1
 
         # Compute forward flow (0 -> 1) and backward flow (1 -> 0)
@@ -65,8 +76,9 @@ class FrameInterpolationEngine:
         flow_backward = self.dis.calc(g1_scaled, g0_scaled, None)
 
         if flow_scale != 1.0:
-            flow_forward = cv2.resize(flow_forward, (w, h), interpolation=cv2.INTER_LINEAR) * (1.0 / flow_scale)
-            flow_backward = cv2.resize(flow_backward, (w, h), interpolation=cv2.INTER_LINEAR) * (1.0 / flow_scale)
+            mult = float(1.0 / flow_scale)
+            flow_forward = cv2.resize(flow_forward, (w, h), interpolation=cv2.INTER_LINEAR) * mult
+            flow_backward = cv2.resize(flow_backward, (w, h), interpolation=cv2.INTER_LINEAR) * mult
 
         # Warp frame0 along forward motion towards t
         warp0 = self._warp_frame(frame0, flow_forward * t)

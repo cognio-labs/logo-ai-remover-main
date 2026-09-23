@@ -193,6 +193,30 @@ export function Navbar() {
                         </p>
                       </div>
                     </Link>
+
+                    {/* Tool 6: Gemini Video Watermark Remover */}
+                    <Link
+                      to="/gemini-video-watermark-remover"
+                      onClick={() => setToolsOpen(false)}
+                      className="flex items-start gap-3.5 p-2.5 rounded-xl hover:bg-[#FFF5F7] transition-colors group"
+                    >
+                      <div className="size-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 group-hover:border-[#FCE7EC] group-hover:bg-white text-gray-700 group-hover:text-[#E11D48] transition-colors">
+                        <Sparkles className="size-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#E11D48] transition-colors leading-snug">
+                            Gemini Video Watermark Remover
+                          </h4>
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#E11D48]/10 text-[#E11D48]">
+                            AI
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                          Remove Gemini & Veo video watermarks with temporal clarity
+                        </p>
+                      </div>
+                    </Link>
                   </div>
                 </motion.div>
               )}
@@ -313,6 +337,24 @@ export function Navbar() {
               <div className="flex-1">
                 <span>Image Watermark Remover</span>
                 <p className="text-xs text-gray-500 font-normal">Remove unwanted marks from supported images</p>
+              </div>
+            </Link>
+
+            {/* 6. Gemini Video Watermark Remover */}
+            <Link
+              to="/gemini-video-watermark-remover"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#FFF5F7] font-bold text-gray-800"
+            >
+              <Sparkles className="size-5 text-[#E11D48]" />
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span>Gemini Video Watermark Remover</span>
+                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#E11D48]/10 text-[#E11D48]">
+                    AI
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 font-normal">Remove Gemini & Veo video watermarks</p>
               </div>
             </Link>
 
