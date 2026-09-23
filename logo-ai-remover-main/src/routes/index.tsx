@@ -22,7 +22,6 @@ import {
   Zap,
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
-import { Keyboard } from "@/components/ui/keyboard";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
@@ -712,61 +711,7 @@ function StepsSection() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 7. INTERACTIVE STUDIO KEYBOARD SECTION                                     */
-/* -------------------------------------------------------------------------- */
-function InteractiveKeyboardSection() {
-  return (
-    <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA] border-y border-[#E5E5E5] relative overflow-hidden">
-      {/* Subtle ambient light gradient */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-white/70 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="relative mx-auto max-w-6xl text-center space-y-10">
-        <div className="max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E5E5E5] text-xs font-bold text-[#171717] tracking-wider uppercase shadow-2xs">
-            <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
-            <span>Tactile Neural Workflow • Mac Hardware Showcase</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-[#171717]">
-            Interactive Studio{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
-              Controls
-            </span>
-          </h2>
-
-          <p className="text-sm sm:text-base text-[#737373] max-w-2xl mx-auto leading-relaxed">
-            Control PixelRefine AI at the speed of thought. Press keys on your physical keyboard, click the virtual keycaps, or interact with the precision wireless mouse to trigger neural shortcuts with authentic switch acoustics.
-          </p>
-        </div>
-
-        {/* Mac-Style White Studio Keyboard & Wireless Mouse Showcase */}
-        <div className="relative pb-2">
-          <Keyboard enableSound />
-        </div>
-
-        {/* Action quick links */}
-        <div className="pt-2 pb-2 flex flex-wrap items-center justify-center gap-4">
-          <PinkButton size="lg" className="px-8 py-3.5 font-bold shadow-md shadow-rose-200" asChild>
-            <Link to="/gemini-video-watermark-remover">
-              <span>Launch Studio Shortcut Hub</span>
-              <ArrowRight className="size-4 ml-1.5" />
-            </Link>
-          </PinkButton>
-
-          <Link
-            to="/upscale"
-            className="px-6 py-3.5 rounded-full text-sm font-bold text-[#171717] bg-[#FFFFFF] hover:bg-[#F5F5F5] border border-[#E5E5E5] shadow-xs transition-all hover:border-[#D4D4D4]"
-          >
-            Try 8K Upscaler (Key U)
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 8. FINAL CALL TO ACTION BANNER                                             */
+/* 7. FINAL CALL TO ACTION BANNER                                             */
 /* -------------------------------------------------------------------------- */
 function FinalCTA() {
   return (
@@ -809,7 +754,6 @@ function HomePage() {
       <RealWorldResults />
       <BentoFeatures />
       <StepsSection />
-      <InteractiveKeyboardSection />
       <FinalCTA />
     </>
   );
