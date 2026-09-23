@@ -15,11 +15,11 @@ import { PinkButton } from "@/components/site/PinkButton";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Us — PixelRefine AI" },
+      { title: "About Us — Bellix.us" },
       {
         name: "description",
         content:
-          "Learn about PixelRefine AI, our mission to empower creators with next-generation neural inpainting, and our visual fidelity technology.",
+          "Learn about Bellix.us, our mission to empower creators with next-generation neural inpainting, and our visual fidelity technology.",
       },
     ],
   }),
@@ -49,7 +49,7 @@ function AboutPage() {
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            PixelRefine AI was founded on a simple vision: to give designers, video editors, and digital creators the power to restore, clean, and elevate any visual asset in seconds with zero loss in quality.
+            Bellix.us was founded on a simple vision: to give designers, video editors, and digital creators the power to restore, clean, and elevate any visual asset in seconds with zero loss in quality.
           </p>
         </div>
       </section>
@@ -65,7 +65,7 @@ function AboutPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                We bridge the gap between creative craft and state-of-the-art neural computation. Where traditional editing software requires hours of meticulous manual retouching and cloning, PixelRefine’s deep learning models reconstruct covered textures, lighting angles, and grain instantly — letting solo creators ship work that previously required entire post-production studios.
+                We bridge the gap between creative craft and state-of-the-art neural computation. Where traditional editing software requires hours of meticulous manual retouching and cloning, Bellix.us’s deep learning models reconstruct covered textures, lighting angles, and grain instantly — letting solo creators ship work that previously required entire post-production studios.
               </p>
             </div>
 

@@ -21,7 +21,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/history")({
   head: () => ({
     meta: [
-      { title: "Project History — PixelRefine AI" },
+      { title: "Project History — Bellix.us" },
       {
         name: "description",
         content:
@@ -60,7 +60,7 @@ function HistoryPage() {
   }) => {
     const url = item.result_url || item.file_url;
     const ext = item.file_type === "video" ? "mp4" : "png";
-    const cleanName = `pixelrefine_clean_${item.file_name.replace(/\.[^/.]+$/, "")}.${ext}`;
+    const cleanName = `bellix_clean_${item.file_name.replace(/\.[^/.]+$/, "")}.${ext}`;
 
     if (url) {
       fetch(url)
@@ -85,7 +85,7 @@ function HistoryPage() {
           document.body.removeChild(a);
         });
     } else {
-      const blob = new Blob(["PixelRefine Clean Media"], { type: "application/octet-stream" });
+      const blob = new Blob(["Bellix.us Clean Media"], { type: "application/octet-stream" });
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;

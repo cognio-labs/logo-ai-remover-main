@@ -8,7 +8,7 @@ import {
 export type KeyboardProps = InteractiveKeyboardProps;
 
 /**
- * PixelRefine Studio Keyboard — Redesigned Mac-Style Hardware Showcase
+ * Bellix Studio Keyboard — Redesigned Mac-Style Hardware Showcase
  * Complete with interactive white Mac keyboard, precision wireless mouse,
  * real routing, physical keyboard synchronization, and Web Audio click acoustics.
  */

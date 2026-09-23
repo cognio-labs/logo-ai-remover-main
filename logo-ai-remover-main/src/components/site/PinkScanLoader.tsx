@@ -29,7 +29,7 @@ export const PinkScanLoader: React.FC<PinkScanLoaderProps> = ({
 
       <div className="space-y-1 mb-5">
         <h4 className="text-lg font-bold text-gray-900 tracking-tight">
-          {isCompleted ? "AI Refinement Complete!" : "PixelRefine Neural Engine"}
+          {isCompleted ? "AI Refinement Complete!" : "Bellix Neural Engine"}
         </h4>
         <p className="text-sm font-medium text-[#E11D48] flex items-center justify-center gap-1.5">
           <Zap className="w-4 h-4 animate-bounce" />

@@ -113,7 +113,7 @@ def safe_bg_download_name(original_name: str, bg_type: str = "cutout", ext: str 
     safe = "".join(character if character.isalnum() or character in "-_" else "-" for character in stem)
     clean_ext = ext.lstrip(".").lower()
     suffix = "cutout" if bg_type == "transparent" else bg_type
-    return f"pixelrefine-{safe or 'image'}-{suffix}.{clean_ext}"
+    return f"bellix-{safe or 'image'}-{suffix}.{clean_ext}"
 
 
 def video_enhancer_job_dir(job_id: str) -> Path:

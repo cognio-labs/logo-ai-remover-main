@@ -25,7 +25,7 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/remove/image")({
   head: () => ({
     meta: [
-      { title: "AI Image Cleaner — PixelRefine AI" },
+      { title: "AI Image Cleaner — Bellix.us" },
       {
         name: "description",
         content:
@@ -127,7 +127,7 @@ function ImageCleaner() {
     if (!url) return;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `pixelrefine_${file?.name ? file.name.replace(/\.[^/.]+$/, "") : "image"}_4k.${format}`;
+    a.download = `bellix_${file?.name ? file.name.replace(/\.[^/.]+$/, "") : "image"}_4k.${format}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

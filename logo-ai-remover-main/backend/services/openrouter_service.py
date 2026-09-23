@@ -88,8 +88,8 @@ class OpenRouterService:
                             headers={
                                 "Authorization": f"Bearer {settings.openrouter_api_key}",
                                 "Content-Type": "application/json",
-                                "HTTP-Referer": "https://pixelrefine.app",
-                                "X-Title": "PixelRefine Watermark Detector",
+                                "HTTP-Referer": "https://bellix.app",
+                                "X-Title": "Bellix.us Watermark Detector",
                             },
                             json={
                                 "model": model,
@@ -140,8 +140,8 @@ class OpenRouterService:
                             headers={
                                 "Authorization": f"Bearer {settings.openrouter_api_key}",
                                 "Content-Type": "application/json",
-                                "HTTP-Referer": "https://pixelrefine.app",
-                                "X-Title": "PixelRefine Document Detector",
+                                "HTTP-Referer": "https://bellix.app",
+                                "X-Title": "Bellix.us Document Detector",
                             },
                             json={
                                 "model": model,

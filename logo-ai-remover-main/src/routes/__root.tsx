@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PixelRefine AI" },
+      { title: "Bellix.us" },
       {
         name: "description",
         content: "Transform AI-generated content into professional-quality media.",
       },
-      { name: "author", content: "PixelRefine AI" },
-      { property: "og:title", content: "PixelRefine AI" },
+      { name: "author", content: "Bellix.us" },
+      { property: "og:title", content: "Bellix.us" },
       {
         property: "og:description",
         content: "Transform AI-generated content into professional-quality media.",

@@ -30,7 +30,7 @@ export function calculateMaxSafeDimensions(
 }
 
 export const Route = createFileRoute("/upscale")({
-  head: () => ({ meta: [{ title: "AI Upscaler — PixelRefine AI" }] }), component: UpscalePage,
+  head: () => ({ meta: [{ title: "AI Upscaler — Bellix.us" }] }), component: UpscalePage,
 });
 type Scale = "2" | "4" | "8";
 type Format = "PNG" | "JPG";
@@ -103,7 +103,7 @@ const FEATURE_CARDS: FeatureCardData[] = [
     highImage: "/upscale/card_edge_high.jpg",
   },
 ];
-const FAQS = [["How does PixelRefine AI upscale an image without making it look artificial?","PixelRefine focuses on rebuilding fine visual structures such as edges, textures and micro-detail instead of simply stretching existing pixels. The goal is a sharper result that still feels natural."],["Which upscale level should I choose: 2, 4 or 8?","Use 2 for already-good images that need extra resolution, 4 for most web and creative work, and 8 when starting from smaller images or when a much larger output is required."],["Will the aspect ratio of my image change?","No. Upscaling increases resolution while preserving the original image proportions unless you intentionally crop or resize it separately."],["Does it work with AI-generated images?","Yes. The enhancement workflow can be used with AI artwork, portraits, concept art, product images, illustrations and other generated visuals."],["Can it improve faces and skin without creating a plastic look?","The portrait enhancement mode should prioritize natural skin texture, eyelashes, hair and facial detail while avoiding excessive smoothing."],["Can PixelRefine enhance logos and typography?","Yes. Graphic-focused enhancement can improve text edges, logos, symbols and other high-contrast design elements."],["Which image formats are supported?","Support common formats such as PNG, JPG, JPEG, WebP and AVIF, with the exact size limit shown beside the uploader."],["Are uploaded images private?","Images are processed according to PixelRefine's privacy policy. Review the current policy for the applicable processing, storage and deletion practices before uploading sensitive material."]];
+const FAQS = [["How does Bellix.us upscale an image without making it look artificial?","Bellix.us focuses on rebuilding fine visual structures such as edges, textures and micro-detail instead of simply stretching existing pixels. The goal is a sharper result that still feels natural."],["Which upscale level should I choose: 2, 4 or 8?","Use 2 for already-good images that need extra resolution, 4 for most web and creative work, and 8 when starting from smaller images or when a much larger output is required."],["Will the aspect ratio of my image change?","No. Upscaling increases resolution while preserving the original image proportions unless you intentionally crop or resize it separately."],["Does it work with AI-generated images?","Yes. The enhancement workflow can be used with AI artwork, portraits, concept art, product images, illustrations and other generated visuals."],["Can it improve faces and skin without creating a plastic look?","The portrait enhancement mode should prioritize natural skin texture, eyelashes, hair and facial detail while avoiding excessive smoothing."],["Can Bellix.us enhance logos and typography?","Yes. Graphic-focused enhancement can improve text edges, logos, symbols and other high-contrast design elements."],["Which image formats are supported?","Support common formats such as PNG, JPG, JPEG, WebP and AVIF, with the exact size limit shown beside the uploader."],["Are uploaded images private?","Images are processed according to Bellix.us's privacy policy. Review the current policy for the applicable processing, storage and deletion practices before uploading sensitive material."]];
 
 function Comparison({ image, title }: { image: string; title: string }) {
   const [position, setPosition] = useState(48); const frame = useRef<HTMLDivElement>(null);
@@ -603,7 +603,7 @@ function UpscalePage() {
         <header className="up-section-heading">
           <p className="up-eyebrow">REAL AI RESTORATION</p>
           <h2>See Every Detail Come Back to Life</h2>
-          <p>Drag the slider to reveal how PixelRefine restores texture, clarity and detail from low-quality images.</p>
+          <p>Drag the slider to reveal how Bellix.us restores texture, clarity and detail from low-quality images.</p>
         </header>
         <div className="up-showcase-grid">
           {SHOWCASES.map(item => (
@@ -631,7 +631,7 @@ function UpscalePage() {
           <header className="up-section-heading">
             <p className="up-eyebrow">BUILT FOR REAL DETAIL</p>
             <h2>More Than More Pixels</h2>
-            <p>PixelRefine reconstructs the visual information that ordinary resizing leaves behind.</p>
+            <p>Bellix.us reconstructs the visual information that ordinary resizing leaves behind.</p>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {FEATURE_CARDS.map(card => <FeatureComparisonCard key={card.id} card={card} />)}
@@ -667,7 +667,7 @@ function UpscalePage() {
           <header className="up-section-heading">
             <p className="up-eyebrow">UPSCALING FAQ</p>
             <h2>Everything You Want to Know</h2>
-            <p>Quick answers about quality, resolution, privacy and how PixelRefine AI works.</p>
+            <p>Quick answers about quality, resolution, privacy and how Bellix.us works.</p>
           </header>
           <div className="up-faq-list">
             {FAQS.map(([question, answer], idx) => {

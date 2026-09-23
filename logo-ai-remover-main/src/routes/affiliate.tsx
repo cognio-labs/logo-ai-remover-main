@@ -20,11 +20,11 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/affiliate")({
   head: () => ({
     meta: [
-      { title: "Affiliate & Partner Program — PixelRefine AI" },
+      { title: "Affiliate & Partner Program — Bellix.us" },
       {
         name: "description",
         content:
-          "Earn 30% lifetime recurring commissions by introducing video editors, designers, and creators to PixelRefine AI.",
+          "Earn 30% lifetime recurring commissions by introducing video editors, designers, and creators to Bellix.us.",
       },
     ],
   }),
@@ -82,7 +82,7 @@ function AffiliatePage() {
         <div className="mx-auto max-w-4xl space-y-4">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48] shadow-2xs">
             <HeartHandshake className="size-3.5" />
-            <span>PixelRefine Partner & Affiliate Program</span>
+            <span>Bellix.us Partner & Affiliate Program</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">

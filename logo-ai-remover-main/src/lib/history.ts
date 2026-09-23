@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import type { HistoryItem } from "./pipeline";
 
-const KEY = "pixelrefine.history.v1";
+const KEY = "bellix.history.v1";
 const listeners = new Set<(items: HistoryItem[]) => void>();
 
 export function loadHistory(): HistoryItem[] {

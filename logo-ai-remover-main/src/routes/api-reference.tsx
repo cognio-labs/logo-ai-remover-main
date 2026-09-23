@@ -19,11 +19,11 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/api-reference")({
   head: () => ({
     meta: [
-      { title: "REST API Reference & SDKs — PixelRefine AI" },
+      { title: "REST API Reference & SDKs — Bellix.us" },
       {
         name: "description",
         content:
-          "Integrate programmatic AI watermark removal and 4K upscaling into your SaaS, CMS, or video pipeline with the PixelRefine REST API.",
+          "Integrate programmatic AI watermark removal and 4K upscaling into your SaaS, CMS, or video pipeline with the Bellix.us REST API.",
       },
     ],
   }),
@@ -37,7 +37,7 @@ function ApiReferencePage() {
 
   const codeSnippets = {
     curl: {
-      video: `curl -X POST "https://api.pixelrefine.ai/v1/video/remove-watermark" \\
+      video: `curl -X POST "https://api.bellix.ai/v1/video/remove-watermark" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -45,9 +45,9 @@ function ApiReferencePage() {
     "watermark_type": "gemini_veo",
     "target_resolution": "4K",
     "temporal_consistency": true,
-    "webhook_url": "https://your-domain.com/webhooks/pixelrefine"
+    "webhook_url": "https://your-domain.com/webhooks/bellix"
   }'`,
-      image: `curl -X POST "https://api.pixelrefine.ai/v1/image/clean" \\
+      image: `curl -X POST "https://api.bellix.ai/v1/image/clean" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -59,7 +59,7 @@ function ApiReferencePage() {
     python: {
       video: `import requests
 
-url = "https://api.pixelrefine.ai/v1/video/remove-watermark"
+url = "https://api.bellix.ai/v1/video/remove-watermark"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -69,7 +69,7 @@ payload = {
     "watermark_type": "gemini_veo",
     "target_resolution": "4K",
     "temporal_consistency": True,
-    "webhook_url": "https://your-domain.com/webhooks/pixelrefine"
+    "webhook_url": "https://your-domain.com/webhooks/bellix"
 }
 
 response = requests.post(url, json=payload, headers=headers)
@@ -77,7 +77,7 @@ job = response.json()
 print("Job created! ID:", job["job_id"])`,
       image: `import requests
 
-url = "https://api.pixelrefine.ai/v1/image/clean"
+url = "https://api.bellix.ai/v1/image/clean"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -91,7 +91,7 @@ response = requests.post(url, json=payload, headers=headers)
 print("Cleaned Image URL:", response.json()["output_url"])`,
     },
     node: {
-      video: `const response = await fetch("https://api.pixelrefine.ai/v1/video/remove-watermark", {
+      video: `const response = await fetch("https://api.bellix.ai/v1/video/remove-watermark", {
   method: "POST",
   headers: {
     "Authorization": "Bearer YOUR_API_KEY",
@@ -102,13 +102,13 @@ print("Cleaned Image URL:", response.json()["output_url"])`,
     watermark_type: "gemini_veo",
     target_resolution: "4K",
     temporal_consistency: true,
-    webhook_url: "https://your-domain.com/webhooks/pixelrefine",
+    webhook_url: "https://your-domain.com/webhooks/bellix",
   }),
 });
 
 const data = await response.json();
 console.log("Job status:", data.status, "ID:", data.job_id);`,
-      image: `const response = await fetch("https://api.pixelrefine.ai/v1/image/clean", {
+      image: `const response = await fetch("https://api.bellix.ai/v1/image/clean", {
   method: "POST",
   headers: {
     "Authorization": "Bearer YOUR_API_KEY",
@@ -139,7 +139,7 @@ func main() {
 		"target_resolution": "4K"
 	}\`)
 
-	req, _ := http.NewRequest("POST", "https://api.pixelrefine.ai/v1/video/remove-watermark", bytes.NewBuffer(jsonData))
+	req, _ := http.NewRequest("POST", "https://api.bellix.ai/v1/video/remove-watermark", bytes.NewBuffer(jsonData))
 	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
 	req.Header.Set("Content-Type", "application/json")
 
@@ -163,7 +163,7 @@ func main() {
 		"detect_mode": "auto"
 	}\`)
 
-	req, _ := http.NewRequest("POST", "https://api.pixelrefine.ai/v1/image/clean", bytes.NewBuffer(jsonData))
+	req, _ := http.NewRequest("POST", "https://api.bellix.ai/v1/image/clean", bytes.NewBuffer(jsonData))
 	req.Header.Set("Authorization", "Bearer YOUR_API_KEY")
 	req.Header.Set("Content-Type", "application/json")
 
@@ -297,7 +297,7 @@ func main() {
                 : JSON.stringify(
                     {
                       status: "completed",
-                      output_url: "https://cdn.pixelrefine.ai/renders/clean_883a92.png",
+                      output_url: "https://cdn.bellix.ai/renders/clean_883a92.png",
                       resolution: "3840x2160",
                       latency_ms: 380,
                     },

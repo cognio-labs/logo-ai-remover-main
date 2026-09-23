@@ -15,7 +15,7 @@ import {
 } from "@/config/creativeSuiteAssets";
 
 export { type ProductCardItem };
-export const DEFAULT_PIXELREFINE_PRODUCTS: ProductCardItem[] = CREATIVE_SUITE_ASSETS;
+export const DEFAULT_BELLIX_PRODUCTS: ProductCardItem[] = CREATIVE_SUITE_ASSETS;
 
 export const HeroParallax = ({
   products = CREATIVE_SUITE_ASSETS,

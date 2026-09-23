@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 // Supabase credentials (fallback to placeholders if environment variables are not set)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://pixelrefine-dummy.supabase.co";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://bellix-dummy.supabase.co";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy";
 
 export const isSupabaseConfigured = Boolean(

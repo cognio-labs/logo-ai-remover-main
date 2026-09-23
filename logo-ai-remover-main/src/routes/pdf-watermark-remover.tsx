@@ -37,7 +37,7 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/pdf-watermark-remover")({
   head: () => ({
     meta: [
-      { title: "AI PDF & Document Watermark Remover — PixelRefine AI" },
+      { title: "AI PDF & Document Watermark Remover — Bellix.us" },
       {
         name: "description",
         content:
@@ -91,7 +91,7 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     title: "Commercial NDA & Legal Agreement",
     headline: "Removes 'CONFIDENTIAL / DRAFT' Watermarks Across Multi-Page Legal Typography",
     description:
-      "Watermarks stamped across paragraph clauses often cause OCR distortion and look unprofessional during client review. PixelRefine extracts the semi-transparent red/gray draft watermark layer while maintaining 100% razor-sharp serif typography and clause paragraph numbers.",
+      "Watermarks stamped across paragraph clauses often cause OCR distortion and look unprofessional during client review. Bellix.us extracts the semi-transparent red/gray draft watermark layer while maintaining 100% razor-sharp serif typography and clause paragraph numbers.",
     removedItems: ["45° 'STRICTLY CONFIDENTIAL' stamp", "Draft review revision mark", "Law firm background seal"],
     metrics: [
       { label: "Font Sharpness", value: "Zero Anti-Aliasing Loss" },
@@ -127,7 +127,7 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     title: "Diploma & Achievement Certificate",
     headline: "Cleans Obsolete Verification Seals and Specimen Marks from High-Value Credentials",
     description:
-      "Certificates often get marked with 'SPECIMEN', 'SAMPLE', or outdated issuer stamps. PixelRefine reconstructs intricate guilloche security borders, parchment textures, and calligraphy lettering so the final document is ready for official portfolio presentation.",
+      "Certificates often get marked with 'SPECIMEN', 'SAMPLE', or outdated issuer stamps. Bellix.us reconstructs intricate guilloche security borders, parchment textures, and calligraphy lettering so the final document is ready for official portfolio presentation.",
     removedItems: ["Archived 'SPECIMEN' watermark stamp", "Faint diagonal sample overlay", "Issuer trial watermark"],
     metrics: [
       { label: "Guilloche Border", value: "Flawless Vector" },
@@ -163,7 +163,7 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     title: "Medical Diagnostic Lab Report",
     headline: "Safely Cleans Hospital Evaluation Stamps While Preserving Critical Diagnostic Readings",
     description:
-      "Patient records stamped with 'SAMPLE RECORD' or 'COPY NOT FOR CLINICAL USE' need cleaning for case-study presentations. PixelRefine maintains pixel-level accuracy across blood counts, reference ranges, and physician notes.",
+      "Patient records stamped with 'SAMPLE RECORD' or 'COPY NOT FOR CLINICAL USE' need cleaning for case-study presentations. Bellix.us maintains pixel-level accuracy across blood counts, reference ranges, and physician notes.",
     removedItems: ["Red 'SAMPLE RECORD' rubber stamp", "Hospital archival watermark", "Fax transmission stamp"],
     metrics: [
       { label: "Table Structure", value: "100% Intact" },
@@ -199,7 +199,7 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     title: "Literary Manuscript & Preview E-Book",
     headline: "Eradicates Full-Page Repeating Watermark Grids Across Hundreds of Book Pages",
     description:
-      "Publishers watermarking review copies with reviewer emails across every page ruin the reading experience. PixelRefine cleans the pattern batch-wise, outputting a publisher-grade PDF with original font embedding and margins intact.",
+      "Publishers watermarking review copies with reviewer emails across every page ruin the reading experience. Bellix.us cleans the pattern batch-wise, outputting a publisher-grade PDF with original font embedding and margins intact.",
     removedItems: ["Full-page reviewer email grid", "Sample chapter banner", "Copyright watermark band"],
     metrics: [
       { label: "Page Formatting", value: "100% Original" },

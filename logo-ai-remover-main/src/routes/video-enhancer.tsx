@@ -38,7 +38,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/video-enhancer")({
   head: () => ({
     meta: [
-      { title: "AI Video Enhancer & Quality Restorer — PixelRefine AI" },
+      { title: "AI Video Enhancer & Quality Restorer — Bellix.us" },
       {
         name: "description",
         content:

@@ -46,7 +46,7 @@ export function Navbar() {
             whileTap={{ scale: 0.96 }}
             transition={dockSpring}
             src={logoSrc}
-            alt="PixelRefine AI"
+            alt="Bellix.us"
             className="h-14 sm:h-16 md:h-18 lg:h-20 w-auto max-w-[240px] sm:max-w-[320px] md:max-w-[400px] object-contain drop-shadow-xs cursor-pointer"
             onError={() => {
               if (logoSrc !== logoData.data) {

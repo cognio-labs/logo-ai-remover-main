@@ -21,7 +21,7 @@ export function KeyboardHeader({
         <span className="size-2 rounded-full bg-[#E11D48] shadow-[0_0_8px_rgba(225,29,72,0.4)]" />
         <div className="flex flex-col text-left leading-tight">
           <span className="font-sans font-semibold text-[#171717] tracking-wider uppercase text-xs sm:text-sm">
-            PIXELREFINE STUDIO
+            BELLIX STUDIO
           </span>
           <span className="font-mono text-[9px] sm:text-[10px] text-[#737373] tracking-widest uppercase">
             INTERACTIVE CONTROLS

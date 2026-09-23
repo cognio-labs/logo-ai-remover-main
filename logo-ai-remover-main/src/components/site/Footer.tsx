@@ -14,7 +14,7 @@ export function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    toast.success("Subscribed to PixelRefine AI newsletter & release updates!");
+    toast.success("Subscribed to Bellix.us newsletter & release updates!");
     setEmail("");
   };
 
@@ -32,7 +32,7 @@ export function Footer() {
           </div>
 
           <h2 className="text-4xl sm:text-7xl lg:text-8xl font-semibold text-center tracking-tight text-white drop-shadow-[0_10px_35px_rgba(225,29,72,0.4)]">
-            PixelRefine AI
+            Bellix.us
           </h2>
 
           <p className="mt-4 max-w-xl text-sm sm:text-base text-gray-300 font-normal leading-relaxed">
@@ -87,7 +87,7 @@ export function Footer() {
             <Link to="/" className="inline-block">
               <img
                 src={logoSrc}
-                alt="PixelRefine AI — Luxury Studio"
+                alt="Bellix.us — Luxury Studio"
                 className="h-14 sm:h-16 w-auto max-w-[280px] object-contain hover:scale-105 transition-transform"
                 onError={() => {
                   if (logoSrc !== logoData.data) {

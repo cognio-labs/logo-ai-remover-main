@@ -6,7 +6,7 @@ import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 export const Route = createFileRoute("/remove/video")({
   head: () => ({
     meta: [
-      { title: "AI Video Logo Remover — PixelRefine AI" },
+      { title: "AI Video Logo Remover — Bellix.us" },
       {
         name: "description",
         content:

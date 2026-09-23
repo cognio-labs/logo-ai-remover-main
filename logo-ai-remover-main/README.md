@@ -4,7 +4,7 @@ You are a senior SaaS architect, AI engineer, UI/UX designer, and full-stack dev
 
 Build a production-ready AI-powered SaaS platform called:
 
-"PixelRefine AI"
+"Bellix.us"
 
 Tagline:
 
@@ -926,7 +926,7 @@ Cloudflare R2
 
 Build this as a startup-ready scalable SaaS product, not a simple demo.
 
-Design a premium AI SaaS dashboard for "PixelRefine AI".
+Design a premium AI SaaS dashboard for "Bellix.us".
 
 Style:
 

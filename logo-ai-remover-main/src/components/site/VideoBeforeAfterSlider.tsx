@@ -85,7 +85,7 @@ export function VideoBeforeAfterSlider({
     e.stopPropagation();
     const a = document.createElement("a");
     a.href = finalCleanSrc;
-    a.download = "pixelrefine_mountain_lake_clean_1080p.mp4";
+    a.download = "bellix_mountain_lake_clean_1080p.mp4";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

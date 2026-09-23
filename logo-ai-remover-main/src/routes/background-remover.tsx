@@ -39,7 +39,7 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/background-remover")({
   head: () => ({
     meta: [
-      { title: "Free AI Background Remover — 100% Automatically in 5 Seconds | PixelRefine AI" },
+      { title: "Free AI Background Remover — 100% Automatically in 5 Seconds | Bellix.us" },
       {
         name: "description",
         content:
@@ -159,7 +159,7 @@ const PERSONAS = [
 const FAQS = [
   {
     q: "How does the AI remove backgrounds automatically?",
-    a: "PixelRefine AI uses deep convolutional segmentation networks and sub-pixel alpha matting. The model identifies the primary subject (person, product, animal, or car) and isolates it from the background pixels with fine-edge precision, preserving hair, fur, and semi-transparent areas.",
+    a: "Bellix.us uses deep convolutional segmentation networks and sub-pixel alpha matting. The model identifies the primary subject (person, product, animal, or car) and isolates it from the background pixels with fine-edge precision, preserving hair, fur, and semi-transparent areas.",
   },
   {
     q: "What image formats and file sizes are supported?",
@@ -179,7 +179,7 @@ const FAQS = [
   },
   {
     q: "Will the resolution or quality of my image be reduced?",
-    a: "No. PixelRefine AI processes and outputs images at their full original resolution up to 4K and 8K. Your subject retains 100% of its original clarity and texture.",
+    a: "No. Bellix.us processes and outputs images at their full original resolution up to 4K and 8K. Your subject retains 100% of its original clarity and texture.",
   },
   {
     q: "Are my uploaded photos kept private and secure?",
@@ -187,7 +187,7 @@ const FAQS = [
   },
   {
     q: "Can I use the cutouts for commercial projects and clients?",
-    a: "Yes! All cutouts and edited images generated through PixelRefine AI are 100% royalty-free for commercial use, client deliverables, marketing materials, and e-commerce listings.",
+    a: "Yes! All cutouts and edited images generated through Bellix.us are 100% royalty-free for commercial use, client deliverables, marketing materials, and e-commerce listings.",
   },
   {
     q: "Is there a developer API available for batch automation?",
@@ -200,7 +200,7 @@ const FAQS = [
 ];
 
 const CODE_SNIPPETS = {
-  curl: `curl -X POST https://api.pixelrefine.ai/v1/background/remove \\
+  curl: `curl -X POST https://api.bellix.ai/v1/background/remove \\
   -H "X-API-Key: YOUR_API_KEY" \\
   -F "image=@portrait.jpg" \\
   -F "export_format=png" \\
@@ -208,7 +208,7 @@ const CODE_SNIPPETS = {
   -o "cutout.png"`,
   python: `import requests
 
-url = "https://api.pixelrefine.ai/v1/background/remove"
+url = "https://api.bellix.ai/v1/background/remove"
 headers = {"X-API-Key": "YOUR_API_KEY"}
 files = {"image": open("portrait.jpg", "rb")}
 data = {"export_format": "png", "bg_type": "transparent"}
@@ -225,7 +225,7 @@ formData.append("image", new Blob([fs.readFileSync("portrait.jpg")]));
 formData.append("export_format", "png");
 formData.append("bg_type", "transparent");
 
-const response = await fetch("https://api.pixelrefine.ai/v1/background/remove", {
+const response = await fetch("https://api.bellix.ai/v1/background/remove", {
   method: "POST",
   headers: { "X-API-Key": "YOUR_API_KEY" },
   body: formData,
@@ -236,7 +236,7 @@ fs.writeFileSync("cutout.png", Buffer.from(buffer));
 console.log("✓ Cutout saved successfully!");`,
   php: `<?php
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://api.pixelrefine.ai/v1/background/remove');
+curl_setopt($ch, CURLOPT_URL, 'https://api.bellix.ai/v1/background/remove');
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-API-Key: YOUR_API_KEY']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
@@ -614,14 +614,14 @@ function BackgroundRemoverPage() {
       const downloadUrl = getDownloadUrl(cutoutResult.jobId, selectedFormat);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `pixelrefine-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
+      a.download = `bellix-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     } else {
       const a = document.createElement("a");
       a.href = isTrans ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl;
-      a.download = `pixelrefine-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
+      a.download = `bellix-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

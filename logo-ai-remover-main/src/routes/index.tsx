@@ -30,7 +30,7 @@ import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Erase Gemini, Veo & AI Watermarks in Seconds — PixelRefine AI" },
+      { title: "Erase Gemini, Veo & AI Watermarks in Seconds — Bellix.us" },
       {
         name: "description",
         content:
@@ -475,10 +475,10 @@ function RealWorldResults() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* 5. WHY CHOOSE PIXELREFINE AI (BENTO GRID)                                  */
+/* 5. WHY CHOOSE BELLIX AI (BENTO GRID)                                  */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* 5. WHY CHOOSE PIXELREFINE AI (MODERN BENTO GRID)                           */
+/* 5. WHY CHOOSE BELLIX AI (MODERN BENTO GRID)                           */
 /* -------------------------------------------------------------------------- */
 function BentoFeatures() {
   return (
@@ -493,7 +493,7 @@ function BentoFeatures() {
             NEXT-GEN INPAINTING ARCHITECTURE
           </div>
           <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
-            Why creators choose PixelRefine AI
+            Why creators choose Bellix.us
           </h2>
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
             Engineered specifically for AI-generated media from Google Gemini, Veo, Runway, and Midjourney.

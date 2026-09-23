@@ -108,7 +108,7 @@ export function InteractiveMouse({
           <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
             <span className="size-1.5 rounded-full bg-[#E11D48]" />
             <span className="text-[8px] font-mono tracking-widest text-[#737373] uppercase font-bold">
-              PixelRefine
+              Bellix.us
             </span>
           </div>
 

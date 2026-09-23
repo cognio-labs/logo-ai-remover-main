@@ -27,7 +27,7 @@ import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
     meta: [
-      { title: "Remove Gemini and Veo Video Watermarks Online — PixelRefine AI" },
+      { title: "Remove Gemini and Veo Video Watermarks Online — Bellix.us" },
       {
         name: "description",
         content:

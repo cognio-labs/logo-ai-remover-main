@@ -114,7 +114,7 @@ const INITIAL_JOBS: JobItem[] = [
   },
 ];
 
-const LOCAL_STORAGE_KEY = "pixelrefine_user_store_v2";
+const LOCAL_STORAGE_KEY = "bellix_user_store_v2";
 
 const loadState = () => {
   if (typeof window === "undefined") return null;

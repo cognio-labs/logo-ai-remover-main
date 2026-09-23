@@ -1,4 +1,4 @@
-# PixelRefine video backend
+# Bellix.us video backend
 
 Run from the project root:
 

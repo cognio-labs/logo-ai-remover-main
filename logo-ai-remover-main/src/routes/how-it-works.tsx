@@ -23,11 +23,11 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works — PixelRefine AI Neural Architecture" },
+      { title: "How It Works — Bellix.us Neural Architecture" },
       {
         name: "description",
         content:
-          "Discover how PixelRefine AI reconstructs marked video frames and images using 4-stage spatio-temporal neural inpainting without blur or flicker.",
+          "Discover how Bellix.us reconstructs marked video frames and images using 4-stage spatio-temporal neural inpainting without blur or flicker.",
       },
     ],
   }),
@@ -120,14 +120,14 @@ function HowItWorksPage() {
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
-            How PixelRefine AI{" "}
+            How Bellix.us{" "}
             <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
               Restores Every Frame
             </span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-            Unlike legacy tools that simply blur or smudge marked pixels, PixelRefine employs a
+            Unlike legacy tools that simply blur or smudge marked pixels, Bellix.us employs a
             four-stage spatio-temporal pipeline that reconstructs true underlying texture.
           </p>
 

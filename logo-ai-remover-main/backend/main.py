@@ -12,7 +12,7 @@ from backend.utils.logging_utils import configure_logging
 
 configure_logging()
 app = FastAPI(
-    title="PixelRefine Video Restoration, Image Upscaler, PDF Cleaner & AI Background Remover API",
+    title="Bellix.us Video Restoration, Image Upscaler, PDF Cleaner & AI Background Remover API",
     version="1.0.0",
     description="Job-isolated video restoration, image upscaling, PDF document cleaning, and AI background removal pipeline.",
 )

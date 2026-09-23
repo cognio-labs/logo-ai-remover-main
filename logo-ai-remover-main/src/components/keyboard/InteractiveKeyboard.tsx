@@ -27,7 +27,7 @@ export function InteractiveKeyboard({
   // Sound preference state persisted in localStorage
   const [soundOn, setSoundOn] = useState(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("pixelrefine_sound_enabled");
+      const stored = localStorage.getItem("bellix_sound_enabled");
       return stored !== null ? stored === "true" : enableSound;
     }
     return enableSound;
@@ -37,7 +37,7 @@ export function InteractiveKeyboard({
     setSoundOn((prev) => {
       const next = !prev;
       if (typeof window !== "undefined") {
-        localStorage.setItem("pixelrefine_sound_enabled", String(next));
+        localStorage.setItem("bellix_sound_enabled", String(next));
       }
       return next;
     });
@@ -408,7 +408,7 @@ export function InteractiveKeyboard({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div className="flex items-center gap-2">
                 <HelpCircle className="size-4 text-[#E11D48]" />
-                <h3 className="font-bold text-sm text-[#171717]">PixelRefine Studio Shortcuts</h3>
+                <h3 className="font-bold text-sm text-[#171717]">Bellix Studio Shortcuts</h3>
               </div>
               <button
                 type="button"

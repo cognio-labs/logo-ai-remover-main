@@ -17,11 +17,11 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ & Documentation — PixelRefine AI" },
+      { title: "FAQ & Documentation — Bellix.us" },
       {
         name: "description",
         content:
-          "Frequently asked questions and guides for PixelRefine AI video watermark removal, image cleaning, credit plans, and API integration.",
+          "Frequently asked questions and guides for Bellix.us video watermark removal, image cleaning, credit plans, and API integration.",
       },
     ],
   }),
@@ -50,7 +50,7 @@ function FaqPage() {
     {
       category: "Video Watermarks",
       q: "How does the AI remove Google Gemini and Veo video watermarks?",
-      a: "PixelRefine utilizes a multi-frame spatio-temporal deep neural network. It detects the 4-point Gemini star and timestamp coordinates, analyzes optical flow across adjacent video frames, and inlays the covered pixel area with photorealistic texture that matches native motion and lighting.",
+      a: "Bellix.us utilizes a multi-frame spatio-temporal deep neural network. It detects the 4-point Gemini star and timestamp coordinates, analyzes optical flow across adjacent video frames, and inlays the covered pixel area with photorealistic texture that matches native motion and lighting.",
     },
     {
       category: "Video Watermarks",

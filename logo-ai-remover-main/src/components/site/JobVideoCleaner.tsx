@@ -38,7 +38,7 @@ type CleanedVideo = {
 };
 
 const ACCEPT = ".mp4,.mov,.webm,.avi,.mpg,.mpeg,.mkv";
-const STORAGE_KEY = "pixelrefine-active-video-job";
+const STORAGE_KEY = "bellix-active-video-job";
 const ACTIVE_STATUSES = new Set([
   "queued",
   "analyzing",
@@ -380,7 +380,7 @@ export function JobVideoCleaner() {
               {busy ? <LoaderCircle className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-gray-950">PixelRefine Neural Engine</p>
+              <p className="font-semibold text-gray-950">Bellix Neural Engine</p>
               <p className="truncate text-xs font-medium text-[#E11D48]">{processingJob.stage}</p>
             </div>
             <span className="text-sm font-semibold text-gray-500">{processingJob.progress}%</span>

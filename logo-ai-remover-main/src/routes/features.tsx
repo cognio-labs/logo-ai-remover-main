@@ -23,11 +23,11 @@ import { Keyboard } from "@/components/ui/keyboard";
 export const Route = createFileRoute("/features")({
   head: () => ({
     meta: [
-      { title: "Neural Features & Capabilities — PixelRefine AI" },
+      { title: "Neural Features & Capabilities — Bellix.us" },
       {
         name: "description",
         content:
-          "Explore PixelRefine's neural inpainting, 4K/8K super resolution, optical flow temporal tracking, and ultra-fast cloud GPU cluster.",
+          "Explore Bellix.us's neural inpainting, 4K/8K super resolution, optical flow temporal tracking, and ultra-fast cloud GPU cluster.",
       },
     ],
   }),
@@ -100,31 +100,31 @@ function FeaturesPage() {
   const comparison = [
     {
       feature: "Reconstructs Original Texture",
-      pixelRefine: "100% Neural Synthesis",
+      bellix: "100% Neural Synthesis",
       blurTools: "Smudges with grey haze",
       manualPhotoshop: "Requires hours of painting",
     },
     {
       feature: "Temporal Video Consistency",
-      pixelRefine: "60 FPS Optical Flow (No flicker)",
+      bellix: "60 FPS Optical Flow (No flicker)",
       blurTools: "Heavy flickering / boiling edges",
       manualPhotoshop: "Impossible for video",
     },
     {
       feature: "Google Gemini & Veo Marks",
-      pixelRefine: "Automatic Native Detection",
+      bellix: "Automatic Native Detection",
       blurTools: "Manual crop required",
       manualPhotoshop: "Manual frame-by-frame stamping",
     },
     {
       feature: "Export Resolution",
-      pixelRefine: "Pristine 4K / 8K UHD",
+      bellix: "Pristine 4K / 8K UHD",
       blurTools: "Degrades to 720p",
       manualPhotoshop: "Depends on user skill",
     },
     {
       feature: "Turnaround Time",
-      pixelRefine: "< 10 seconds (Automated)",
+      bellix: "< 10 seconds (Automated)",
       blurTools: "~ 60 seconds",
       manualPhotoshop: "2 to 4 hours per clip",
     },
@@ -154,7 +154,7 @@ function FeaturesPage() {
             </h1>
 
             <p className="text-sm sm:text-base text-[#737373] max-w-2xl mx-auto leading-relaxed">
-              Control PixelRefine AI at the speed of thought. Press keys on your physical keyboard, click the virtual keycaps, or interact with the precision wireless mouse to trigger neural shortcuts with authentic switch acoustics.
+              Control Bellix.us at the speed of thought. Press keys on your physical keyboard, click the virtual keycaps, or interact with the precision wireless mouse to trigger neural shortcuts with authentic switch acoustics.
             </p>
           </div>
 
@@ -198,7 +198,7 @@ function FeaturesPage() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-            Explore the advanced neural models powering PixelRefine AI. From spatio-temporal video
+            Explore the advanced neural models powering Bellix.us. From spatio-temporal video
             tracking to 8K super-resolution upscaling.
           </p>
 
@@ -299,7 +299,7 @@ function FeaturesPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-serif font-normal text-gray-950">
-            PixelRefine vs Alternative Solutions
+            Bellix.us vs Alternative Solutions
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 mt-1">
             See how true generative neural reconstruction compares to basic blur filters and manual
@@ -313,7 +313,7 @@ function FeaturesPage() {
               <tr className="bg-[#FFF8FA] border-b border-[#FCE7EC] text-gray-900">
                 <th className="py-4 px-6 font-bold">Feature</th>
                 <th className="py-4 px-6 font-bold text-center text-[#E11D48] bg-[#FFF1F4]">
-                  PixelRefine AI
+                  Bellix.us
                 </th>
                 <th className="py-4 px-6 font-bold text-center text-gray-600">Generic Blur Tools</th>
                 <th className="py-4 px-6 font-bold text-center text-gray-600">Manual Photoshop</th>
@@ -324,7 +324,7 @@ function FeaturesPage() {
                 <tr key={r.feature} className="hover:bg-[#FFFDFC] transition-colors">
                   <td className="py-4 px-6 font-semibold text-gray-900">{r.feature}</td>
                   <td className="py-4 px-6 text-center font-bold text-[#E11D48] bg-[#FFF1F4]/30">
-                    {r.pixelRefine}
+                    {r.bellix}
                   </td>
                   <td className="py-4 px-6 text-center text-gray-500">{r.blurTools}</td>
                   <td className="py-4 px-6 text-center text-gray-500">{r.manualPhotoshop}</td>

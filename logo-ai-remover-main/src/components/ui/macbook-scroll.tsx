@@ -155,7 +155,7 @@ export const Lid = ({
           {src ? (
             <img
               src={src}
-              alt="PixelRefine AI Neural Studio Preview"
+              alt="Bellix.us Neural Studio Preview"
               className="size-full object-cover object-center"
             />
           ) : (
@@ -166,7 +166,7 @@ export const Lid = ({
                   <div className="size-6 rounded-lg bg-[#E11D48] flex items-center justify-center text-white font-bold text-xs">
                     ✦
                   </div>
-                  <span className="font-bold text-xs text-white">PixelRefine Studio v2.6</span>
+                  <span className="font-bold text-xs text-white">Bellix Studio v2.6</span>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-500/30">
                   <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />

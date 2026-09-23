@@ -19,7 +19,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing & Plans — PixelRefine AI" },
+      { title: "Pricing & Plans — Bellix.us" },
       {
         name: "description",
         content:
@@ -137,7 +137,7 @@ function PricingPage() {
     },
     {
       q: "Do you support commercial usage?",
-      a: "Yes, Creator Pro and Studio plans include full commercial usage rights for all media processed with PixelRefine AI.",
+      a: "Yes, Creator Pro and Studio plans include full commercial usage rights for all media processed with Bellix.us.",
     },
   ];
 
