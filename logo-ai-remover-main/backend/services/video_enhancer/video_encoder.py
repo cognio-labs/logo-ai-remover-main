@@ -63,6 +63,8 @@ class VideoEncoder:
             cmd.extend(["-i", str(audio_path)])
 
         cmd.extend([
+            "-threads",
+            "0",
             "-c:v",
             ffmpeg_codec,
             "-crf",
@@ -71,9 +73,9 @@ class VideoEncoder:
             "yuv420p",
         ])
 
-        # Additional codec-specific flags: 'fast' preset is 3x faster with pristine visual output
+        # Additional codec-specific flags: 'fast' preset + film tuning for high-detail video
         if ffmpeg_codec == "libx264":
-            cmd.extend(["-preset", "fast", "-movflags", "+faststart"])
+            cmd.extend(["-preset", "fast", "-tune", "film", "-profile:v", "high", "-movflags", "+faststart"])
         elif ffmpeg_codec == "libx265":
             cmd.extend(["-preset", "fast", "-tag:v", "hvc1", "-movflags", "+faststart"])
         elif ffmpeg_codec == "libvpx-vp9":

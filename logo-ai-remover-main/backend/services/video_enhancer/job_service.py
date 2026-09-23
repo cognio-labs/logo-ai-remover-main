@@ -139,7 +139,7 @@ class VideoEnhancerJobService:
         """
         try:
             root = video_enhancer_job_dir(job_id)
-            for folder_name in ("frames_in", "frames_out", "temp"):
+            for folder_name in ("frames_in", "frames_out", "frames_interp", "temp"):
                 folder = root / folder_name
                 if folder.exists():
                     shutil.rmtree(folder, ignore_errors=True)

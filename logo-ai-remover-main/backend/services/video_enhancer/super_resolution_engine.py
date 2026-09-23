@@ -101,26 +101,22 @@ class SuperResolutionEngine:
         else:
             upscaled = cv2.resize(frame_bgr, (target_w, target_h), interpolation=cv2.INTER_LANCZOS4)
 
-        # Micro-texture reconstruction via edge-preserving unsharp contrast
+        # Micro-texture reconstruction via edge-preserving unsharp contrast in fast YUV space
         if mode in ("balanced", "high"):
-            lab = cv2.cvtColor(upscaled, cv2.COLOR_BGR2LAB)
-            l, a, b = cv2.split(lab)
+            yuv = cv2.cvtColor(upscaled, cv2.COLOR_BGR2YUV)
+            y, u, v = cv2.split(yuv)
 
-            # Temporal brightness stabilizer
-            curr_mean_l = float(np.mean(l))
-            if self._prev_mean_l is not None:
-                # Soft blend to avoid high-frequency flicker
-                drift = curr_mean_l - self._prev_mean_l
-                if abs(drift) < 3.0:
-                    l = np.clip(l.astype(np.float32) - (drift * 0.4), 0, 255).astype(np.uint8)
-            self._prev_mean_l = curr_mean_l
+            # Adaptive local contrast booster (CLAHE) for rich cinematic depth
+            clahe_clip = 1.15 if mode == "high" else 1.05
+            clahe = cv2.createCLAHE(clipLimit=clahe_clip, tileGridSize=(8, 8))
+            y_clahe = clahe.apply(y)
 
-            # High-frequency edge restoration on Luminance
-            blur = cv2.GaussianBlur(l, (0, 0), sigmaX=1.2)
-            strength = 0.35 if mode == "high" else 0.22
-            enhanced_l = cv2.addWeighted(l, 1.0 + strength, blur, -strength, 0)
+            # Sub-pixel edge reconstruction with C++ accelerated addWeighted
+            blur_y = cv2.GaussianBlur(y_clahe, (0, 0), sigmaX=1.4)
+            sharp_mult = 1.45 if mode == "high" else 1.30
+            enhanced_y = cv2.addWeighted(y_clahe, sharp_mult, blur_y, -(sharp_mult - 1.0), 0)
 
-            upscaled = cv2.cvtColor(cv2.merge([enhanced_l, a, b]), cv2.COLOR_LAB2BGR)
+            upscaled = cv2.cvtColor(cv2.merge([enhanced_y, u, v]), cv2.COLOR_YUV2BGR)
 
         return upscaled
 

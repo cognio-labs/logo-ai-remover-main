@@ -666,7 +666,7 @@ function VideoEnhancerPage() {
                 {stage}
               </span>
               <h3 className="text-2xl font-bold text-gray-950">{statusMessage}</h3>
-              {totalFrames > 0 && (
+              {totalFrames > 0 && stage === "AI Processing" && (
                 <p className="text-sm text-gray-500">
                   Frame {currentFrame} of {totalFrames}
                 </p>

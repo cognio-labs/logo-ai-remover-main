@@ -45,3 +45,4 @@ backend/models/weights/*
 *.sw?
 
 .vercel
+.playwright-cli/

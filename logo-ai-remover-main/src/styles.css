@@ -376,3 +376,60 @@ b, strong, th, button, a, span, p, label, input, select, textarea, div, small, e
 [class*="font-black"] {
   font-weight: 400 !important;
 }
+
+/* Lightweight creative showcase rails */
+.creative-rail {
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: max(1rem, calc((100vw - 80rem) / 2));
+  scroll-behavior: smooth;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #f9a8bd transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.creative-rail::-webkit-scrollbar {
+  height: 5px;
+}
+
+.creative-rail::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.creative-rail::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #f9a8bd;
+}
+
+.creative-rail > * {
+  scroll-snap-stop: always;
+  contain: layout paint;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: clip;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  .creative-rail {
+    scroll-behavior: auto;
+  }
+
+  .creative-rail *,
+  .creative-rail *::before,
+  .creative-rail *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .creative-rail {
+    scroll-padding-inline: 1rem;
+  }
+}

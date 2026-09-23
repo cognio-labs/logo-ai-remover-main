@@ -5,17 +5,24 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+import threading
+
 class FrameInterpolationEngine:
     """
     High-performance, dense optical-flow frame synthesizer.
     Generates true in-between frames using DIS (Dense Inverse Search) optical flow
-    with cached coordinate meshgrids, bidirectional motion compensation, and occlusion blending.
+    with thread-local flow calculators, cached coordinate meshgrids,
+    bidirectional motion compensation, and occlusion blending.
     """
 
     def __init__(self) -> None:
-        # DIS optical flow preset: FAST for responsive video throughput, high quality motion vectors
-        self.dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST)
+        self._local = threading.local()
         self._grid_cache: dict[tuple[int, int], tuple[np.ndarray, np.ndarray]] = {}
+
+    def _get_dis(self) -> cv2.DISOpticalFlow:
+        if not hasattr(self._local, "dis"):
+            self._local.dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST)
+        return self._local.dis
 
     def _get_meshgrid(self, w: int, h: int) -> tuple[np.ndarray, np.ndarray]:
         key = (w, h)
@@ -55,11 +62,11 @@ class FrameInterpolationEngine:
         gray0 = cv2.cvtColor(frame0, cv2.COLOR_BGR2GRAY)
         gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
 
-        # Scale for optical flow: 640px is optimal for speed and eliminates sub-pixel noise
+        # Scale for optical flow: 480px is optimal for speed and eliminates sub-pixel noise
         h, w = gray0.shape
         max_dim = max(h, w)
-        if max_dim > 640:
-            flow_scale = 640.0 / max_dim
+        if max_dim > 480:
+            flow_scale = 480.0 / max_dim
             flow_w = int(w * flow_scale)
             flow_h = int(h * flow_scale)
             # Ensure even dimensions
@@ -72,8 +79,9 @@ class FrameInterpolationEngine:
             g0_scaled, g1_scaled = gray0, gray1
 
         # Compute forward flow (0 -> 1) and backward flow (1 -> 0)
-        flow_forward = self.dis.calc(g0_scaled, g1_scaled, None)
-        flow_backward = self.dis.calc(g1_scaled, g0_scaled, None)
+        dis = self._get_dis()
+        flow_forward = dis.calc(g0_scaled, g1_scaled, None)
+        flow_backward = dis.calc(g1_scaled, g0_scaled, None)
 
         if flow_scale != 1.0:
             mult = float(1.0 / flow_scale)

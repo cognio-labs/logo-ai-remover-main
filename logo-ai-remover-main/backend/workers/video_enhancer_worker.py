@@ -159,7 +159,7 @@ def _run_video_enhancer_job(job_id: str) -> None:
                 cv2.imwrite(
                     str(out_frame_file),
                     upscaled_bgr,
-                    [cv2.IMWRITE_JPEG_QUALITY, 96, cv2.IMWRITE_JPEG_OPTIMIZE, 1],
+                    [cv2.IMWRITE_JPEG_QUALITY, 94],
                 )
                 return idx, out_frame_file
             except Exception as e:
@@ -205,7 +205,7 @@ def _run_video_enhancer_job(job_id: str) -> None:
         if not enhanced_frame_paths:
             raise RuntimeError("AI processing produced 0 valid enhanced frames")
 
-        # 4. Optical-Flow Frame Interpolation (Accelerated DIS synthesis)
+        # 4. Optical-Flow Frame Interpolation (Accelerated Multi-Threaded Motion Synthesis)
         active_frame_dir = frames_out_dir
         active_frame_pattern = "enhanced_%06d.jpg"
         final_fps = meta.fps
@@ -231,53 +231,61 @@ def _run_video_enhancer_job(job_id: str) -> None:
                 target_fps=job.options.target_fps,
             )
 
-            interp_idx = 0
             num_enhanced = len(enhanced_frame_paths)
-            img_prev: cv2.Mat | None = None
 
+            # Step A: Instantaneously copy original enhanced frames into target slots
             for i in range(num_enhanced):
-                # Read current frame or reuse cached previous frame
-                if img_prev is None:
-                    img_curr = cv2.imread(str(enhanced_frame_paths[i]))
-                else:
-                    img_curr = img_prev
+                target_orig = interp_dir / f"interp_{(i * multiplier):06d}.jpg"
+                try:
+                    shutil.copyfile(enhanced_frame_paths[i], target_orig)
+                except Exception:
+                    pass
 
-                # Next frame for synthesis
-                img_next = None
-                if i < num_enhanced - 1 and timestamps:
-                    img_next = cv2.imread(str(enhanced_frame_paths[i + 1]))
+            # Step B: Parallel synthesize intermediate frames for all pairs (i, i+1)
+            num_pairs = num_enhanced - 1
+            if num_pairs > 0 and timestamps:
+                total_synth_expected = num_pairs * len(timestamps)
+                synth_completed = 0
 
-                # Write current frame to interpolated sequence
-                cv2.imwrite(
-                    str(interp_dir / f"interp_{interp_idx:06d}.jpg"),
-                    img_curr,
-                    [cv2.IMWRITE_JPEG_QUALITY, 96],
-                )
-                interp_idx += 1
+                def _synthesize_pair(pair_idx: int) -> int:
+                    try:
+                        p0 = enhanced_frame_paths[pair_idx]
+                        p1 = enhanced_frame_paths[pair_idx + 1]
+                        f0 = cv2.imread(str(p0))
+                        f1 = cv2.imread(str(p1))
+                        if f0 is None or f1 is None:
+                            return 0
 
-                # If there is a next frame, synthesize in-between frames
-                if img_next is not None and timestamps:
-                    for t in timestamps:
-                        synth = frame_interpolation_engine.synthesize_intermediate_frame(img_curr, img_next, t)
-                        cv2.imwrite(
-                            str(interp_dir / f"interp_{interp_idx:06d}.jpg"),
-                            synth,
-                            [cv2.IMWRITE_JPEG_QUALITY, 96],
-                        )
-                        interp_idx += 1
+                        created = 0
+                        for step_idx, t in enumerate(timestamps):
+                            out_idx = (pair_idx * multiplier) + 1 + step_idx
+                            synth_frame = frame_interpolation_engine.synthesize_intermediate_frame(f0, f1, t)
+                            out_path = interp_dir / f"interp_{out_idx:06d}.jpg"
+                            cv2.imwrite(str(out_path), synth_frame, [cv2.IMWRITE_JPEG_QUALITY, 93])
+                            created += 1
+                        return created
+                    except Exception as e:
+                        logger.error(f"Error synthesizing pair {pair_idx}: {e}")
+                        return 0
 
-                # Cache current as previous
-                img_prev = img_next
+                with ThreadPoolExecutor(max_workers=num_workers, thread_name_prefix="interp-synth") as interp_pool:
+                    futs = {interp_pool.submit(_synthesize_pair, i): i for i in range(num_pairs)}
+                    for fut in as_completed(futs):
+                        cur_job = video_enhancer_job_service.get(job_id)
+                        if cur_job.cancelled:
+                            interp_pool.shutdown(wait=False, cancel_futures=True)
+                            return
 
-                if (i + 1) % 10 == 0 or (i + 1) == num_enhanced:
-                    interp_progress = 76.0 + (9.0 * ((i + 1) / num_enhanced))
-                    video_enhancer_job_service.update(
-                        job_id,
-                        status=VideoEnhancerJobStatus.INTERPOLATING,
-                        stage="Motion Synthesis",
-                        message=f"Synthesized motion frames: {interp_idx} frames created",
-                        progress=interp_progress,
-                    )
+                        synth_completed += fut.result()
+                        if synth_completed % 10 == 0 or synth_completed >= total_synth_expected:
+                            pct = 76.0 + (9.0 * (synth_completed / max(1, total_synth_expected)))
+                            video_enhancer_job_service.update(
+                                job_id,
+                                status=VideoEnhancerJobStatus.INTERPOLATING,
+                                stage="Motion Synthesis",
+                                message=f"Synthesized motion frames: {synth_completed}/{total_synth_expected} frames created",
+                                progress=pct,
+                            )
 
             active_frame_dir = interp_dir
             active_frame_pattern = "interp_%06d.jpg"

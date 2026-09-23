@@ -93,3 +93,11 @@ def generate_thumbnail(video_path: Path, thumbnail_path: Path, at_seconds: float
     ]
     res2 = subprocess.run(cmd_fallback, capture_output=True, text=True, check=False)
     return res2.returncode == 0 and thumbnail_path.exists()
+
+
+class FrameDecoder:
+    extract_frames = staticmethod(extract_frames)
+    generate_thumbnail = staticmethod(generate_thumbnail)
+
+
+frame_decoder = FrameDecoder()

@@ -201,4 +201,22 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     category: "Low-Light Enhancement",
     description: "Temporal noise extraction revealing hidden depth under extreme low-light environments.",
   },
-];
+  {
+    id: "neural-restoration-studio",
+    title: "Cinematic Neural Restoration",
+    link: "/video-enhancer",
+    thumbnail: "/creative-suite/neural_restoration_studio.png",
+    badge: "Studio Restore",
+    category: "Film & Texture Recovery",
+    description: "Restores damaged footage while preserving natural grain, color, and fine detail.",
+  },
+  {
+    id: "private-processing-vault",
+    title: "Private Media Processing",
+    link: "/about",
+    thumbnail: "/creative-suite/privacy_processing_vault.png",
+    badge: "Zero Retention",
+    category: "Secure Local Pipeline",
+    description: "A privacy-first transient workflow that clears media as soon as processing finishes.",
+  },];
+

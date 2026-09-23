@@ -19,30 +19,28 @@ class DenoiseDeblockEngine:
 
         if level == "low":
             # Fast edge-preserving filter
-            return cv2.bilateralFilter(frame_bgr, d=5, sigmaColor=30, sigmaSpace=30)
+            return cv2.bilateralFilter(frame_bgr, d=5, sigmaColor=25, sigmaSpace=25)
         elif level == "medium":
-            # Moderate edge-preserving filter on Y-channel, mild on chroma
-            ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
-            y, cr, cb = cv2.split(ycrcb)
-            y_denoised = cv2.bilateralFilter(y, d=7, sigmaColor=50, sigmaSpace=50)
-            cr_denoised = cv2.bilateralFilter(cr, d=5, sigmaColor=30, sigmaSpace=30)
-            cb_denoised = cv2.bilateralFilter(cb, d=5, sigmaColor=30, sigmaSpace=30)
-            merged = cv2.merge([y_denoised, cr_denoised, cb_denoised])
-            return cv2.cvtColor(merged, cv2.COLOR_YCrCb2BGR)
+            # Fast edge-preserving filter on Y-channel (Luminance) in YUV space
+            yuv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YUV)
+            y, u, v = cv2.split(yuv)
+            y_denoised = cv2.bilateralFilter(y, d=5, sigmaColor=40, sigmaSpace=40)
+            u_denoised = cv2.GaussianBlur(u, (3, 3), 0)
+            v_denoised = cv2.GaussianBlur(v, (3, 3), 0)
+            merged = cv2.merge([y_denoised, u_denoised, v_denoised])
+            return cv2.cvtColor(merged, cv2.COLOR_YUV2BGR)
         elif level == "high":
-            # Robust Non-Local Means or high-strength bilateral
-            # High-strength bilateral with detail restoration to avoid over-softening
-            ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
-            y, cr, cb = cv2.split(ycrcb)
-            y_smooth = cv2.bilateralFilter(y, d=9, sigmaColor=75, sigmaSpace=75)
-            # Retain high-contrast edge details
-            edge_mask = cv2.Canny(y, 50, 150)
+            # Robust bilateral with edge-detail protection in YUV space
+            yuv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YUV)
+            y, u, v = cv2.split(yuv)
+            y_smooth = cv2.bilateralFilter(y, d=7, sigmaColor=60, sigmaSpace=60)
+            edge_mask = cv2.Canny(y, 60, 140)
             edge_mask = cv2.dilate(edge_mask, np.ones((3, 3), np.uint8), iterations=1)
             y_final = np.where(edge_mask > 0, y, y_smooth)
-            cr_smooth = cv2.bilateralFilter(cr, d=7, sigmaColor=45, sigmaSpace=45)
-            cb_smooth = cv2.bilateralFilter(cb, d=7, sigmaColor=45, sigmaSpace=45)
-            merged = cv2.merge([y_final, cr_smooth, cb_smooth])
-            return cv2.cvtColor(merged, cv2.COLOR_YCrCb2BGR)
+            u_smooth = cv2.GaussianBlur(u, (5, 5), 0)
+            v_smooth = cv2.GaussianBlur(v, (5, 5), 0)
+            merged = cv2.merge([y_final, u_smooth, v_smooth])
+            return cv2.cvtColor(merged, cv2.COLOR_YUV2BGR)
 
         return frame_bgr
 
@@ -50,10 +48,10 @@ class DenoiseDeblockEngine:
         """
         Attenuates 8x8 block boundary compression artifacts while preserving genuine edges.
         """
-        ycrcb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YCrCb)
-        y, cr, cb = cv2.split(ycrcb)
+        yuv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YUV)
+        y, u, v = cv2.split(yuv)
 
-        # Subtle median blur to soften blocking grid
+        # Fast 3x3 median blur to soften blocking grid
         y_median = cv2.medianBlur(y, 3)
 
         # Detect sharp genuine edges
@@ -66,35 +64,30 @@ class DenoiseDeblockEngine:
         weight = np.clip(magnitude / 64.0, 0.0, 1.0)
         y_deblocked = (y * weight + y_median * (1.0 - weight)).astype(np.uint8)
 
-        merged = cv2.merge([y_deblocked, cr, cb])
-        return cv2.cvtColor(merged, cv2.COLOR_YCrCb2BGR)
+        merged = cv2.merge([y_deblocked, u, v])
+        return cv2.cvtColor(merged, cv2.COLOR_YUV2BGR)
 
     def apply_sharpen(self, frame_bgr: np.ndarray, level: str = "medium") -> np.ndarray:
         if level == "off" or level is None:
             return frame_bgr
 
         params = {
-            "low": (1.0, 0.45, 3),
-            "medium": (1.2, 0.85, 2),
-            "high": (1.4, 1.25, 1),
+            "low": 1.25,
+            "medium": 1.45,
+            "high": 1.70,
         }
-        sigma, amount, threshold = params.get(level, (1.2, 0.85, 2))
+        mult = params.get(level, 1.45)
+        sub = mult - 1.0
 
-        # Sharpen strictly in Luminance space to prevent color fringe/chroma noise
-        lab = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
+        # High-speed Luminance sharpening in YUV space (no color halos or chroma shifts)
+        yuv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2YUV)
+        y, u, v = cv2.split(yuv)
 
-        blurred_l = cv2.GaussianBlur(l, (0, 0), sigmaX=sigma)
-        diff = cv2.subtract(l, blurred_l)
+        blurred_y = cv2.GaussianBlur(y, (0, 0), sigmaX=1.3)
+        sharpened_y = cv2.addWeighted(y, mult, blurred_y, -sub, 0)
 
-        # Adaptive thresholding: avoid amplifying low-level noise
-        mask = diff > threshold
-        sharpened_l = l.astype(np.float32)
-        sharpened_l[mask] += amount * diff[mask]
-        sharpened_l = np.clip(sharpened_l, 0, 255).astype(np.uint8)
-
-        merged = cv2.merge([sharpened_l, a, b])
-        return cv2.cvtColor(merged, cv2.COLOR_LAB2BGR)
+        merged = cv2.merge([sharpened_y, u, v])
+        return cv2.cvtColor(merged, cv2.COLOR_YUV2BGR)
 
     def process_frame(
         self,

@@ -136,7 +136,7 @@ function HeroSection() {
               {/* Slider Container */}
               <div
                 ref={sliderRef}
-                className="relative aspect-[16/10] w-full cursor-ew-resize select-none overflow-hidden rounded-2xl border border-gray-100 bg-gray-900 group"
+                className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-2xl border border-gray-100 bg-gray-900"
                 onPointerDown={(e) => {
                   isDragging.current = true;
                   e.currentTarget.setPointerCapture(e.pointerId);
@@ -151,7 +151,7 @@ function HeroSection() {
               >
                 {/* BEFORE LAYER (Original with Gemini Logo & Compression Artifacts) */}
                 <img
-                  src="/creative-suite/watermark_remover_city.jpg"
+                  src="/hero-before-gemini.png"
                   alt="Original with Gemini Logo"
                   className="absolute inset-0 size-full object-cover"
                   draggable={false}
@@ -163,7 +163,7 @@ function HeroSection() {
                   style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
                 >
                   <img
-                    src="/creative-suite/upscaler_macro_8k.jpg"
+                    src="/hero-after-clean.png"
                     alt="Cleaned Result"
                     className="size-full object-cover"
                     draggable={false}
@@ -184,14 +184,14 @@ function HeroSection() {
                 <div className="absolute top-3 left-3 z-10 pointer-events-none">
                   <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/65 border border-white/20 text-white text-[11px] font-bold backdrop-blur-md">
                     <span className="size-1.5 rounded-full bg-red-400" />
-                    <span>Low Quality (✦ Gemini Logo)</span>
+                    <span className="sm:hidden">Original</span><span className="hidden sm:inline">Low Quality (✦ Gemini Logo)</span>
                   </span>
                 </div>
 
                 <div className="absolute top-3 right-3 z-10 pointer-events-none">
                   <span className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/95 border border-[#FCE7EC] text-[#E11D48] text-[11px] font-semibold backdrop-blur-md shadow-xs">
                     <Sparkles className="size-3 text-[#E11D48]" />
-                    <span>High 4K Clean (Logo Removed)</span>
+                    <span className="sm:hidden">Clean 4K</span><span className="hidden sm:inline">High 4K Clean (Logo Removed)</span>
                   </span>
                 </div>
               </div>
@@ -488,135 +488,77 @@ function RealWorldResults() {
 /* 5. WHY CHOOSE BELLIX AI (MODERN BENTO GRID)                           */
 /* -------------------------------------------------------------------------- */
 function BentoFeatures() {
-  return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-[#FFF9FA] to-white border-b border-[#FCE7EC] relative overflow-hidden">
-      {/* Background ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-rose-100/40 blur-[120px] pointer-events-none rounded-full" />
+  const features = [
+    {
+      title: "Sub-pixel texture recovery",
+      label: "99.9% visual fidelity",
+      description:
+        "Rebuild fine hair, skin texture, natural grain, and lighting without the soft blur left by basic removers.",
+      icon: <ScanSearch className="size-5" />,
+      facts: ["Edge-aware reconstruction", "Natural texture matching"],
+    },
+    {
+      title: "Smooth motion at 60 FPS",
+      label: "Frame-consistent output",
+      description:
+        "Tracks the covered area across motion so restored pixels stay stable without flicker, jitter, or edge tearing.",
+      icon: <Film className="size-5" />,
+      facts: ["Temporal motion tracking", "Stable frame transitions"],
+    },
+    {
+      title: "Private by default",
+      label: "Zero-retention processing",
+      description:
+        "Media is processed in transient memory and cleared after the job. Your uploads are never used for training.",
+      icon: <ShieldCheck className="size-5" />,
+      facts: ["Encrypted transfer", "Automatic file deletion"],
+    },
+  ];
 
-      <div className="mx-auto max-w-6xl relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-[#E11D48] tracking-wider uppercase">
-            <Sparkles className="size-3.5 text-[#E11D48]" />
-            NEXT-GEN INPAINTING ARCHITECTURE
+  return (
+    <section className="relative overflow-hidden border-b border-rose-100 bg-[radial-gradient(circle_at_50%_0%,#fff1f5_0%,#fff_48%,#fafafa_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+      <div className="relative mx-auto max-w-6xl">
+        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-14">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-3.5 py-1.5 text-xs uppercase tracking-[0.12em] text-rose-600">
+            <Sparkles className="size-3.5" />
+            Built for real media
           </div>
-          <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
-            Why creators choose Bellix.us
+          <h2 className="text-3xl font-normal tracking-[-0.035em] text-gray-950 sm:text-5xl">
+            Clean results without the artificial finish
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
-            Engineered specifically for AI-generated media from Google Gemini, Veo, Runway, and Midjourney.
+          <p className="mx-auto mt-4 max-w-xl text-sm font-normal leading-6 text-gray-600 sm:text-base">
+            Three practical advantages you can see in the final export, from the first frame to the last.
           </p>
         </div>
 
-        {/* 3 Modern Luxury Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Card 1: Sub-Pixel Texture Recovery */}
-          <div className="group relative p-8 rounded-3xl bg-white/90 backdrop-blur-md border border-[#FCE7EC] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.18)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-6">
-                <div className="size-12 rounded-2xl bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white flex items-center justify-center shadow-md shadow-rose-300 group-hover:scale-110 transition-transform">
-                  <Sparkles className="size-6" />
-                </div>
-                <span className="text-[11px] font-bold font-mono uppercase px-2.5 py-1 rounded-full bg-rose-50 text-[#E11D48] border border-rose-100">
-                  99.9% Fidelity
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          {features.map((feature) => (
+            <article
+              key={feature.title}
+              className="group flex min-h-[22rem] flex-col rounded-[1.75rem] border border-gray-200/80 bg-white p-6 shadow-[0_18px_55px_-35px_rgba(15,23,42,.32)] transition duration-300 hover:-translate-y-1 hover:border-rose-200 hover:shadow-[0_24px_60px_-32px_rgba(225,29,72,.22)] sm:p-7"
+            >
+              <div className="mb-8 flex items-start justify-between gap-4">
+                <span className="grid size-11 place-items-center rounded-xl bg-gray-950 text-white transition group-hover:bg-rose-600">
+                  {feature.icon}
+                </span>
+                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-gray-600">
+                  {feature.label}
                 </span>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-950 mb-2.5">
-                Sub-Pixel Texture Recovery
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6">
-                Never leaves a blurred smudge or grey haze. Synthesizes original micro-textures, skin pores, and natural lighting.
-              </p>
-            </div>
+              <h3 className="text-xl font-normal tracking-[-0.025em] text-gray-950">{feature.title}</h3>
+              <p className="mt-3 text-sm font-normal leading-6 text-gray-600">{feature.description}</p>
 
-            {/* Micro Visual Preview */}
-            <div className="p-3.5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase">
-                <span>Micro Inpaint Analysis</span>
-                <span className="text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> Zero Smudge
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-rose-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#E11D48] to-emerald-500 w-full rounded-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: 60 FPS Motion Continuity */}
-          <div className="group relative p-8 rounded-3xl bg-white/90 backdrop-blur-md border border-[#FCE7EC] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.18)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-6">
-                <div className="size-12 rounded-2xl bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white flex items-center justify-center shadow-md shadow-rose-300 group-hover:scale-110 transition-transform">
-                  <Film className="size-6" />
-                </div>
-                <span className="text-[11px] font-bold font-mono uppercase px-2.5 py-1 rounded-full bg-rose-50 text-[#E11D48] border border-rose-100">
-                  Optical Flow AI
-                </span>
-              </div>
-
-              <h3 className="text-xl font-bold text-gray-950 mb-2.5">
-                60 FPS Motion Continuity
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6">
-                Optical flow ensures watermarks are tracked frame-by-frame with zero jitter, temporal flicker, or edge tearing.
-              </p>
-            </div>
-
-            {/* Micro Visual Preview */}
-            <div className="p-3.5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase">
-                <span>Frame Coherence</span>
-                <span className="text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> 60 FPS Locked
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 pt-0.5">
-                {[40, 75, 60, 95, 80, 100, 90, 85, 98, 92].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 bg-gradient-to-t from-[#E11D48] to-[#FF6B8B] rounded-full"
-                    style={{ height: `${h * 0.16}px` }}
-                  />
+              <div className="mt-auto border-t border-gray-100 pt-5">
+                {feature.facts.map((fact) => (
+                  <div key={fact} className="flex items-center gap-2 py-1.5 text-xs text-gray-600">
+                    <CheckCircle2 className="size-3.5 text-emerald-600" />
+                    <span>{fact}</span>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Card 3: Privacy & Zero Storage */}
-          <div className="group relative p-8 rounded-3xl bg-white/90 backdrop-blur-md border border-[#FCE7EC] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.18)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-6">
-                <div className="size-12 rounded-2xl bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white flex items-center justify-center shadow-md shadow-rose-300 group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="size-6" />
-                </div>
-                <span className="text-[11px] font-bold font-mono uppercase px-2.5 py-1 rounded-full bg-rose-50 text-[#E11D48] border border-rose-100">
-                  RAM Isolated
-                </span>
-              </div>
-
-              <h3 className="text-xl font-bold text-gray-950 mb-2.5">
-                Privacy &amp; Zero Storage
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6">
-                Uploaded files are processed entirely in transient GPU memory and deleted immediately. We never train on your media.
-              </p>
-            </div>
-
-            {/* Micro Visual Preview */}
-            <div className="p-3.5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 uppercase">
-                <span>Storage Policy</span>
-                <span className="text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="size-3" /> Auto-Purge 0s
-                </span>
-              </div>
-              <div className="text-[11px] font-mono text-gray-500 flex items-center gap-1.5">
-                <LockKeyhole className="size-3 text-[#E11D48]" />
-                <span>Encrypted Transient Pipeline</span>
-              </div>
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>
@@ -766,3 +708,5 @@ function HomePage() {
     </>
   );
 }
+
+
