@@ -1,0 +1,8 @@
+.venv
+venv
+backend/storage
+backend/models/weights
+.git
+.agents
+*.pyc
+__pycache__
