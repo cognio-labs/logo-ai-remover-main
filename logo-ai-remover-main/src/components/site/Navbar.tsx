@@ -10,7 +10,6 @@ import {
   Layers,
   ArrowRight,
   Film,
-  Scissors,
   WandSparkles,
 } from "lucide-react";
 import { PinkButton } from "./PinkButton";
@@ -114,25 +113,6 @@ export function Navbar() {
                         </h4>
                         <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
                           Super-resolution for images, designs & photos
-                        </p>
-                      </div>
-                    </Link>
-
-                    {/* Tool 2: AI Background Remover */}
-                    <Link
-                      to="/background-remover"
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-start gap-3.5 p-2.5 rounded-xl hover:bg-[#FFF5F7] transition-colors group"
-                    >
-                      <div className="size-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 group-hover:border-[#FCE7EC] group-hover:bg-white text-gray-700 group-hover:text-[#E11D48] transition-colors">
-                        <Scissors className="size-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#E11D48] transition-colors leading-snug">
-                          AI Background Remover
-                        </h4>
-                        <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
-                          One-click background removal with clean edges
                         </p>
                       </div>
                     </Link>
@@ -285,19 +265,6 @@ export function Navbar() {
               <div className="flex-1">
                 <span>4K / 8K Upscaler</span>
                 <p className="text-xs text-gray-500 font-normal">Super-resolution for images, designs & photos</p>
-              </div>
-            </Link>
-
-            {/* 2. AI Background Remover */}
-            <Link
-              to="/background-remover"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#FFF5F7] font-bold text-gray-800"
-            >
-              <Scissors className="size-5 text-[#E11D48]" />
-              <div className="flex-1">
-                <span>AI Background Remover</span>
-                <p className="text-xs text-gray-500 font-normal">One-click background removal with clean edges</p>
               </div>
             </Link>
 

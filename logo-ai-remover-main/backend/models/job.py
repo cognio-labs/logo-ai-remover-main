@@ -20,6 +20,7 @@ class JobStatus(StrEnum):
     VERIFYING = "verifying"
     COMPLETED = "completed"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class VideoMetadata(BaseModel):
@@ -49,6 +50,12 @@ class JobRecord(BaseModel):
     metadata: VideoMetadata | None = None
     result_path: str | None = None
     detection_path: str | None = None
+    processed_frames: int = 0
+    total_frames: int = 0
+    preview_path: str | None = None
+    preview_ready: bool = False
+    outputs: dict[str, str] = Field(default_factory=dict)
+    cancelled: bool = False
     created_at: datetime = Field(default_factory=utc_now)
     completed_at: datetime | None = None
     error: str | None = None

@@ -219,7 +219,11 @@ export async function refineCutoutStrokes(
   strokes: ManualStroke[],
   edgeRefine = true
 ): Promise<{ previewUrl: string; maskUrl: string }> {
-  return refineMaskStrokes(jobId, strokes, edgeRefine);
+  const res = await refineMaskStrokes(jobId, strokes, edgeRefine);
+  return {
+    previewUrl: res.preview_url,
+    maskUrl: res.mask_url,
+  };
 }
 
 /**

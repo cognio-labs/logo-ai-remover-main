@@ -50,6 +50,12 @@ class JobService:
         message: str | None = None,
         error: str | None = None,
         result_path: str | None = None,
+        processed_frames: int | None = None,
+        total_frames: int | None = None,
+        preview_path: str | None = None,
+        preview_ready: bool | None = None,
+        outputs: dict[str, str] | None = None,
+        cancelled: bool | None = None,
         completed_at=None,
     ) -> JobRecord:
         with self._lock:
@@ -66,9 +72,38 @@ class JobService:
                 job.error = error
             if result_path is not None:
                 job.result_path = result_path
+            if processed_frames is not None:
+                job.processed_frames = processed_frames
+            if total_frames is not None:
+                job.total_frames = total_frames
+            if preview_path is not None:
+                job.preview_path = preview_path
+            if preview_ready is not None:
+                job.preview_ready = preview_ready
+            if outputs is not None:
+                job.outputs = outputs
+            if cancelled is not None:
+                job.cancelled = cancelled
             if completed_at is not None:
                 job.completed_at = completed_at
             return self.save(job)
+
+    def is_cancelled(self, job_id: str) -> bool:
+        try:
+            job = self.get(job_id)
+            return job.cancelled or job.status == JobStatus.CANCELLED
+        except Exception:
+            return False
+
+    def cancel(self, job_id: str) -> JobRecord:
+        with self._lock:
+            return self.update(
+                job_id,
+                status=JobStatus.CANCELLED,
+                cancelled=True,
+                stage="Cancelled",
+                message="Processing was cancelled by user.",
+            )
 
     def write_detection(self, job_id: str, payload: dict) -> Path:
         path = job_dir(job_id) / "detection.json"

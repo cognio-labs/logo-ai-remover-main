@@ -131,12 +131,11 @@ function HeroSection() {
           </div>
 
           {/* Right Column: Interactive Before/After Comparison Card */}
-          <div className="lg:col-span-6">
-            <div className="rounded-3xl p-3 sm:p-4 bg-white border-2 border-[#FCE7EC] shadow-[0_20px_50px_-15px_rgba(225,29,72,0.22)]">
+          <div className="lg:col-span-6 flex flex-col justify-center">
               {/* Slider Container */}
               <div
                 ref={sliderRef}
-                className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-2xl border border-gray-100 bg-gray-900"
+                className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] bg-gray-900"
                 onPointerDown={(e) => {
                   isDragging.current = true;
                   e.currentTarget.setPointerCapture(e.pointerId);
@@ -204,7 +203,6 @@ function HeroSection() {
                   <span>100% Logo Free • 4K Detail</span>
                 </span>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -361,9 +359,8 @@ function VideoCleanupResultSection() {
 
             {/* Right: AFTER (Cleaned with watermark completely removed) */}
             <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
-              <span className="absolute top-4 left-4 z-20 px-3.5 py-1 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-emerald-400/30 flex items-center gap-1.5 shadow-lg">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                AFTER · 100% CLEAN
+              <span className="absolute top-4 left-4 z-20 px-3.5 py-1 rounded-full bg-black/70 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
+                AFTER
               </span>
 
               <video

@@ -377,33 +377,58 @@ b, strong, th, button, a, span, p, label, input, select, textarea, div, small, e
   font-weight: 400 !important;
 }
 
-/* Lightweight creative showcase rails */
+/* Lightweight creative showcase rails with smooth auto-running marquee */
+.creative-marquee-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+}
+
 .creative-rail {
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: max(1rem, calc((100vw - 80rem) / 2));
-  scroll-behavior: smooth;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
-  scrollbar-color: #f9a8bd transparent;
-  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .creative-rail::-webkit-scrollbar {
-  height: 5px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
-.creative-rail::-webkit-scrollbar-track {
-  background: transparent;
+@keyframes marquee-scroll-left {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
 }
 
-.creative-rail::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: #f9a8bd;
+@keyframes marquee-scroll-right {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
-.creative-rail > * {
-  scroll-snap-stop: always;
-  contain: layout paint;
+.animate-marquee-scroll-left {
+  animation: marquee-scroll-left 52s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-scroll-right {
+  animation: marquee-scroll-right 52s linear infinite;
+  will-change: transform;
+}
+
+.creative-marquee-wrapper:hover .animate-marquee-scroll-left,
+.creative-marquee-wrapper:hover .animate-marquee-scroll-right {
+  animation-play-state: paused;
 }
 
 html {

@@ -1,9 +1,19 @@
+import os
+import tempfile
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from backend.config import settings
+
+# Force pytest and subprocesses to use Drive D temp storage (Drive C has 0 bytes free)
+_PYTEST_TEMP = Path(__file__).resolve().parent.parent / "storage" / "temp"
+_PYTEST_TEMP.mkdir(parents=True, exist_ok=True)
+tempfile.tempdir = str(_PYTEST_TEMP)
+os.environ["TEMP"] = str(_PYTEST_TEMP)
+os.environ["TMP"] = str(_PYTEST_TEMP)
+
 from backend.main import app
 
 

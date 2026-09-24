@@ -1,0 +1,89 @@
+{
+  "frameCount": 12,
+  "boxes": [
+    {
+      "frameIndex": 0,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 1,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 2,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 3,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 4,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 5,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 6,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 7,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 8,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 9,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 10,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    },
+    {
+      "frameIndex": 11,
+      "x": 132,
+      "y": 96,
+      "width": 22,
+      "height": 18
+    }
+  ]
+}

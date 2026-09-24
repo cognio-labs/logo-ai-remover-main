@@ -87,11 +87,11 @@ export function VideoTrustBadges({ className = "" }: { className?: string }) {
             line2="Processing"
           />
 
-          {/* Badge 2: No Upload Required */}
+          {/* Badge 2: Zero Data Retention */}
           <TrustBadgeItem
             icon={<Zap className="size-7 sm:size-8 stroke-[1.9] text-[#1E293B]" />}
-            line1="No Upload"
-            line2="Required"
+            line1="Zero Data"
+            line2="Retention"
           />
 
           {/* Badge 3: Open Source Pipeline */}

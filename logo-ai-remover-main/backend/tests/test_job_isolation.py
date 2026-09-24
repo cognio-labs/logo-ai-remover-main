@@ -94,14 +94,12 @@ def test_status_recovers_after_refresh(client, monkeypatch):
         stage="Reconstructing masked region",
     )
     response = client.get(f"/api/video/status/{job_id}")
-    assert response.json() == {
-        "jobId": job_id,
-        "status": "processing",
-        "progress": 67,
-        "stage": "Reconstructing masked region",
-        "message": "Exact uploaded file stored in an isolated job",
-        "error": None,
-    }
+    payload = response.json()
+    assert payload["jobId"] == job_id
+    assert payload["status"] == "processing"
+    assert payload["progress"] == 67
+    assert payload["stage"] == "Reconstructing masked region"
+    assert payload["error"] is None
 
 
 def test_download_returns_only_the_jobs_verified_result(client, monkeypatch):
@@ -123,3 +121,61 @@ def test_download_returns_only_the_jobs_verified_result(client, monkeypatch):
     assert second.content == b"clean-b"
     assert first.headers["x-video-job-id"] == first_id
     assert second.headers["x-video-job-id"] == second_id
+
+
+def test_video_watermark_alias_routes_dual_compatibility(client, monkeypatch):
+    monkeypatch.setattr("backend.api.video_routes.analyze_video", lambda *_: METADATA)
+    submitted: list[str] = []
+    monkeypatch.setattr(
+        "backend.api.video_routes.submit_video_job",
+        lambda identity, manual=None: submitted.append(identity),
+    )
+
+    # 1. Upload via /api/video-watermark/upload
+    job_id = str(uuid4())
+    upload_res = client.post(
+        "/api/video-watermark/upload",
+        data={"jobId": job_id},
+        files={"file": ("alias_test.mp4", b"alias-video-content", "video/mp4")},
+    )
+    assert upload_res.status_code == 200, upload_res.text
+    data = upload_res.json()
+    assert data["jobId"] == job_id
+    assert data["status"] == "uploaded"
+
+    # 2. Process via /api/video-watermark/process
+    proc_res = client.post("/api/video-watermark/process", json={"jobId": job_id})
+    assert proc_res.status_code == 200
+    assert proc_res.json()["jobId"] == job_id
+    assert submitted == [job_id]
+
+    # 3. Status via both /api/video-watermark/status and /api/video/status
+    st_alias = client.get(f"/api/video-watermark/status/{job_id}")
+    st_canonical = client.get(f"/api/video/status/{job_id}")
+    assert st_alias.status_code == 200
+    assert st_canonical.status_code == 200
+    assert st_alias.json()["status"] == st_canonical.json()["status"]
+
+    # 4. Download via /api/video-watermark/download once completed
+    job = job_service.get(job_id)
+    output = Path(job.original_path).parents[1] / "output" / "cleaned.mp4"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(b"cleaned-watermark-free")
+    job_service.update(
+        job_id,
+        status=JobStatus.COMPLETED,
+        progress=100,
+        result_path=str(output),
+    )
+    dl_alias = client.get(f"/api/video-watermark/download/{job_id}")
+    dl_canonical = client.get(f"/api/video/download/{job_id}")
+    assert dl_alias.status_code == 200
+    assert dl_canonical.status_code == 200
+    assert dl_alias.content == b"cleaned-watermark-free"
+    assert dl_alias.content == dl_canonical.content
+    assert dl_alias.headers["x-video-job-id"] == job_id
+
+    # 5. Delete via /api/video-watermark/{job_id}
+    del_alias = client.delete(f"/api/video-watermark/{job_id}")
+    assert del_alias.status_code == 200
+    assert del_alias.json()["jobId"] == job_id

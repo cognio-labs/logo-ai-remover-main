@@ -80,7 +80,7 @@ function PricingPage() {
       ],
       ctaText: "Get Creator Pro",
       ctaLink: "/gemini-video-watermark-remover",
-      variant: "solid" as const,
+      variant: "primary" as const,
     },
     {
       name: "Studio & API",

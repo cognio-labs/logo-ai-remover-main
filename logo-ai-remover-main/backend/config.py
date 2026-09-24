@@ -1,9 +1,18 @@
+import os
+import tempfile
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 BACKEND_DIR = Path(__file__).resolve().parent
+
+# Ensure temporary files are stored on Drive D: with ample disk space
+_STORAGE_TEMP = BACKEND_DIR / "storage" / "temp"
+_STORAGE_TEMP.mkdir(parents=True, exist_ok=True)
+tempfile.tempdir = str(_STORAGE_TEMP)
+os.environ["TEMP"] = str(_STORAGE_TEMP)
+os.environ["TMP"] = str(_STORAGE_TEMP)
 
 
 class Settings(BaseSettings):

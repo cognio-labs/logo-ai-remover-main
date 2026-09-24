@@ -1,33 +1,77 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ArrowUpRight, ImageUp, Infinity as InfinityIcon, Shield, Video, WandSparkles, Zap } from "lucide-react";
+import { ArrowUpRight, ImageUp, Infinity as InfinityIcon, Shield, Video, WandSparkles, Zap } from "lucide-react";
 import { CREATIVE_SUITE_ASSETS, type ProductCardItem } from "@/config/creativeSuiteAssets";
 
 export { type ProductCardItem };
 export const DEFAULT_BELLIX_PRODUCTS: ProductCardItem[] = CREATIVE_SUITE_ASSETS;
 
-function ProductRail({ products, label }: { products: ProductCardItem[]; label: string }) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const move = (direction: number) => railRef.current?.scrollBy({ left: direction * Math.min(460, window.innerWidth * 0.82), behavior: "smooth" });
+function ProductRail({
+  products,
+  label,
+  direction = "left",
+}: {
+  products: ProductCardItem[];
+  label: string;
+  direction?: "left" | "right";
+}) {
+  const isLeft = direction === "left";
+  const duplicated = [...products, ...products];
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.16em] text-gray-500">{label}</p>
-        <div className="hidden items-center gap-2 sm:flex">
-          <button type="button" onClick={() => move(-1)} aria-label={`Scroll ${label} left`} className="grid size-9 place-items-center rounded-full border border-rose-100 bg-white text-gray-700 shadow-sm transition hover:border-rose-300 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"><ArrowLeft className="size-4" /></button>
-          <button type="button" onClick={() => move(1)} aria-label={`Scroll ${label} right`} className="grid size-9 place-items-center rounded-full border border-rose-100 bg-white text-gray-700 shadow-sm transition hover:border-rose-300 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"><ArrowRight className="size-4" /></button>
+        <div className="flex items-center gap-2">
+          <span className="size-1.5 rounded-full bg-rose-500" />
+          <p className="text-xs uppercase tracking-[0.16em] font-medium text-gray-500">{label}</p>
         </div>
       </div>
-      <div ref={railRef} className="creative-rail flex gap-4 overflow-x-auto px-[max(1rem,calc((100vw-80rem)/2))] pb-4 sm:gap-5">
-        {products.map((product, index) => <ProductCard product={product} key={product.id} priority={index < 3} />)}
+      <div className="creative-marquee-wrapper overflow-hidden py-1">
+        <div className="flex w-max">
+          <div
+            className={`flex shrink-0 gap-3.5 sm:gap-4 pr-3.5 sm:pr-4 ${
+              isLeft ? "animate-marquee-scroll-left" : "animate-marquee-scroll-right"
+            }`}
+          >
+            {duplicated.map((product, index) => (
+              <ProductCard
+                product={product}
+                key={`track1-${product.id}-${index}`}
+                priority={index < 2}
+              />
+            ))}
+          </div>
+          <div
+            className={`flex shrink-0 gap-3.5 sm:gap-4 pr-3.5 sm:pr-4 ${
+              isLeft ? "animate-marquee-scroll-left" : "animate-marquee-scroll-right"
+            }`}
+            aria-hidden="true"
+          >
+            {duplicated.map((product, index) => (
+              <ProductCard
+                product={product}
+                key={`track2-${product.id}-${index}`}
+                priority={false}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-export const HeroParallax = ({ products = CREATIVE_SUITE_ASSETS, title, subtitle }: { products?: ProductCardItem[]; title?: React.ReactNode; subtitle?: React.ReactNode }) => {
+export const HeroParallax = ({
+  products = CREATIVE_SUITE_ASSETS,
+  title,
+  subtitle,
+}: {
+  products?: ProductCardItem[];
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+}) => {
   const cardList = products.length ? products : CREATIVE_SUITE_ASSETS;
   const splitAt = Math.ceil(cardList.length / 2);
   return (
@@ -35,9 +79,9 @@ export const HeroParallax = ({ products = CREATIVE_SUITE_ASSETS, title, subtitle
       <div className="pointer-events-none absolute -left-28 top-12 size-[32rem] rounded-full bg-rose-100/55 blur-3xl" />
       <div className="pointer-events-none absolute -right-32 top-56 size-[28rem] rounded-full bg-fuchsia-100/35 blur-3xl" />
       <Header title={title} subtitle={subtitle} />
-      <div className="relative z-10 mt-8 space-y-8 sm:mt-12 sm:space-y-10">
-        <ProductRail products={cardList.slice(0, splitAt)} label="Restore & enhance" />
-        <ProductRail products={cardList.slice(splitAt)} label="Create & protect" />
+      <div className="relative z-10 mt-8 space-y-7 sm:mt-12 sm:space-y-8">
+        <ProductRail products={cardList.slice(0, splitAt)} label="Restore & enhance" direction="left" />
+        <ProductRail products={cardList.slice(splitAt)} label="Create & protect" direction="right" />
       </div>
     </section>
   );
@@ -73,8 +117,59 @@ export const Header = ({ title, subtitle }: { title?: React.ReactNode; subtitle?
 
 export const ProductCard = ({ product, priority = false }: { product: ProductCardItem; priority?: boolean }) => {
   const isInternal = product.link.startsWith("/");
-  const content = <><div className="absolute inset-0 bg-[#11131a]"><img src={product.thumbnail} alt="" aria-hidden="true" className="size-full scale-110 object-cover opacity-30 blur-xl" /></div><img src={product.thumbnail} alt={product.title} loading={priority ? "eager" : "lazy"} decoding="async" className="absolute inset-0 size-full object-contain transition-transform duration-500 group-hover/product:scale-[1.015]" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/5 to-black/10" />{product.badge && <span className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white backdrop-blur-md">{product.badge}</span>}<div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3"><div className="min-w-0">{product.category && <span className="mb-1 block truncate text-[10px] uppercase tracking-[0.14em] text-rose-200">{product.category}</span>}<h2 className="text-base font-normal leading-snug text-white sm:text-lg">{product.title}</h2></div><span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/20 bg-white/15 text-white backdrop-blur-md transition group-hover/product:bg-rose-500"><ArrowUpRight className="size-4" /></span></div></>;
-  const className = "group/product relative block aspect-[16/10] w-[min(82vw,25rem)] flex-none snap-start overflow-hidden rounded-[1.4rem] border border-rose-100 bg-gray-950 shadow-[0_12px_32px_-18px_rgba(15,23,42,.45)] transition duration-300 hover:-translate-y-1 hover:border-rose-300 sm:w-[25rem]";
-  return isInternal ? <Link to={product.link} className={className}>{content}</Link> : <a href={product.link} target="_blank" rel="noreferrer" className={className}>{content}</a>;
+  const content = (
+    <>
+      <div className="absolute inset-0 bg-[#11131a]">
+        <img
+          src={product.thumbnail}
+          alt=""
+          aria-hidden="true"
+          className="size-full scale-110 object-cover opacity-25 blur-xl"
+        />
+      </div>
+      <img
+        src={product.thumbnail}
+        alt={product.title}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/product:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/10" />
+      {product.badge && (
+        <span className="absolute left-3 top-3 rounded-full border border-white/15 bg-black/50 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-white/90 backdrop-blur-md">
+          {product.badge}
+        </span>
+      )}
+      <div className="absolute inset-x-3.5 bottom-3.5 flex items-end justify-between gap-2.5">
+        <div className="min-w-0">
+          {product.category && (
+            <span className="mb-0.5 block truncate text-[9px] uppercase tracking-[0.14em] text-rose-300 font-medium">
+              {product.category}
+            </span>
+          )}
+          <h2 className="text-xs sm:text-sm font-normal leading-snug text-white truncate">
+            {product.title}
+          </h2>
+        </div>
+        <span className="grid size-7 shrink-0 place-items-center rounded-full border border-white/20 bg-white/15 text-white backdrop-blur-md transition-colors duration-200 group-hover/product:bg-rose-500 group-hover/product:border-rose-400">
+          <ArrowUpRight className="size-3.5" />
+        </span>
+      </div>
+    </>
+  );
+
+  const className =
+    "group/product relative block aspect-[16/10] w-[14.5rem] sm:w-[16.5rem] md:w-[17.5rem] flex-none overflow-hidden rounded-2xl border border-rose-100/70 bg-gray-950 shadow-[0_8px_20px_-10px_rgba(15,23,42,.35)] transition-all duration-300 hover:-translate-y-1 hover:border-rose-300 hover:shadow-[0_12px_28px_-10px_rgba(225,29,72,.25)]";
+
+  return isInternal ? (
+    <Link to={product.link} className={className}>
+      {content}
+    </Link>
+  ) : (
+    <a href={product.link} target="_blank" rel="noreferrer" className={className}>
+      {content}
+    </a>
+  );
 };
+
 

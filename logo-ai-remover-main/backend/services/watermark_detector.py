@@ -70,59 +70,70 @@ def _validate_region(raw: dict) -> dict:
 
 
 def _cv_detect_corner_watermark(samples: list[bytes]) -> dict:
-    """Computer vision detector: detects persistent AI logos in video corners (e.g. Gemini watermark)."""
+    """Computer vision & temporal detector: detects persistent AI logos in video corners/quadrants."""
     frames = [cv2.imdecode(np.frombuffer(s, dtype=np.uint8), cv2.IMREAD_COLOR) for s in samples]
     valid_frames = [f for f in frames if f is not None]
     if not valid_frames:
         return {
-            "x": 0.84,
-            "y": 0.86,
-            "width": 0.13,
-            "height": 0.09,
-            "confidence": 0.88,
-            "type": "gemini_watermark_default",
+            "x": 0.85,
+            "y": 0.78,
+            "width": 0.08,
+            "height": 0.12,
+            "confidence": 0.90,
+            "type": "default_bottom_right_watermark",
         }
 
     h_frame, w_frame = valid_frames[0].shape[:2]
-    grays = [cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) for f in valid_frames]
+    grays = [cv2.cvtColor(f, cv2.COLOR_BGR2GRAY).astype(np.float32) for f in valid_frames]
+    stack = np.stack(grays, axis=0)
 
+    mean_f = np.mean(stack, axis=0).astype(np.uint8)
+    std_f = np.std(stack, axis=0)
+    lap = np.abs(cv2.Laplacian(mean_f, cv2.CV_32F))
+
+    # Evaluate candidate regions
     candidates = [
-        {"name": "bottom-right", "x": 0.84, "y": 0.86, "width": 0.13, "height": 0.09, "priority": 1.3},
-        {"name": "bottom-left",  "x": 0.03, "y": 0.86, "width": 0.13, "height": 0.09, "priority": 1.0},
-        {"name": "top-right",    "x": 0.84, "y": 0.04, "width": 0.13, "height": 0.09, "priority": 1.0},
-        {"name": "top-left",     "x": 0.03, "y": 0.04, "width": 0.13, "height": 0.09, "priority": 1.0},
+        ("bottom-right", int(w_frame * 0.70), int(h_frame * 0.65), w_frame, h_frame, 1.4),
+        ("bottom-left", 0, int(h_frame * 0.65), int(w_frame * 0.30), h_frame, 1.0),
+        ("top-right", int(w_frame * 0.70), 0, w_frame, int(h_frame * 0.35), 1.0),
+        ("top-left", 0, 0, int(w_frame * 0.30), int(h_frame * 0.35), 1.0),
+        ("center", int(w_frame * 0.30), int(h_frame * 0.30), int(w_frame * 0.70), int(h_frame * 0.70), 0.7),
     ]
 
-    best_candidate = candidates[0]
+    best_region = "bottom-right"
     best_score = -1.0
+    best_peak = (int(w_frame * 0.88), int(h_frame * 0.82))
 
-    for c in candidates:
-        x1 = int(c["x"] * w_frame)
-        y1 = int(c["y"] * h_frame)
-        w = int(c["width"] * w_frame)
-        h = int(c["height"] * h_frame)
-
-        crops = [g[y1 : y1 + h, x1 : x1 + w] for g in grays if g.shape[0] >= y1 + h and g.shape[1] >= x1 + w]
-        if len(crops) < 2:
+    for name, x1, y1, x2, y2, weight in candidates:
+        roi_lap = lap[y1:y2, x1:x2]
+        roi_std = std_f[y1:y2, x1:x2]
+        if roi_lap.size == 0:
             continue
-
-        stack = np.stack(crops, axis=0).astype(np.float32)
-        temporal_variance = float(np.mean(np.var(stack, axis=0))) + 1.0
-        edges = [float(np.mean(cv2.Laplacian(crop, cv2.CV_32F) ** 2)) for crop in crops]
-        spatial_contrast = float(np.mean(edges)) + 1.0
-
-        score = (spatial_contrast / temporal_variance) * c["priority"]
+        max_edge = float(np.max(roi_lap))
+        mean_edge = float(np.mean(roi_lap))
+        mean_std = float(np.mean(roi_std)) + 1.0
+        score = (max_edge * 1.5 + mean_edge) / mean_std * weight
         if score > best_score:
             best_score = score
-            best_candidate = c
+            loc = np.unravel_index(np.argmax(roi_lap), roi_lap.shape)
+            best_peak = (x1 + int(loc[1]), y1 + int(loc[0]))
+            best_region = name
+
+    px, py = best_peak
+    # Box dimensions sized to cover full watermark + antialiasing margin
+    box_w = max(60, int(w_frame * 0.075))
+    box_h = max(68, int(h_frame * 0.125))
+
+    bx = max(0, min(w_frame - box_w, px - box_w // 2))
+    by = max(0, min(h_frame - box_h, py - box_h // 2))
 
     return {
-        "x": best_candidate["x"],
-        "y": best_candidate["y"],
-        "width": best_candidate["width"],
-        "height": best_candidate["height"],
-        "confidence": 0.90,
-        "type": f"cv_{best_candidate['name']}_watermark",
+        "x": float(round(bx / w_frame, 4)),
+        "y": float(round(by / h_frame, 4)),
+        "width": float(round(box_w / w_frame, 4)),
+        "height": float(round(box_h / h_frame, 4)),
+        "confidence": 0.96,
+        "type": f"cv_{best_region}_watermark",
     }
 
 
@@ -142,24 +153,11 @@ def detect(job_id: str, input_path: Path, manual_region: ManualRegion | None = N
             "regions": [{**manual_region.model_dump(), "confidence": 1.0, "type": "manual"}],
         }
     else:
-        raw = None
         samples = _sample_frames(input_path)
-        if settings.openrouter_api_key:
-            try:
-                raw = openrouter_service.detect_watermark(samples)
-            except Exception as exc:
-                logger.warning("OpenRouter detection failed, using computer vision fallback: %s", exc)
-                raw = None
-
-        if raw and raw.get("watermark_detected") and raw.get("regions"):
-            regions = [_validate_region(r) for r in raw["regions"]]
-            confidence = float(raw.get("confidence", max((r["confidence"] for r in regions), default=0.85)))
-            model_name = raw.get("model", settings.openrouter_model)
-        else:
-            cv_region = _cv_detect_corner_watermark(samples)
-            regions = [_validate_region(cv_region)]
-            confidence = cv_region["confidence"]
-            model_name = "opencv-corner-detector"
+        cv_region = _cv_detect_corner_watermark(samples)
+        regions = [_validate_region(cv_region)]
+        confidence = cv_region["confidence"]
+        model_name = "opencv-temporal-detector"
 
         payload = {
             "jobId": job_id,

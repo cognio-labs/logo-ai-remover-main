@@ -46,19 +46,19 @@ const MODEL_ASSET_MAP: Record<string, string> = {
   "haiper-ai": "/models/haiper.svg",
 };
 
-// Premium background colors tailored for each official brand identity
+// Clean, bright background styling for official brand icons (no dark/black background)
 const MODEL_BG_MAP: Record<string, string> = {
-  gemini: "bg-[#0D1224] border-blue-500/30 shadow-[0_0_12px_rgba(78,130,238,0.25)]",
-  veo: "bg-[#111622] border-sky-500/30 shadow-[0_0_12px_rgba(66,133,244,0.25)]",
-  sora: "bg-[#0C0E14] border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.2)]",
-  openai: "bg-[#0C0E14] border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.2)]",
-  midjourney: "bg-[#0B0F19] border-indigo-500/25 shadow-[0_0_12px_rgba(99,102,241,0.2)]",
-  runway: "bg-[#120D12] border-rose-500/30 shadow-[0_0_12px_rgba(225,29,72,0.25)]",
-  kling: "bg-[#14080D] border-red-500/30 shadow-[0_0_12px_rgba(255,46,99,0.25)]",
-  luma: "bg-[#080E18] border-cyan-500/30 shadow-[0_0_12px_rgba(56,189,248,0.25)]",
-  pika: "bg-[#141006] border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.25)]",
-  stability: "bg-[#110B18] border-purple-500/30 shadow-[0_0_12px_rgba(192,132,252,0.25)]",
-  haiper: "bg-[#07130D] border-emerald-500/30 shadow-[0_0_12px_rgba(52,211,153,0.25)]",
+  gemini: "bg-white border-gray-200/90 shadow-2xs hover:border-blue-300",
+  veo: "bg-white border-gray-200/90 shadow-2xs hover:border-sky-300",
+  sora: "bg-white border-gray-200/90 shadow-2xs hover:border-sky-300",
+  openai: "bg-white border-gray-200/90 shadow-2xs hover:border-gray-400",
+  midjourney: "bg-white border-gray-200/90 shadow-2xs hover:border-indigo-300",
+  runway: "bg-white border-gray-200/90 shadow-2xs hover:border-rose-300",
+  kling: "bg-white border-gray-200/90 shadow-2xs hover:border-amber-300",
+  luma: "bg-white border-gray-200/90 shadow-2xs hover:border-cyan-300",
+  pika: "bg-white border-gray-200/90 shadow-2xs hover:border-orange-300",
+  stability: "bg-white border-gray-200/90 shadow-2xs hover:border-purple-300",
+  haiper: "bg-white border-gray-200/90 shadow-2xs hover:border-teal-300",
 };
 
 export function ModelIcon({
@@ -91,7 +91,7 @@ export function ModelIcon({
     }
   };
 
-  const bgStyle = MODEL_BG_MAP[normalizedId] || "bg-[#14151B] border-white/10";
+  const bgStyle = MODEL_BG_MAP[normalizedId] || "bg-white border-gray-200/90 shadow-2xs";
 
   // Strict container requirements: 36px x 36px desktop, 32px x 32px mobile, border-radius: 10px
   const sizeClasses = {
@@ -110,7 +110,7 @@ export function ModelIcon({
         <img
           src={currentSrc}
           alt={`${name} official logo`}
-          className="w-full h-full max-w-full max-h-full object-contain pointer-events-none select-none drop-shadow-sm transition-transform duration-200"
+          className="w-full h-full max-w-full max-h-full object-contain pointer-events-none select-none transition-transform duration-200"
           loading="lazy"
           onError={handleError}
         />

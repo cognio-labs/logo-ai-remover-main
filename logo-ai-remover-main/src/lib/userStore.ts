@@ -18,7 +18,7 @@ export interface JobItem {
   id: string;
   user_id: string;
   file_name: string;
-  file_type: "image" | "video" | "upscale";
+  file_type: "image" | "video" | "upscale" | "pdf" | "background-remover";
   file_url?: string;
   result_url?: string;
   status: "queued" | "processing" | "completed" | "failed";

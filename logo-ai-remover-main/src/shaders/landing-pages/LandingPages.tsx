@@ -33,6 +33,7 @@ import {
   VOLTA_ATELIER_TYPOGRAPHY,
 } from "./pageRecipes";
 const innerGreenSource = "";
+const buildSandboxedPageDocument = (source: string, _options?: any): string => source;
 const buildTidecrestDocument = (_variant?: string) => undefined;
 const buildMeridianDocument = (_variant?: string, _presentation?: string) => undefined;
 const buildAsciiFieldDocument = (_variant?: string) => undefined;
@@ -438,7 +439,7 @@ export function NocturneHero({
   pointerOrbit,
   ...props
 }: NocturneHeroProps) {
-  const safeVariant = NOCTURNE_VARIANTS.includes(variant) ? variant : "midnight";
+  const safeVariant = (NOCTURNE_VARIANTS as readonly string[]).includes(variant) ? variant : "midnight";
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(NOCTURNE_TYPOGRAPHY, type);
   const srcDoc = useMemo(
