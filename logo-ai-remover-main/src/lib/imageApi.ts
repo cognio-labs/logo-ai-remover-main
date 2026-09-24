@@ -34,8 +34,7 @@ export type UpscaleJobResult = {
   };
   resultVersion: number;
 };
-
-const API_ORIGIN = ((import.meta as any).env?.VITE_IMAGE_API_URL as string | undefined)?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN = (((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_IMAGE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined)?.replace(/\/$/u, "") ?? "";
 
 export const apiImageUrl = (path: string) => `${API_ORIGIN}${path}`;
 

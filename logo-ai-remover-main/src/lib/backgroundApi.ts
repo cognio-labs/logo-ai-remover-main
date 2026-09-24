@@ -67,8 +67,8 @@ export interface DirectRemovalResult {
   result_url: string;
   mask_url: string;
 }
-
-const API_BASE = "/api/v1";
+const API_ORIGIN = ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL || "")?.replace(/\/$/u, "") ?? "";
+const API_BASE = `${API_ORIGIN}/api/v1`;
 
 /**
  * Direct synchronous background removal

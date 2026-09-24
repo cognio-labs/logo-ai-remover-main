@@ -64,8 +64,7 @@ export type VideoResult = {
   resultVersion: number;
   downloadUrls?: Record<string, string>;
 };
-
-const API_ORIGIN = (import.meta.env.VITE_VIDEO_API_URL as string | undefined)?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN = (((import.meta as any).env?.VITE_API_URL || import.meta.env.VITE_VIDEO_API_URL) as string | undefined)?.replace(/\/$/u, "") ?? "";
 
 export const apiUrl = (path: string) => `${API_ORIGIN}${path}`;
 

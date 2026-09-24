@@ -118,8 +118,8 @@ export interface VideoCapabilitiesResponse {
     realtime_sse: boolean;
   };
 }
-
-const API_BASE = "/api/v1/video";
+const API_ORIGIN = ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL || "")?.replace(/\/$/u, "") ?? "";
+const API_BASE = `${API_ORIGIN}/api/v1/video`;
 
 /**
  * Uploads a video file and receives true FFprobe metadata & thumbnail preview.

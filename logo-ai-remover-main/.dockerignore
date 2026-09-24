@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node modules (frontend)
+node_modules/
+
+# Build output
+dist/
+.output/
+.vercel/
+.wrangler/
+.tanstack/
+
+# Storage (job files - runtime data, not deployed)
+backend/storage/jobs/
+backend/storage/image_jobs/
+backend/storage/pdf_jobs/
+backend/storage/background_jobs/
+backend/storage/video_enhancer_jobs/
+backend/storage/temp/
+
+# Env files with secrets
+backend/.env
+.env.local
+.env.production
+
+# Test cache
+.pytest_cache/
+backend/tests/__pycache__/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large model weight files (download at runtime or bundle separately)
+# backend/models/weights/*.onnx
+
+# Temp files
+*.tmp
+*.temp
