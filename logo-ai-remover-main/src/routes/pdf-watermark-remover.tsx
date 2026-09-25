@@ -17,7 +17,10 @@ import {
   Receipt,
   ChevronDown,
   Printer,
-  Sparkle
+  Sparkle,
+  ZoomIn,
+  ZoomOut,
+  AlertTriangle,
 } from "lucide-react";
 import {
   apiPdfUrl,
@@ -221,6 +224,11 @@ export default function PdfWatermarkRemoverPage() {
   const [activeDocPreset, setActiveDocPreset] = useState<string | null>("invoice");
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
+  const [cleanedPreviewUrl, setCleanedPreviewUrl] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<number>(1.0);
+  const [integrityError, setIntegrityError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isPdf, setIsPdf] = useState<boolean>(true);
@@ -276,7 +284,12 @@ export default function PdfWatermarkRemoverPage() {
       setTotalPages(resp.pageCount);
       setCurrentPage(1);
       setIsPdf(true);
-      setPreviewUrl(apiPdfUrl(resp.previewUrl));
+      const origUrl = apiPdfUrl(resp.previewUrl);
+      setPreviewUrl(origUrl);
+      setOriginalPreviewUrl(origUrl);
+      setCleanedPreviewUrl(null);
+      setUploadStatus("PDF uploaded — Ready to clean");
+      setIntegrityError(null);
       setDetectedRegions([]);
       setManualRegions([]);
       setIsCompleted(false);
@@ -307,7 +320,12 @@ export default function PdfWatermarkRemoverPage() {
       setTotalPages(resp.pageCount);
       setCurrentPage(1);
       setIsPdf(resp.isPdf);
-      setPreviewUrl(apiPdfUrl(resp.previewUrl));
+      const origUrl = apiPdfUrl(resp.previewUrl);
+      setPreviewUrl(origUrl);
+      setOriginalPreviewUrl(origUrl);
+      setCleanedPreviewUrl(null);
+      setUploadStatus("PDF uploaded — Ready to clean");
+      setIntegrityError(null);
       setDetectedRegions([]);
       setManualRegions([]);
       setIsCompleted(false);
@@ -330,7 +348,12 @@ export default function PdfWatermarkRemoverPage() {
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages || !currentJobId) return;
     setCurrentPage(newPage);
-    setPreviewUrl(pdfPreviewUrl(currentJobId, newPage, isCompleted ? "cleaned" : "original"));
+    const origUrl = pdfPreviewUrl(currentJobId, newPage, "original");
+    setPreviewUrl(origUrl);
+    setOriginalPreviewUrl(origUrl);
+    if (isCompleted) {
+      setCleanedPreviewUrl(pdfPreviewUrl(currentJobId, newPage, "cleaned") + `&v=${Date.now()}`);
+    }
   };
 
   // Auto-Detect Watermark Regions
@@ -406,8 +429,9 @@ export default function PdfWatermarkRemoverPage() {
 
     setIsProcessing(true);
     setIsCompleted(false);
+    setIntegrityError(null);
     setProgress(5);
-    setStageText("Queued...");
+    setStageText("Analyzing PDF…");
 
     try {
       const allRegions = [...detectedRegions, ...manualRegions];
@@ -432,7 +456,11 @@ export default function PdfWatermarkRemoverPage() {
             if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
             setIsProcessing(false);
             setIsCompleted(true);
-            setPreviewUrl(pdfPreviewUrl(activeJobId, currentPage, "cleaned") + `&v=${Date.now()}`);
+            setStageText("Clean PDF ready");
+            const cleanedUrl = pdfPreviewUrl(activeJobId, currentPage, "cleaned") + `&v=${Date.now()}`;
+            setCleanedPreviewUrl(cleanedUrl);
+            setOriginalPreviewUrl(pdfPreviewUrl(activeJobId, currentPage, "original"));
+            setPreviewUrl(cleanedUrl);
 
             addJob({
               file_name: selectedFileName || "Cleaned_Document.pdf",
@@ -457,8 +485,15 @@ export default function PdfWatermarkRemoverPage() {
             if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
             setIsProcessing(false);
             refundCredit(1);
-            const err = status.error || "Document processing failed.";
-            toast.error(err);
+            const rawErr = status.error || status.message || "Document processing failed.";
+            const isIntegrity =
+              rawErr.toLowerCase().includes("integrity") ||
+              rawErr.toLowerCase().includes("safely preserved");
+            const userErr = isIntegrity
+              ? "Cleaning stopped — document content could not be safely preserved."
+              : rawErr;
+            setIntegrityError(userErr);
+            toast.error(userErr);
           }
         } catch (pollErr) {
           if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
@@ -568,94 +603,174 @@ export default function PdfWatermarkRemoverPage() {
               </button>
             </div>
 
+            {/* STATUS NOTIFICATION BANNER */}
+            {uploadStatus && !isCompleted && !isProcessing && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700 mb-6 shadow-xs animate-fade-in">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{uploadStatus}</span>
+              </div>
+            )}
+
+            {/* INTEGRITY / SAFETY ALERT BANNER */}
+            {integrityError && (
+              <div className="max-w-2xl mx-auto bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-4 mb-6 text-xs font-semibold flex items-center gap-3 shadow-xs">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <div className="text-left">
+                  <p className="font-bold">{integrityError}</p>
+                  <p className="text-[11px] text-amber-700 font-normal mt-0.5">
+                    Original document has been kept intact. False-positive deletion was prevented.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* PREVIEW TOOLBAR (PAGE NAV + ZOOM CONTROLS) */}
+            <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 mb-4 px-2 text-xs font-semibold text-gray-700">
+              {/* Page navigation */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1 || isProcessing}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                >
+                  ‹ Previous
+                </button>
+                <span className="px-3 py-1.5 rounded-xl bg-gray-100 font-mono text-gray-800 text-xs font-bold">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={currentPage >= totalPages || isProcessing}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                >
+                  Next ›
+                </button>
+              </div>
+
+              {/* Zoom controls */}
+              <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl border border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((prev) => Math.max(0.5, prev - 0.25))}
+                  className="p-1.5 rounded-lg bg-white hover:bg-gray-50 text-gray-700 shadow-xs cursor-pointer"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </button>
+                <span className="px-2 font-mono text-[11px] text-gray-600 font-bold min-w-10 text-center">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((prev) => Math.min(2.5, prev + 0.25))}
+                  className="p-1.5 rounded-lg bg-white hover:bg-gray-50 text-gray-700 shadow-xs cursor-pointer"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(1.0)}
+                  className="px-2 py-1 rounded-lg bg-white hover:bg-gray-50 text-[10px] font-bold text-gray-500 shadow-xs cursor-pointer"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
             {/* DOCUMENT CANVAS WORKSPACE */}
-            <div
-              onClick={handleCanvasClick}
-              className={`relative w-full max-w-2xl mx-auto aspect-[16/10] sm:aspect-[16/9] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none mb-4 ${
-                !isCompleted && !isProcessing ? "cursor-crosshair" : ""
-              }`}
-            >
-              {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt="Document Preview"
-                  className="w-full h-full object-contain pointer-events-none select-none bg-[#f9fafb]"
-                />
-              ) : (
-                /* Initial Document Simulation before user loads/uploads */
-                <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-white text-left font-serif">
-                  <div className="border-b border-gray-200 pb-3 flex justify-between items-start">
-                    <div>
-                      <h4 className="text-sm sm:text-base font-bold text-gray-900 font-sans tracking-wide">
-                        {activeDocPreset === "contract"
-                          ? "MUTUAL NON-DISCLOSURE AGREEMENT"
-                          : activeDocPreset === "blueprint"
-                          ? "METROPOLITAN RESIDENCE — STRUCTURAL PLAN"
-                          : "GLOBAL LOGISTICS & ACCOUNTS CORP"}
-                      </h4>
-                      <p className="text-[11px] text-gray-400 font-sans">
-                        Document Ref: #PR-2026-8942 · Status: Ready to Clean
-                      </p>
+            {!isCompleted ? (
+              /* BEFORE PROCESSING: SINGLE UPLOAD/PREVIEW CANVAS */
+              <div
+                onClick={handleCanvasClick}
+                className={`relative w-full max-w-2xl mx-auto aspect-[16/10] sm:aspect-[16/9] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none mb-6 ${
+                  !isProcessing ? "cursor-crosshair" : ""
+                }`}
+              >
+                {previewUrl ? (
+                  <div className="w-full h-full overflow-auto flex items-center justify-center p-2">
+                    <img
+                      src={previewUrl}
+                      alt="Document Preview"
+                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                      className="max-h-full max-w-full object-contain pointer-events-none select-none bg-[#f9fafb] transition-transform duration-150"
+                    />
+                  </div>
+                ) : (
+                  /* Initial Document Simulation before user loads/uploads */
+                  <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-white text-left font-serif">
+                    <div className="border-b border-gray-200 pb-3 flex justify-between items-start">
+                      <div>
+                        <h4 className="text-sm sm:text-base font-bold text-gray-900 font-sans tracking-wide">
+                          {activeDocPreset === "contract"
+                            ? "MUTUAL NON-DISCLOSURE AGREEMENT"
+                            : activeDocPreset === "blueprint"
+                            ? "METROPOLITAN RESIDENCE — STRUCTURAL PLAN"
+                            : "GLOBAL LOGISTICS & ACCOUNTS CORP"}
+                        </h4>
+                        <p className="text-[11px] text-gray-400 font-sans">
+                          Document Ref: #PR-2026-8942 · Status: Ready to Clean
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+                        PDF 1.7 (Vector)
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600">
-                      PDF 1.7 (Vector)
-                    </span>
-                  </div>
 
-                  <div className="space-y-2.5 py-2 font-sans text-xs text-gray-600">
-                    <div className="h-2.5 bg-gray-100 rounded w-full" />
-                    <div className="h-2.5 bg-gray-100 rounded w-5/6" />
-                    <div className="h-2.5 bg-gray-100 rounded w-4/6" />
-                    <div className="grid grid-cols-3 gap-2 pt-2">
-                      <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                        <span className="text-gray-400 block">Subtotal</span>
-                        <strong className="text-gray-800">$14,850.00</strong>
-                      </div>
-                      <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                        <span className="text-gray-400 block">VAT / Tax</span>
-                        <strong className="text-gray-800">$1,485.00</strong>
-                      </div>
-                      <div className="h-10 bg-rose-50/50 border border-rose-100 rounded p-1.5 text-[10px]">
-                        <span className="text-rose-500 block">Total Due</span>
-                        <strong className="text-rose-700">$16,335.00</strong>
+                    <div className="space-y-2.5 py-2 font-sans text-xs text-gray-600">
+                      <div className="h-2.5 bg-gray-100 rounded w-full" />
+                      <div className="h-2.5 bg-gray-100 rounded w-5/6" />
+                      <div className="h-2.5 bg-gray-100 rounded w-4/6" />
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
+                          <span className="text-gray-400 block">Subtotal</span>
+                          <strong className="text-gray-800">$14,850.00</strong>
+                        </div>
+                        <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
+                          <span className="text-gray-400 block">VAT / Tax</span>
+                          <strong className="text-gray-800">$1,485.00</strong>
+                        </div>
+                        <div className="h-10 bg-rose-50/50 border border-rose-100 rounded p-1.5 text-[10px]">
+                          <span className="text-rose-500 block">Total Due</span>
+                          <strong className="text-rose-700">$16,335.00</strong>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="border-t border-gray-100 pt-2 flex justify-between items-center text-[10px] text-gray-400 font-sans">
-                    <span>Authorized Signature: Validated Digitally</span>
-                    <span>Page 1 of 1</span>
+                    <div className="border-t border-gray-100 pt-2 flex justify-between items-center text-[10px] text-gray-400 font-sans">
+                      <span>Authorized Signature: Validated Digitally</span>
+                      <span>Page 1 of 1</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* WATERMARK OVERLAYS (ONLY VISIBLE BEFORE CLEANUP WHEN NO PREVIEW OR INITIAL DEMO) */}
-              {!previewUrl && !isCompleted && (
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="rotate-[-25deg] text-3xl sm:text-5xl font-semibold tracking-widest text-rose-500/25 border-4 border-dashed border-rose-500/30 px-6 py-3 rounded-2xl select-none uppercase">
-                    {activeDocPreset === "contract"
-                      ? "STRICTLY CONFIDENTIAL"
-                      : activeDocPreset === "blueprint"
-                      ? "TRIAL EVALUATION"
-                      : "PAID · SAMPLE COPY"}
+                {/* WATERMARK OVERLAYS (ONLY VISIBLE BEFORE CLEANUP WHEN NO PREVIEW) */}
+                {!previewUrl && (
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div className="rotate-[-25deg] text-3xl sm:text-5xl font-semibold tracking-widest text-rose-500/25 border-4 border-dashed border-rose-500/30 px-6 py-3 rounded-2xl select-none uppercase">
+                      {activeDocPreset === "contract"
+                        ? "STRICTLY CONFIDENTIAL"
+                        : activeDocPreset === "blueprint"
+                        ? "TRIAL EVALUATION"
+                        : "PAID · SAMPLE COPY"}
+                    </div>
+                    <div className="absolute top-6 right-8 w-20 h-20 rounded-full border-2 border-rose-400/30 flex flex-col items-center justify-center rotate-12 text-[9px] font-bold text-rose-400/40 select-none">
+                      <span>AUDIT SEAL</span>
+                      <span>2026</span>
+                    </div>
                   </div>
-                  <div className="absolute top-6 right-8 w-20 h-20 rounded-full border-2 border-rose-400/30 flex flex-col items-center justify-center rotate-12 text-[9px] font-bold text-rose-400/40 select-none">
-                    <span>AUDIT SEAL</span>
-                    <span>2026</span>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* DETECTED & MANUAL REGIONS OVERLAY */}
-              {!isCompleted &&
-                [...detectedRegions, ...manualRegions]
+                {/* DETECTED & MANUAL REGIONS OVERLAY */}
+                {[...detectedRegions, ...manualRegions]
                   .filter((m) => m.page === currentPage || !m.page)
                   .map((m, idx) => (
                     <div
                       key={idx}
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Remove region on click
                         setManualRegions((prev) => prev.filter((_, i) => i !== idx - detectedRegions.length));
                         setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
                         toast.info("Removed target area.");
@@ -675,59 +790,71 @@ export default function PdfWatermarkRemoverPage() {
                     </div>
                   ))}
 
-              {/* SUCCESS AFTER STATE BANNER */}
-              {isCompleted && (
-                <div className="absolute bottom-4 right-4 bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl shadow-lg flex items-center gap-2 text-xs font-bold animate-bounce z-10">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>100% Watermark Free · Verified Clean</span>
-                </div>
-              )}
-
-              {/* PROCESSING OVERLAY */}
-              {isProcessing && (
-                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
-                  <div className="relative w-16 h-16 mb-4">
-                    <div className="absolute inset-0 rounded-full border-4 border-rose-200 animate-ping" />
-                    <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
-                    <Wand2 className="absolute inset-0 m-auto w-6 h-6 text-[#E11D48]" />
+                {/* PROCESSING OVERLAY */}
+                {isProcessing && (
+                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
+                    <div className="relative w-16 h-16 mb-4">
+                      <div className="absolute inset-0 rounded-full border-4 border-rose-200 animate-ping" />
+                      <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
+                      <Wand2 className="absolute inset-0 m-auto w-6 h-6 text-[#E11D48]" />
+                    </div>
+                    <p className="text-sm font-bold text-gray-800 mb-2">{stageText || "Analyzing PDF…"}</p>
+                    <div className="w-56 bg-rose-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-rose-600 font-mono mt-1 font-bold">{progress}%</span>
                   </div>
-                  <p className="text-sm font-bold text-gray-800 mb-2">{stageText || "Reconstructing Document..."}</p>
-                  <div className="w-48 bg-rose-100 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
-                      style={{ width: `${progress}%` }}
+                )}
+              </div>
+            ) : (
+              /* AFTER PROCESSING: SECTION 11 BEFORE / AFTER SIDE-BY-SIDE PREVIEW */
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 max-w-4xl mx-auto">
+                {/* LEFT: ORIGINAL PDF */}
+                <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-2xl p-3 shadow-xs">
+                  <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-gray-200 text-xs font-semibold text-gray-700">
+                    <span className="flex items-center gap-1.5 text-gray-600 font-bold uppercase tracking-wider text-[11px]">
+                      <FileText className="w-3.5 h-3.5 text-gray-500" />
+                      Original PDF
+                    </span>
+                    <span className="text-[11px] font-mono text-gray-500 font-semibold">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/10] sm:aspect-[16/9] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-2">
+                    <img
+                      src={originalPreviewUrl || previewUrl || ""}
+                      alt="Original PDF"
+                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                      className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
                     />
                   </div>
-                  <span className="text-xs text-rose-600 font-mono mt-1">{progress}%</span>
                 </div>
-              )}
-            </div>
 
-            {/* PAGE NAVIGATION CONTROLS */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mb-6 text-xs font-semibold text-gray-700">
-                <button
-                  type="button"
-                  disabled={currentPage <= 1 || isProcessing}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-sm"
-                >
-                  ‹ Previous Page
-                </button>
-                <span className="px-3 py-1 rounded-lg bg-gray-100 font-mono text-gray-800">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={currentPage >= totalPages || isProcessing}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-sm"
-                >
-                  Next Page ›
-                </button>
+                {/* RIGHT: CLEANED PDF */}
+                <div className="flex flex-col bg-emerald-50/30 border border-emerald-200 rounded-2xl p-3 shadow-xs">
+                  <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-emerald-200/80 text-xs font-semibold text-gray-700">
+                    <span className="flex items-center gap-1.5 text-emerald-700 font-bold uppercase tracking-wider text-[11px]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      Cleaned PDF
+                    </span>
+                    <span className="text-[11px] font-mono text-emerald-700 font-semibold">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/10] sm:aspect-[16/9] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-2">
+                    <img
+                      src={cleanedPreviewUrl || ""}
+                      alt="Cleaned PDF"
+                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                      className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
+                    />
+                  </div>
+                </div>
               </div>
             )}
-
 
             {/* ACTION CONTROLS */}
             {!isCompleted ? (
@@ -757,7 +884,7 @@ export default function PdfWatermarkRemoverPage() {
                   id="pdf-clean-btn"
                   onClick={handleStartCleanup}
                   disabled={isProcessing}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-sm shadow-md transition-all cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
                 >
                   <Wand2 className="w-4 h-4 text-rose-400" />
                   {isProcessing ? "Cleaning..." : "Remove Watermark & Clean"}
@@ -773,45 +900,60 @@ export default function PdfWatermarkRemoverPage() {
                 />
               </div>
             ) : (
-              /* COMPLETED ACTIONS & DOWNLOADS */
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              /* SECTION 20 UI RESULT MESSAGE & DOWNLOAD ACTIONS */
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-xs">
                 <div className="text-left">
-                  <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    Watermark Layer Completely Removed
+                  <h4 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    Document Cleaned & Verified
                   </h4>
-                  <p className="text-xs text-gray-600 mt-0.5">
-                    Original document geometry, fonts, and tables preserved with zero artifacts.
-                  </p>
+                  {/* The 4 verified badges from Section 20 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-medium text-emerald-900">
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span> Watermark Removed
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span> Document Content Preserved
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span> Layout Preserved
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span> PDF Integrity Verified
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
                   <button
                     type="button"
                     id="pdf-download-pdf-btn"
                     onClick={() => handleDownload("pdf")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#E11D48] text-white font-bold text-xs shadow-md hover:bg-rose-700 transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-[#E11D48] text-white font-bold text-xs shadow-md hover:bg-rose-700 transition-all cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    <Download className="w-4 h-4" />
                     Download Clean PDF
                   </button>
                   <button
                     type="button"
                     id="pdf-download-img-btn"
                     onClick={() => handleDownload("png")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-gray-800 font-semibold text-xs border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-gray-800 font-semibold text-xs border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer shadow-xs"
                   >
-                    <Printer className="w-3.5 h-3.5 text-gray-600" />
+                    <Printer className="w-4 h-4 text-gray-600" />
                     Download 4K Image
                   </button>
                   <button
                     type="button"
                     id="pdf-reset-btn"
-                    onClick={() => setIsCompleted(false)}
-                    className="p-2.5 rounded-xl bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 transition-all cursor-pointer"
-                    title="Reset & Clean Another"
+                    onClick={() => {
+                      setIsCompleted(false);
+                      setCleanedPreviewUrl(null);
+                    }}
+                    className="p-3 rounded-2xl bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 transition-all cursor-pointer shadow-xs"
+                    title="Clean Another Document"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
+                    <RefreshCw className="w-4 h-4" />
                   </button>
                 </div>
               </div>

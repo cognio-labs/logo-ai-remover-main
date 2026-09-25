@@ -56,11 +56,15 @@ def build_precise_raster_mask(
         base_mask = np.zeros((h, w), dtype=np.uint8)
         base_mask[y1:y2, x1:x2] = 255
 
-    # ── Refinement Step 1: remove dark pixels (real ink) from the mask ──────
-    # Dark pixels (< 160) are definitively real document ink — protect them
+    # ── Refinement Step 1: remove dark document ink from the mask ─────────
+    # Legitimate document text is black/dark gray (achromatic, low chroma)
+    b, g, r = bgr_image[:, :, 0].astype(int), bgr_image[:, :, 1].astype(int), bgr_image[:, :, 2].astype(int)
+    chroma = np.maximum(np.maximum(b, g), r) - np.minimum(np.minimum(b, g), r)
     gray = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
-    dark_ink_pixels = (gray < 160).astype(np.uint8) * 255
-    # Dilate ink protection zone slightly (to also protect anti-aliased edges)
+    
+    # Real ink is dark AND not heavily chromatic (black text, not blue/red watermarks)
+    dark_ink_pixels = ((gray < 140) & (chroma < 18)).astype(np.uint8) * 255
+    # Dilate ink protection zone slightly to preserve anti-aliased font edges
     kern = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     protected_zone = cv2.dilate(dark_ink_pixels, kern, iterations=1)
     # Remove protected pixels from mask

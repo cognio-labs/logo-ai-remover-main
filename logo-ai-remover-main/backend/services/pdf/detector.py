@@ -363,13 +363,23 @@ def _inspect_raster(
 
     gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
 
-    # Watermarks on white/light paper are typically light gray (NOT black document text).
-    # Range [175, 230] is semi-transparent overlays — below 175 is likely real ink.
-    # We EXCLUDE very dark pixels (real text) from the mask.
-    wm_mask = cv2.inRange(gray, 175, 230)
+    # Multi-signal overlay detection:
+    # 1. Colored overlays (stamps, colored text watermarks like blue/red):
+    b, g, r = bgr[:, :, 0].astype(int), bgr[:, :, 1].astype(int), bgr[:, :, 2].astype(int)
+    max_c = np.maximum(np.maximum(b, g), r)
+    min_c = np.minimum(np.minimum(b, g), r)
+    chroma = max_c - min_c
+    is_colored_overlay = (chroma > 10) & (gray > 100) & (gray < 252)
+
+    # 2. Semi-transparent grayish overlays on white/light paper:
+    is_gray_overlay = (gray >= 175) & (gray <= 230)
+
+    # Exclude very dark pixels (definite document ink < 110)
+    candidate_pixels = (is_colored_overlay | is_gray_overlay) & (gray >= 110)
+    wm_mask = candidate_pixels.astype(np.uint8) * 255
 
     # Morphological cleanup — connect fragmented diagonal letterforms
-    kern_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+    kern_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     wm_mask = cv2.morphologyEx(wm_mask, cv2.MORPH_CLOSE, kern_close)
 
     # Reject small noise islands
@@ -389,20 +399,16 @@ def _inspect_raster(
         x = stats[i, cv2.CC_STAT_LEFT]
         y = stats[i, cv2.CC_STAT_TOP]
 
-        # Must span at least 30% of page width — diagonal watermarks do this
-        if comp_w < w * 0.30:
+        # Span across page: either width, height, or diagonal span
+        span = math.hypot(comp_w, comp_h)
+        if span < w * 0.25 and comp_w < w * 0.25:
             continue
-        # Must be large enough to be a real overlay (not a thin line)
-        if area < page_area * 0.005:
+        # Must be large enough to be a real overlay (not tiny speckle)
+        if area < page_area * 0.002:
             continue
         # Reject full-page artifacts
-        if comp_w > w * 0.97 and comp_h > h * 0.97:
+        if comp_w > w * 0.98 and comp_h > h * 0.98:
             continue
-
-        # Diagonal angle check: diagonal text has aspect ratio where span >> height
-        aspect = comp_w / max(comp_h, 1)
-        if aspect < 1.5:
-            continue  # Not a diagonal strip, more likely a paragraph of text
 
         # Coverage check
         coverage = area / page_area
@@ -413,11 +419,11 @@ def _inspect_raster(
             )
             continue
 
-        confidence = 0.65
-        if comp_w > w * 0.50:
+        confidence = 0.68
+        if span > w * 0.40:
             confidence += 0.15
-        if aspect > 3.0:
-            confidence += 0.10
+        if np.any(is_colored_overlay[labels == i]):
+            confidence += 0.12  # Chromatic ink watermark has strong signal
 
         if confidence < CONFIDENCE_REMOVE_THRESHOLD:
             continue
