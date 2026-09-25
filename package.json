@@ -1,0 +1,9 @@
+{
+  "name": "logo-ai-remover-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix logo-ai-remover-main run build",
+    "vercel-build": "npm --prefix logo-ai-remover-main install && npm --prefix logo-ai-remover-main run build"
+  }
+}
