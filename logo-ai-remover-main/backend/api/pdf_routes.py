@@ -185,70 +185,50 @@ async def detect_document_watermarks(
     job_id: str,
     page: int = Query(default=1, ge=1),
 ):
-    """Detect candidate watermark and marker regions using AI and OpenCV analysis."""
+    """Detect candidate watermark regions using the conservative multi-signal detector."""
     job = pdf_job_service.get(job_id)
     orig_path = Path(job.original_path)
     if not orig_path.is_file():
         raise HTTPException(status_code=404, detail="Original document not found")
 
-    # Render target page
-    bgr = None
-    if job.is_pdf:
-        doc = pymupdf.open(str(orig_path))
-        try:
-            target_idx = max(0, min(len(doc) - 1, page - 1))
-            bgr = render_page_to_bgr(doc[target_idx], dpi=150)
-        finally:
-            doc.close()
-    else:
-        bgr = cv2.imread(str(orig_path))
-
-    if bgr is None:
-        raise HTTPException(status_code=422, detail="Could not render page for detection")
+    from backend.services.pdf.detector import analyze_page
+    from backend.models.pdf_job import DetectedRegion as DR
 
     regions: list[DetectedRegion] = []
 
-    # 1. First run local high-accuracy blue marker & stamp detector
-    blue_regions, _ = detect_blue_marker_regions(bgr, page_number=page)
-    stamp_regions = detect_watermark_overlays(bgr, page_number=page)
-    regions.extend(blue_regions)
-    regions.extend(stamp_regions)
-
-    # 2. Check native PDF annotations if available
     if job.is_pdf:
         doc = pymupdf.open(str(orig_path))
         try:
             target_idx = max(0, min(len(doc) - 1, page - 1))
-            annot_regions, _ = detect_page_annotations(doc[target_idx], page_number=page)
-            regions.extend(annot_regions)
+            analysis = analyze_page(doc, target_idx)
         finally:
             doc.close()
 
-    # 3. If OpenRouter is available, query Gemma for visual candidate confirmation
-    if settings.openrouter_api_key and not regions:
-        try:
-            success, enc = cv2.imencode(".jpg", bgr, [cv2.IMWRITE_JPEG_QUALITY, 85])
-            if success:
-                ai_result = await openrouter_service.analyze_document_image(enc.tobytes())
-                raw_regions = ai_result.get("regions", [])
-                for r in raw_regions:
-                    regions.append(
-                        DetectedRegion(
-                            x=float(r["x"]),
-                            y=float(r["y"]),
-                            width=float(r["width"]),
-                            height=float(r["height"]),
-                            type=str(r.get("type", "user_annotation")),
-                            confidence=float(r.get("confidence", 0.9)),
-                            page=page,
-                        )
-                    )
-        except OpenRouterUnavailable as e:
-            logger.info("OpenRouter not available, using local detector: %s", e)
-        except Exception as exc:
-            logger.warning("AI detection failed, using local results: %s", exc)
+        for c in analysis.candidates:
+            nx, ny, nw, nh = c.norm_bbox
+            if nw <= 0 or nh <= 0:
+                continue
+            regions.append(
+                DetectedRegion(
+                    x=round(max(0.0, min(1.0, nx)), 4),
+                    y=round(max(0.0, min(1.0, ny)), 4),
+                    width=round(max(0.001, min(1.0 - nx, nw)), 4),
+                    height=round(max(0.001, min(1.0 - ny, nh)), 4),
+                    type=c.source,
+                    confidence=round(c.confidence, 3),
+                    page=page,
+                )
+            )
+    else:
+        # For standalone images — use the raster detector only
+        bgr = cv2.imread(str(orig_path))
+        if bgr is None:
+            raise HTTPException(status_code=422, detail="Could not decode image for detection")
+        # Use conservative blue marker detection for annotated images
+        blue_regions, _ = detect_blue_marker_regions(bgr, page_number=page)
+        regions.extend(blue_regions)
 
-    # Save detections to job record
+    # Save detections
     pdf_job_service.save_detections(job_id, regions)
     pdf_job_service.update(job_id, detected_regions=regions)
 
@@ -258,6 +238,7 @@ async def detect_document_watermarks(
         "page": page,
         "regions": [r.model_dump() for r in regions],
     }
+
 
 
 @router.post("/process/{job_id}")
