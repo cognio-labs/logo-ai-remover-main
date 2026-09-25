@@ -67,26 +67,95 @@ export function StudioHeading({ eyebrow, title, text }: { eyebrow: string; title
   return <header className="studio-heading"><span className="studio-eyebrow"><span /></span>{eyebrow}<h1>{title}</h1><p>{text}</p></header>;
 }
 
-export function SampleGallery({ title = "A new perspective on your next project." }: { title?: string }) {
+const GALLERY_SAMPLES = [
+  {
+    image: "/creative-suite/gallery_portrait_luxury.jpg",
+    badge: "Instant Alpha",
+    category: "SUB-PIXEL MATTING",
+    title: "Portraits with Organic Texture",
+    desc: "Reconstruct delicate flyaways, natural skin pores, and soft fringe lighting with zero plastic blur.",
+    path: "/background-remover",
+  },
+  {
+    image: "/creative-suite/gallery_product_emerald.jpg",
+    badge: "8K Gigapixel",
+    category: "COMMERCIAL PRODUCT",
+    title: "Crystal Caustics & Liquid Light",
+    desc: "Rebuild intricate emerald facets, water ripples, and high-fidelity reflections in true 8K resolution.",
+    path: "/upscale",
+  },
+  {
+    image: "/creative-suite/gallery_architecture_alpine.jpg",
+    badge: "Neural Inpaint",
+    category: "EXPANSIVE HORIZON",
+    title: "Alpine Architectural Masterpiece",
+    desc: "Restore vast twilight skies, reflective infinity pools, and razor-sharp architectural geometry flawlessly.",
+    path: "/remove/image",
+  },
+];
+
+export function SampleGallery({
+  title = "Flawless execution in every single detail.",
+}: {
+  title?: string;
+}) {
   return (
     <section className="studio-section">
       <div className="studio-section-title">
-        <div><span className="studio-eyebrow">THE CREATIVE POSSIBILITIES</span><h2>{title}</h2></div>
-        <p>Original AI-generated creative samples. Upload your own image to see its actual processed result.</p>
+        <div>
+          <span className="studio-eyebrow">
+            <span />
+            CURATED NEURAL SHOWCASE
+          </span>
+          <h2>{title}</h2>
+        </div>
+        <p>
+          Experience what happens when precision AI models touch every frame. Sub-pixel cutouts, crystal caustics, and vast pristine landscapes ready to export.
+        </p>
       </div>
-      <div className="studio-gallery">
-        {[
-          ["portrait", "Portraits with personality", "Hair, fabric and natural skin texture", "/background-remover"],
-          ["product", "Products in their best light", "Glass, reflections and considered composition", "/upscale"],
-          ["coast", "Spaces worth exploring", "Architecture, landscapes and fine detail", "/remove/image"],
-        ].map(([key, title, copy, path]) => (
-          <Link key={key} to={path} className="studio-gallery-card">
-            <img src={studioAssets[key as keyof typeof studioAssets]} alt={title} loading="lazy" />
-            <div>
-              <span className="studio-caption">CREATIVE SAMPLE</span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-              <ArrowUpRight size={20} />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-10">
+        {GALLERY_SAMPLES.map((item) => (
+          <Link
+            key={item.title}
+            to={item.path}
+            className="group relative flex flex-col rounded-3xl overflow-hidden bg-white border border-[#FCE7EC] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_20px_45px_-12px_rgba(225,29,72,0.22)] hover:-translate-y-1.5 transition-all duration-300"
+          >
+            {/* Image Container with Badge */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+              <img
+                src={item.image}
+                alt={item.title}
+                loading="lazy"
+                className="size-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+              <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] font-semibold tracking-wider uppercase shadow-sm">
+                {item.badge}
+              </span>
+            </div>
+
+            {/* Content Body */}
+            <div className="p-6 flex flex-col flex-1 justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E11D48]">
+                  {item.category}
+                </span>
+                <h3 className="text-lg font-semibold text-gray-950 mt-1 mb-2 group-hover:text-[#E11D48] transition-colors leading-snug">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed font-normal">
+                  {item.desc}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <span className="text-xs font-semibold text-gray-500 group-hover:text-[#E11D48] transition-colors">
+                  Explore Result
+                </span>
+                <span className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 group-hover:bg-[#E11D48] group-hover:text-white transition-all shadow-xs">
+                  <ArrowUpRight size={15} />
+                </span>
+              </div>
             </div>
           </Link>
         ))}
