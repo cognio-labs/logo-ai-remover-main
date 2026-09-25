@@ -791,49 +791,123 @@ function VideoEnhancerPage() {
         )}
       </main>
 
-      {/* 3. TRUST & FEATURES GRID */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto pt-16">
-        <div className="text-center space-y-2 mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-950 tracking-tight">
-            Production AI Video Pipeline
+      {/* 3. VIDEO DEMO SHOWCASE — Real proof section */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pt-20 pb-16">
+        <div className="text-center space-y-3 mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs text-[#E11D48]">
+            <Sparkles className="size-3.5" />
+            <span>Real Enhancement Results</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl text-gray-950 tracking-tight">
+            See what 4K AI enhancement looks like
           </h2>
-          <p className="text-sm text-gray-500 max-w-xl mx-auto">
-            Industrial-grade video reconstruction engine powered by OpenCV and FFmpeg.
+          <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            The same video frame — original compressed quality on the left, AI-enhanced 4K UHD on the right. Every
+            detail is reconstructed with optical-flow precision.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl border border-gray-200 bg-white shadow-2xs space-y-2">
-            <div className="size-9 rounded-xl bg-[#FFF1F4] text-[#E11D48] flex items-center justify-center font-bold">
-              <Maximize2 className="size-5" />
-            </div>
-            <h4 className="font-bold text-gray-900">Sub-Pixel Super-Resolution</h4>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Progressive Lanczos-4 upscaling up to 4K UHD with micro-texture sharpening and
-              luminance flicker stabilization.
-            </p>
+        {/* Demo Image - Before/After */}
+        <div className="relative rounded-3xl overflow-hidden border-2 border-[#FCE7EC] shadow-[0_30px_80px_-20px_rgba(225,29,72,0.20)] mb-12">
+          <img
+            src="/video-enhancer-demo.jpg"
+            alt="AI video enhancement before and after comparison"
+            className="w-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
+            <span className="px-4 py-1.5 rounded-full bg-black/70 backdrop-blur-md text-white text-xs border border-white/20">
+              Original 480p SD
+            </span>
+            <span className="size-2 rounded-full bg-white/60" />
+            <span className="px-4 py-1.5 rounded-full bg-[#E11D48]/90 backdrop-blur-md text-white text-xs border border-white/20">
+              4K UHD Enhanced
+            </span>
           </div>
+        </div>
 
-          <div className="p-6 rounded-2xl border border-gray-200 bg-white shadow-2xs space-y-2">
-            <div className="size-9 rounded-xl bg-[#FFF1F4] text-[#E11D48] flex items-center justify-center font-bold">
-              <Zap className="size-5" />
+        {/* Stats row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
+          {[
+            { value: "4K UHD", label: "Max Output Resolution", icon: Maximize2 },
+            { value: "60 FPS", label: "Optical Flow Interpolation", icon: Zap },
+            { value: "< 90s", label: "Processing Time / Minute", icon: RefreshCw },
+            { value: "100%", label: "Original Audio Preserved", icon: Volume2 },
+          ].map(s => (
+            <div key={s.label} className="text-center p-6 rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#FCE7EC] hover:shadow-md transition-all duration-200">
+              <div className="size-10 mx-auto mb-3 rounded-xl bg-[#FFF1F4] text-[#E11D48] flex items-center justify-center">
+                <s.icon className="size-5" />
+              </div>
+              <div className="text-2xl text-gray-950 tracking-tight mb-1">{s.value}</div>
+              <div className="text-xs text-gray-500 leading-relaxed">{s.label}</div>
             </div>
-            <h4 className="font-bold text-gray-900">Optical-Flow Frame Synthesis</h4>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Synthesizes real motion vectors using dense inverse search optical flow to interpolate 30 to 60 or 120 FPS smoothly.
-            </p>
-          </div>
+          ))}
+        </div>
 
-          <div className="p-6 rounded-2xl border border-gray-200 bg-white shadow-2xs space-y-2">
-            <div className="size-9 rounded-xl bg-[#FFF1F4] text-[#E11D48] flex items-center justify-center font-bold">
-              <Sliders className="size-5" />
+        {/* Feature cards */}
+        <div className="text-center space-y-2 mb-10">
+          <h2 className="text-2xl sm:text-3xl text-gray-950 tracking-tight">
+            Production AI Video Pipeline
+          </h2>
+          <p className="text-sm text-gray-500 max-w-xl mx-auto">
+            Industrial-grade video reconstruction powered by OpenCV and FFmpeg.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              icon: Maximize2,
+              title: "Sub-Pixel Super-Resolution",
+              desc: "Progressive Lanczos-4 upscaling up to 4K UHD with micro-texture sharpening and luminance flicker stabilization.",
+              accent: "bg-violet-50 text-violet-600",
+              iconBg: "bg-violet-100",
+            },
+            {
+              icon: Zap,
+              title: "Optical-Flow Frame Synthesis",
+              desc: "Synthesizes real motion vectors using dense inverse search optical flow to interpolate 30 to 60 or 120 FPS smoothly.",
+              accent: "bg-amber-50 text-amber-600",
+              iconBg: "bg-amber-100",
+            },
+            {
+              icon: Sliders,
+              title: "DCT Deblock & Denoise",
+              desc: "Removes compression macroblocking artifacts and sensor grain while keeping high-contrast genuine edges crisp.",
+              accent: "bg-teal-50 text-teal-600",
+              iconBg: "bg-teal-100",
+            },
+            {
+              icon: Settings2,
+              title: "Granular Enhancement Controls",
+              desc: "Fine-tune denoising, sharpen strength, codec (H.264/H.265), output quality and audio preservation per job.",
+              accent: "bg-sky-50 text-sky-600",
+              iconBg: "bg-sky-100",
+            },
+            {
+              icon: Volume2,
+              title: "Audio-Preserving Pipeline",
+              desc: "Original AAC/MP3 audio stream is muxed into the output without re-encoding, keeping 100% audio fidelity.",
+              accent: "bg-rose-50 text-rose-600",
+              iconBg: "bg-rose-100",
+            },
+            {
+              icon: CheckCircle2,
+              title: "Real-Time Progress Tracking",
+              desc: "Live frame counter, stage labels, and progress bar via SSE stream — no polling, no surprises during rendering.",
+              accent: "bg-green-50 text-green-600",
+              iconBg: "bg-green-100",
+            },
+          ].map(f => (
+            <div key={f.title} className={`p-6 rounded-2xl ${f.accent} border border-gray-100 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200 space-y-3`}>
+              <div className={`size-10 rounded-xl ${f.iconBg} flex items-center justify-center`}>
+                <f.icon className="size-5" />
+              </div>
+              <h4 className="text-gray-900 tracking-tight">{f.title}</h4>
+              <p className="text-xs text-gray-600 leading-relaxed">{f.desc}</p>
             </div>
-            <h4 className="font-bold text-gray-900">DCT Deblock & Denoise</h4>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Removes compression macroblocking artifacts and sensor grain while keeping high-contrast
-              genuine edges crisp.
-            </p>
-          </div>
+          ))}
         </div>
       </section>
     </div>

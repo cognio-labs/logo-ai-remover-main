@@ -2,38 +2,68 @@
 
 import React from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ImageUp, Infinity as InfinityIcon, Shield, Video, WandSparkles, Zap } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, ImageUp, Infinity as InfinityIcon, Shield, Video, WandSparkles, Zap } from "lucide-react";
 import { CREATIVE_SUITE_ASSETS, type ProductCardItem } from "@/config/creativeSuiteAssets";
 
 export { type ProductCardItem };
 export const DEFAULT_BELLIX_PRODUCTS: ProductCardItem[] = CREATIVE_SUITE_ASSETS;
 
-function ProductRail({
+export function ProductRail({
   products,
   label,
   direction = "left",
+  showProgressBar = false,
 }: {
   products: ProductCardItem[];
   label: string;
   direction?: "left" | "right";
+  showProgressBar?: boolean;
 }) {
   const isLeft = direction === "left";
   const duplicated = [...products, ...products];
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleScroll = (offset: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
+      {/* Header with Title & Arrow Buttons (Image 3 Matching) */}
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-rose-500" />
-          <p className="text-xs uppercase tracking-[0.16em] font-medium text-gray-500">{label}</p>
+          <span className="size-1.5 rounded-full bg-[#E11D48]" />
+          <p className="text-xs uppercase tracking-[0.18em] font-semibold text-gray-500">{label}</p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleScroll(-320)}
+            className="flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white hover:border-[#E11D48] hover:text-[#E11D48] text-gray-600 transition-colors shadow-2xs cursor-pointer active:scale-95"
+            aria-label="Previous cards"
+          >
+            <ChevronLeft className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleScroll(320)}
+            className="flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white hover:border-[#E11D48] hover:text-[#E11D48] text-gray-600 transition-colors shadow-2xs cursor-pointer active:scale-95"
+            aria-label="Next cards"
+          >
+            <ChevronRight className="size-3.5" />
+          </button>
         </div>
       </div>
-      <div className="creative-marquee-wrapper overflow-hidden py-1">
+
+      {/* Infinite Running Marquee Track */}
+      <div ref={scrollRef} className="creative-marquee-wrapper overflow-x-auto scrollbar-none py-1">
         <div className="flex w-max">
           <div
             className={`flex shrink-0 gap-3.5 sm:gap-4 pr-3.5 sm:pr-4 ${
               isLeft ? "animate-marquee-scroll-left" : "animate-marquee-scroll-right"
-            }`}
+            } hover:[animation-play-state:paused]`}
           >
             {duplicated.map((product, index) => (
               <ProductCard
@@ -46,7 +76,7 @@ function ProductRail({
           <div
             className={`flex shrink-0 gap-3.5 sm:gap-4 pr-3.5 sm:pr-4 ${
               isLeft ? "animate-marquee-scroll-left" : "animate-marquee-scroll-right"
-            }`}
+            } hover:[animation-play-state:paused]`}
             aria-hidden="true"
           >
             {duplicated.map((product, index) => (
@@ -59,6 +89,15 @@ function ProductRail({
           </div>
         </div>
       </div>
+
+      {/* Optional pink indicator line from Screenshot 3 */}
+      {showProgressBar && (
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-1">
+          <div className="h-0.5 w-full bg-rose-100 rounded-full overflow-hidden">
+            <div className="h-full w-1/4 bg-gradient-to-r from-[#E11D48] to-[#FF4FA3] rounded-full animate-pulse" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -80,8 +119,31 @@ export const HeroParallax = ({
       <div className="pointer-events-none absolute -right-32 top-56 size-[28rem] rounded-full bg-fuchsia-100/35 blur-3xl" />
       <Header title={title} subtitle={subtitle} />
       <div className="relative z-10 mt-8 space-y-7 sm:mt-12 sm:space-y-8">
-        <ProductRail products={cardList.slice(0, splitAt)} label="Restore & enhance" direction="left" />
+        <ProductRail products={cardList.slice(0, splitAt)} label="Restore & enhance" direction="left" showProgressBar={true} />
         <ProductRail products={cardList.slice(splitAt)} label="Create & protect" direction="right" />
+      </div>
+    </section>
+  );
+};
+
+export const CreativeSuiteSection = ({ products = CREATIVE_SUITE_ASSETS }: { products?: ProductCardItem[] }) => {
+  const cardList = products.length ? products : CREATIVE_SUITE_ASSETS;
+  const splitAt = Math.ceil(cardList.length / 2);
+
+  return (
+    <section className="relative overflow-hidden py-10 sm:py-14 bg-white border-b border-[#FCE7EC]">
+      <div className="relative z-10 space-y-8">
+        <ProductRail
+          products={cardList.slice(0, splitAt)}
+          label="RESTORE & ENHANCE"
+          direction="left"
+          showProgressBar={true}
+        />
+        <ProductRail
+          products={cardList.slice(splitAt)}
+          label="CREATE & PROTECT"
+          direction="right"
+        />
       </div>
     </section>
   );

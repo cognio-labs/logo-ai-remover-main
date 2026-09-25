@@ -691,7 +691,7 @@ function FinalCTA() {
 /* -------------------------------------------------------------------------- */
 /* MAIN HOME PAGE COMPONENT                                                   */
 /* -------------------------------------------------------------------------- */
-function HomePage() {
+function LegacyHomePage() {
   return (
     <>
       <HeroParallax />
@@ -706,4 +706,15 @@ function HomePage() {
   );
 }
 
+function HomePage() {
+  return (
+    <>
+      <StudioHome />
+      <VideoCleanupResultSection />
+      <RealWorldResults />
+      <FinalCTA />
+    </>
+  );
+}
 
+import { StudioHome } from "@/components/studio/Studio";

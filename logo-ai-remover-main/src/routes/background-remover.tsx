@@ -21,6 +21,15 @@ import {
   FileImage,
   Sliders,
   SplitSquareVertical,
+  Paintbrush,
+  Palette,
+  CircleDot,
+  Layout,
+  Undo2,
+  Redo2,
+  Plus,
+  Loader2,
+  ChevronDown,
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import {
@@ -453,6 +462,11 @@ function BackgroundRemoverPage() {
   const [backdropId, setBackdropId] = useState("luxury-studio");
   const [showOriginal, setShowOriginal] = useState(false);
   const [useSplitView, setUseSplitView] = useState(false);
+  const [activeTab, setActiveTab] = useState<"cutout" | "background" | "effects" | "adjust" | "design">("cutout");
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [saturation, setSaturation] = useState(100);
+  const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
   const [qualityMode, setQualityMode] = useState<QualityMode>("standard");
   const [downloadFormat, setDownloadFormat] = useState<ExportFormat>("png");
 
@@ -647,6 +661,326 @@ function BackgroundRemoverPage() {
 
   const activeCutoutDisplay =
     bgType === "transparent" ? cutoutResult?.transparentBlobUrl : cutoutResult?.compositeBlobUrl;
+
+  if (sourceUrl) {
+    return (
+      <main className="min-h-[calc(100vh-70px)] bg-[#F8FAFC] text-gray-900 font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative">
+        {/* Hidden File Input for uploading more */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+          className="hidden"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (file) processFile(file);
+          }}
+        />
+
+        {/* 1. TOP FLOATING TOOLBAR PILL (Screenshot 4 Matching) */}
+        <div className="w-full flex flex-col items-center gap-3 z-30">
+          <div className="w-full max-w-4xl bg-white/95 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_-8px_rgba(0,0,0,0.08)] rounded-full px-4 sm:px-6 py-2 flex items-center justify-between gap-2">
+            {/* Left Category Tabs */}
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+              <button
+                type="button"
+                onClick={() => setActiveTab("cutout")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "cutout" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <Paintbrush className="size-3.5" />
+                <span>Cutout</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("background")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "background" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <Palette className="size-3.5" />
+                <span>Background</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("effects")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "effects" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <CircleDot className="size-3.5" />
+                <span>Effects</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("adjust")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "adjust" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <Sliders className="size-3.5" />
+                <span>Adjust</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("design")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "design" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <Layout className="size-3.5" />
+                <span>Design</span>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="h-5 w-px bg-gray-200 shrink-0" />
+
+            {/* Right Tools: Split, Undo, Redo, Download */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setUseSplitView(!useSplitView)}
+                title="Toggle Before/After Split Slider"
+                className={`flex size-8 items-center justify-center rounded-full transition-colors cursor-pointer ${
+                  useSplitView ? "bg-[#FFF1F4] text-[#E11D48]" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                <SplitSquareVertical className="size-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setBgType("transparent");
+                  setBrightness(100);
+                  setContrast(100);
+                  setSaturation(100);
+                  toast.info("Reset adjustments");
+                }}
+                title="Undo adjustments"
+                className="flex size-8 items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <Undo2 className="size-4" />
+              </button>
+
+              <button
+                type="button"
+                title="Redo"
+                className="flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors cursor-not-allowed"
+                disabled
+              >
+                <Redo2 className="size-4" />
+              </button>
+
+              {/* Download Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={downloadResult}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <span>Download</span>
+                  <ChevronDown className="size-3 text-gray-500" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-tool panels */}
+          {activeTab === "background" && (
+            <div className="w-full max-w-xl bg-white/95 backdrop-blur-xl border border-gray-200 shadow-md rounded-2xl p-3 flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-top-1">
+              <button
+                type="button"
+                onClick={() => updateBackgroundStyle("transparent")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  bgType === "transparent" ? "bg-gray-900 text-white shadow-xs" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Checkerboard Transparent
+              </button>
+              <button
+                type="button"
+                onClick={() => updateBackgroundStyle("color", "#FFFFFF")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                  bgType === "color" && solidColor === "#FFFFFF" ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48]" : "border-gray-200 bg-white hover:bg-gray-50"
+                }`}
+              >
+                Pure White
+              </button>
+              {SOLID_COLOR_PRESETS.slice(1, 5).map(c => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  onClick={() => updateBackgroundStyle("color", c.hex)}
+                  className={`size-6 rounded-full border border-black/10 transition-transform ${
+                    bgType === "color" && solidColor === c.hex ? "scale-125 ring-2 ring-[#E11D48]" : "hover:scale-110"
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                  title={c.name}
+                />
+              ))}
+              {BACKDROP_PRESETS.slice(0, 3).map(b => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => updateBackgroundStyle("backdrop", undefined, b.id)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium border ${
+                    bgType === "backdrop" && backdropId === b.id ? "border-[#E11D48] text-[#E11D48] bg-rose-50" : "border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  {b.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "adjust" && (
+            <div className="w-full max-w-lg bg-white/95 backdrop-blur-xl border border-gray-200 shadow-md rounded-2xl p-4 grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-1 text-xs">
+              <div>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">Brightness ({brightness}%)</label>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={brightness}
+                  onChange={(e) => setBrightness(Number(e.target.value))}
+                  className="w-full accent-[#E11D48]"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">Contrast ({contrast}%)</label>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={contrast}
+                  onChange={(e) => setContrast(Number(e.target.value))}
+                  className="w-full accent-[#E11D48]"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">Saturation ({saturation}%)</label>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  value={saturation}
+                  onChange={(e) => setSaturation(Number(e.target.value))}
+                  className="w-full accent-[#E11D48]"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 2. CENTER CANVAS STAGE (Screenshot 4 Matching) */}
+        <div className="my-auto py-6 flex flex-col items-center justify-center relative w-full">
+          {running ? (
+            <div className="relative aspect-square max-w-[440px] w-full rounded-3xl bg-white border border-gray-200 shadow-xl flex flex-col items-center justify-center p-8">
+              <img
+                src={sourceUrl}
+                alt="Source Preview"
+                className="size-full object-contain opacity-35 blur-xs rounded-2xl"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/75 backdrop-blur-xs rounded-3xl">
+                <Loader2 className="size-10 text-[#E11D48] animate-spin mb-3" />
+                <span className="text-sm font-semibold text-gray-900">{stage || "Removing background..."}</span>
+                <span className="text-xs text-gray-500 mt-1 font-mono">{progress}% completed</span>
+              </div>
+            </div>
+          ) : useSplitView && activeCutoutDisplay ? (
+            <div className="w-full max-w-2xl">
+              <WorkspaceSplitSlider
+                originalUrl={sourceUrl}
+                cutoutUrl={activeCutoutDisplay}
+                bgType={bgType}
+              />
+            </div>
+          ) : (
+            <div className="relative aspect-square max-w-[460px] w-full rounded-3xl overflow-hidden border border-gray-200/80 bg-white shadow-[0_20px_50px_-15px_rgba(0,0,0,0.12)] flex items-center justify-center p-4">
+              {bgType === "transparent" && (
+                <div
+                  className="absolute inset-0 size-full pointer-events-none"
+                  style={{
+                    backgroundImage: `linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+                      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+                      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%)`,
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+                  }}
+                />
+              )}
+              <img
+                src={showOriginal ? sourceUrl : activeCutoutDisplay || sourceUrl}
+                alt="Cutout Preview"
+                style={{
+                  filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+                }}
+                className="relative max-h-full max-w-full object-contain rounded-2xl filter drop-shadow-md transition-all duration-200"
+              />
+              <button
+                type="button"
+                onMouseDown={() => setShowOriginal(true)}
+                onMouseUp={() => setShowOriginal(false)}
+                onTouchStart={() => setShowOriginal(true)}
+                onTouchEnd={() => setShowOriginal(false)}
+                className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-gray-950/75 text-white text-[11px] font-medium backdrop-blur-md cursor-pointer hover:bg-black transition-colors flex items-center gap-1.5 shadow-md"
+              >
+                <Eye className="size-3" />
+                <span>{showOriginal ? "Showing Original" : "Hold for Original"}</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 3. BOTTOM THUMBNAILS NAVIGATION BAR (Screenshot 4 Matching) */}
+        <div className="w-full flex items-center justify-center gap-3 pt-4 z-20">
+          {/* Plus Button to Upload New Image */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex size-14 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            title="Upload another image"
+          >
+            <Plus className="size-6" />
+          </button>
+
+          {/* Active Image Thumbnail with Blue Ring and Loading Spinner */}
+          <div
+            className="relative size-14 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-md bg-white ring-2 ring-blue-400/50 cursor-pointer"
+            title="Current active image"
+          >
+            <img
+              src={sourceUrl}
+              alt="Active asset"
+              className="size-full object-cover"
+            />
+            {running && (
+              <div className="absolute inset-0 bg-black/45 flex items-center justify-center backdrop-blur-2xs">
+                <Loader2 className="size-6 text-white animate-spin" />
+              </div>
+            )}
+          </div>
+
+          {/* Exit Editor Button */}
+          <button
+            type="button"
+            onClick={resetAll}
+            className="ml-2 text-xs text-gray-400 hover:text-red-500 font-medium transition-colors cursor-pointer"
+          >
+            Exit Editor
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./studio.css";
 
 /*
  * Bellix.us design system — Luxury White & Red/Rose SaaS.
@@ -458,3 +459,13 @@ body {
     scroll-padding-inline: 1rem;
   }
 }
+/* Premium tool workspace layer */
+.up-page,.bg-page,.pdf-page{background:radial-gradient(circle at 50% 0,#fff0f6 0,transparent 38%),#fff!important}
+.up-tool-card,.bg-upload,.pdf-upload{box-shadow:0 26px 80px -42px rgba(225,29,72,.35)!important;border-color:#f2cddd!important}
+.up-dropzone,.up-uploader-card,.bg-upload,.pdf-upload{background:linear-gradient(145deg,#fff,#fff7fa)!important;border-width:1.5px!important}
+.up-upload-icon,.up-upload-icon-animated{box-shadow:0 16px 30px rgba(247,37,104,.35)!important}
+.up-primary-upload-btn,.up-start{background:linear-gradient(110deg,#ed1659,#ff5596)!important;box-shadow:0 14px 28px -15px #ed1659!important}
+.up-showcase,.pdf-grid article,.bg-feature{border-color:#f3d4e0!important;box-shadow:0 18px 55px -42px #d91c5f88!important}
+.pdf-upload,.bg-upload{min-height:300px!important;border-radius:25px!important}
+.pdf-upload button,.bg-upload button{background:linear-gradient(110deg,#ed1659,#ff5596)!important;box-shadow:0 12px 26px -14px #ed1659}
+.pdf-results,.bg-results{background:linear-gradient(180deg,#fff8fb,#fff)!important}

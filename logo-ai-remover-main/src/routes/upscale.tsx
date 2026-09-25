@@ -110,7 +110,7 @@ function Comparison({ image, title }: { image: string; title: string }) {
   const move = (x:number) => { const r=frame.current?.getBoundingClientRect(); if(r) setPosition(Math.max(8,Math.min(92,((x-r.left)/r.width)*100))); };
   const pointer = (e:PointerEvent<HTMLDivElement>)=>move(e.clientX);
   return <div ref={frame} className="up-compare" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);pointer(e)}} onPointerMove={e=>e.currentTarget.hasPointerCapture(e.pointerId)&&pointer(e)}>
-    <img src={image} alt={`${title} restored`} /><div className="up-before" style={{width:`${position}%`}}><img src={image} alt={`${title} low resolution`} /><span className="up-watermark">✦ DEMO AI</span></div><span className="up-image-label before-label">BEFORE</span><span className="up-image-label after-label">AFTER</span><div className="up-divider" style={{left:`${position}%`}}><span><ChevronRight/><ChevronRight/></span></div>
+    <img src={image} alt={`${title} restored`} /><div className="up-before" style={{width:`${position}%`}}><img src={image} alt={`${title} low resolution`} /><span className="up-watermark">AI PREVIEW</span></div><span className="up-image-label before-label">BEFORE</span><span className="up-image-label after-label">AFTER</span><div className="up-divider" style={{left:`${position}%`}}><span><ChevronRight/><ChevronRight/></span></div>
   </div>;
 }
 
@@ -711,3 +711,4 @@ function UpscalePage() {
     </main>
   );
 }
+
