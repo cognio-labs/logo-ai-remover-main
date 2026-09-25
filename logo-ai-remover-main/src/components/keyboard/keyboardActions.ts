@@ -17,12 +17,26 @@ export const SHORTCUT_ACTIONS: Record<string, ShortcutAction> = {
     description: "Launch ultra-resolution 8K neural upscaling",
     route: "/upscale",
   },
+  b: {
+    id: "background-remover",
+    key: "B",
+    name: "AI Background Remover",
+    description: "Instant sub-pixel alpha background removal",
+    route: "/background-remover",
+  },
   v: {
     id: "video",
     key: "V",
     name: "Video AI Remover",
     description: "Launch temporal video watermark cleanup",
-    route: "/remove/video",
+    route: "/video-enhancer",
+  },
+  g: {
+    id: "gemini-video",
+    key: "G",
+    name: "Gemini Video Cleaner",
+    description: "Remove Gemini & Veo video watermarks with temporal AI",
+    route: "/gemini-video-watermark-remover",
   },
   p: {
     id: "pdf",

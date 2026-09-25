@@ -167,6 +167,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/gemini-video-watermark-remover" className="hover:text-[#E11D48] transition-colors">
+                  Gemini Video Watermark Remover
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="hover:text-[#E11D48] transition-colors">
                   Pricing Plans
                 </Link>

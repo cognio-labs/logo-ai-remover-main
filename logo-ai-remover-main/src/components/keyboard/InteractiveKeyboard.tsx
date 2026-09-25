@@ -226,6 +226,7 @@ export function InteractiveKeyboard({
   // Filtered commands for CMD+K palette
   const commandList = [
     { label: "8K AI Upscaler", shortcut: "U", route: "/upscale", desc: "Super-resolution neural upscaling" },
+    { label: "AI Background Remover", shortcut: "B", route: "/background-remover", desc: "Sub-pixel alpha edge background removal" },
     { label: "Video Watermark Remover", shortcut: "V", route: "/remove/video", desc: "Clean Gemini & Veo video watermarks" },
     { label: "PDF Watermark Cleaner", shortcut: "P", route: "/pdf-watermark-remover", desc: "Clean document stamps & logos" },
     { label: "Instant Inpaint Studio", shortcut: "SPACE", route: "/remove/image", desc: "Direct neural brush & inpaint" },
