@@ -566,18 +566,23 @@ export function JobVideoCleaner() {
       {/* Two-Card Side-by-Side Video Layout (Left: Original, Right: Cleaned/Preview) */}
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Left Card: Original Video */}
-        <section>
-          <div className="mb-2 flex items-center justify-between">
+        <section className="flex flex-col">
+          <div className="mb-2 flex h-6 items-center justify-between shrink-0">
             <p className="flex items-center gap-2 text-xs font-semibold text-gray-900">
               <span className="size-2 rounded-full bg-rose-500" /> 1. Original (With Watermark)
             </p>
-            {metadata && (
-              <span className="text-[11px] font-mono text-gray-400">
-                {metadata.width}×{metadata.height}
+            <div className="flex items-center gap-2">
+              <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-600">
+                ORIGINAL
               </span>
-            )}
+              {metadata && (
+                <span className="text-[11px] font-mono text-gray-400">
+                  {metadata.width}×{metadata.height}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="w-full overflow-hidden rounded-2xl bg-black">
+          <div className="relative flex flex-1 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
             <video
               ref={originalVideoRef}
               src={originalVideo.url}
@@ -598,9 +603,22 @@ export function JobVideoCleaner() {
         </section>
 
         {/* Right Card: Cleaned Output (Starts with SAME original video, then updates to real preview/clean) */}
-        <section>
-          <div className="relative flex min-h-48 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
-            {/* Status Overlay Badge - only show non-cleaned states */}
+        <section className="flex flex-col">
+          <div className="mb-2 flex h-6 items-center justify-between shrink-0">
+            <p className="flex items-center gap-2 text-xs font-semibold text-gray-900">
+              <span className="size-2 rounded-full bg-emerald-500" /> 2. AI Cleaned (Result)
+            </p>
+            <div className="flex items-center gap-2">
+              {renderRightCardBadge()}
+              {metadata && (
+                <span className="text-[11px] font-mono text-gray-400">
+                  {metadata.width}×{metadata.height}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="relative flex flex-1 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
+            {/* Status Overlay Badge - live processing & error alerts */}
             {isRightShowingPreview ? (
               <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-950/85 px-3 py-1.5 text-xs font-semibold text-blue-300 shadow-lg backdrop-blur-md">
                 <Sparkles className="size-3.5 text-blue-400" />
@@ -615,11 +633,6 @@ export function JobVideoCleaner() {
               <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/85 px-3 py-1.5 text-xs font-medium text-red-300 shadow-lg backdrop-blur-md">
                 <XCircle className="size-3.5 text-red-400" />
                 <span>Processing failed. Original unmodified.</span>
-              </div>
-            ) : !isRightShowingCleaned ? (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-gray-700 bg-black/80 px-3 py-1.5 text-xs font-medium text-gray-300 shadow-lg backdrop-blur-md">
-                <Sparkles className="size-3.5 text-gray-400" />
-                <span>Original preview loaded (Ready to clean)</span>
               </div>
             ) : null}
 

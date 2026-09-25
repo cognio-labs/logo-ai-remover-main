@@ -1,4 +1,50 @@
-# PixelPerfect AI
+# Bellix.us
+
+Browser-based media cleanup, upscaling, video enhancement, background removal and PDF tools. Public site: <https://www.bellix.us/>.
+
+Current stack: React + TypeScript + TanStack Start/Router + Vite, with a Python FastAPI media backend. Image cleanup is currently simulated; user/credit state includes browser-controlled mocks, and payment enforcement is not established. Marketing copy is not proof of implemented functionality.
+
+## Project documentation
+
+| Document | Purpose |
+| --- | --- |
+| [PROD.MD](PROD.MD) | Website analysis, scope, routes and user flow |
+| [ARCHITECTURE.MD](ARCHITECTURE.MD) | Stack, source map, API/job flow and deployment |
+| [RULES.MD](RULES.MD) | Engineering/repository rules |
+| [DESIGN.MD](DESIGN.MD) | Visual tokens, components and UX states |
+| [TASKS.MD](TASKS.MD) | Prioritized backlog and acceptance criteria |
+| [MEMORY.MD](MEMORY.MD) | Dated findings and decisions |
+| [SECURITY.MD](SECURITY.MD) | Controls, gaps and remediation |
+| [CODE STYLE.MD](CODE%20STYLE.MD) | React/TypeScript and Python conventions |
+| [TESTING.MD](TESTING.MD) | Coverage, commands and checklists |
+| [AGENTS.md](AGENTS.md) | Agent instructions and Lovable history protection |
+
+## Local development
+
+Use a Node.js version compatible with installed Vite/TanStack packages and Python 3.11 (Docker baseline). FFmpeg/ffprobe and tool-specific model dependencies are needed for media processing.
+
+```powershell
+npm ci
+npm run dev
+```
+
+Backend in a separate terminal; reuse an existing virtual environment if present:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Use the URL printed by Vite. Development API requests proxy to port 8000. FastAPI exposes `/health`, `/docs`, `/openapi.json`. Backend settings load `backend/.env`; provider keys remain server-only. Configure `VITE_API_URL` at frontend build time for production; Vite development proxies are not production routing.
+
+See [TESTING.MD](TESTING.MD) for checks and pytest portability notes. Deployment config lives in `vercel.json`, `Dockerfile`, `railway.toml`; deployed connectivity, model readiness and persistent storage require verification.
+
+## Historical planning material — retained below
+
+The original content below contains earlier prompts, conflicting names/stacks/prices and aspirational features. It is preserved for context, not as evidence of implementation or instructions to migrate the application. The linked documentation above is the current baseline.
+
+### PixelPerfect AI — original brief
 
 You are a senior SaaS architect, AI engineer, UI/UX designer, and full-stack developer.
 
