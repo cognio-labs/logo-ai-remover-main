@@ -133,7 +133,7 @@ function FeaturesPage() {
   const current = featureTabs[activeTab];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
       {/* 1. HERO SECTION: INTERACTIVE STUDIO KEYBOARD & CONTROLS */}
       <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA] border-b border-[#E5E5E5] relative overflow-hidden">
         {/* Subtle ambient light gradient */}

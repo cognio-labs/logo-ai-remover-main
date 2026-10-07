@@ -25,6 +25,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as UpscaleRouteImport } from './routes/upscale'
 import { Route as VideoEnhancerRouteImport } from './routes/video-enhancer'
+import { Route as BackgroundRemoverSampleImagesRouteImport } from './routes/background-remover_.sample-images'
 import { Route as RemoveImageRouteImport } from './routes/remove.image'
 import { Route as RemoveVideoRouteImport } from './routes/remove.video'
 
@@ -109,6 +110,12 @@ const VideoEnhancerRoute = VideoEnhancerRouteImport.update({
   path: '/video-enhancer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackgroundRemoverSampleImagesRoute =
+  BackgroundRemoverSampleImagesRouteImport.update({
+    id: '/background-remover_/sample-images',
+    path: '/background-remover/sample-images',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RemoveImageRoute = RemoveImageRouteImport.update({
   id: '/remove/image',
   path: '/remove/image',
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/tools': typeof ToolsRoute
   '/upscale': typeof UpscaleRoute
   '/video-enhancer': typeof VideoEnhancerRoute
+  '/background-remover/sample-images': typeof BackgroundRemoverSampleImagesRoute
   '/remove/image': typeof RemoveImageRoute
   '/remove/video': typeof RemoveVideoRoute
 }
@@ -157,6 +165,7 @@ export interface FileRoutesByTo {
   '/tools': typeof ToolsRoute
   '/upscale': typeof UpscaleRoute
   '/video-enhancer': typeof VideoEnhancerRoute
+  '/background-remover/sample-images': typeof BackgroundRemoverSampleImagesRoute
   '/remove/image': typeof RemoveImageRoute
   '/remove/video': typeof RemoveVideoRoute
 }
@@ -178,6 +187,7 @@ export interface FileRoutesById {
   '/tools': typeof ToolsRoute
   '/upscale': typeof UpscaleRoute
   '/video-enhancer': typeof VideoEnhancerRoute
+  '/background-remover_/sample-images': typeof BackgroundRemoverSampleImagesRoute
   '/remove/image': typeof RemoveImageRoute
   '/remove/video': typeof RemoveVideoRoute
 }
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/upscale'
     | '/video-enhancer'
+    | '/background-remover/sample-images'
     | '/remove/image'
     | '/remove/video'
   fileRoutesByTo: FileRoutesByTo
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/upscale'
     | '/video-enhancer'
+    | '/background-remover/sample-images'
     | '/remove/image'
     | '/remove/video'
   id:
@@ -240,6 +252,7 @@ export interface FileRouteTypes {
     | '/tools'
     | '/upscale'
     | '/video-enhancer'
+    | '/background-remover_/sample-images'
     | '/remove/image'
     | '/remove/video'
   fileRoutesById: FileRoutesById
@@ -261,6 +274,7 @@ export interface RootRouteChildren {
   ToolsRoute: typeof ToolsRoute
   UpscaleRoute: typeof UpscaleRoute
   VideoEnhancerRoute: typeof VideoEnhancerRoute
+  BackgroundRemoverSampleImagesRoute: typeof BackgroundRemoverSampleImagesRoute
   RemoveImageRoute: typeof RemoveImageRoute
   RemoveVideoRoute: typeof RemoveVideoRoute
 }
@@ -379,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VideoEnhancerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/background-remover_/sample-images': {
+      id: '/background-remover_/sample-images'
+      path: '/background-remover/sample-images'
+      fullPath: '/background-remover/sample-images'
+      preLoaderRoute: typeof BackgroundRemoverSampleImagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/remove/image': {
       id: '/remove/image'
       path: '/remove/image'
@@ -413,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsRoute: ToolsRoute,
   UpscaleRoute: UpscaleRoute,
   VideoEnhancerRoute: VideoEnhancerRoute,
+  BackgroundRemoverSampleImagesRoute: BackgroundRemoverSampleImagesRoute,
   RemoveImageRoute: RemoveImageRoute,
   RemoveVideoRoute: RemoveVideoRoute,
 }

@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, ChangeEvent, PointerEvent } from "react";
 import {
   Sparkles,
+  ArrowRight,
   Upload,
   Download,
   CheckCircle2,
@@ -92,28 +93,32 @@ const SHOWCASE_ITEMS = [
     category: "FINE HAIR & PORTRAITS",
     title: "Zero Flyaway Hair Loss",
     description: "Preserves individual wisps, curls, and transparent fringes without halos or jagged cuts.",
-    image: "/upscale/portrait.png",
+    originalImage: "/upscale/portrait.png",
+    cutoutImage: "/upscale/portrait_cutout.png",
   },
   {
     id: "product",
     category: "E-COMMERCE & PRODUCTS",
     title: "Crisp Catalog Product Cutouts",
     description: "Amazon, Shopify, and eBay 100% pure white background compliant with razor-sharp contours.",
-    image: "/upscale/product.png",
+    originalImage: "/upscale/product.png",
+    cutoutImage: "/upscale/product_cutout.png",
   },
   {
     id: "pet",
     category: "PETS & WILDLIFE",
     title: "Soft Fur, Feathers & Whiskers",
     description: "Handles intricate textures, soft fur, and whisker details without blurring or artificial lines.",
-    image: "/upscale/wildlife.png",
+    originalImage: "/upscale/wildlife.png",
+    cutoutImage: "/upscale/wildlife_cutout.png",
   },
   {
-    id: "vehicle",
-    category: "VEHICLES & GLASS",
-    title: "Transparent Glass & Reflections",
-    description: "Detects transparent windshields, metallic reflections, and wheel spokes accurately.",
-    image: "/upscale/product.png",
+    id: "jewelry",
+    category: "JEWELRY & REFLECTIONS",
+    title: "Transparent Facets & Metal Edges",
+    description: "Accurately isolates transparent gemstones, shiny metals, and fine filigree with edge clarity.",
+    originalImage: "/upscale/jewelry.png",
+    cutoutImage: "/upscale/jewelry_cutout.png",
   },
 ];
 
@@ -261,93 +266,139 @@ curl_close($ch);
 ?>`,
 };
 
-function ShowcaseSlider({ image, title, category, description }: { image: string; title: string; category: string; description: string }) {
+function ShowcaseSlider({
+  originalImage,
+  cutoutImage,
+  title,
+  category,
+  description,
+}: {
+  originalImage: string;
+  cutoutImage: string;
+  title: string;
+  category: string;
+  description: string;
+}) {
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const updatePos = (clientX: number) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const pct = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
+    const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
     setPosition(pct);
   };
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
     e.currentTarget.setPointerCapture(e.pointerId);
     updatePos(e.clientX);
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+    if (isDraggingRef.current || e.currentTarget.hasPointerCapture(e.pointerId)) {
       updatePos(e.clientX);
     }
   };
 
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // noop
+    }
+  };
+
   return (
-    <div className="rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-200/40 overflow-hidden">
+    <div className="rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-200/40 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-gray-300/80 flex flex-col">
       <div
         ref={containerRef}
-        className="relative aspect-4/3 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-[#f8fafc]"
+        role="slider"
+        aria-label={`${title} comparison`}
+        aria-valuenow={Math.round(position)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") setPosition((p) => Math.max(0, p - 5));
+          if (e.key === "ArrowRight") setPosition((p) => Math.min(100, p + 5));
+        }}
+        className="relative aspect-16/10 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        {/* Transparent Checkerboard Pattern Background Layer */}
+        {/* RIGHT / AFTER: Transparent Checkerboard Background */}
         <div
-          className="absolute inset-0 size-full"
+          className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-              linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
-            backgroundSize: "16px 16px",
-            backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+            backgroundSize: "20px 20px",
           }}
         />
 
-        {/* After (Transparent Cutout) */}
+        {/* AFTER LAYER: Actual Transparent PNG Cutout */}
         <img
-          src={image}
+          src={cutoutImage}
           alt={`${title} cutout`}
-          className="absolute inset-0 size-full object-contain pointer-events-none filter drop-shadow-md"
+          className="absolute inset-0 size-full object-cover select-none pointer-events-none"
+          decoding="async"
         />
 
-        {/* Before (Original Image) - Clipped to left */}
+        {/* BEFORE LAYER: Original Image (Clipped from right edge based on position) */}
         <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{ width: `${position}%` }}
+          className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none"
+          style={{
+            clipPath: `inset(0 calc(100% - ${position}%) 0 0)`,
+            WebkitClipPath: `inset(0 calc(100% - ${position}%) 0 0)`,
+          }}
         >
           <img
-            src={image}
+            src={originalImage}
             alt={`${title} original`}
-            className="absolute inset-0 h-full max-w-none object-cover"
-            style={{ width: "100%", minWidth: "100%" }}
+            className="absolute inset-0 size-full object-cover select-none pointer-events-none"
+            decoding="async"
           />
         </div>
 
-        {/* Badges */}
-        <span className="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 rounded-full bg-gray-900/85 text-white text-[10px] font-medium tracking-wider backdrop-blur-md">
-          ORIGINAL
-        </span>
-        <span className="absolute top-3.5 right-3.5 z-10 px-2.5 py-1 rounded-full bg-[#E11D48] text-white text-[10px] font-medium tracking-wider shadow-md backdrop-blur-md">
-          TRANSPARENT PNG
-        </span>
+        {/* BADGES */}
+        {/* Left Badge: ORIGINAL */}
+        <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none select-none">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-950/80 text-white text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/10">
+            ORIGINAL
+          </span>
+        </div>
 
-        {/* Divider Handle */}
+        {/* Right Badge: TRANSPARENT PNG */}
+        <div className="absolute top-3.5 right-3.5 z-20 pointer-events-none select-none">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#E11D48] text-white text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase backdrop-blur-md shadow-md border border-white/20">
+            TRANSPARENT PNG
+          </span>
+        </div>
+
+        {/* DIVIDER & ↔ HANDLE */}
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-20 pointer-events-none shadow-[0_0_12px_rgba(225,29,72,0.8)]"
+          className="absolute top-0 bottom-0 w-[2px] bg-[#E11D48] z-20 pointer-events-none shadow-[0_0_12px_rgba(225,29,72,0.8)]"
           style={{ left: `${position}%` }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 rounded-full bg-[#E11D48] border-2 border-white shadow-lg flex items-center justify-center text-white">
-            <ChevronLeft className="size-3.5 -mr-1" />
-            <ChevronRight className="size-3.5 -ml-1" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-9 sm:size-10 rounded-full bg-[#E11D48] border-2 border-white shadow-xl flex items-center justify-center text-white ring-4 ring-black/10 select-none">
+            <ChevronLeft className="size-3.5 -mr-0.5" />
+            <ChevronRight className="size-3.5 -ml-0.5" />
           </div>
         </div>
       </div>
 
-      <div className="p-5 sm:p-6 bg-white border-t border-gray-100">
-        <p className="text-[10px] font-medium text-[#E11D48] uppercase tracking-widest">{category}</p>
-        <h3 className="text-lg font-medium text-gray-900 mt-1">{title}</h3>
-        <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{description}</p>
+      <div className="p-5 sm:p-6 bg-white border-t border-gray-100 flex-1 flex flex-col justify-between">
+        <div>
+          <p className="text-[11px] font-semibold text-[#E11D48] uppercase tracking-widest">{category}</p>
+          <h3 className="text-xl font-semibold text-gray-950 mt-1 tracking-tight">{title}</h3>
+          <p className="text-sm text-gray-600 mt-1.5 leading-relaxed font-normal">{description}</p>
+        </div>
       </div>
     </div>
   );
@@ -393,14 +444,10 @@ function WorkspaceSplitSlider({
       {/* Checkerboard Pattern for Transparent */}
       {bgType === "transparent" && (
         <div
-          className="absolute inset-0 size-full"
+          className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-              linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
-            backgroundSize: "16px 16px",
-            backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+            backgroundSize: "20px 20px",
           }}
         />
       )}
@@ -412,24 +459,26 @@ function WorkspaceSplitSlider({
         className="absolute inset-0 size-full object-contain pointer-events-none filter drop-shadow-md"
       />
 
-      {/* Before Original (Clipped to left side) */}
+      {/* Before Original (Clipped to left side without distortion) */}
       <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ width: `${position}%` }}
+        className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none"
+        style={{
+          clipPath: `inset(0 calc(100% - ${position}%) 0 0)`,
+          WebkitClipPath: `inset(0 calc(100% - ${position}%) 0 0)`,
+        }}
       >
         <img
           src={originalUrl}
           alt="Original"
-          className="absolute inset-0 h-full max-w-none object-contain"
-          style={{ width: "100%", minWidth: "100%" }}
+          className="absolute inset-0 size-full object-contain pointer-events-none"
         />
       </div>
 
       {/* Badges */}
-      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-medium backdrop-blur-md">
+      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-medium backdrop-blur-md z-20 pointer-events-none">
         ORIGINAL
       </span>
-      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#E11D48] text-white text-[10px] font-medium backdrop-blur-md shadow-xs">
+      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#E11D48] text-white text-[10px] font-medium backdrop-blur-md shadow-xs z-20 pointer-events-none">
         {bgType === "transparent" ? "TRANSPARENT" : "CLEANED"}
       </span>
 
@@ -444,6 +493,268 @@ function WorkspaceSplitSlider({
         </div>
       </div>
     </div>
+  );
+}
+
+type ShowcaseCategory = "people" | "products" | "shoes" | "animals" | "cars" | "graphics";
+
+const SEE_DIFFERENCE_CATEGORIES: { id: ShowcaseCategory; label: string }[] = [
+  { id: "people", label: "People" },
+  { id: "products", label: "Products" },
+  { id: "shoes", label: "Shoes" },
+  { id: "animals", label: "Animals" },
+  { id: "cars", label: "Cars" },
+  { id: "graphics", label: "Graphics" },
+];
+
+const SEE_DIFFERENCE_DATA: Record<
+  ShowcaseCategory,
+  {
+    subject: string;
+    original: string;
+    transparent: string;
+    newBg: string;
+    collage: string;
+    descriptions: {
+      original: string;
+      transparent: string;
+      newBg: string;
+      collage: string;
+    };
+  }
+> = {
+  shoes: {
+    subject: "Designer Sneaker",
+    original: "/showcase/shoes_original.jpg",
+    transparent: "/showcase/shoes_transparent.png",
+    newBg: "/showcase/shoes_new_bg.jpg",
+    collage: "/showcase/shoes_collage.jpg",
+    descriptions: {
+      original: "Commercial studio photograph with concrete floor & studio lighting",
+      transparent: "100% transparent PNG with razor-sharp sole, stitch & lace edges",
+      newBg: "Composited into luxury gradient studio with realistic contact shadow",
+      collage: "Four distinct environments: Minimal, Dark, Urban & Creative Pop",
+    },
+  },
+  people: {
+    subject: "Fashion Model Portrait",
+    original: "/showcase/people_original.jpg",
+    transparent: "/showcase/people_transparent.png",
+    newBg: "/showcase/people_new_bg.jpg",
+    collage: "/showcase/people_collage.jpg",
+    descriptions: {
+      original: "Editorial fashion portrait with tailored coat & natural lighting",
+      transparent: "Flyaway hair wisps and fine coat contours isolated seamlessly",
+      newBg: "Placed into modern architectural studio with directional light",
+      collage: "Four distinct backdrops for lookbooks, social & advertising",
+    },
+  },
+  products: {
+    subject: "AURA Luxury Fragrance",
+    original: "/showcase/products_original.jpg",
+    transparent: "/showcase/products_transparent.png",
+    newBg: "/showcase/products_new_bg.jpg",
+    collage: "/showcase/products_collage.jpg",
+    descriptions: {
+      original: "E-commerce catalog photo with stone pedestal & botanical branch",
+      transparent: "Stone & foliage removed, frosted glass & metallic cap preserved",
+      newBg: "Clean e-commerce hero shot with ambient studio soft lighting",
+      collage: "Multiple high-converting advertising scenes in seconds",
+    },
+  },
+  animals: {
+    subject: "Playful Golden Beagle",
+    original: "/showcase/animals_original.jpg",
+    transparent: "/showcase/animals_transparent.png",
+    newBg: "/showcase/animals_new_bg.jpg",
+    collage: "/showcase/animals_collage.jpg",
+    descriptions: {
+      original: "Natural outdoor portrait with soft background blur & greenery",
+      transparent: "Individual whiskers, fur fringes & ear contours cleanly isolated",
+      newBg: "Studio pet portrait with gentle floor contact shadow",
+      collage: "Fun, commercial & editorial backgrounds for print and digital",
+    },
+  },
+  cars: {
+    subject: "White Roadster Supercar",
+    original: "/showcase/cars_original.jpg",
+    transparent: "/showcase/cars_transparent.png",
+    newBg: "/showcase/cars_new_bg.jpg",
+    collage: "/showcase/cars_collage.jpg",
+    descriptions: {
+      original: "Commercial showroom photograph with ceiling fixtures & columns",
+      transparent: "Showroom removed, aerodynamic body & tinted glass isolated",
+      newBg: "Clean dealership showroom banner with realistic ground shadow",
+      collage: "Creative ad variants for social, web banners & brochures",
+    },
+  },
+  graphics: {
+    subject: "3D Glassmorphic Cube",
+    original: "/showcase/graphics_original.jpg",
+    transparent: "/showcase/graphics_transparent.png",
+    newBg: "/showcase/graphics_new_bg.jpg",
+    collage: "/showcase/graphics_collage.jpg",
+    descriptions: {
+      original: "3D render with off-white textured backdrop and subtle shadows",
+      transparent: "Crisp vector-sharp edges with translucent glass preserved",
+      newBg: "Floating branding icon with modern soft ambient glow",
+      collage: "Versatile marketing assets ready for any background palette",
+    },
+  },
+};
+
+function SeeTheDifferenceShowcase() {
+  const [activeCategory, setActiveCategory] = useState<ShowcaseCategory>("shoes");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleSelectCategory = (cat: ShowcaseCategory) => {
+    if (cat === activeCategory) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveCategory(cat);
+      setIsTransitioning(false);
+    }, 180);
+  };
+
+  const current = SEE_DIFFERENCE_DATA[activeCategory];
+
+  const cards = [
+    {
+      label: "Original",
+      step: "01",
+      image: current.original,
+      isTransparent: false,
+      desc: current.descriptions.original,
+    },
+    {
+      label: "Transparent background",
+      step: "02",
+      image: current.transparent,
+      isTransparent: true,
+      desc: current.descriptions.transparent,
+    },
+    {
+      label: "New background",
+      step: "03",
+      image: current.newBg,
+      isTransparent: false,
+      desc: current.descriptions.newBg,
+    },
+    {
+      label: "Endless possibilities",
+      step: "04",
+      image: current.collage,
+      isTransparent: false,
+      desc: current.descriptions.collage,
+    },
+  ];
+
+  return (
+    <section className="py-20 sm:py-28 bg-white border-t border-gray-100/90">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* SECTION TITLE & SUBTITLE */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+            See the Difference
+          </h2>
+          <p className="mt-3 text-base sm:text-lg text-gray-600 font-normal">
+            Remove backgrounds in seconds. Create professional images for every purpose.
+          </p>
+        </div>
+
+        {/* CATEGORY TABS */}
+        <div className="flex items-center justify-center mb-10 sm:mb-14">
+          <div className="inline-flex p-1.5 rounded-full bg-gray-100/80 border border-gray-200/60 max-w-full overflow-x-auto scrollbar-none gap-1 shadow-2xs">
+            {SEE_DIFFERENCE_CATEGORIES.map((cat) => {
+              const active = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleSelectCategory(cat.id)}
+                  className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                    active
+                      ? "bg-white text-gray-950 shadow-xs border border-gray-200/70"
+                      : "text-gray-600 hover:text-gray-950 hover:bg-white/50"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 4 CARDS IN ONE HORIZONTAL ROW */}
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 transition-all duration-300 ${
+            isTransitioning ? "opacity-30 translate-y-2 scale-[0.99]" : "opacity-100 translate-y-0 scale-100"
+          }`}
+        >
+          {cards.map((card) => (
+            <div
+              key={card.label}
+              className="group rounded-3xl border border-gray-200/80 bg-white p-3.5 sm:p-4 shadow-md shadow-gray-200/40 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* Image Frame */}
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#f8fafc] border border-gray-100/90 flex items-center justify-center select-none">
+                  {/* Subtle Checkerboard for Card 2 */}
+                  {card.isTransparent && (
+                    <div
+                      className="absolute inset-0 size-full pointer-events-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+                        backgroundSize: "20px 20px",
+                      }}
+                    />
+                  )}
+
+                  <img
+                    src={card.image}
+                    alt={`${card.label} - ${current.subject}`}
+                    className={`size-full transition-transform duration-500 group-hover:scale-104 select-none pointer-events-none ${
+                      card.isTransparent ? "object-contain p-2 sm:p-3" : "object-cover"
+                    }`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+
+                  {/* Stage Number Badge */}
+                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-semibold tracking-wider backdrop-blur-md border border-white/10 shadow-xs">
+                    {card.step}
+                  </span>
+                </div>
+
+                {/* Card Title */}
+                <h3 className="text-base sm:text-lg font-semibold text-gray-950 mt-4 tracking-tight">
+                  {card.label}
+                </h3>
+
+                {/* Card Description */}
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                  {card.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA BELOW SHOWCASE */}
+        <div className="mt-12 sm:mt-16 text-center flex flex-col items-center justify-center">
+          <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-widest mb-3">
+            Try it yourself
+          </p>
+          <Link
+            to="/background-remover/sample-images"
+            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-medium text-sm shadow-lg shadow-rose-950/20 hover:shadow-xl hover:scale-102 active:scale-98 transition-all cursor-pointer"
+          >
+            <span>See more samples</span>
+            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -983,9 +1294,9 @@ function BackgroundRemoverPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
+    <main className="min-h-screen bg-transparent text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
       {/* 1. HERO SECTION */}
-      <section className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-radial-[at_50%_0%] from-[#FFF0F5] via-white to-white">
+      <section id="upload-studio-section" className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-radial-[at_50%_0%] from-[#FFF0F5] via-white to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Title & Pitch */}
           <div className="text-center max-w-3xl mx-auto mb-10">
@@ -1004,27 +1315,6 @@ function BackgroundRemoverPage() {
             <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto font-normal">
               Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and complex product silhouettes with sub-pixel edge matting.
             </p>
-
-            {/* Quick Preset Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider mr-1">
-                TRY SAMPLES:
-              </span>
-              {DEMO_PRESETS.map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  onClick={() => loadDemo(p)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:border-[#E11D48] hover:bg-[#FFF5F7] text-xs font-medium text-gray-800 transition-all cursor-pointer shadow-2xs"
-                >
-                  <img src={p.image} alt={p.name} className="size-4 rounded-full object-cover" />
-                  <span>{p.name}</span>
-                  <span className="text-[10px] font-medium text-[#E11D48] bg-[#FFE4E9] px-1.5 py-0.5 rounded-md">
-                    {p.badge}
-                  </span>
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* 2. INTERACTIVE WORKSPACE CARD */}
@@ -1403,18 +1693,21 @@ function BackgroundRemoverPage() {
         </div>
       </section>
 
+      {/* 2. SEE THE DIFFERENCE SHOWCASE */}
+      <SeeTheDifferenceShowcase />
+
       {/* 3. BEFORE / AFTER QUALITY SHOWCASE */}
       <section className="py-20 sm:py-28 bg-[#FAFAFB] border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-semibold text-[#E11D48] uppercase tracking-widest mb-2">
               SUB-PIXEL AI MATTING QUALITY
             </p>
             <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
               Stunning Results on Hair, Fur &amp; Complex Edges
             </h2>
             <p className="mt-3 text-base text-gray-600 font-normal">
-              Slide to inspect how our neural matting isolates difficult strands and textures without halos or jagged cutouts.
+              Drag the interactive slider to inspect the actual transparent cutout over the professional checkerboard pattern.
             </p>
           </div>
 
@@ -1422,7 +1715,8 @@ function BackgroundRemoverPage() {
             {SHOWCASE_ITEMS.map((item) => (
               <ShowcaseSlider
                 key={item.id}
-                image={item.image}
+                originalImage={item.originalImage}
+                cutoutImage={item.cutoutImage}
                 title={item.title}
                 category={item.category}
                 description={item.description}

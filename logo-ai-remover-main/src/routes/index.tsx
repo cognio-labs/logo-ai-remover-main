@@ -58,16 +58,16 @@ function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#FFF5F8] via-white to-white pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#FCE7EC]">
+    <section className="relative overflow-hidden bg-warm-canvas pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#FED7AA]/50">
       {/* Subtle background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#FFE4E9]/50 via-[#FFF1F4]/20 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#FFE4C4]/50 via-[#FFF7ED]/20 to-transparent blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           {/* Left Column: Heading, Subheading & High-Converting CTAs */}
           <div className="lg:col-span-6 space-y-6 text-left">
             {/* High-Converting Eyebrow Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF7ED] border border-[#FED7AA] shadow-2xs">
               <span className="flex size-2 rounded-full bg-[#E11D48] animate-pulse" />
               <span className="text-xs font-bold text-[#E11D48] tracking-wide">
                 Next-Gen Neural Watermark Removal Engine
@@ -262,10 +262,10 @@ function SlideRunMarquee() {
   };
 
   return (
-    <div className="relative w-full py-5 sm:py-6 bg-white border-y border-[#FCE7EC] overflow-hidden whitespace-nowrap select-none shadow-2xs">
+    <div className="relative w-full py-5 sm:py-6 bg-gradient-to-r from-[#FFF7ED] via-[#FFE4C4]/50 to-[#FFF7ED] border-y border-[#FED7AA]/60 overflow-hidden whitespace-nowrap select-none shadow-2xs">
       {/* Edge gradient masks for seamless smooth fade */}
-      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-r from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-l from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
 
       {/* Infinite Single-Line Sliding Track */}
       <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">
@@ -308,7 +308,7 @@ function VideoCleanupResultSection() {
   }, []);
 
   return (
-    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#FCE7EC]">
+    <section className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
       <div className="mx-auto max-w-5xl text-center space-y-4">
         {/* Exact Heading from User's Screenshot */}
         <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
@@ -326,14 +326,14 @@ function VideoCleanupResultSection() {
         <div className="pt-1 pb-4">
           <Link
             to="/remove/image"
-            className="text-xs sm:text-sm font-medium text-gray-500 hover:text-[#E11D48] underline underline-offset-4 transition-colors"
+            className="text-xs sm:text-sm font-medium text-gray-600 hover:text-[#E11D48] underline underline-offset-4 transition-colors"
           >
             Working with images too? Open the Gemini Image Watermark Remover
           </Link>
         </div>
 
         {/* Dual Video Comparison Card */}
-        <div className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden border-2 border-[#FCE7EC] bg-black shadow-[0_20px_60px_-15px_rgba(225,29,72,0.20)]">
+        <div className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden border-2 border-[#FED7AA] bg-black shadow-[0_20px_60px_-15px_rgba(225,29,72,0.20)]">
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
             {/* Left: BEFORE (With Gemini Watermark at lower right) */}
             <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
@@ -420,10 +420,10 @@ function RealWorldResults() {
   const current = showcases[activeTab];
 
   return (
-    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#FFF8FA] border-b border-[#FCE7EC]">
+    <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
       <div className="mx-auto max-w-5xl">
         <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-xs font-bold text-[#E11D48]">
             <WandSparkles className="size-3.5" />
             <span>Real-World Benchmark Results</span>
           </div>
@@ -444,7 +444,7 @@ function RealWorldResults() {
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 activeTab === i
                   ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                  : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                  : "bg-[#FFF7ED] text-gray-700 hover:bg-[#FFE4C4] border border-[#FED7AA]"
               }`}
             >
               {s.title}
@@ -453,7 +453,7 @@ function RealWorldResults() {
         </div>
 
         {/* Active Tab Preview Card */}
-        <div className="rounded-3xl bg-white border border-[#FCE7EC] p-6 sm:p-8 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div className="rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA] p-6 sm:p-8 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-5 space-y-4 text-left">
             <h3 className="text-2xl font-bold text-gray-900">{current.title}</h3>
             <p className="text-sm text-gray-600 leading-relaxed">{current.desc}</p>
@@ -532,7 +532,7 @@ function BentoFeatures() {
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="group flex min-h-[22rem] flex-col rounded-[1.75rem] border border-gray-200/80 bg-white p-6 shadow-[0_18px_55px_-35px_rgba(15,23,42,.32)] transition duration-300 hover:-translate-y-1 hover:border-rose-200 hover:shadow-[0_24px_60px_-32px_rgba(225,29,72,.22)] sm:p-7"
+              className="group flex min-h-[22rem] flex-col rounded-[1.75rem] border border-[#FED7AA] bg-[#FFF7ED]/95 backdrop-blur-md p-6 shadow-[0_18px_55px_-35px_rgba(15,23,42,.32)] transition duration-300 hover:-translate-y-1 hover:border-rose-300 hover:shadow-[0_24px_60px_-32px_rgba(225,29,72,.22)] sm:p-7"
             >
               <div className="mb-8 flex items-start justify-between gap-4">
                 <span className="grid size-11 place-items-center rounded-xl bg-gray-950 text-white transition group-hover:bg-rose-600">
@@ -594,7 +594,7 @@ function StepsSection() {
   ];
 
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#FFF8FA] border-b border-[#FCE7EC] relative overflow-hidden">
+    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50 relative overflow-hidden">
       <div className="mx-auto max-w-6xl text-center relative z-10">
         
         <div className="max-w-2xl mx-auto mb-16 space-y-3">
@@ -615,7 +615,7 @@ function StepsSection() {
           {steps.map((s, idx) => (
             <div
               key={s.num}
-              className="group relative p-8 rounded-3xl bg-white border border-[#FCE7EC] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.06)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.16)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+              className="group relative p-8 rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.06)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.16)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
             >
               {/* Giant background number watermark */}
               <span className="absolute -top-3 -right-2 text-7xl font-semibold text-rose-50/70 font-mono select-none pointer-events-none group-hover:text-rose-100/90 transition-colors">
@@ -661,7 +661,7 @@ function StepsSection() {
 /* -------------------------------------------------------------------------- */
 function FinalCTA() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-tr from-[#FFF0F4] via-[#FFE4E9]/60 to-white text-center">
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50 text-center">
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="size-14 mx-auto rounded-3xl bg-[#E11D48] text-white flex items-center justify-center shadow-lg shadow-rose-300">
           <Sparkles className="size-7" />
@@ -679,7 +679,7 @@ function FinalCTA() {
               <ArrowRight className="size-4 ml-1.5" />
             </Link>
           </PinkButton>
-          <PinkButton variant="outline" size="lg" className="px-7 py-3 font-bold" asChild>
+          <PinkButton variant="outline" size="lg" className="px-7 py-3 font-bold bg-[#FFF7ED]/90 border border-[#FED7AA] hover:bg-[#FFE4C4]" asChild>
             <Link to="/pricing">View Pricing Plans</Link>
           </PinkButton>
         </div>

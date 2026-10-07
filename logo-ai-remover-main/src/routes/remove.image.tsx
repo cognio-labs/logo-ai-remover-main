@@ -135,8 +135,11 @@ function ImageCleaner() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="relative min-h-screen bg-gradient-to-b from-[#FFF0F4] via-[#FFF6F9] to-white text-gray-900 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#FFE4E9]/60 via-[#FFF1F4]/30 to-transparent blur-3xl pointer-events-none" />
+
+      <div className="relative mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-bold text-[#E11D48] mb-3">

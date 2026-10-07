@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     max_safe_image_pixels: int = 100_000_000  # 100 Megapixels max safe output (covers 12000x8000 = 96M)
     max_safe_image_dimension: int = 16_000  # 16,000 px max dimension on any axis
     max_duration_seconds: float = 60.0
-    allowed_origins: str = "http://localhost:3000,http://localhost:5173,http://localhost:8080,http://127.0.0.1:8080"
+    allowed_origins: str = "http://localhost:3000,http://localhost:5173,http://localhost:8080,http://127.0.0.1:8080,http://localhost:5874,http://127.0.0.1:5874"
 
     @property
     def cors_origins(self) -> list[str]:
@@ -61,4 +61,6 @@ settings.pdf_storage_root.mkdir(parents=True, exist_ok=True)
 settings.background_storage_root.mkdir(parents=True, exist_ok=True)
 settings.video_enhancer_storage_root.mkdir(parents=True, exist_ok=True)
 settings.weights_root.mkdir(parents=True, exist_ok=True)
+
+
 

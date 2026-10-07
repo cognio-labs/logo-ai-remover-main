@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { ArrowUpRight, ArrowRight, ScanLine, Upload, SlidersHorizontal, Download, Film, ImageUp, Scissors, FileText, WandSparkles, Check, Sparkles, Zap, ShieldCheck, Star } from "lucide-react";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
@@ -48,9 +49,9 @@ function StudioAiMarquee() {
   );
 
   return (
-    <div className="relative w-full py-4 sm:py-5 bg-white border-y border-[#FCE7EC] overflow-hidden whitespace-nowrap select-none shadow-2xs">
-      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none" />
+    <div className="relative w-full py-4 sm:py-5 bg-gradient-to-r from-[#FFF7ED] via-[#FFE4C4]/45 to-[#FFF7ED] border-y border-[#FED7AA]/60 overflow-hidden whitespace-nowrap select-none shadow-2xs">
+      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
       <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0 pr-4 sm:pr-6">
           {AI_MODELS.map((m) => renderCard(m, "track1"))}
@@ -119,7 +120,7 @@ export function SampleGallery({
           <Link
             key={item.title}
             to={item.path}
-            className="group relative flex flex-col rounded-3xl overflow-hidden bg-white border border-[#FCE7EC] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_20px_45px_-12px_rgba(225,29,72,0.22)] hover:-translate-y-1.5 transition-all duration-300"
+            className="group relative flex flex-col rounded-3xl overflow-hidden bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA]/70 hover:border-[#FCA5A5] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_20px_45px_-12px_rgba(225,29,72,0.22)] hover:-translate-y-1.5 transition-all duration-300"
           >
             {/* Image Container with Badge */}
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
@@ -165,27 +166,481 @@ export function SampleGallery({
 }
 
 export function WorkflowCards() {
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const processFile = (file: File) => {
+    const name = file.name.toLowerCase();
+    if (file.type.includes("pdf") || name.endsWith(".pdf")) {
+      toast.success(`PDF "${file.name}" detected! Opening PDF Watermark Cleaner...`);
+      navigate({ to: "/pdf-watermark-remover" });
+    } else if (file.type.includes("video") || name.endsWith(".mp4") || name.endsWith(".mov") || name.endsWith(".webm")) {
+      toast.success(`Video "${file.name}" detected! Opening Video Enhancer...`);
+      navigate({ to: "/video-enhancer" });
+    } else {
+      toast.success(`Image "${file.name}" detected! Opening AI Image Studio...`);
+      navigate({ to: "/remove/image" });
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const triggerDownload = (format: "jpg" | "mp4" | "png" | "pdf") => {
+    const formatMap = {
+      jpg: { url: "/upscale/mountain_lake.jpg", filename: "bellix-restored-preview.jpg", label: "Ultra HD JPG" },
+      mp4: { url: "/gemini-example-before.mp4", filename: "bellix-clean-preview.mp4", label: "60FPS Video (MP4)" },
+      png: { url: "/upscale/artwork.png", filename: "bellix-alpha-cutout.png", label: "Lossless Transparent PNG" },
+      pdf: { url: "/samples/sample_blueprint.pdf", filename: "bellix-clean-document.pdf", label: "Clean Vector PDF" },
+    };
+    const target = formatMap[format];
+    const link = document.createElement("a");
+    link.href = target.url;
+    link.download = target.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`Exporting ${target.label} sample! Check your downloads.`);
+  };
+
   return (
-    <section className="studio-section">
-      <div className="studio-section-title">
-        <div><span className="studio-eyebrow">FROM FILE TO FINISHED</span><h2>Less busywork.<br />More creating.</h2></div>
-        <p>A familiar workflow, with useful controls at every step.</p>
+    <section className="relative w-full py-12 md:py-20 overflow-hidden bg-warm-canvas border-y border-[#FED7AA]/50">
+      {/* Background ambient lighting matching the 3D studio ribbons */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-5 w-[650px] h-[350px] rounded-full bg-[#FFE4C4]/40 blur-[120px]" />
+        <div className="absolute bottom-1/4 right-5 w-[600px] h-[350px] rounded-full bg-[#FCA5A5]/35 blur-[130px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[450px] rounded-full bg-[#FFD6A5]/30 blur-[140px]" />
       </div>
-      <div className="studio-workflow">
-        {[
-          [Upload, "01", "Bring your original", "Choose your image, video or document. Review supported formats before you upload."],
-          [SlidersHorizontal, "02", "Make it your own", "Choose a tool, adjust the settings and follow the actual processing status."],
-          [Download, "03", "Take the final cut", "Inspect your result, compare the details and download the finished file."],
-        ].map(([Icon, number, title, copy]) => {
-          const I = Icon as typeof Upload;
-          return (
-            <article key={number as string}>
-              <div className="studio-step-art"><I size={42} /><span>{number as string}</span><div className="studio-step-lines"><i /><i /><i /></div></div>
-              <h3>{title as string}</h3>
-              <p>{copy as string}</p>
-            </article>
-          );
-        })}
+
+      <div className="relative max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hidden global file input for drag & drop and browse */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*,video/*,.pdf"
+          onChange={handleFileUpload}
+        />
+
+        {/* ─── DESKTOP PANORAMIC 3D BANNER (lg+) ─── */}
+        <div className="hidden lg:block relative w-full overflow-hidden rounded-[32px] border border-[#FED7AA] shadow-[0_24px_70px_-20px_rgba(225,29,72,0.12),0_10px_30px_-10px_rgba(253,186,116,0.1)] bg-[#FFF7ED]/90 backdrop-blur-md">
+          <div className="relative w-full aspect-[1024/360] select-none">
+            {/* Master Banner Graphic */}
+            <img
+              src="/creative-suite/workflow_banner_master.png"
+              alt="From file to finished: Less busywork. More creating."
+              className="w-full h-full object-cover pointer-events-none"
+              fetchPriority="high"
+            />
+
+            {/* 0. HEADER HOTSPOT (Links to all tools) */}
+            <Link
+              to="/tools"
+              title="Explore all Bellix AI creative tools"
+              className="absolute rounded-2xl group cursor-pointer"
+              style={{ left: "11.2%", top: "11.5%", width: "24.5%", height: "20.5%" }}
+            >
+              <span className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/5 group-hover:ring-2 group-hover:ring-indigo-400/30 transition-all" />
+            </Link>
+
+            {/* ── CARD 01 HOTSPOTS (BRING YOUR ORIGINAL) ── */}
+            {/* Floating format badges in Card 01 */}
+            <Link
+              to="/remove/image"
+              title="Image Studio: Clean watermarks & restore images"
+              className="absolute rounded-xl group cursor-pointer"
+              style={{ left: "15.8%", top: "41.5%", width: "4.8%", height: "11.0%" }}
+            >
+              <span className="absolute inset-0 rounded-xl bg-blue-500/0 group-hover:bg-blue-500/20 group-hover:ring-2 group-hover:ring-blue-400/60 transition-all shadow-none group-hover:shadow-[0_0_16px_rgba(59,130,246,0.5)]" />
+            </Link>
+
+            <Link
+              to="/video-enhancer"
+              title="Video Enhancer: 4K upscaling & AI motion cleanup"
+              className="absolute rounded-xl group cursor-pointer"
+              style={{ left: "21.6%", top: "39.5%", width: "5.5%", height: "12.0%" }}
+            >
+              <span className="absolute inset-0 rounded-xl bg-purple-500/0 group-hover:bg-purple-500/20 group-hover:ring-2 group-hover:ring-purple-400/60 transition-all shadow-none group-hover:shadow-[0_0_16px_rgba(168,85,247,0.5)]" />
+            </Link>
+
+            <Link
+              to="/pdf-watermark-remover"
+              title="PDF Cleaner: Remove stamps, logos & confidential text"
+              className="absolute rounded-xl group cursor-pointer"
+              style={{ left: "27.6%", top: "42.5%", width: "4.6%", height: "10.5%" }}
+            >
+              <span className="absolute inset-0 rounded-xl bg-rose-500/0 group-hover:bg-rose-500/20 group-hover:ring-2 group-hover:ring-rose-400/60 transition-all shadow-none group-hover:shadow-[0_0_16px_rgba(244,63,94,0.5)]" />
+            </Link>
+
+            {/* Dashed Dropzone interactive box */}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              title="Click to browse or drop an Image, Video, or PDF file"
+              className="absolute rounded-2xl cursor-pointer group transition-all"
+              style={{ left: "15.14%", top: "54.17%", width: "17.09%", height: "16.67%" }}
+            >
+              <span
+                className={`absolute inset-0 rounded-2xl transition-all duration-300 ${
+                  isDragging
+                    ? "bg-indigo-500/25 ring-2 ring-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.5)] animate-pulse"
+                    : "bg-indigo-500/0 group-hover:bg-indigo-500/10 group-hover:ring-2 group-hover:ring-indigo-400/60 group-hover:shadow-[0_4px_20px_rgba(99,102,241,0.25)]"
+                }`}
+              />
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-gray-950/90 text-white text-[10px] font-medium px-2 py-0.5 rounded-full shadow-md z-30">
+                📁 Click or drag file here
+              </div>
+            </div>
+
+            {/* ── CARD 02 HOTSPOTS (MAKE IT YOUR OWN) ── */}
+            {/* Sliders Area (Interactive hover) */}
+            <Link
+              to="/tools"
+              title="Fine-tune with precision AI sliders"
+              className="absolute rounded-xl group cursor-pointer"
+              style={{ left: "41.8%", top: "44.5%", width: "10.5%", height: "23.5%" }}
+            >
+              <span className="absolute inset-0 rounded-xl bg-purple-500/0 group-hover:bg-purple-500/10 group-hover:ring-1 group-hover:ring-purple-400/40 transition-all" />
+            </Link>
+
+            {/* Checklist Tool 1: AI Enhance */}
+            <Link
+              to="/upscale"
+              title="AI Enhance: Boost resolution and reconstruct texture"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "53.2%", top: "46.2%", width: "9.2%", height: "4.8%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/20 group-hover:ring-1.5 group-hover:ring-indigo-500/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(99,102,241,0.4)]" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-indigo-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Open AI Upscaler
+              </div>
+            </Link>
+
+            {/* Checklist Tool 2: Remove Watermark */}
+            <Link
+              to="/gemini-video-watermark-remover"
+              title="Remove Watermark: Erase logos, stamps and AI labels"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "53.2%", top: "51.2%", width: "9.2%", height: "4.8%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-pink-500/0 group-hover:bg-pink-500/20 group-hover:ring-1.5 group-hover:ring-pink-500/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(236,72,153,0.4)]" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-pink-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Open Watermark Remover
+              </div>
+            </Link>
+
+            {/* Checklist Tool 3: Upscale Quality */}
+            <Link
+              to="/upscale"
+              title="Upscale Quality: 2×, 4×, 8× neural detail synthesis"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "53.2%", top: "56.2%", width: "9.2%", height: "4.8%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-purple-500/0 group-hover:bg-purple-500/20 group-hover:ring-1.5 group-hover:ring-purple-500/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(168,85,247,0.4)]" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-purple-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Open 8K Upscaler
+              </div>
+            </Link>
+
+            {/* Checklist Tool 4: Background Remove */}
+            <Link
+              to="/background-remover"
+              title="Background Remove: Sub-pixel cutout & transparent PNG"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "53.2%", top: "61.2%", width: "9.2%", height: "4.8%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-cyan-500/0 group-hover:bg-cyan-500/20 group-hover:ring-1.5 group-hover:ring-cyan-500/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(6,182,212,0.4)]" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-cyan-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Open Background Remover
+              </div>
+            </Link>
+
+            {/* ── CARD 03 HOTSPOTS (TAKE THE FINAL CUT) ── */}
+            {/* Landscape preview stand hotspot */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("jpg")}
+              title="Inspect & download high-res landscape preview (4K)"
+              className="absolute rounded-2xl group cursor-pointer text-left"
+              style={{ left: "67.0%", top: "43.0%", width: "14.5%", height: "20.5%" }}
+            >
+              <span className="absolute inset-0 rounded-2xl bg-emerald-500/0 group-hover:bg-emerald-500/15 group-hover:ring-2 group-hover:ring-emerald-400/60 transition-all shadow-none group-hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]" />
+            </button>
+
+            {/* "Ready to Download" green pill hotspot */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("jpg")}
+              title="Download final processed file"
+              className="absolute rounded-full group cursor-pointer"
+              style={{ left: "68.2%", top: "65.0%", width: "8.4%", height: "5.2%" }}
+            >
+              <span className="absolute inset-0 rounded-full bg-emerald-500/0 group-hover:bg-emerald-500/25 group-hover:ring-2 group-hover:ring-emerald-400 transition-all shadow-none group-hover:shadow-[0_0_16px_rgba(16,185,129,0.6)]" />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-emerald-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                ✓ Download Finished File
+              </div>
+            </button>
+
+            {/* Format 1: JPG Badge */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("jpg")}
+              title="Download Ultra HD JPG (Clean & Upscaled)"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "82.2%", top: "42.8%", width: "4.8%", height: "6.4%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-purple-500/0 group-hover:bg-purple-500/25 group-hover:ring-2 group-hover:ring-purple-400/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(168,85,247,0.5)]" />
+              <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-purple-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Download JPG
+              </div>
+            </button>
+
+            {/* Format 2: MP4 Badge */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("mp4")}
+              title="Download 60FPS MP4 Video"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "82.2%", top: "50.5%", width: "4.8%", height: "6.4%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-pink-500/0 group-hover:bg-pink-500/25 group-hover:ring-2 group-hover:ring-pink-400/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(236,72,153,0.5)]" />
+              <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-pink-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Download MP4
+              </div>
+            </button>
+
+            {/* Format 3: PNG Badge */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("png")}
+              title="Download Lossless Transparent PNG"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "82.2%", top: "58.2%", width: "4.8%", height: "6.4%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-cyan-500/0 group-hover:bg-cyan-500/25 group-hover:ring-2 group-hover:ring-cyan-400/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(6,182,212,0.5)]" />
+              <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-cyan-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Download PNG
+              </div>
+            </button>
+
+            {/* Format 4: PDF Badge */}
+            <button
+              type="button"
+              onClick={() => triggerDownload("pdf")}
+              title="Download Clean Vector PDF"
+              className="absolute rounded-lg group cursor-pointer"
+              style={{ left: "82.2%", top: "66.0%", width: "4.8%", height: "6.4%" }}
+            >
+              <span className="absolute inset-0 rounded-lg bg-rose-500/0 group-hover:bg-rose-500/25 group-hover:ring-2 group-hover:ring-rose-400/70 transition-all shadow-none group-hover:shadow-[0_0_12px_rgba(244,63,94,0.5)]" />
+              <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-rose-900 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-md z-30">
+                Download PDF
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ─── MOBILE & TABLET RESPONSIVE WORKFLOW (< lg) ─── */}
+        <div className="lg:hidden space-y-8">
+          <div className="text-center space-y-3 max-w-xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-xs font-bold tracking-wider uppercase">
+              FROM FILE TO FINISHED
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-950 tracking-tight leading-tight">
+              Less busywork.<br />
+              <span className="bg-gradient-to-r from-violet-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
+                More creating.
+              </span>
+            </h2>
+            <p className="text-sm text-gray-600">
+              A familiar workflow, with useful controls at every step.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 01: Bring your original */}
+            <div className="relative rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA]/70 p-6 sm:p-7 shadow-lg shadow-amber-500/5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center justify-center size-8 rounded-full bg-rose-100 text-[#E11D48] font-mono text-sm font-bold">
+                    01
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Link to="/remove/image" className="px-2 py-1 rounded-md bg-[#FFE4C4] text-rose-800 text-[11px] font-semibold hover:bg-[#FFD6A5]">Image</Link>
+                    <Link to="/video-enhancer" className="px-2 py-1 rounded-md bg-purple-50 text-purple-600 text-[11px] font-semibold hover:bg-purple-100">Video</Link>
+                    <Link to="/pdf-watermark-remover" className="px-2 py-1 rounded-md bg-rose-50 text-rose-600 text-[11px] font-semibold hover:bg-rose-100">PDF</Link>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
+                    isDragging
+                      ? "border-[#E11D48] bg-rose-50/50 scale-[1.02]"
+                      : "border-gray-200 bg-gray-50/60 hover:border-[#E11D48] hover:bg-rose-50/20"
+                  }`}
+                >
+                  <Upload className="size-8 mx-auto text-[#E11D48] mb-2" />
+                  <p className="text-sm font-bold text-gray-900">Drag & drop your files</p>
+                  <p className="text-xs text-rose-600 font-medium mt-1 underline">or browse from device</p>
+                </div>
+
+                <h3 className="text-lg font-bold text-gray-950 mt-5">Bring your original</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                  Choose your image, video or document. Review supported formats before you upload.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 02: Make it your own */}
+            <div className="relative rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA]/70 p-6 sm:p-7 shadow-lg shadow-amber-500/5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center justify-center size-8 rounded-full bg-blue-100 text-blue-600 font-mono text-sm font-bold">
+                    02
+                  </span>
+                  <span className="text-[11px] font-semibold text-gray-400">Settings & AI Tools</span>
+                </div>
+
+                <div className="space-y-2 mb-4 bg-white/70 p-3.5 rounded-2xl border border-[#FED7AA]/50">
+                  <Link
+                    to="/upscale"
+                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FFF7ED] border border-[#FED7AA]/50 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-2xs"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                      <Check size={14} className="text-indigo-600" /> AI Enhance
+                    </span>
+                    <ArrowUpRight size={14} className="text-gray-400" />
+                  </Link>
+
+                  <Link
+                    to="/gemini-video-watermark-remover"
+                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FFF7ED] border border-[#FED7AA]/50 hover:border-pink-300 hover:text-pink-600 transition-colors shadow-2xs"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                      <Check size={14} className="text-pink-600" /> Remove Watermark
+                    </span>
+                    <ArrowUpRight size={14} className="text-gray-400" />
+                  </Link>
+
+                  <Link
+                    to="/upscale"
+                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FFF7ED] border border-[#FED7AA]/50 hover:border-purple-300 hover:text-purple-600 transition-colors shadow-2xs"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                      <Check size={14} className="text-purple-600" /> Upscale Quality
+                    </span>
+                    <ArrowUpRight size={14} className="text-gray-400" />
+                  </Link>
+
+                  <Link
+                    to="/background-remover"
+                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FFF7ED] border border-[#FED7AA]/50 hover:border-cyan-300 hover:text-cyan-600 transition-colors shadow-2xs"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-semibold text-gray-800">
+                      <Check size={14} className="text-cyan-600" /> Background Remove
+                    </span>
+                    <ArrowUpRight size={14} className="text-gray-400" />
+                  </Link>
+                </div>
+
+                <h3 className="text-lg font-bold text-gray-950 mt-5">Make it your own</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                  Choose a tool, adjust the settings and follow the actual processing status.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 03: Take the final cut */}
+            <div className="relative rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA]/70 p-6 sm:p-7 shadow-lg shadow-amber-500/5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center justify-center size-8 rounded-full bg-emerald-100 text-emerald-600 font-mono text-sm font-bold">
+                    03
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("jpg")}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors cursor-pointer"
+                  >
+                    <Check size={12} strokeWidth={3} /> Ready to Download
+                  </button>
+                </div>
+
+                {/* Preview Image */}
+                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-gray-100 group">
+                  <img
+                    src="/upscale/mountain_lake.jpg"
+                    alt="Preview Final Cut"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("jpg")}
+                    className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1.5 cursor-pointer"
+                  >
+                    <Download size={16} /> Click to Download Sample
+                  </button>
+                </div>
+
+                {/* Format Badges */}
+                <div className="grid grid-cols-4 gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("jpg")}
+                    className="py-1.5 px-2 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 border border-purple-200 transition-colors"
+                  >
+                    JPG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("mp4")}
+                    className="py-1.5 px-2 rounded-lg bg-pink-50 text-pink-700 text-xs font-bold hover:bg-pink-100 border border-pink-200 transition-colors"
+                  >
+                    MP4
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("png")}
+                    className="py-1.5 px-2 rounded-lg bg-cyan-50 text-cyan-700 text-xs font-bold hover:bg-cyan-100 border border-cyan-200 transition-colors"
+                  >
+                    PNG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => triggerDownload("pdf")}
+                    className="py-1.5 px-2 rounded-lg bg-rose-50 text-rose-700 text-xs font-bold hover:bg-rose-100 border border-rose-200 transition-colors"
+                  >
+                    PDF
+                  </button>
+                </div>
+
+                <h3 className="text-lg font-bold text-gray-950 mt-5">Take the final cut</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                  Inspect your result, compare the details and download the finished file.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -207,113 +662,318 @@ const TOOL_FEATURES = [
   { icon: ScanLine, name: "Video Watermark", desc: "Frame-by-frame Gemini & Veo watermark removal at 4K/60FPS.", path: "/gemini-video-watermark-remover", accent: "from-indigo-500 to-violet-600" },
 ];
 
+/* ═══════════════════════════════════════════════════════════════
+   1. PANORAMIC CINEMATIC HERO (INTERACTIVE WORKSPACE BANNER)
+═══════════════════════════════════════════════════════════════ */
+function PanoramicHeroSection() {
+  const [prompt, setPrompt] = useState("");
+  const navigate = useNavigate();
+
+  const handlePromptSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = prompt.trim() || "4K portrait restoration";
+    toast.success(`Launching AI engine for: "${query}"`);
+    navigate({ to: "/upscale" });
+  };
+
+  const handleSelectModel = (modelName: string) => {
+    toast.success(`Selected AI engine: ${modelName}`);
+  };
+
+  return (
+    <section className="relative w-full overflow-hidden bg-warm-canvas border-b border-[#FED7AA]/50">
+      {/* ─── DESKTOP PANORAMIC EXPERIENCE (lg+) ─── */}
+      <div className="hidden lg:block relative w-full max-w-[2011px] mx-auto overflow-hidden">
+        <div className="relative w-full aspect-[2011/782] select-none">
+          {/* Panoramic Masterpiece Asset */}
+          <img
+            src="/creative-suite/bellix-hero-section.png"
+            alt="Turn rough ideas into finished work — Bellix.us"
+            className="w-full h-full object-cover pointer-events-none"
+            fetchPriority="high"
+          />
+
+          {/* 1. TOP EYEBROW BADGE HOTSPOT */}
+          <Link
+            to="/tools"
+            title="Explore all 6 AI creative workspace tools"
+            className="absolute rounded-full transition-all cursor-pointer group"
+            style={{ left: "13.13%", top: "17.5%", width: "13.5%", height: "4.2%" }}
+          >
+            <span className="absolute inset-0 rounded-full bg-indigo-500/0 group-hover:bg-indigo-500/10 group-hover:ring-2 group-hover:ring-indigo-400/40 transition-all" />
+          </Link>
+
+          {/* 2. PRIMARY CTA: START CREATING FREE */}
+          <Link
+            to="/upscale"
+            title="Start creating free with next-gen AI"
+            className="absolute rounded-full transition-all cursor-pointer group flex items-center justify-center overflow-hidden"
+            style={{ left: "13.13%", top: "53.45%", width: "11.39%", height: "6.91%" }}
+          >
+            <span className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500/0 via-pink-500/20 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="absolute inset-0 rounded-full ring-2 ring-transparent group-hover:ring-pink-400 group-hover:shadow-[0_0_28px_rgba(236,72,153,0.65)] transition-all" />
+          </Link>
+
+          {/* 3. SECONDARY CTA: SEE HOW IT WORKS */}
+          <Link
+            to="/video-enhancer"
+            title="See video & image restoration in action"
+            className="absolute rounded-full transition-all cursor-pointer group flex items-center justify-center overflow-hidden"
+            style={{ left: "25.86%", top: "53.45%", width: "9.8%", height: "6.91%" }}
+          >
+            <span className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/5 group-hover:ring-2 group-hover:ring-gray-300 transition-all shadow-none group-hover:shadow-md" />
+          </Link>
+
+          {/* 4. AI CANVAS WINDOW TOOLS (LEFT SUB-MENU) */}
+          <Link
+            to="/gemini-video-watermark-remover"
+            title="Remove Visible Watermarks & Logos"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "31.3%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/upscale"
+            title="Upscale Image up to 8K Resolution"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "37.7%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/video-enhancer"
+            title="Enhance Quality & Deblock Video"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "44.1%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/background-remover"
+            title="One-Click Background Removal"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "50.5%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/video-enhancer"
+            title="Image to Video Generative Motion"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "56.9%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/tools"
+            title="View All Creative Tools"
+            className="absolute rounded-lg transition-all cursor-pointer group"
+            style={{ left: "49.7%", top: "63.3%", width: "9.0%", height: "4.8%" }}
+          >
+            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          {/* 5. INTERACTIVE PROMPT BAR */}
+          <form
+            onSubmit={handlePromptSubmit}
+            className="absolute z-20 flex items-center justify-between rounded-full bg-white/92 backdrop-blur-md px-3 border border-indigo-100 shadow-[0_4px_16px_rgba(99,102,241,0.22)] focus-within:ring-2 focus-within:ring-indigo-400"
+            style={{ left: "53.45%", top: "55.9%", width: "12.18%", height: "6.65%" }}
+          >
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Create something amazing..."
+              className="w-full bg-transparent text-[11px] font-medium text-gray-800 placeholder-gray-400 outline-none pr-1 truncate"
+            />
+            <button
+              type="submit"
+              title="Generate with AI"
+              className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#6366F1] to-[#D946EF] text-white shadow-xs hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+            >
+              <ArrowUpRight size={13} />
+            </button>
+          </form>
+
+          {/* 6. RIGHT FLOATING TOOLS */}
+          <Link
+            to="/remove/image"
+            title="AI Image Generation & Watermark Remover"
+            className="absolute rounded-2xl transition-all cursor-pointer group"
+            style={{ left: "87.02%", top: "23.02%", width: "9.45%", height: "6.14%" }}
+          >
+            <span className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/10 group-hover:ring-2 group-hover:ring-indigo-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/video-enhancer"
+            title="AI Video Generation & Restoration"
+            className="absolute rounded-2xl transition-all cursor-pointer group"
+            style={{ left: "87.02%", top: "31.33%", width: "9.45%", height: "6.14%" }}
+          >
+            <span className="absolute inset-0 rounded-2xl bg-rose-500/0 group-hover:bg-rose-500/10 group-hover:ring-2 group-hover:ring-rose-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/upscale"
+            title="AI Enhancer (8K Super-Resolution)"
+            className="absolute rounded-2xl transition-all cursor-pointer group"
+            style={{ left: "87.02%", top: "39.64%", width: "9.45%", height: "6.14%" }}
+          >
+            <span className="absolute inset-0 rounded-2xl bg-cyan-500/0 group-hover:bg-cyan-500/10 group-hover:ring-2 group-hover:ring-cyan-400/50 transition-all" />
+          </Link>
+
+          <Link
+            to="/background-remover"
+            title="AI Background Remover"
+            className="absolute rounded-2xl transition-all cursor-pointer group"
+            style={{ left: "87.02%", top: "47.95%", width: "9.45%", height: "6.14%" }}
+          >
+            <span className="absolute inset-0 rounded-2xl bg-purple-500/0 group-hover:bg-purple-500/10 group-hover:ring-2 group-hover:ring-purple-400/50 transition-all" />
+          </Link>
+
+          {/* 7. CHOOSE AI MODEL SELECTOR HOTSPOTS */}
+          <div
+            className="absolute z-20 flex items-center justify-around"
+            style={{ left: "83.6%", top: "67.0%", width: "11.6%", height: "4.8%" }}
+          >
+            <button
+              type="button"
+              onClick={() => handleSelectModel("Google Gemini 2.5 Flash")}
+              title="Google Gemini 2.5 Flash"
+              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={() => handleSelectModel("OpenAI GPT-4o Vision")}
+              title="OpenAI GPT-4o Vision"
+              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={() => handleSelectModel("Midjourney v6.1")}
+              title="Midjourney v6.1 Photo Engine"
+              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={() => handleSelectModel("Runway Gen-3 Alpha")}
+              title="Runway Gen-3 Alpha Video Engine"
+              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ─── MOBILE & TABLET RESPONSIVE EXPERIENCE (< lg) ─── */}
+      <div className="lg:hidden px-4 sm:px-6 py-10 space-y-8 max-w-2xl mx-auto">
+        <div className="space-y-4 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF7ED]/95 border border-[#FED7AA]/70 shadow-2xs">
+            <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
+            <span className="text-xs font-bold text-[#E11D48] tracking-wide">
+              AI Creative Workspace • 6 Pro Tools
+            </span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-bold text-gray-950 tracking-tight leading-[1.08]">
+            Turn rough ideas into{" "}
+            <span className="bg-gradient-to-r from-[#6366F1] via-[#D946EF] to-[#E11D48] bg-clip-text text-transparent font-serif italic">
+              finished work.
+            </span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+            Remove distractions, restore detail, upscale every frame and make your next piece look ready to publish. No technical knowledge required.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              to="/upscale"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25"
+            >
+              <Sparkles size={14} />
+              <span>Start creating free</span>
+              <ArrowUpRight size={15} />
+            </Link>
+
+            <Link
+              to="/video-enhancer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-[#FFF7ED] border border-[#FED7AA] shadow-xs hover:bg-[#FFE4C4]"
+            >
+              <span>See how it works</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600 pt-2">
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Six focused tools</span>
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Real processing status</span>
+            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Export-ready results</span>
+          </div>
+        </div>
+
+        {/* Visual Artwork Showcase Card */}
+        <div className="rounded-2xl overflow-hidden border border-[#FED7AA] shadow-xl shadow-amber-500/10 bg-[#FFF7ED]/95">
+          <img
+            src="/creative-suite/bellix-hero-section.png"
+            alt="AI Creative Workspace"
+            className="w-full h-auto object-cover"
+          />
+        </div>
+
+        {/* Mobile Tools Quick Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+          {studioTools.map((t) => (
+            <Link
+              key={t.path}
+              to={t.path}
+              className="flex items-center gap-2.5 p-3 rounded-xl bg-[#FFF7ED]/95 border border-[#FED7AA]/70 shadow-2xs hover:border-[#E11D48] transition-all"
+            >
+              <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFE4C4] text-[#E11D48]">
+                <t.icon size={14} />
+              </span>
+              <span className="text-xs font-semibold text-gray-900 truncate">{t.name}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Mobile Stats Row */}
+        <div className="grid grid-cols-4 gap-2 pt-4 border-t border-gray-200 text-center">
+          <div>
+            <strong className="block text-base font-bold text-gray-900">500K+</strong>
+            <span className="text-[10px] text-gray-500">Files</span>
+          </div>
+          <div>
+            <strong className="block text-base font-bold text-gray-900">4K</strong>
+            <span className="text-[10px] text-gray-500">Max Res</span>
+          </div>
+          <div>
+            <strong className="block text-base font-bold text-gray-900">99.9%</strong>
+            <span className="text-[10px] text-gray-500">Accuracy</span>
+          </div>
+          <div>
+            <strong className="block text-base font-bold text-gray-900">&lt; 30s</strong>
+            <span className="text-[10px] text-gray-500">Speed</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function StudioHome() {
   const [active, setActive] = useState<keyof typeof studioAssets>("coast");
 
   return (
     <main className="studio-page">
-      {/* ─── 1. WHITE HERO (FRAMELESS IMAGE TOUCHING BACKGROUND) ─── */}
-      <section className="studio-hero-v2">
-        <div className="studio-hero-bg" />
-
-        <div className="studio-hero-v2-inner">
-          {/* Left: copy */}
-          <div className="studio-hero-v2-copy">
-            <div className="studio-badge">
-              <span className="studio-badge-dot" />
-              <span>AI Creative Workspace • 6 Pro Tools</span>
-            </div>
-
-            <h1 className="studio-hero-v2-title">
-              Turn rough ideas into <em>finished work.</em>
-            </h1>
-
-            <p className="studio-hero-v2-sub">
-              Remove distractions, restore detail, upscale every frame and make your next piece look ready to publish. No technical knowledge required.
-            </p>
-
-            <div className="studio-hero-v2-actions">
-              <Link className="studio-cta-primary" to="/upscale">
-                <Sparkles size={16} /> Start creating free <ArrowUpRight size={17} />
-              </Link>
-              <Link className="studio-cta-ghost" to="/video-enhancer">
-                See how it works <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <div className="studio-hero-v2-checks">
-              <span><Check size={14} /> Six focused tools</span>
-              <span><Check size={14} /> Real processing status</span>
-              <span><Check size={14} /> Export-ready results</span>
-            </div>
-
-            {/* Stats row */}
-            <div className="studio-hero-stats">
-              {STATS.map(s => (
-                <div key={s.label} className="studio-stat">
-                  <strong>{s.value}</strong>
-                  <span>{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: Frameless image seamlessly touching background (Image 1 Matching) */}
-          <div className="studio-hero-v2-media-wrap">
-            <div className="studio-hero-v2-photo-card">
-              <img
-                className="studio-hero-v2-photo"
-                src={studioAssets[active]}
-                alt="Bellix creative workspace sample"
-                fetchPriority="high"
-              />
-              {/* Floating pill badge */}
-              <div className="studio-float-pill">
-                <span className="text-gray-300">Before</span>
-                <span className="text-rose-400">⇄</span>
-                <span>After</span>
-              </div>
-              {/* Floating AI detail restored */}
-              <div className="studio-float-card studio-float-top">
-                <Sparkles size={15} className="text-[#E11D48]" />
-                <span>AI detail restored<small>Natural texture, cleaner edges</small></span>
-              </div>
-              {/* Floating Growth Graph badge */}
-              <div className="studio-float-growth">
-                <div className="flex items-center justify-between gap-4 text-xs font-bold text-gray-900 mb-1">
-                  <span>Your Growth</span>
-                  <span className="text-[#E11D48]">+300%</span>
-                </div>
-                <div className="flex items-end gap-1 h-6">
-                  <span className="w-1.5 h-2 bg-rose-200 rounded-xs" />
-                  <span className="w-1.5 h-3 bg-rose-300 rounded-xs" />
-                  <span className="w-1.5 h-4 bg-rose-400 rounded-xs" />
-                  <span className="w-1.5 h-5 bg-[#FF2E63] rounded-xs" />
-                  <span className="w-1.5 h-6 bg-[#E11D48] rounded-xs" />
-                </div>
-              </div>
-              {/* Floating processing ready */}
-              <div className="studio-float-card studio-float-bottom">
-                <span className="studio-status-dot" />
-                <span>Processing ready <strong className="ml-1 px-1.5 py-0.5 rounded bg-rose-50 text-[#E11D48] text-[10px] font-bold">4K</strong></span>
-              </div>
-              {/* Thumbs switcher */}
-              <div className="studio-thumbs-bar">
-                {Object.entries(studioAssets).map(([key, src]) => (
-                  <button
-                    key={key}
-                    aria-label={`Show ${key} sample`}
-                    aria-pressed={active === key}
-                    onClick={() => setActive(key as keyof typeof studioAssets)}
-                  >
-                    <img src={src} alt="" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ─── 1. NEW PANORAMIC CINEMATIC HERO (INTERACTIVE WORKSPACE) ─── */}
+      <PanoramicHeroSection />
 
       {/* ─── 2. RUNNING ELEMENTS: AI PLATFORMS TICKER ─── */}
       <StudioAiMarquee />
@@ -323,24 +983,62 @@ export function StudioHome() {
 
 
 
-      {/* ─── CLEAN SECTION ─── */}
-      <section className="studio-section studio-clean-section">
-        <div className="studio-clean-image">
-          <img src={studioAssets.product} alt="Cobalt glass product photography creative sample" loading="lazy" />
-          <span>LESS DISTRACTION. MORE FOCUS.</span>
-        </div>
-        <div>
-          <span className="studio-eyebrow">A CLEANER POINT OF VIEW</span>
-          <h2>Keep the part<br />you <em>love.</em></h2>
-          <p>Give your images and videos a thoughtful finishing touch. Select unwanted marks, inspect the result and keep the frame that tells your story.</p>
-          <ul className="studio-check-list">
-            <li><Check />Tools for images and video</li>
-            <li><Check />Original and result previews</li>
-            <li><Check />Download your processed file</li>
-          </ul>
-          <Link className="studio-button" to="/gemini-video-watermark-remover">
-            Open video cleaner <ArrowUpRight size={18} />
-          </Link>
+      {/* ─── CLEAN BANNER SECTION (Image 3 Matching) ─── */}
+      <section className="studio-clean-banner-wrapper">
+        <div className="studio-clean-banner">
+
+          {/* Mobile-only: full-width ring image at top */}
+          <div className="studio-clean-banner-mobile-img">
+            <img
+              src="/creative-suite/clean_section_ring_backdrop.png"
+              alt="Emerald ring on marble — AI image restoration"
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Gradient fade from image into content below */}
+            <div className="studio-clean-banner-mobile-fade" />
+          </div>
+
+          <div className="studio-clean-banner-content">
+            <div className="studio-clean-banner-eyebrow">
+              <span>A cleaner point of view</span>
+              <span className="studio-clean-banner-eyebrow-line" />
+            </div>
+
+            <h2 className="studio-clean-banner-title">
+              Keep the part<br />
+              you <em>love.</em>
+            </h2>
+
+            <p className="studio-clean-banner-desc">
+              Give your images and videos a thoughtful finishing touch. Select unwanted marks, inspect the result and keep the frame that tells your story.
+            </p>
+
+            <ul className="studio-clean-banner-checks">
+              <li>
+                <span className="studio-clean-banner-check-icon">
+                  <Check size={11} strokeWidth={3} />
+                </span>
+                <span>Tools for images and video</span>
+              </li>
+              <li>
+                <span className="studio-clean-banner-check-icon">
+                  <Check size={11} strokeWidth={3} />
+                </span>
+                <span>Original and result previews</span>
+              </li>
+              <li>
+                <span className="studio-clean-banner-check-icon">
+                  <Check size={11} strokeWidth={3} />
+                </span>
+                <span>Download your processed file</span>
+              </li>
+            </ul>
+
+            <Link className="studio-clean-banner-btn" to="/gemini-video-watermark-remover">
+              <span>Open video cleaner</span>
+              <ArrowUpRight size={15} />
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -41,6 +41,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY backend/ ./backend/
+COPY src/assets/gemini-logo-transparent.png ./backend/assets/gemini-logo-transparent.png
 
 # Create storage directories
 RUN mkdir -p \
@@ -67,3 +68,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 # Start command — Railway injects PORT env var
 CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+

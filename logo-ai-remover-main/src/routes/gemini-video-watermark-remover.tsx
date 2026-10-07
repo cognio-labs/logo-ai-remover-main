@@ -278,7 +278,7 @@ function GeminiVideoRemoverPage() {
       : INSPIRATION_ITEMS.filter((item) => item.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
       {/* 1. HERO & UPLOAD SECTION */}
       <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF0F4]/60 via-white to-white">
         <div className="mx-auto max-w-5xl text-center space-y-6">
@@ -305,7 +305,7 @@ function GeminiVideoRemoverPage() {
           </p>
 
           {/* Primary Upload Area */}
-          <div className="pt-6 max-w-3xl mx-auto">
+          <div className="pt-6 max-w-6xl mx-auto w-full">
             <JobVideoCleaner />
           </div>
 

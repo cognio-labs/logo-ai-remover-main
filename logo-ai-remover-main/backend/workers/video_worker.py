@@ -46,7 +46,7 @@ def process_video_job(job_id: str, manual_region: ManualRegion | None = None) ->
     root = job_dir(job_id)
     result = assert_job_owned_path(job_id, root / "output" / "cleaned.mp4")
     preview_output = assert_job_owned_path(job_id, root / "output" / "preview.mp4")
-    intermediate = assert_job_owned_path(job_id, root / "temp" / "cleaned-video-track.mp4")
+    intermediate = assert_job_owned_path(job_id, root / "temp" / "cleaned-video-track.mkv")
     tracking = assert_job_owned_path(job_id, root / "masks" / "tracking.json")
 
     try:
@@ -154,12 +154,12 @@ def process_video_job(job_id: str, manual_region: ManualRegion | None = None) ->
         # STAGE 6: Verification
         job_service.update(
             job_id,
-            status=JobStatus.VERIFYING,
+            status=JobStatus.VALIDATING,
             progress=95,
-            stage="Verifying output",
+            stage="Validating cleaned video",
             message="Validating frame count, color consistency, and audio synchronization",
         )
-        verify_output(metadata, base_cleaned)
+        verify_output(metadata, base_cleaned, original, tracking)
 
         # STAGE 7: Complete
         completed = job_service.update(
@@ -204,5 +204,7 @@ def submit_video_job(job_id: str, manual_region: ManualRegion | None = None):
 def cancel_video_job(job_id: str):
     job_service.cancel(job_id)
     root = job_dir(job_id)
-    intermediate = root / "temp" / "cleaned-video-track.mp4"
+    intermediate = root / "temp" / "cleaned-video-track.mkv"
     intermediate.unlink(missing_ok=True)
+
+

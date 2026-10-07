@@ -57,13 +57,18 @@
 :root {
   --radius: 1rem;
 
-  /* White & Red Luxury Theme */
-  --background: #FFFFFF;
+  /* Warm Design Palette (Cream #FFF7ED, Soft Peach #FFE4C4, Light Coral #FFD6A5, Pink #FCA5A5) */
+  --bg-cream: #FFF7ED;
+  --bg-soft-peach: #FFE4C4;
+  --bg-light-coral: #FFD6A5;
+  --bg-pink: #FCA5A5;
+
+  --background: #FFF7ED;
   --foreground: #111827;
 
-  --card: #FFFFFF;
+  --card: #FFF7ED;
   --card-foreground: #111827;
-  --popover: #FFFFFF;
+  --popover: #FFF7ED;
   --popover-foreground: #111827;
 
   /* Vibrant Luxury Red / Crimson-Rose */
@@ -71,13 +76,13 @@
   --primary-foreground: #FFFFFF;
   --primary-glow: #FB7185;
 
-  --secondary: #FFF1F4;
+  --secondary: #FFE4C4;
   --secondary-foreground: #9F1239;
 
-  --muted: #FFF5F7;
+  --muted: #FFF7ED;
   --muted-foreground: #6B7280;
 
-  --accent: #FFE4E9;
+  --accent: #FFD6A5;
   --accent-foreground: #BE123C;
 
   --destructive: #DC2626;
@@ -85,8 +90,8 @@
   --success: #059669;
   --success-foreground: #FFFFFF;
 
-  --border: #FCE7EC;
-  --input: #F3D7DE;
+  --border: #FED7AA;
+  --input: #FFD6A5;
   --ring: #E11D48;
 
   --chart-1: #E11D48;
@@ -96,6 +101,7 @@
   --chart-5: #9F1239;
 
   --gradient-primary: linear-gradient(135deg, #E11D48 0%, #FF2E63 50%, #FF4FA3 100%);
+  --gradient-warm: linear-gradient(135deg, #FFF7ED 0%, #FFE4C4 35%, #FFD6A5 70%, #FCA5A5 100%);
   --gradient-red-soft: linear-gradient(135deg, #FFF1F4 0%, #FFE4E9 100%);
   --gradient-text: linear-gradient(135deg, #111827 0%, #BE123C 60%, #E11D48 100%);
   --gradient-heading: linear-gradient(135deg, #111827 0%, #4B5563 100%);
@@ -132,7 +138,7 @@
 
   html,
   body {
-    background-color: #FFFFFF;
+    background-color: #FFF7ED;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-weight: 400 !important;
@@ -195,6 +201,35 @@
 
 @utility mesh-bg {
   background-image: var(--gradient-mesh);
+}
+
+/* ── User's Warm Background Design System ──
+   Cream: #FFF7ED | Soft Peach: #FFE4C4 | Light Coral: #FFD6A5 | Pink: #FCA5A5 */
+.bg-warm-canvas {
+  background-color: #FFF7ED;
+  background-image: url('/warm-gradient-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-warm-gradient {
+  background: linear-gradient(135deg, #FFF7ED 0%, #FFE4C4 35%, #FFD6A5 70%, #FCA5A5 100%);
+}
+
+.bg-warm-mesh {
+  background-color: #FFF7ED;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 15% 95%, #FFE4C4 0%, transparent 65%),
+    radial-gradient(ellipse 65% 55% at 35% 85%, #FFD6A5 0%, transparent 60%),
+    radial-gradient(ellipse 75% 65% at 85% 90%, #FCA5A5 0%, transparent 65%),
+    radial-gradient(ellipse 90% 70% at 50% 15%, #FFF7ED 0%, transparent 75%);
+}
+
+.bg-warm-card {
+  background: rgba(255, 247, 237, 0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 214, 165, 0.55);
 }
 
 @utility grid-lines {

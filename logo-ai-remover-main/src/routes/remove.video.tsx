@@ -19,8 +19,8 @@ export const Route = createFileRoute("/remove/video")({
 
 function VideoRemoverPage() {
   return (
-    <div className="min-h-screen bg-white px-4 py-12 text-gray-900 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl space-y-8">
+    <div className="min-h-screen bg-transparent px-4 py-12 text-gray-900 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#FCE7EC] bg-[#FFF1F4] px-3.5 py-1 text-xs font-bold text-[#E11D48]">
             <Sparkles className="size-3.5" />

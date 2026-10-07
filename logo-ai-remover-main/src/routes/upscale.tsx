@@ -39,13 +39,106 @@ const PRESETS = [
   { name: "Generative Art", factor: "8", image: "/upscale/artwork.png" },
   { name: "Vector & Logos", factor: "2", image: "/upscale/typography.png" },
 ] as const;
-const SHOWCASES = [
-  { id:"portrait", image:"/upscale/portrait.png", category:"SKIN · HAIR · MICRO DETAIL", title:"Cinematic Portrait Restoration", quote:"Real skin. Real texture. No plastic AI finish.", description:"Recovers eyelashes, individual hair strands, skin texture and subtle facial detail while preserving natural tones.", source:"512 × 512", output:"4096 × 4096", scale:"8", result:"Natural Detail", tone:"from-[#fff4f6] to-[#fdf7f3]" },
-  { id:"art", image:"/upscale/artwork.png", category:"GENERATIVE ART · NEON · DETAIL", title:"AI Artwork Enhancement", quote:"Bring AI artwork back to life.", description:"Sharpens intricate shapes, lighting, textures and luminous details without destroying the original artistic style.", source:"1024 × 1024", output:"4096 × 4096", scale:"4", result:"Crisper Detail", tone:"from-[#fbf4ff] to-[#fff4f8]" },
-  { id:"wildlife", image:"/upscale/wildlife.png", category:"FUR · FEATHERS · ORGANIC TEXTURE", title:"Wildlife & Nature Detail", quote:"Every strand becomes visible again.", description:"Restores fur, eyes and organic micro-textures while keeping nature realistic rather than artificially sharpened.", source:"800 × 800", output:"3200 × 3200", scale:"4", result:"Texture Recovery", tone:"from-[#fbf8ef] to-[#f3f8ee]" },
-  { id:"type", image:"/upscale/typography.png", category:"TEXT · LOGOS · EDGES", title:"Logo & Typography Rescue", quote:"From fuzzy pixels to razor-clean edges.", description:"Refines typography, icons and graphic edges for cleaner digital assets, presentations and branded visuals.", source:"512 × 512", output:"4096 × 4096", scale:"8", result:"Crisp Edges", tone:"from-[#f2f8ff] to-[#fff5f8]" },
-  { id:"interior", image:"/upscale/interior.png", category:"MATERIALS · LIGHT · STRUCTURE", title:"Architecture & Interiors", quote:"Bring spaces back to photographic clarity.", description:"Restores architectural lines, furniture textures, materials and lighting while preserving natural depth.", source:"1024 × 1024", output:"4096 × 4096", scale:"4", result:"True Detail", tone:"from-[#fffaf2] to-[#fdf7ec]" },
-  { id:"product", image:"/upscale/product.png", category:"REFLECTIONS · MATERIAL · DETAIL", title:"Product Photography", quote:"Make every product feel studio-shot.", description:"Enhances glass, metal, reflections and material textures for polished e-commerce and campaign imagery.", source:"800 × 800", output:"3200 × 3200", scale:"4", result:"Studio Clarity", tone:"from-[#fff7ef] to-[#fff2f6]" },
+interface ShowcaseItem {
+  id: string;
+  category: string;
+  title: string;
+  statement: string;
+  description: string;
+  source: string;
+  output: string;
+  scale: string;
+  result: string;
+  beforeImage: string;
+  afterImage: string;
+  tone: string;
+}
+
+const SHOWCASE_ITEMS: ShowcaseItem[] = [
+  {
+    id: "portrait",
+    category: "PEOPLE • SKIN • HAIR • DETAIL",
+    title: "Professional Portrait",
+    statement: "Recover natural facial detail.",
+    description: "Recover natural facial detail and fine textures without making the image look artificial.",
+    source: "512 × 512",
+    output: "4096 × 4096",
+    scale: "8",
+    result: "Natural Detail",
+    beforeImage: "/upscale/showcase/portrait_before.jpg",
+    afterImage: "/upscale/showcase/portrait_after.jpg",
+    tone: "from-[#fff5f7] to-[#fff9f5]",
+  },
+  {
+    id: "creator",
+    category: "PEOPLE • WORKSPACE • DETAIL",
+    title: "Creator & Workspace",
+    statement: "Bring clarity back to workspace.",
+    description: "Bring clarity back to workspace photos, screens and small visual details.",
+    source: "512 × 512",
+    output: "4096 × 4096",
+    scale: "8",
+    result: "Crisp Detail",
+    beforeImage: "/upscale/showcase/creator_before.jpg",
+    afterImage: "/upscale/showcase/creator_after.jpg",
+    tone: "from-[#f8f9ff] to-[#fff5f8]",
+  },
+  {
+    id: "fashion",
+    category: "FASHION • TEXTURE • PORTRAIT",
+    title: "Fashion & Fabric",
+    statement: "Recover fabric texture and fine weave.",
+    description: "Recover fabric texture, hair detail and natural skin without an artificial look.",
+    source: "1024 × 1024",
+    output: "4096 × 4096",
+    scale: "4",
+    result: "Texture Recovery",
+    beforeImage: "/upscale/showcase/fashion_before.jpg",
+    afterImage: "/upscale/showcase/fashion_after.jpg",
+    tone: "from-[#fff6fa] to-[#fdf8f5]",
+  },
+  {
+    id: "product",
+    category: "PRODUCT • MATERIAL • DETAIL",
+    title: "Product Photography",
+    statement: "Make every product feel studio-shot.",
+    description: "Make product photography sharper and ready for professional e-commerce use.",
+    source: "512 × 512",
+    output: "4096 × 4096",
+    scale: "8",
+    result: "Studio Clarity",
+    beforeImage: "/upscale/showcase/product_before.jpg",
+    afterImage: "/upscale/showcase/product_after.jpg",
+    tone: "from-[#f9f8f6] to-[#fff5f7]",
+  },
+  {
+    id: "interior",
+    category: "INTERIOR • MATERIAL • STRUCTURE",
+    title: "Architecture & Interiors",
+    statement: "Bring spaces back to photographic clarity.",
+    description: "Restore architectural lines, furniture textures and natural lighting detail.",
+    source: "1024 × 1024",
+    output: "4096 × 4096",
+    scale: "4",
+    result: "True Detail",
+    beforeImage: "/upscale/showcase/interior_before.jpg",
+    afterImage: "/upscale/showcase/interior_after.jpg",
+    tone: "from-[#fbf9f4] to-[#fdf6f2]",
+  },
+  {
+    id: "travel",
+    category: "LANDSCAPE • TEXTURE • DETAIL",
+    title: "Travel & Nature",
+    statement: "Bring distant textures & landscape back to life.",
+    description: "Bring distant textures, landscape detail and natural depth back to life.",
+    source: "800 × 800",
+    output: "3200 × 3200",
+    scale: "4",
+    result: "Texture Recovery",
+    beforeImage: "/upscale/showcase/travel_before.jpg",
+    afterImage: "/upscale/showcase/travel_after.jpg",
+    tone: "from-[#f2f8fa] to-[#fff7f5]",
+  },
 ];
 const FEATURE_CARDS: FeatureCardData[] = [
   {
@@ -105,13 +198,106 @@ const FEATURE_CARDS: FeatureCardData[] = [
 ];
 const FAQS = [["How does Bellix.us upscale an image without making it look artificial?","Bellix.us focuses on rebuilding fine visual structures such as edges, textures and micro-detail instead of simply stretching existing pixels. The goal is a sharper result that still feels natural."],["Which upscale level should I choose: 2, 4 or 8?","Use 2 for already-good images that need extra resolution, 4 for most web and creative work, and 8 when starting from smaller images or when a much larger output is required."],["Will the aspect ratio of my image change?","No. Upscaling increases resolution while preserving the original image proportions unless you intentionally crop or resize it separately."],["Does it work with AI-generated images?","Yes. The enhancement workflow can be used with AI artwork, portraits, concept art, product images, illustrations and other generated visuals."],["Can it improve faces and skin without creating a plastic look?","The portrait enhancement mode should prioritize natural skin texture, eyelashes, hair and facial detail while avoiding excessive smoothing."],["Can Bellix.us enhance logos and typography?","Yes. Graphic-focused enhancement can improve text edges, logos, symbols and other high-contrast design elements."],["Which image formats are supported?","Support common formats such as PNG, JPG, JPEG, WebP and AVIF, with the exact size limit shown beside the uploader."],["Are uploaded images private?","Images are processed according to Bellix.us's privacy policy. Review the current policy for the applicable processing, storage and deletion practices before uploading sensitive material."]];
 
-function Comparison({ image, title }: { image: string; title: string }) {
-  const [position, setPosition] = useState(48); const frame = useRef<HTMLDivElement>(null);
-  const move = (x:number) => { const r=frame.current?.getBoundingClientRect(); if(r) setPosition(Math.max(8,Math.min(92,((x-r.left)/r.width)*100))); };
-  const pointer = (e:PointerEvent<HTMLDivElement>)=>move(e.clientX);
-  return <div ref={frame} className="up-compare" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);pointer(e)}} onPointerMove={e=>e.currentTarget.hasPointerCapture(e.pointerId)&&pointer(e)}>
-    <img src={image} alt={`${title} restored`} /><div className="up-before" style={{width:`${position}%`}}><img src={image} alt={`${title} low resolution`} /><span className="up-watermark">AI PREVIEW</span></div><span className="up-image-label before-label">BEFORE</span><span className="up-image-label after-label">AFTER</span><div className="up-divider" style={{left:`${position}%`}}><span><ChevronRight/><ChevronRight/></span></div>
-  </div>;
+function UpscaleComparisonSlider({
+  beforeImage,
+  afterImage,
+  title,
+}: {
+  beforeImage: string;
+  afterImage: string;
+  title: string;
+}) {
+  const [position, setPosition] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const updateFromClientX = (clientX: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = clientX - rect.left;
+    const pct = Math.max(3, Math.min(97, (x / rect.width) * 100));
+    setPosition(pct);
+  };
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    updateFromClientX(e.clientX);
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      updateFromClientX(e.clientX);
+    }
+  };
+
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    setIsDragging(false);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      className="relative size-full overflow-hidden select-none touch-none cursor-ew-resize group/slider"
+    >
+      {/* 1. MASTER HIGH-RESOLUTION AFTER IMAGE (Full Frame) */}
+      <img
+        src={afterImage}
+        alt={`${title} restored`}
+        className="absolute inset-0 size-full object-cover select-none pointer-events-none"
+        loading="lazy"
+        decoding="async"
+      />
+
+      {/* 2. PROGRAMMATIC LOW-RES BEFORE IMAGE (Clipped by slider position) */}
+      <div
+        className="absolute inset-0 size-full overflow-hidden select-none pointer-events-none"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+      >
+        <img
+          src={beforeImage}
+          alt={`${title} low resolution`}
+          className="absolute inset-0 size-full object-cover select-none pointer-events-none"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      {/* 3. BEFORE / AFTER LABELS */}
+      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-semibold text-white/95 uppercase tracking-wider pointer-events-none shadow-xs border border-white/10 z-10">
+        BEFORE
+      </span>
+      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-semibold text-white/95 uppercase tracking-wider pointer-events-none shadow-xs border border-white/10 z-10">
+        AFTER
+      </span>
+
+      {/* 4. SUBTLE WATERMARK PILL */}
+      <span className="absolute bottom-3 left-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[8.5px] font-medium text-white/80 tracking-wider pointer-events-none z-10 border border-white/10">
+        AI PREVIEW
+      </span>
+
+      {/* 5. DRAGGABLE VERTICAL PINK DIVIDER & CIRCULAR HANDLE */}
+      <div
+        className="absolute top-0 bottom-0 w-0.5 bg-[#f72568] -translate-x-1/2 pointer-events-none z-20 shadow-[0_0_8px_rgba(247,37,104,0.6)]"
+        style={{ left: `${position}%` }}
+      >
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 rounded-full bg-[#f72568] border-2 border-white shadow-md shadow-rose-950/20 flex items-center justify-center text-white transition-transform ${
+            isDragging ? "scale-110 shadow-rose-500/50" : "group-hover/slider:scale-105"
+          }`}
+        >
+          <ArrowLeftRight className="size-3.5 stroke-[2.5]" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function UpscalePage() {
@@ -599,30 +785,95 @@ function UpscalePage() {
         </div>
       </section>
 
-      <section className="up-results up-shell">
-        <header className="up-section-heading">
-          <p className="up-eyebrow">REAL AI RESTORATION</p>
-          <h2>See Every Detail Come Back to Life</h2>
-          <p>Drag the slider to reveal how Bellix.us restores texture, clarity and detail from low-quality images.</p>
-        </header>
-        <div className="up-showcase-grid">
-          {SHOWCASES.map(item => (
-            <article className="up-showcase" key={item.id}>
-              <Comparison image={item.image} title={item.title} />
-              <div className={`up-showcase-copy bg-gradient-to-br ${item.tone}`}>
-                <p className="up-category">{item.category}</p>
-                <h3>{item.title}</h3>
-                <blockquote>{item.quote}</blockquote>
-                <p className="up-description">{item.description}</p>
-                <div className="up-metrics">
-                  <span><small>SOURCE</small>{item.source}</span>
-                  <span><small>OUTPUT</small>{item.output}</span>
-                  <span><small>UPSCALE</small>{item.scale}×</span>
-                  <b>{item.result}</b>
+      <section className="py-20 sm:py-28 bg-[#FFFBFD] border-t border-[#f5dce5]/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <header className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <p className="text-[10px] font-semibold text-[#f72568] tracking-widest uppercase mb-2">
+              REAL AI RESTORATION
+            </p>
+            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight leading-tight">
+              See Every Detail Come Back to Life
+            </h2>
+            <p className="mt-3 text-base text-gray-600 font-normal leading-relaxed">
+              Drag the interactive slider to reveal how Bellix.us restores texture, clarity and detail from low-quality images.
+            </p>
+          </header>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
+            {SHOWCASE_ITEMS.map((item) => (
+              <article
+                key={item.id}
+                className="group rounded-[26px] border border-[#f5dce5] bg-white shadow-lg shadow-gray-200/40 hover:shadow-xl hover:border-[#f5a5bd] hover:-translate-y-1 transition-all duration-300 overflow-hidden grid grid-cols-1 sm:grid-cols-[1.12fr_0.88fr] min-h-[350px]"
+              >
+                {/* LEFT: Before/After Comparison Slider */}
+                <div className="relative w-full aspect-[4/3] sm:aspect-auto sm:min-h-[340px] md:min-h-[360px] bg-neutral-950 overflow-hidden select-none">
+                  <UpscaleComparisonSlider
+                    beforeImage={item.beforeImage}
+                    afterImage={item.afterImage}
+                    title={item.title}
+                  />
                 </div>
-              </div>
-            </article>
-          ))}
+
+                {/* RIGHT: Information Panel */}
+                <div
+                  className={`p-5 sm:p-6 flex flex-col justify-between bg-gradient-to-br ${item.tone} border-t sm:border-t-0 sm:border-l border-[#f5dce5]/70`}
+                >
+                  <div className="space-y-3">
+                    <p className="text-[9.5px] font-semibold text-[#f72568] tracking-widest uppercase">
+                      {item.category}
+                    </p>
+                    <h3 className="text-lg sm:text-xl font-medium text-gray-950 tracking-tight leading-snug">
+                      {item.title}
+                    </h3>
+                    <div className="rounded-xl bg-white/85 border border-rose-200/70 px-3.5 py-2 shadow-2xs">
+                      <p className="text-xs font-medium text-[#e11252] leading-relaxed">
+                        {item.statement}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-600 font-normal leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 space-y-3 mt-4 border-t border-[#f5dce5]/60">
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                      <div className="bg-white/85 border border-gray-200/60 rounded-xl p-2 text-center shadow-2xs">
+                        <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
+                          SOURCE
+                        </span>
+                        <span className="text-xs font-semibold text-gray-800">
+                          {item.source}
+                        </span>
+                      </div>
+                      <div className="bg-white/85 border border-gray-200/60 rounded-xl p-2 text-center shadow-2xs">
+                        <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
+                          OUTPUT
+                        </span>
+                        <span className="text-xs font-semibold text-gray-800">
+                          {item.output}
+                        </span>
+                      </div>
+                      <div className="bg-white/85 border border-gray-200/60 rounded-xl p-2 text-center shadow-2xs">
+                        <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
+                          UPSCALE
+                        </span>
+                        <span className="text-xs font-semibold text-gray-800">
+                          {item.scale}×
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11px] font-medium shadow-2xs">
+                        <Check className="size-3 stroke-[2.5]" />
+                        <span>{item.result}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -20,6 +20,7 @@ import {
   processVideo,
   uploadVideo,
   type JobStatus,
+  type ManualRegion,
   type VideoMetadata,
 } from "@/lib/videoJobs";
 
@@ -41,6 +42,27 @@ type CleanedVideo = {
   fileName: string;
 };
 
+type PresetKey = "top-right" | "bottom-right" | "top-left" | "bottom-left";
+
+const PRESETS: Record<PresetKey, { label: string; region: ManualRegion }> = {
+  "top-right": {
+    label: "Top Right",
+    region: { x: 0.74, y: 0.01, width: 0.25, height: 0.24 },
+  },
+  "bottom-right": {
+    label: "Bottom Right (Gemini)",
+    region: { x: 0.76, y: 0.76, width: 0.22, height: 0.21 },
+  },
+  "top-left": {
+    label: "Top Left",
+    region: { x: 0.01, y: 0.01, width: 0.25, height: 0.24 },
+  },
+  "bottom-left": {
+    label: "Bottom Left",
+    region: { x: 0.01, y: 0.76, width: 0.22, height: 0.21 },
+  },
+};
+
 const ACCEPT = ".mp4,.mov,.webm,.avi,.mpg,.mpeg,.mkv";
 const STORAGE_KEY = "bellix-active-video-job";
 const ACTIVE_STATUSES = new Set([
@@ -52,6 +74,7 @@ const ACTIVE_STATUSES = new Set([
   "processing",
   "encoding",
   "verifying",
+  "validating",
 ]);
 
 const cleanName = (name: string, quality?: string) => {
@@ -64,6 +87,9 @@ export function JobVideoCleaner() {
   const [processingJob, setProcessingJob] = useState<ProcessingJob | null>(null);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
   const [cleanedVideo, setCleanedVideo] = useState<CleanedVideo | null>(null);
+  const [selectedPreset, setSelectedPreset] = useState<PresetKey | "auto">("auto");
+  const [manualRegion, setManualRegion] = useState<ManualRegion>(PRESETS["top-right"].region);
+  const [showBoxOverlay, setShowBoxOverlay] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
@@ -329,7 +355,7 @@ export function JobVideoCleaner() {
       processedFrames: 0,
     });
     try {
-      const response = await processVideo(originalVideo.jobId);
+      const response = await processVideo(originalVideo.jobId, selectedPreset === "auto" ? null : manualRegion);
       assertCurrentJob(response.jobId);
     } catch (problem) {
       setProcessingJob((current) =>
@@ -483,6 +509,8 @@ export function JobVideoCleaner() {
         return "Processing video...";
       case "encoding":
         return "Encoding output...";
+      case "validating":
+        return "Validating cleaned video...";
       case "completed":
         return "Ready";
       case "failed":
@@ -539,11 +567,11 @@ export function JobVideoCleaner() {
   };
 
   return (
-    <div className="rounded-3xl border border-[#FCE7EC] bg-white p-3 text-left shadow-[0_15px_45px_-10px_rgba(225,29,72,0.14)] sm:p-5">
+    <div className="rounded-3xl border border-[#FCE7EC] bg-white p-4 text-left shadow-[0_20px_50px_-10px_rgba(225,29,72,0.14)] sm:p-6 lg:p-7">
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-gray-950">{originalVideo.fileName}</p>
+          <p className="truncate text-base font-semibold text-gray-950">{originalVideo.fileName}</p>
           <p className="mt-0.5 text-xs text-gray-500 font-mono">
             {metadata
               ? `${metadata.width} × ${metadata.height} • ${metadata.fps.toFixed(1)} FPS • ${metadata.duration.toFixed(1)}s`
@@ -557,22 +585,120 @@ export function JobVideoCleaner() {
         <button
           type="button"
           onClick={reset}
-          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 transition-colors"
         >
-          <RefreshCw className="size-3.5" /> Change Video
+          <RefreshCw className="size-3.5 text-gray-500" /> Change Video
         </button>
       </div>
 
+      {/* Watermark Position Selector Toolbar */}
+      {!cleanedVideo && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-[#FFF8FA] p-3 sm:px-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5 mr-1">
+              <Sparkles className="size-3.5 text-rose-600" /> Detection mode:
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPreset("auto");
+                setShowBoxOverlay(false);
+              }}
+              disabled={busy}
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                selectedPreset === "auto"
+                  ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
+                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              ✦ Auto Detect
+            </button>
+            {(["top-right", "bottom-right", "top-left", "bottom-left"] as PresetKey[]).map((key) => {
+              const isSelected = selectedPreset === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setSelectedPreset(key);
+                    setManualRegion(PRESETS[key].region);
+                    setShowBoxOverlay(true);
+                  }}
+                  disabled={busy}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    isSelected
+                      ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
+                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {key === "top-right" && "↗️ Top Right"}
+                  {key === "bottom-right" && "↘️ Bottom Right"}
+                  {key === "top-left" && "↖️ Top Left"}
+                  {key === "bottom-left" && "↙️ Bottom Left"}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+              <span className="text-[11px] text-gray-400">Box size:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setManualRegion((prev) => ({
+                    ...prev,
+                    width: Math.min(0.48, +(prev.width + 0.04).toFixed(3)),
+                    height: Math.min(0.40, +(prev.height + 0.04).toFixed(3)),
+                    x: prev.x > 0.5 ? Math.max(0.52, +(prev.x - 0.04).toFixed(3)) : prev.x,
+                  }));
+                }}
+                disabled={busy}
+                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-2xs"
+              >
+                + Expand
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setManualRegion((prev) => ({
+                    ...prev,
+                    width: Math.max(0.12, +(prev.width - 0.04).toFixed(3)),
+                    height: Math.max(0.10, +(prev.height - 0.04).toFixed(3)),
+                    x: prev.x > 0.5 ? Math.min(0.88, +(prev.x + 0.04).toFixed(3)) : prev.x,
+                  }));
+                }}
+                disabled={busy}
+                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-2xs"
+              >
+                - Shrink
+              </button>
+            </div>
+
+            <label className="flex items-center gap-1.5 text-xs text-gray-600 font-medium cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showBoxOverlay && selectedPreset !== "auto"}
+                onChange={(e) => setShowBoxOverlay(e.target.checked)}
+                disabled={selectedPreset === "auto"}
+                className="rounded text-rose-600 focus:ring-rose-500"
+              />
+              <span>Show Pink Box</span>
+            </label>
+          </div>
+        </div>
+      )}
+
       {/* Two-Card Side-by-Side Video Layout (Left: Original, Right: Cleaned/Preview) */}
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left Card: Original Video */}
         <section className="flex flex-col">
           <div className="mb-2 flex h-6 items-center justify-between shrink-0">
-            <p className="flex items-center gap-2 text-xs font-semibold text-gray-900">
+            <p className="flex items-center gap-2 text-xs font-bold text-gray-900">
               <span className="size-2 rounded-full bg-rose-500" /> 1. Original (With Watermark)
             </p>
             <div className="flex items-center gap-2">
-              <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-600">
+              <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">
                 ORIGINAL
               </span>
               {metadata && (
@@ -582,7 +708,23 @@ export function JobVideoCleaner() {
               )}
             </div>
           </div>
-          <div className="relative flex flex-1 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
+          <div className="relative flex flex-1 w-full min-h-[380px] sm:min-h-[460px] md:min-h-[500px] lg:min-h-[540px] items-center justify-center overflow-hidden rounded-2xl bg-black shadow-lg border border-gray-900">
+            {showBoxOverlay && selectedPreset !== "auto" && !cleanedVideo && (
+              <div
+                className="pointer-events-none absolute z-10 rounded-xl border-2 border-dashed border-rose-500 bg-rose-500/25 shadow-[0_0_20px_rgba(244,63,94,0.45)] transition-all duration-150"
+                style={{
+                  left: `${manualRegion.x * 100}%`,
+                  top: `${manualRegion.y * 100}%`,
+                  width: `${manualRegion.width * 100}%`,
+                  height: `${manualRegion.height * 100}%`,
+                }}
+              >
+                <div className="absolute -top-7 right-0 rounded-md bg-rose-600 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase shadow-md flex items-center gap-1 whitespace-nowrap">
+                  <Sparkles className="size-2.5" />
+                  <span>Removal Area ({Math.round(manualRegion.width * 100)}% × {Math.round(manualRegion.height * 100)}%)</span>
+                </div>
+              </div>
+            )}
             <video
               ref={originalVideoRef}
               src={originalVideo.url}
@@ -597,7 +739,7 @@ export function JobVideoCleaner() {
               onPause={handleLeftPause}
               onSeeking={handleLeftTimeUpdate}
               onSeeked={handleLeftTimeUpdate}
-              className="max-h-[460px] w-full object-contain"
+              className="h-full w-full max-h-[640px] object-contain"
             />
           </div>
         </section>
@@ -605,7 +747,7 @@ export function JobVideoCleaner() {
         {/* Right Card: Cleaned Output (Starts with SAME original video, then updates to real preview/clean) */}
         <section className="flex flex-col">
           <div className="mb-2 flex h-6 items-center justify-between shrink-0">
-            <p className="flex items-center gap-2 text-xs font-semibold text-gray-900">
+            <p className="flex items-center gap-2 text-xs font-bold text-gray-900">
               <span className="size-2 rounded-full bg-emerald-500" /> 2. AI Cleaned (Result)
             </p>
             <div className="flex items-center gap-2">
@@ -617,7 +759,7 @@ export function JobVideoCleaner() {
               )}
             </div>
           </div>
-          <div className="relative flex flex-1 w-full items-center justify-center overflow-hidden rounded-2xl bg-black">
+          <div className="relative flex flex-1 w-full min-h-[380px] sm:min-h-[460px] md:min-h-[500px] lg:min-h-[540px] items-center justify-center overflow-hidden rounded-2xl bg-black shadow-lg border border-gray-900">
             {/* Status Overlay Badge - live processing & error alerts */}
             {isRightShowingPreview ? (
               <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-950/85 px-3 py-1.5 text-xs font-semibold text-blue-300 shadow-lg backdrop-blur-md">
@@ -652,7 +794,7 @@ export function JobVideoCleaner() {
               onPause={handleRightPause}
               onSeeking={handleRightTimeUpdate}
               onSeeked={handleRightTimeUpdate}
-              className="max-h-[460px] w-full object-contain"
+              className="h-full w-full max-h-[640px] object-contain"
             />
           </div>
         </section>
@@ -791,3 +933,5 @@ export function JobVideoCleaner() {
     </div>
   );
 }
+
+

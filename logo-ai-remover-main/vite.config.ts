@@ -9,6 +9,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   vite: {
     server: {
+      port: 5874,
+      watch: {
+        ignored: ["**/.venv/**", "**/backend/storage/**", "**/__pycache__/**"],
+      },
       proxy: {
         "/api/video": "http://127.0.0.1:8000",
         "/api/video-watermark": "http://127.0.0.1:8000",

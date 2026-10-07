@@ -105,7 +105,7 @@ function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-transparent text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

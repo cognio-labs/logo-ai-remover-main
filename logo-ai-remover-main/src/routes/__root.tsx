@@ -135,7 +135,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col bg-white text-gray-900 relative">
+      <div className="flex min-h-screen flex-col bg-[#FFF7ED] text-gray-900 relative">
+        {/* Global Warm Background Canvas (Cream: #FFF7ED, Soft Peach: #FFE4C4, Light Coral: #FFD6A5, Pink: #FCA5A5) */}
+        <div
+          className="fixed inset-0 pointer-events-none -z-10 bg-[#FFF7ED] bg-cover bg-center bg-no-repeat opacity-95"
+          style={{ backgroundImage: "url('/warm-gradient-bg.png')" }}
+        />
         <Navbar />
         <main className="flex-1">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}

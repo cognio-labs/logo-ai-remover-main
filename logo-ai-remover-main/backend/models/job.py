@@ -18,6 +18,7 @@ class JobStatus(StrEnum):
     PROCESSING = "processing"
     ENCODING = "encoding"
     VERIFYING = "verifying"
+    VALIDATING = "validating"
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
@@ -59,3 +60,5 @@ class JobRecord(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     completed_at: datetime | None = None
     error: str | None = None
+
+

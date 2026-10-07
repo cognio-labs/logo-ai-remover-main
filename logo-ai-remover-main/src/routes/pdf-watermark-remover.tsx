@@ -221,7 +221,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
 export default function PdfWatermarkRemoverPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-  const [activeDocPreset, setActiveDocPreset] = useState<string | null>("invoice");
+  const [activeDocPreset, setActiveDocPreset] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [cleanMode, setCleanMode] = useState<"auto" | "vector" | "text">("auto");
+  const [qualityEngine, setQualityEngine] = useState<"standard" | "fast" | "ultra_hd">("standard");
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(null);
@@ -244,12 +247,86 @@ export default function PdfWatermarkRemoverPage() {
   const { user, deductCredit, refundCredit, addCredits, addJob } = useUserStore();
 
   useEffect(() => {
-    // Automatically preload invoice sample on page mount
-    handlePresetSelect("invoice");
     return () => {
       if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
     };
   }, []);
+
+  // Global clipboard paste listener (Ctrl+V)
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const files = e.clipboardData?.files;
+      if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (file.type.includes("pdf") || file.type.startsWith("image/")) {
+            e.preventDefault();
+            processDocumentFile(file);
+            toast.success("Pasted document from clipboard!");
+            return;
+          }
+        }
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, []);
+
+  // Central unified document processor for input, drag & drop, paste
+  const processDocumentFile = async (file: File) => {
+    try {
+      toast.info(`Uploading "${file.name}"...`);
+      setIsProcessing(true);
+      setStageText("Uploading document...");
+      setProgress(15);
+
+      const resp = await uploadPdfDocument(file);
+      setCurrentJobId(resp.jobId);
+      setSelectedFileName(resp.fileName);
+      setTotalPages(resp.pageCount);
+      setCurrentPage(1);
+      setIsPdf(resp.isPdf);
+      const origUrl = apiPdfUrl(resp.previewUrl);
+      setPreviewUrl(origUrl);
+      setOriginalPreviewUrl(origUrl);
+      setCleanedPreviewUrl(null);
+      setUploadStatus("Document uploaded — Ready to clean");
+      setIntegrityError(null);
+      setDetectedRegions([]);
+      setManualRegions([]);
+      setIsCompleted(false);
+      setIsProcessing(false);
+      setProgress(0);
+      setActiveDocPreset(null);
+      toast.success(
+        `Uploaded "${file.name}" ready for watermark removal (${resp.pageCount} page${resp.pageCount > 1 ? "s" : ""}).`
+      );
+    } catch (err) {
+      setIsProcessing(false);
+      const msg = err instanceof Error ? err.message : "Failed to upload document";
+      toast.error(msg);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const resetDocument = () => {
+    setCurrentJobId(null);
+    setSelectedFileName(null);
+    setPreviewUrl(null);
+    setOriginalPreviewUrl(null);
+    setCleanedPreviewUrl(null);
+    setIsCompleted(false);
+    setIsProcessing(false);
+    setProgress(0);
+    setDetectedRegions([]);
+    setManualRegions([]);
+    setUploadStatus(null);
+    setIntegrityError(null);
+    setActiveDocPreset(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    toast.info("Document cleared.");
+  };
 
   // Handle preset selection
   const handlePresetSelect = async (type: string) => {
@@ -307,41 +384,7 @@ export default function PdfWatermarkRemoverPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    try {
-      toast.info(`Uploading "${file.name}"...`);
-      setIsProcessing(true);
-      setStageText("Uploading document...");
-      setProgress(15);
-
-      const resp = await uploadPdfDocument(file);
-      setCurrentJobId(resp.jobId);
-      setSelectedFileName(resp.fileName);
-      setTotalPages(resp.pageCount);
-      setCurrentPage(1);
-      setIsPdf(resp.isPdf);
-      const origUrl = apiPdfUrl(resp.previewUrl);
-      setPreviewUrl(origUrl);
-      setOriginalPreviewUrl(origUrl);
-      setCleanedPreviewUrl(null);
-      setUploadStatus("PDF uploaded — Ready to clean");
-      setIntegrityError(null);
-      setDetectedRegions([]);
-      setManualRegions([]);
-      setIsCompleted(false);
-      setIsProcessing(false);
-      setProgress(0);
-      setActiveDocPreset(null);
-      toast.success(
-        `Uploaded "${file.name}" ready for watermark removal (${resp.pageCount} page${resp.pageCount > 1 ? "s" : ""}).`
-      );
-    } catch (err) {
-      setIsProcessing(false);
-      const msg = err instanceof Error ? err.message : "Failed to upload document";
-      toast.error(msg);
-    } finally {
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    await processDocumentFile(file);
   };
 
   // Page navigation
@@ -528,7 +571,7 @@ export default function PdfWatermarkRemoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-transparent text-gray-900 selection:bg-rose-500 selection:text-white">
       {/* -------------------------------------------------------------------- */}
       {/* 1. HERO & TOOL SECTION                                               */}
       {/* -------------------------------------------------------------------- */}
@@ -554,416 +597,484 @@ export default function PdfWatermarkRemoverPage() {
             Select or paint over unwanted watermarks, stamps, logos, or background drafts. Our neural inpaint engine reconstructs the original document structure with 100% crisp typography.
           </p>
 
-          {/* MAIN INTERACTIVE CLEANER CARD */}
-          <div className="max-w-4xl mx-auto bg-white rounded-3xl border-2 border-dashed border-rose-300 shadow-[0_20px_60px_-15px_rgba(225,29,72,0.12)] p-6 sm:p-10 transition-all">
-            
-            {/* Top preset selector buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-1">
-                Try Document Sample:
-              </span>
-              <button
-                type="button"
-                id="pdf-sample-invoice-btn"
-                onClick={() => handlePresetSelect("invoice")}
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                  activeDocPreset === "invoice"
-                    ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                    : "bg-rose-50 text-gray-700 hover:bg-rose-100 border border-rose-200/60"
-                }`}
-              >
-                <Receipt className="w-3.5 h-3.5" />
-                Tax Invoice
-              </button>
-              <button
-                type="button"
-                id="pdf-sample-nda-btn"
-                onClick={() => handlePresetSelect("contract")}
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                  activeDocPreset === "contract"
-                    ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                    : "bg-rose-50 text-gray-700 hover:bg-rose-100 border border-rose-200/60"
-                }`}
-              >
-                <Scale className="w-3.5 h-3.5" />
-                Legal NDA
-              </button>
-              <button
-                type="button"
-                id="pdf-sample-blueprint-btn"
-                onClick={() => handlePresetSelect("blueprint")}
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                  activeDocPreset === "blueprint"
-                    ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                    : "bg-rose-50 text-gray-700 hover:bg-rose-100 border border-rose-200/60"
-                }`}
-              >
-                <Building className="w-3.5 h-3.5" />
-                CAD Blueprint
-              </button>
-            </div>
-
-            {/* STATUS NOTIFICATION BANNER */}
-            {uploadStatus && !isCompleted && !isProcessing && (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700 mb-6 shadow-xs animate-fade-in">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{uploadStatus}</span>
-              </div>
-            )}
-
-            {/* INTEGRITY / SAFETY ALERT BANNER */}
-            {integrityError && (
-              <div className="max-w-2xl mx-auto bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-4 mb-6 text-xs font-semibold flex items-center gap-3 shadow-xs">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <div className="text-left">
-                  <p className="font-bold">{integrityError}</p>
-                  <p className="text-[11px] text-amber-700 font-normal mt-0.5">
-                    Original document has been kept intact. False-positive deletion was prevented.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* PREVIEW TOOLBAR (PAGE NAV + ZOOM CONTROLS) */}
-            <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3 mb-4 px-2 text-xs font-semibold text-gray-700">
-              {/* Page navigation */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={currentPage <= 1 || isProcessing}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-xs cursor-pointer disabled:cursor-not-allowed"
-                >
-                  ‹ Previous
-                </button>
-                <span className="px-3 py-1.5 rounded-xl bg-gray-100 font-mono text-gray-800 text-xs font-bold">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={currentPage >= totalPages || isProcessing}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 disabled:opacity-40 transition shadow-xs cursor-pointer disabled:cursor-not-allowed"
-                >
-                  Next ›
-                </button>
-              </div>
-
-              {/* Zoom controls */}
-              <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl border border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel((prev) => Math.max(0.5, prev - 0.25))}
-                  className="p-1.5 rounded-lg bg-white hover:bg-gray-50 text-gray-700 shadow-xs cursor-pointer"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3.5 h-3.5" />
-                </button>
-                <span className="px-2 font-mono text-[11px] text-gray-600 font-bold min-w-10 text-center">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel((prev) => Math.min(2.5, prev + 0.25))}
-                  className="p-1.5 rounded-lg bg-white hover:bg-gray-50 text-gray-700 shadow-xs cursor-pointer"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setZoomLevel(1.0)}
-                  className="px-2 py-1 rounded-lg bg-white hover:bg-gray-50 text-[10px] font-bold text-gray-500 shadow-xs cursor-pointer"
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            {/* DOCUMENT CANVAS WORKSPACE */}
-            {!isCompleted ? (
-              /* BEFORE PROCESSING: SINGLE UPLOAD/PREVIEW CANVAS */
-              <div
-                onClick={handleCanvasClick}
-                className={`relative w-full max-w-2xl mx-auto aspect-[16/10] sm:aspect-[16/9] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none mb-6 ${
-                  !isProcessing ? "cursor-crosshair" : ""
-                }`}
-              >
-                {previewUrl ? (
-                  <div className="w-full h-full overflow-auto flex items-center justify-center p-2">
-                    <img
-                      src={previewUrl}
-                      alt="Document Preview"
-                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
-                      className="max-h-full max-w-full object-contain pointer-events-none select-none bg-[#f9fafb] transition-transform duration-150"
+          {/* MAIN INTERACTIVE CLEANER CARD (Matches /background-remover & /upscale modern two-column studio architecture) */}
+          <div className="max-w-6xl mx-auto bg-white/95 backdrop-blur-xl rounded-3xl border border-[#FCE7EC] shadow-[0_20px_60px_-15px_rgba(225,29,72,0.12)] p-6 sm:p-8 transition-all">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* LEFT COLUMN: UPLOADER DROPZONE OR DOCUMENT CANVAS (lg:col-span-7) */}
+              <div className="lg:col-span-7">
+                {!previewUrl && !currentJobId ? (
+                  /* STATE 1: EMPTY UNIFIED DROPZONE (Matches background-remover & upscale) */
+                  <div
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setIsDragging(true);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDragging(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) processDocumentFile(file);
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`h-[420px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer ${
+                      isDragging
+                        ? "border-[#E11D48] bg-[#FFF5F7] scale-[1.01]"
+                        : "border-gray-300 hover:border-[#E11D48] hover:bg-[#FFF9FA]"
+                    }`}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      id="pdf-file-input"
+                      type="file"
+                      accept="application/pdf,image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleFileUpload}
                     />
-                  </div>
-                ) : (
-                  /* Initial Document Simulation before user loads/uploads */
-                  <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-white text-left font-serif">
-                    <div className="border-b border-gray-200 pb-3 flex justify-between items-start">
-                      <div>
-                        <h4 className="text-sm sm:text-base font-bold text-gray-900 font-sans tracking-wide">
-                          {activeDocPreset === "contract"
-                            ? "MUTUAL NON-DISCLOSURE AGREEMENT"
-                            : activeDocPreset === "blueprint"
-                            ? "METROPOLITAN RESIDENCE — STRUCTURAL PLAN"
-                            : "GLOBAL LOGISTICS & ACCOUNTS CORP"}
-                        </h4>
-                        <p className="text-[11px] text-gray-400 font-sans">
-                          Document Ref: #PR-2026-8942 · Status: Ready to Clean
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-600">
-                        PDF 1.7 (Vector)
-                      </span>
-                    </div>
 
-                    <div className="space-y-2.5 py-2 font-sans text-xs text-gray-600">
-                      <div className="h-2.5 bg-gray-100 rounded w-full" />
-                      <div className="h-2.5 bg-gray-100 rounded w-5/6" />
-                      <div className="h-2.5 bg-gray-100 rounded w-4/6" />
-                      <div className="grid grid-cols-3 gap-2 pt-2">
-                        <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                          <span className="text-gray-400 block">Subtotal</span>
-                          <strong className="text-gray-800">$14,850.00</strong>
-                        </div>
-                        <div className="h-10 bg-gray-50 border border-gray-100 rounded p-1.5 text-[10px]">
-                          <span className="text-gray-400 block">VAT / Tax</span>
-                          <strong className="text-gray-800">$1,485.00</strong>
-                        </div>
-                        <div className="h-10 bg-rose-50/50 border border-rose-100 rounded p-1.5 text-[10px]">
-                          <span className="text-rose-500 block">Total Due</span>
-                          <strong className="text-rose-700">$16,335.00</strong>
-                        </div>
-                      </div>
-                    </div>
+                    <span className="size-16 rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-5 transition-transform hover:scale-110">
+                      <Upload className="size-8" />
+                    </span>
 
-                    <div className="border-t border-gray-100 pt-2 flex justify-between items-center text-[10px] text-gray-400 font-sans">
-                      <span>Authorized Signature: Validated Digitally</span>
-                      <span>Page 1 of 1</span>
-                    </div>
-                  </div>
-                )}
+                    <h3 className="text-xl font-medium text-gray-900 tracking-tight">
+                      {isDragging ? "Drop your PDF or document right here" : "Drop your PDF or document here"}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
+                      PDF, PNG, JPG or WebP · Up to 50MB · Paste (<kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">Ctrl+V</kbd>)
+                    </p>
 
-                {/* WATERMARK OVERLAYS (ONLY VISIBLE BEFORE CLEANUP WHEN NO PREVIEW) */}
-                {!previewUrl && (
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="rotate-[-25deg] text-3xl sm:text-5xl font-semibold tracking-widest text-rose-500/25 border-4 border-dashed border-rose-500/30 px-6 py-3 rounded-2xl select-none uppercase">
-                      {activeDocPreset === "contract"
-                        ? "STRICTLY CONFIDENTIAL"
-                        : activeDocPreset === "blueprint"
-                        ? "TRIAL EVALUATION"
-                        : "PAID · SAMPLE COPY"}
-                    </div>
-                    <div className="absolute top-6 right-8 w-20 h-20 rounded-full border-2 border-rose-400/30 flex flex-col items-center justify-center rotate-12 text-[9px] font-bold text-rose-400/40 select-none">
-                      <span>AUDIT SEAL</span>
-                      <span>2026</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* DETECTED & MANUAL REGIONS OVERLAY */}
-                {[...detectedRegions, ...manualRegions]
-                  .filter((m) => m.page === currentPage || !m.page)
-                  .map((m, idx) => (
-                    <div
-                      key={idx}
+                    <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setManualRegions((prev) => prev.filter((_, i) => i !== idx - detectedRegions.length));
-                        setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
-                        toast.info("Removed target area.");
+                        fileInputRef.current?.click();
                       }}
-                      className="absolute rounded-lg bg-rose-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)] cursor-pointer hover:bg-rose-500/35 transition group z-10"
-                      style={{
-                        left: `${m.x * 100}%`,
-                        top: `${m.y * 100}%`,
-                        width: `${m.width * 100}%`,
-                        height: `${m.height * 100}%`,
-                      }}
-                      title="Click to remove target area"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-2"
                     >
-                      <span className="absolute -top-2.5 -right-2 bg-rose-600 text-white rounded-full size-4 text-[9px] flex items-center justify-center font-bold opacity-80 group-hover:opacity-100 transition shadow">
-                        ×
-                      </span>
-                    </div>
-                  ))}
+                      <Upload className="size-4" />
+                      <span>Upload PDF / Image</span>
+                    </button>
 
-                {/* PROCESSING OVERLAY */}
-                {isProcessing && (
-                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
-                    <div className="relative w-16 h-16 mb-4">
-                      <div className="absolute inset-0 rounded-full border-4 border-rose-200 animate-ping" />
-                      <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
-                      <Wand2 className="absolute inset-0 m-auto w-6 h-6 text-[#E11D48]" />
+                    <span className="text-[11px] text-gray-400 mt-2 font-normal">or click anywhere to browse</span>
+                  </div>
+                ) : (
+                  /* STATE 2: DOCUMENT LOADED WORKSPACE WITH TOP TOOLBAR */
+                  <div className="space-y-4">
+                    {/* Top Document Toolbar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] text-xs">
+                      {/* Document info badge */}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="size-4 text-[#E11D48] shrink-0" />
+                        <span className="font-bold text-gray-900 truncate max-w-[160px] sm:max-w-[220px]">
+                          {selectedFileName || "Document"}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-rose-200 text-[#E11D48] shrink-0">
+                          {isPdf ? "PDF 1.7" : "Image"}
+                        </span>
+                      </div>
+
+                      {/* Right controls: Page nav, zoom, and Upload New */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Page nav */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={currentPage <= 1 || isProcessing}
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            className="px-2 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 text-[11px] font-semibold cursor-pointer shadow-2xs"
+                          >
+                            ‹
+                          </button>
+                          <span className="font-mono text-[11px] text-gray-600 px-1 font-bold">
+                            {currentPage}/{totalPages}
+                          </span>
+                          <button
+                            type="button"
+                            disabled={currentPage >= totalPages || isProcessing}
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            className="px-2 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 text-[11px] font-semibold cursor-pointer shadow-2xs"
+                          >
+                            ›
+                          </button>
+                        </div>
+
+                        {/* Zoom Controls */}
+                        <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-gray-200">
+                          <button
+                            type="button"
+                            onClick={() => setZoomLevel((prev) => Math.max(0.5, prev - 0.25))}
+                            className="p-1 rounded text-gray-600 hover:bg-gray-100 cursor-pointer"
+                            title="Zoom Out"
+                          >
+                            <ZoomOut className="size-3" />
+                          </button>
+                          <span className="font-mono text-[10px] text-gray-600 font-bold min-w-8 text-center">
+                            {Math.round(zoomLevel * 100)}%
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setZoomLevel((prev) => Math.min(2.5, prev + 0.25))}
+                            className="p-1 rounded text-gray-600 hover:bg-gray-100 cursor-pointer"
+                            title="Zoom In"
+                          >
+                            <ZoomIn className="size-3" />
+                          </button>
+                        </div>
+
+                        {/* Reset / Change button */}
+                        <button
+                          type="button"
+                          onClick={resetDocument}
+                          className="px-2.5 py-1 rounded-lg border border-gray-200 bg-white hover:bg-rose-50 text-gray-600 hover:text-[#E11D48] text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                          title="Upload another document"
+                        >
+                          <RefreshCw className="size-3" />
+                          <span className="hidden sm:inline">Change</span>
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-sm font-bold text-gray-800 mb-2">{stageText || "Analyzing PDF…"}</p>
-                    <div className="w-56 bg-rose-100 rounded-full h-2 overflow-hidden">
+
+                    {/* Document Workspace Canvas */}
+                    {!isCompleted ? (
+                      /* SINGLE CANVAS PREVIEW */
                       <div
-                        className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-rose-600 font-mono mt-1 font-bold">{progress}%</span>
+                        onClick={handleCanvasClick}
+                        className={`relative w-full aspect-[16/10] sm:aspect-[16/11] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none ${
+                          !isProcessing ? "cursor-crosshair" : ""
+                        }`}
+                      >
+                        {previewUrl ? (
+                          <div className="w-full h-full overflow-auto flex items-center justify-center p-2">
+                            <img
+                              src={previewUrl}
+                              alt="Document Preview"
+                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              className="max-h-full max-w-full object-contain pointer-events-none select-none bg-[#f9fafb] transition-transform duration-150"
+                            />
+                          </div>
+                        ) : null}
+
+                        {/* DETECTED & MANUAL REGIONS OVERLAY */}
+                        {[...detectedRegions, ...manualRegions]
+                          .filter((m) => m.page === currentPage || !m.page)
+                          .map((m, idx) => (
+                            <div
+                              key={idx}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setManualRegions((prev) => prev.filter((_, i) => i !== idx - detectedRegions.length));
+                                setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
+                                toast.info("Removed target area.");
+                              }}
+                              className="absolute rounded-lg bg-rose-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)] cursor-pointer hover:bg-rose-500/35 transition group z-10"
+                              style={{
+                                left: `${m.x * 100}%`,
+                                top: `${m.y * 100}%`,
+                                width: `${m.width * 100}%`,
+                                height: `${m.height * 100}%`,
+                              }}
+                              title="Click to remove target area"
+                            >
+                              <span className="absolute -top-2.5 -right-2 bg-rose-600 text-white rounded-full size-4 text-[9px] flex items-center justify-center font-bold opacity-80 group-hover:opacity-100 transition shadow">
+                                ×
+                              </span>
+                            </div>
+                          ))}
+
+                        {/* PROCESSING OVERLAY */}
+                        {isProcessing && (
+                          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
+                            <div className="relative size-14 mb-4">
+                              <div className="absolute inset-0 rounded-full border-4 border-rose-200 animate-ping" />
+                              <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
+                              <Wand2 className="absolute inset-0 m-auto size-6 text-[#E11D48]" />
+                            </div>
+                            <p className="text-sm font-bold text-gray-800 mb-2">{stageText || "Analyzing PDF…"}</p>
+                            <div className="w-52 bg-rose-100 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                            <span className="text-xs text-rose-600 font-mono mt-1 font-bold">{progress}%</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* SIDE-BY-SIDE BEFORE / AFTER VIEW */
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-2xl p-2.5 shadow-2xs">
+                          <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-gray-200 text-[11px] font-semibold text-gray-700">
+                            <span className="flex items-center gap-1.5 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
+                              <FileText className="size-3 text-gray-500" />
+                              Original
+                            </span>
+                            <span className="font-mono text-gray-400">{currentPage}/{totalPages}</span>
+                          </div>
+                          <div className="relative aspect-[16/11] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-1.5">
+                            <img
+                              src={originalPreviewUrl || previewUrl || ""}
+                              alt="Original"
+                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col bg-emerald-50/30 border border-emerald-200 rounded-2xl p-2.5 shadow-2xs">
+                          <div className="flex items-center justify-between px-2 py-1 mb-1.5 border-b border-emerald-200/80 text-[11px] font-semibold text-emerald-800">
+                            <span className="flex items-center gap-1.5 text-emerald-700 font-bold uppercase tracking-wider text-[10px]">
+                              <CheckCircle2 className="size-3 text-emerald-600" />
+                              Cleaned
+                            </span>
+                            <span className="font-mono text-emerald-600">{currentPage}/{totalPages}</span>
+                          </div>
+                          <div className="relative aspect-[16/11] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-1.5">
+                            <img
+                              src={cleanedPreviewUrl || ""}
+                              alt="Cleaned"
+                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            ) : (
-              /* AFTER PROCESSING: SECTION 11 BEFORE / AFTER SIDE-BY-SIDE PREVIEW */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 max-w-4xl mx-auto">
-                {/* LEFT: ORIGINAL PDF */}
-                <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-2xl p-3 shadow-xs">
-                  <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-gray-200 text-xs font-semibold text-gray-700">
-                    <span className="flex items-center gap-1.5 text-gray-600 font-bold uppercase tracking-wider text-[11px]">
-                      <FileText className="w-3.5 h-3.5 text-gray-500" />
-                      Original PDF
-                    </span>
-                    <span className="text-[11px] font-mono text-gray-500 font-semibold">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                  </div>
-                  <div className="relative aspect-[16/10] sm:aspect-[16/9] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-2">
-                    <img
-                      src={originalPreviewUrl || previewUrl || ""}
-                      alt="Original PDF"
-                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
-                      className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
-                    />
-                  </div>
-                </div>
 
-                {/* RIGHT: CLEANED PDF */}
-                <div className="flex flex-col bg-emerald-50/30 border border-emerald-200 rounded-2xl p-3 shadow-xs">
-                  <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-emerald-200/80 text-xs font-semibold text-gray-700">
-                    <span className="flex items-center gap-1.5 text-emerald-700 font-bold uppercase tracking-wider text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      Cleaned PDF
-                    </span>
-                    <span className="text-[11px] font-mono text-emerald-700 font-semibold">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                  </div>
-                  <div className="relative aspect-[16/10] sm:aspect-[16/9] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-2">
-                    <img
-                      src={cleanedPreviewUrl || ""}
-                      alt="Cleaned PDF"
-                      style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
-                      className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ACTION CONTROLS */}
-            {!isCompleted ? (
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <button
-                  type="button"
-                  id="pdf-upload-btn"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#E11D48] to-[#FF2E63] text-white font-bold text-sm shadow-lg shadow-rose-200 hover:opacity-95 transition-all cursor-pointer"
-                >
-                  <Upload className="w-4 h-4" />
-                  Upload PDF / Image
-                </button>
-
-                <button
-                  type="button"
-                  id="pdf-autodetect-btn"
-                  onClick={handleAutoDetect}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-sm border border-rose-200 transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-rose-600" />
-                  Auto-Detect Watermarks
-                </button>
-
-                <button
-                  type="button"
-                  id="pdf-clean-btn"
-                  onClick={handleStartCleanup}
-                  disabled={isProcessing}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-gray-900 hover:bg-black text-white font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <Wand2 className="w-4 h-4 text-rose-400" />
-                  {isProcessing ? "Cleaning..." : "Remove Watermark & Clean"}
-                </button>
-
-                <input
-                  ref={fileInputRef}
-                  id="pdf-file-input"
-                  type="file"
-                  accept="application/pdf,image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-              </div>
-            ) : (
-              /* SECTION 20 UI RESULT MESSAGE & DOWNLOAD ACTIONS */
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-xs">
-                <div className="text-left">
-                  <h4 className="text-base font-bold text-gray-900 flex items-center gap-2 mb-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    Document Cleaned & Verified
+              {/* RIGHT COLUMN: DOCUMENT OPTIONS & CLEANUP SETTINGS (lg:col-span-5) */}
+              <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
+                <div>
+                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">
+                    DOCUMENT SETTINGS
                   </h4>
-                  {/* The 4 verified badges from Section 20 */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-medium text-emerald-900">
+
+                  {/* Mode Selector */}
+                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
+                    <button
+                      type="button"
+                      onClick={() => setCleanMode("auto")}
+                      className={`py-2 rounded-lg transition-all cursor-pointer ${
+                        cleanMode === "auto" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                      }`}
+                    >
+                      Auto Inpaint
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCleanMode("vector")}
+                      className={`py-2 rounded-lg transition-all cursor-pointer ${
+                        cleanMode === "vector" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                      }`}
+                    >
+                      Vector Lossless
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCleanMode("text")}
+                      className={`py-2 rounded-lg transition-all cursor-pointer ${
+                        cleanMode === "text" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                      }`}
+                    >
+                      OCR Preserved
+                    </button>
+                  </div>
+
+                  {/* Quick Preset Document Samples */}
+                  <div className="space-y-2 mb-5">
+                    <label className="text-xs font-medium text-gray-500 flex items-center justify-between">
+                      <span>TRY DOCUMENT SAMPLES:</span>
+                      <span className="text-[10px] text-gray-400">Click to preview</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        id="pdf-sample-invoice-btn"
+                        onClick={() => handlePresetSelect("invoice")}
+                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                          activeDocPreset === "invoice"
+                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
+                            : "border-gray-200 hover:border-gray-300 bg-white"
+                        }`}
+                      >
+                        <Receipt className="size-4 text-[#E11D48]" />
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Tax Invoice</span>
+                        <span className="text-[9px] text-gray-400">Paid stamp</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="pdf-sample-nda-btn"
+                        onClick={() => handlePresetSelect("contract")}
+                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                          activeDocPreset === "contract"
+                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
+                            : "border-gray-200 hover:border-gray-300 bg-white"
+                        }`}
+                      >
+                        <Scale className="size-4 text-purple-600" />
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Legal NDA</span>
+                        <span className="text-[9px] text-gray-400">Confidential</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="pdf-sample-blueprint-btn"
+                        onClick={() => handlePresetSelect("blueprint")}
+                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                          activeDocPreset === "blueprint"
+                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
+                            : "border-gray-200 hover:border-gray-300 bg-white"
+                        }`}
+                      >
+                        <Building className="size-4 text-sky-600" />
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Blueprint</span>
+                        <span className="text-[9px] text-gray-400">CAD mark</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* AI Quality Engine Selection */}
+                  <div className="pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                      <span className="font-medium flex items-center gap-1.5">
+                        <Sparkles className="size-3.5 text-[#E11D48]" />
+                        <span>AI Quality Engine</span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-gray-600">
+                      {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setQualityEngine(mode)}
+                          className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${
+                            qualityEngine === mode
+                              ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
+                              : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
+                          }`}
+                        >
+                          {mode === "standard" ? "Balanced" : mode === "fast" ? "Fast" : "Ultra HD"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Status Banner */}
+                  {uploadStatus && (
+                    <div className="mt-4 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                      <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                      <span className="truncate">{uploadStatus}</span>
+                    </div>
+                  )}
+
+                  {/* Integrity Alert */}
+                  {integrityError && (
+                    <div className="mt-4 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                      <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
+                      <span>{integrityError}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACTION BUTTONS */}
+                <div className="space-y-3 pt-4 border-t border-gray-100">
+                  {isCompleted ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span> Watermark Removed
+                      <button
+                        type="button"
+                        id="pdf-download-pdf-btn"
+                        onClick={() => handleDownload("pdf")}
+                        className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Download className="size-4" />
+                        <span>Download Clean PDF</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="pdf-download-img-btn"
+                        onClick={() => handleDownload("png")}
+                        className="py-3.5 px-4 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-xs cursor-pointer"
+                      >
+                        PNG
+                      </button>
+
+                      <button
+                        type="button"
+                        id="pdf-reset-btn"
+                        onClick={resetDocument}
+                        className="p-3 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 cursor-pointer shadow-xs"
+                        title="Upload another document"
+                      >
+                        <RefreshCw className="size-3.5" />
+                      </button>
+                    </div>
+                  ) : previewUrl || currentJobId ? (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        id="pdf-clean-btn"
+                        onClick={handleStartCleanup}
+                        disabled={isProcessing}
+                        className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        <Wand2 className="size-4" />
+                        <span>{isProcessing ? "Cleaning..." : "Remove Watermark & Clean"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="pdf-autodetect-btn"
+                        onClick={handleAutoDetect}
+                        disabled={isProcessing}
+                        className="w-full py-2.5 px-4 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-[#E11D48] text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        <Sparkles className="size-3.5" />
+                        <span>Auto-Detect Watermarks</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      id="pdf-choose-doc-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Upload className="size-4" />
+                      <span>Choose A Document</span>
+                    </button>
+                  )}
+
+                  {/* Trust guarantees matching all sections */}
+                  <div className="space-y-1.5 pt-2 text-[11px] text-gray-500 font-normal">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                      <span>100% Vector &amp; Typography Intact</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span> Document Content Preserved
+                      <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                      <span>Transient In-Memory Processing (Zero Retention)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span> Layout Preserved
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-600 font-bold">✓</span> PDF Integrity Verified
+                      <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                      <span>Amazon &amp; Enterprise Compliance Ready</span>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
-                  <button
-                    type="button"
-                    id="pdf-download-pdf-btn"
-                    onClick={() => handleDownload("pdf")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-[#E11D48] text-white font-bold text-xs shadow-md hover:bg-rose-700 transition-all cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Clean PDF
-                  </button>
-                  <button
-                    type="button"
-                    id="pdf-download-img-btn"
-                    onClick={() => handleDownload("png")}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-gray-800 font-semibold text-xs border border-gray-300 hover:bg-gray-50 transition-all cursor-pointer shadow-xs"
-                  >
-                    <Printer className="w-4 h-4 text-gray-600" />
-                    Download 4K Image
-                  </button>
-                  <button
-                    type="button"
-                    id="pdf-reset-btn"
-                    onClick={() => {
-                      setIsCompleted(false);
-                      setCleanedPreviewUrl(null);
-                    }}
-                    className="p-3 rounded-2xl bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 transition-all cursor-pointer shadow-xs"
-                    title="Clean Another Document"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            )}
-
-            {/* Privacy footer guarantee */}
-            <p className="mt-6 text-xs text-gray-400 flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-rose-500" />
-              Files processed securely in isolated RAM memory · Deleted immediately after processing · GDPR compliant
-            </p>
+            </div>
           </div>
         </div>
       </section>

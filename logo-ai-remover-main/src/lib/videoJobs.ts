@@ -165,13 +165,20 @@ export async function uploadVideo(file: File, jobId: string, signal?: AbortSigna
   });
 }
 
-export async function processVideo(jobId: string, signal?: AbortSignal) {
+export type ManualRegion = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export async function processVideo(jobId: string, manualRegion?: ManualRegion | null, signal?: AbortSignal) {
   return safeFetch<{ success: boolean; jobId: string; status: "queued" }>(
     apiUrl("/api/video-watermark/process"),
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobId }),
+      body: JSON.stringify({ jobId, manualRegion: manualRegion ?? undefined }),
       cache: "no-store",
       signal,
     },

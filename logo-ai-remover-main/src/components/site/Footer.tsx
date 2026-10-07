@@ -19,7 +19,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-[#FCE7EC] bg-white text-gray-900 overflow-hidden">
+    <footer className="border-t border-[#FED7AA]/60 bg-[#FFF7ED] text-gray-900 overflow-hidden">
       {/* 1. GRAND ACETERNITY SPARKLES BRAND BANNER */}
       <div className="relative w-full bg-[#090204] py-20 sm:py-28 flex flex-col items-center justify-center overflow-hidden border-b border-[#240c14]">
         {/* Subtle background glow */}
@@ -109,7 +109,7 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFF1F4] border border-[#FCE7EC] flex items-center justify-center text-[#E11D48] hover:bg-[#FFE4E9] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
                 aria-label="Instagram"
               >
                 <Instagram className="size-4" />
@@ -118,7 +118,7 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFF1F4] border border-[#FCE7EC] flex items-center justify-center text-[#E11D48] hover:bg-[#FFE4E9] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
                 aria-label="Twitter"
               >
                 <Twitter className="size-4" />
@@ -127,7 +127,7 @@ export function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFF1F4] border border-[#FCE7EC] flex items-center justify-center text-[#E11D48] hover:bg-[#FFE4E9] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="size-4" />
@@ -227,7 +227,7 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="creator@studio.com"
-                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#FCE7EC] bg-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#FED7AA] bg-[#FFF7ED] focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
               />
               <PinkButton type="submit" size="sm" className="w-full text-xs">
                 Subscribe
@@ -237,7 +237,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-14 pt-8 border-t border-[#FCE7EC] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="mt-14 pt-8 border-t border-[#FED7AA]/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-4 text-[#E11D48]" />
             <span>Bank-Grade 256-Bit SSL Encrypted. Zero training on user media.</span>

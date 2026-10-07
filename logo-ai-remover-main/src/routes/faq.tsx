@@ -129,7 +129,7 @@ function FaqPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
       {/* 1. HERO SECTION & SEARCH BAR */}
       <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF5F8] via-white to-white text-center">
         <div className="mx-auto max-w-4xl space-y-4">
