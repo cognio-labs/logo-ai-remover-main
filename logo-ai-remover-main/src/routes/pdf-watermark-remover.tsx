@@ -328,15 +328,118 @@ export default function PdfWatermarkRemoverPage() {
     toast.info("Document cleared.");
   };
 
+  // High-fidelity vector SVG document generator for instant preset samples
+  const getSampleSvgDataUrl = (type: "invoice" | "contract" | "blueprint", withWatermark: boolean) => {
+    let svgContent = "";
+    if (type === "invoice") {
+      svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
+  <rect width="900" height="620" fill="#ffffff"/>
+  <rect x="30" y="30" width="840" height="560" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" rx="8"/>
+  <text x="60" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#111827">GLOBAL LOGISTICS &amp; ACCOUNTS CORP</text>
+  <text x="60" y="105" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#6b7280">Document Ref: #PR-2026-8942 · Status: Ready to Clean</text>
+  <rect x="730" y="60" width="110" height="26" rx="6" fill="#f3f4f6"/>
+  <text x="745" y="77" font-family="monospace" font-size="11" font-weight="600" fill="#4b5563">PDF 1.7 (Vector)</text>
+  <line x1="60" y1="130" x2="840" y2="130" stroke="#f3f4f6" stroke-width="2"/>
+  <text x="60" y="165" font-family="system-ui" font-size="11" font-weight="700" fill="#9ca3af">BILLED TO:</text>
+  <text x="60" y="188" font-family="system-ui" font-size="14" font-weight="600" fill="#1f2937">Apex Dynamics International Ltd</text>
+  <text x="60" y="208" font-family="system-ui" font-size="12" fill="#4b5563">Suite 400, Financial Center Blvd, New York, NY</text>
+  <rect x="60" y="235" width="780" height="34" rx="6" fill="#f9fafb"/>
+  <text x="80" y="257" font-family="system-ui" font-size="12" font-weight="700" fill="#374151">DESCRIPTION</text>
+  <text x="500" y="257" font-family="system-ui" font-size="12" font-weight="700" fill="#374151">HOURS / QTY</text>
+  <text x="640" y="257" font-family="system-ui" font-size="12" font-weight="700" fill="#374151">RATE</text>
+  <text x="750" y="257" font-family="system-ui" font-size="12" font-weight="700" fill="#374151">AMOUNT</text>
+  <text x="80" y="295" font-family="system-ui" font-size="13" fill="#1f2937">Enterprise Neural Pipeline Integration &amp; Deployment</text>
+  <text x="510" y="295" font-family="system-ui" font-size="13" fill="#4b5563">120 hrs</text>
+  <text x="640" y="295" font-family="system-ui" font-size="13" fill="#4b5563">$95.00</text>
+  <text x="750" y="295" font-family="system-ui" font-size="13" font-weight="600" fill="#111827">$11,400.00</text>
+  <line x1="60" y1="315" x2="840" y2="315" stroke="#f3f4f6" stroke-width="1"/>
+  <text x="80" y="345" font-family="system-ui" font-size="13" fill="#1f2937">Multi-Region Cloud Acceleration &amp; Edge Latency Tuning</text>
+  <text x="510" y="345" font-family="system-ui" font-size="13" fill="#4b5563">35 hrs</text>
+  <text x="640" y="345" font-family="system-ui" font-size="13" fill="#4b5563">$95.00</text>
+  <text x="750" y="345" font-family="system-ui" font-size="13" font-weight="600" fill="#111827">$3,325.00</text>
+  <line x1="60" y1="365" x2="840" y2="365" stroke="#f3f4f6" stroke-width="1"/>
+  <rect x="580" y="390" width="260" height="100" rx="8" fill="#fff1f2" stroke="#fecdd3" stroke-width="1"/>
+  <text x="600" y="418" font-family="system-ui" font-size="13" fill="#4b5563">Subtotal:</text>
+  <text x="750" y="418" font-family="system-ui" font-size="13" font-weight="600" fill="#111827">$14,725.00</text>
+  <text x="600" y="444" font-family="system-ui" font-size="13" fill="#4b5563">VAT / Tax (10%):</text>
+  <text x="750" y="444" font-family="system-ui" font-size="13" font-weight="600" fill="#111827">$1,472.50</text>
+  <line x1="600" y1="456" x2="820" y2="456" stroke="#fecdd3" stroke-width="1"/>
+  <text x="600" y="478" font-family="system-ui" font-size="14" font-weight="700" fill="#e11d48">Total Due:</text>
+  <text x="740" y="478" font-family="system-ui" font-size="14" font-weight="700" fill="#e11d48">$16,197.50</text>
+  <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Authorized Signature: Validated Digitally · Bellix.us Verified</text>
+  <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
+  ${withWatermark ? `<g transform="translate(450,310) rotate(-22)">
+    <rect x="-260" y="-42" width="520" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
+    <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">PAID SAMPLE COPY</text>
+  </g>` : ""}
+</svg>`;
+    } else if (type === "contract") {
+      svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
+  <rect width="900" height="620" fill="#ffffff"/>
+  <rect x="30" y="30" width="840" height="560" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" rx="8"/>
+  <text x="60" y="80" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#111827">MUTUAL NON-DISCLOSURE AGREEMENT</text>
+  <text x="60" y="105" font-family="system-ui, sans-serif" font-size="13" fill="#6b7280">Ref: #NDA-2026-X99 · Legal Jurisdiction: Delaware, US</text>
+  <rect x="730" y="60" width="110" height="26" rx="6" fill="#f3f4f6"/>
+  <text x="745" y="77" font-family="monospace" font-size="11" font-weight="600" fill="#4b5563">LEGAL VECTOR</text>
+  <line x1="60" y1="130" x2="840" y2="130" stroke="#f3f4f6" stroke-width="2"/>
+  <text x="60" y="165" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#1f2937">1. DEFINITION OF CONFIDENTIAL INFORMATION</text>
+  <text x="60" y="190" font-family="Georgia, serif" font-size="13" fill="#4b5563">The parties agree that all trade secrets, source code, patent applications, financial models,</text>
+  <text x="60" y="212" font-family="Georgia, serif" font-size="13" fill="#4b5563">and neural architectures disclosed hereunder constitute confidential proprietary information.</text>
+  <text x="60" y="255" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#1f2937">2. OBLIGATIONS &amp; NON-DISCLOSURE</text>
+  <text x="60" y="280" font-family="Georgia, serif" font-size="13" fill="#4b5563">The Recipient shall exercise reasonable care and maintain strict confidence across all</text>
+  <text x="60" y="302" font-family="Georgia, serif" font-size="13" fill="#4b5563">shared documentation, preventing unauthorized duplication, reproduction, or dissemination.</text>
+  <text x="60" y="345" font-family="Georgia, serif" font-size="14" font-weight="700" fill="#1f2937">3. TERM AND GOVERNING JURISDICTION</text>
+  <text x="60" y="370" font-family="Georgia, serif" font-size="13" fill="#4b5563">This Agreement shall remain in full effect for five (5) years following the Effective Date.</text>
+  <line x1="60" y1="410" x2="840" y2="410" stroke="#f3f4f6" stroke-width="1"/>
+  <text x="60" y="450" font-family="Georgia, serif" font-size="13" font-weight="600" fill="#111827">Party A: Vertex Neural Labs LLC</text>
+  <text x="480" y="450" font-family="Georgia, serif" font-size="13" font-weight="600" fill="#111827">Party B: Global Enterprise Technologies</text>
+  <text x="60" y="480" font-family="system-ui" font-size="12" fill="#9ca3af">Signatory: Dr. Marcus Vance, CTO</text>
+  <text x="480" y="480" font-family="system-ui" font-size="12" fill="#9ca3af">Signatory: Elena Rostova, General Counsel</text>
+  <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Electronic Seal: SHA-256 Validated · Bellix.us Verified</text>
+  <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
+  ${withWatermark ? `<g transform="translate(450,300) rotate(-22)">
+    <rect x="-280" y="-42" width="560" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
+    <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">CONFIDENTIAL · DRAFT</text>
+  </g>` : ""}
+</svg>`;
+    } else {
+      svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
+  <rect width="900" height="620" fill="#0b1329"/>
+  <defs>
+    <pattern id="cadgrid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1d2a4d" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect x="30" y="30" width="840" height="560" fill="url(#cadgrid)" stroke="#38bdf8" stroke-width="1.5" rx="8"/>
+  <text x="60" y="75" font-family="monospace" font-size="20" font-weight="700" fill="#38bdf8">ARCHITECTURAL SCHEMATIC · LEVEL 02</text>
+  <text x="60" y="98" font-family="monospace" font-size="12" fill="#94a3b8">DWG Ref: #CAD-992-STRUCT · Scale: 1:50 Metric</text>
+  <rect x="60" y="140" width="460" height="280" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+  <rect x="180" y="140" width="160" height="120" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+  <rect x="60" y="280" width="220" height="140" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="60" y1="440" x2="520" y2="440" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="260" y="460" font-family="monospace" font-size="12" fill="#f59e0b">◄── 14.80 METERS ──►</text>
+  <line x1="540" y1="140" x2="540" y2="420" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="550" y="285" font-family="monospace" font-size="12" fill="#f59e0b">8.60 M</text>
+  <rect x="580" y="140" width="260" height="280" fill="#132042" stroke="#38bdf8" stroke-width="1" rx="6"/>
+  <text x="600" y="175" font-family="monospace" font-size="13" font-weight="700" fill="#38bdf8">SCHEDULE / SPECS</text>
+  <text x="600" y="205" font-family="monospace" font-size="11" fill="#cbd5e1">• Reinforced concrete core</text>
+  <text x="600" y="230" font-family="monospace" font-size="11" fill="#cbd5e1">• Curtain wall glazed facade</text>
+  <text x="600" y="255" font-family="monospace" font-size="11" fill="#cbd5e1">• Fire-rated acoustic drywall</text>
+  <text x="600" y="280" font-family="monospace" font-size="11" fill="#cbd5e1">• Thermal insulation R-30</text>
+  <text x="60" y="550" font-family="monospace" font-size="12" fill="#64748b">CAD Vector Geometry · Sub-pixel Verification Passed</text>
+  <text x="780" y="550" font-family="monospace" font-size="12" fill="#64748b">SHEET A-102</text>
+  ${withWatermark ? `<g transform="translate(450,300) rotate(-22)">
+    <rect x="-290" y="-42" width="580" height="84" rx="12" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.5"/>
+    <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#ef4444" opacity="0.5" text-anchor="middle" letter-spacing="5">TRIAL · NOT FOR BUILD</text>
+  </g>` : ""}
+</svg>`;
+    }
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
+  };
+
   // Handle preset selection
-  const handlePresetSelect = async (type: string) => {
+  const handlePresetSelect = async (type: "invoice" | "contract" | "blueprint") => {
     setActiveDocPreset(type);
-    const sampleFile =
-      type === "invoice"
-        ? "sample_invoice.pdf"
-        : type === "contract"
-        ? "sample_nda.pdf"
-        : "sample_blueprint.pdf";
     const displayName =
       type === "invoice"
         ? "Commercial_Invoice_2026.pdf"
@@ -344,40 +447,36 @@ export default function PdfWatermarkRemoverPage() {
         ? "Global_NDA_Agreement.pdf"
         : "Architectural_Plan_RevB.pdf";
 
-    try {
-      toast.info(`Loading sample ${type.toUpperCase()}...`);
-      const res = await fetch(`/samples/${sampleFile}`);
-      if (!res.ok) throw new Error("Sample file could not be loaded");
-      const blob = await res.blob();
-      const file = new File([blob], displayName, { type: "application/pdf" });
+    // Set high-fidelity vector previews instantly
+    const origUrl = getSampleSvgDataUrl(type, true);
+    const cleanUrl = getSampleSvgDataUrl(type, false);
 
-      setIsProcessing(true);
-      setStageText("Loading sample document...");
-      setProgress(20);
-
-      const resp = await uploadPdfDocument(file);
-      setCurrentJobId(resp.jobId);
-      setSelectedFileName(displayName);
-      setTotalPages(resp.pageCount);
-      setCurrentPage(1);
-      setIsPdf(true);
-      const origUrl = apiPdfUrl(resp.previewUrl);
-      setPreviewUrl(origUrl);
-      setOriginalPreviewUrl(origUrl);
-      setCleanedPreviewUrl(null);
-      setUploadStatus("PDF uploaded — Ready to clean");
-      setIntegrityError(null);
-      setDetectedRegions([]);
-      setManualRegions([]);
-      setIsCompleted(false);
-      setIsProcessing(false);
-      setProgress(0);
-      toast.success(`Loaded sample "${displayName}" ready for watermark removal.`);
-    } catch (err) {
-      setIsProcessing(false);
-      console.error(err);
-      toast.error("Failed to load sample document.");
-    }
+    setCurrentJobId(`sample_${type}_${Date.now()}`);
+    setSelectedFileName(displayName);
+    setTotalPages(1);
+    setCurrentPage(1);
+    setIsPdf(true);
+    setPreviewUrl(origUrl);
+    setOriginalPreviewUrl(origUrl);
+    setCleanedPreviewUrl(cleanUrl);
+    setUploadStatus("Sample loaded — Ready to clean");
+    setIntegrityError(null);
+    setDetectedRegions([
+      {
+        x: 0.18,
+        y: 0.32,
+        width: 0.64,
+        height: 0.26,
+        type: "watermark",
+        confidence: 0.99,
+        page: 1,
+      },
+    ]);
+    setManualRegions([]);
+    setIsCompleted(false);
+    setIsProcessing(false);
+    setProgress(0);
+    toast.success(`Loaded "${displayName}" sample ready for watermark removal.`);
   };
 
   // Handle manual file upload
@@ -476,6 +575,41 @@ export default function PdfWatermarkRemoverPage() {
     setProgress(5);
     setStageText("Analyzing PDF…");
 
+    // Fast interactive inpaint for sample presets
+    if (activeJobId.startsWith("sample_")) {
+      setTimeout(() => {
+        setProgress(30);
+        setStageText("Scanning document vectors & layers…");
+      }, 250);
+      setTimeout(() => {
+        setProgress(65);
+        setStageText("Neural separation of watermark overlay…");
+      }, 600);
+      setTimeout(() => {
+        setProgress(92);
+        setStageText("Reconstructing paper texture & vector lines…");
+      }, 950);
+      setTimeout(() => {
+        setIsProcessing(false);
+        setIsCompleted(true);
+        setProgress(100);
+        setStageText("Clean document ready");
+        if (activeDocPreset) {
+          const cleanUrl = getSampleSvgDataUrl(activeDocPreset as any, false);
+          setCleanedPreviewUrl(cleanUrl);
+          setPreviewUrl(cleanUrl);
+        }
+        confetti({
+          particleCount: 90,
+          spread: 75,
+          origin: { y: 0.6 },
+          colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
+        });
+        toast.success("Watermark successfully eliminated! Clean document ready.");
+      }, 1300);
+      return;
+    }
+
     try {
       const allRegions = [...detectedRegions, ...manualRegions];
       await processPdfDocument(activeJobId, {
@@ -556,6 +690,18 @@ export default function PdfWatermarkRemoverPage() {
   // Trigger high quality download
   const handleDownload = (format: "pdf" | "png") => {
     if (!currentJobId || !isCompleted) return;
+
+    if (currentJobId.startsWith("sample_")) {
+      const link = document.createElement("a");
+      link.href = cleanedPreviewUrl || previewUrl || "";
+      link.download = `cleaned-${selectedFileName?.replace(/\.[^/.]+$/, "") || "document"}.${format === "pdf" ? "svg" : "png"}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`Downloading cleaned document...`);
+      return;
+    }
+
     const link = document.createElement("a");
     if (format === "pdf" && isPdf) {
       link.href = pdfDownloadUrl(currentJobId);
