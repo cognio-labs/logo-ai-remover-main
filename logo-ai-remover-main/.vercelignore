@@ -6,3 +6,4 @@ backend/models/weights
 .agents
 *.pyc
 __pycache__
+bun.lock

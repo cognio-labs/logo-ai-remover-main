@@ -2,5 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "buildCommand": "cd logo-ai-remover-main && npm install && npm run build",
-  "outputDirectory": "logo-ai-remover-main/.output/public"
+  "outputDirectory": "logo-ai-remover-main/.output/public",
+  "build": {
+    "env": {
+      "DANGEROUSLY_DEPLOY_VULNERABLE_TANSTACK_START_XSS": "1"
+    }
+  }
 }
