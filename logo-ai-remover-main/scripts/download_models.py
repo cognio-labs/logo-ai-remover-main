@@ -1,48 +1,63 @@
-import urllib.request
-from pathlib import Path
+import os
 import sys
-import time
+import hashlib
+from pathlib import Path
+import urllib.request
 
-WEIGHTS_DIR = Path(__file__).resolve().parent.parent / "backend" / "models" / "weights"
-WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR = Path("backend/models/weights")
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
-MODELS = {
-    "u2net.onnx": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx",
-    "silueta.onnx": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/silueta.onnx",
+MODEL_REGISTRY = {
+    "RealESRGAN_x4plus.pth": {
+        "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+        "description": "General purpose 4x photo upscaler"
+    },
+    "RealESRGAN_x4plus_anime_6B.pth": {
+        "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
+        "description": "Anime and generative art illustration upscaler"
+    },
+    "GFPGANv1.4.pth": {
+        "url": "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth",
+        "description": "Facial detail restoration & natural skin texture recovery"
+    },
+    "big-lama.pt": {
+        "url": "https://github.com/advimman/lama/releases/download/v0.1.0/big-lama.pt",
+        "description": "Large-scale Fourier inpainting for watermark & object removal"
+    },
+    "birefnet-general.pth": {
+        "url": "https://github.com/ZhengPeng7/BiRefNet/releases/download/v1.0/BiRefNet-general-epoch_244.pth",
+        "description": "High-resolution bilateral reference segmentation for background removal"
+    }
 }
 
-def download_file(url: str, dest_path: Path):
-    if dest_path.exists() and dest_path.stat().st_size > 1000000:
-        print(f"[OK] {dest_path.name} already exists ({dest_path.stat().st_size / 1024 / 1024:.1f} MB)")
+def download_file(url: str, dest: Path):
+    if dest.exists() and dest.stat().st_size > 1000:
+        print(f"[EXISTS] {dest.name} already downloaded ({dest.stat().st_size / 1e6:.1f} MB)")
         return
 
-    print(f"[DOWNLOADING] {dest_path.name} from {url}...")
-    temp_path = dest_path.with_suffix(".tmp")
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    
-    start_time = time.time()
-    with urllib.request.urlopen(req) as resp, open(temp_path, "wb") as f:
-        total = int(resp.headers.get("Content-Length", 0))
-        downloaded = 0
-        chunk_size = 1024 * 512
-        while True:
-            chunk = resp.read(chunk_size)
-            if not chunk:
-                break
-            f.write(chunk)
-            downloaded += len(chunk)
-            if total > 0:
-                percent = (downloaded / total) * 100
-                speed = (downloaded / (time.time() - start_time + 0.001)) / 1024 / 1024
-                sys.stdout.write(f"\r  -> {percent:.1f}% ({downloaded / 1024 / 1024:.1f}/{total / 1024 / 1024:.1f} MB) at {speed:.1f} MB/s")
-                sys.stdout.flush()
-    print()
-    temp_path.replace(dest_path)
-    print(f"[DONE] Saved {dest_path.name} ({dest_path.stat().st_size / 1024 / 1024:.1f} MB)")
+    print(f"[DOWNLOADING] {dest.name} from {url}...")
+    temp_dest = dest.with_suffix(".tmp")
+    try:
+        urllib.request.urlretrieve(url, temp_dest)
+        temp_dest.rename(dest)
+        print(f"[COMPLETE] {dest.name} downloaded successfully!")
+    except Exception as e:
+        print(f"[WARN] Download for {dest.name} had error: {e}")
+        if temp_dest.exists():
+            temp_dest.unlink()
+
+def main():
+    print("=" * 60)
+    print("BELLIX.US AI MODEL WEIGHTS DOWNLOAD MANAGER")
+    print("Target Directory:", MODELS_DIR.resolve())
+    print("=" * 60)
+
+    for filename, info in MODEL_REGISTRY.items():
+        dest = MODELS_DIR / filename
+        print(f"\nModel: {filename} ({info['description']})")
+        download_file(info["url"], dest)
+
+    print("\nModel registry download check complete!")
 
 if __name__ == "__main__":
-    for name, url in MODELS.items():
-        try:
-            download_file(url, WEIGHTS_DIR / name)
-        except Exception as e:
-            print(f"[ERROR] Could not download {name}: {e}")
+    main()

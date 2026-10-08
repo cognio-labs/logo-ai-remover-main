@@ -74,11 +74,19 @@ interface ShowcaseDoc {
     | "ebook";
   watermarkText: string;
   watermarkColor: string;
+  beforeUrl: string;
+  afterUrl: string;
+  fallbackBeforeJpg: string;
+  fallbackAfterJpg: string;
 }
 
 const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   {
     id: "showcase-1",
+    beforeUrl: "/samples/invoice_before.webp",
+    afterUrl: "/samples/invoice_after.webp",
+    fallbackBeforeJpg: "/samples/invoice_before.jpg",
+    fallbackAfterJpg: "/samples/invoice_after.jpg",
     category: "Financial & Invoicing",
     badge: "Billing & Accounts",
     title: "Corporate Tax Invoice & Bank Ledger",
@@ -101,6 +109,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-2",
+    beforeUrl: "/samples/nda_before.webp",
+    afterUrl: "/samples/nda_after.webp",
+    fallbackBeforeJpg: "/samples/nda_before.jpg",
+    fallbackAfterJpg: "/samples/nda_after.jpg",
     category: "Legal & Compliance",
     badge: "Contract & Agreement",
     title: "Commercial NDA & Legal Agreement",
@@ -123,6 +135,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-3",
+    beforeUrl: "/samples/blueprint_before.webp",
+    afterUrl: "/samples/blueprint_after.webp",
+    fallbackBeforeJpg: "/samples/blueprint_before.jpg",
+    fallbackAfterJpg: "/samples/blueprint_after.jpg",
     category: "Architecture & Engineering",
     badge: "CAD & Structural",
     title: "Architectural Blueprint & Floorplan",
@@ -146,6 +162,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-4",
+    beforeUrl: "/samples/certificate_before.webp",
+    afterUrl: "/samples/certificate_after.webp",
+    fallbackBeforeJpg: "/samples/certificate_before.jpg",
+    fallbackAfterJpg: "/samples/certificate_after.jpg",
     category: "Academic & Institutional",
     badge: "Certification",
     title: "Diploma & Achievement Certificate",
@@ -168,6 +188,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-5",
+    beforeUrl: "/samples/whitepaper_before.webp",
+    afterUrl: "/samples/whitepaper_after.webp",
+    fallbackBeforeJpg: "/samples/whitepaper_before.jpg",
+    fallbackAfterJpg: "/samples/whitepaper_after.jpg",
     category: "Scientific & Publishing",
     badge: "Journal & Whitepaper",
     title: "Peer-Reviewed Scientific Whitepaper",
@@ -186,6 +210,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-6",
+    beforeUrl: "/samples/medical_before.webp",
+    afterUrl: "/samples/medical_after.webp",
+    fallbackBeforeJpg: "/samples/medical_before.jpg",
+    fallbackAfterJpg: "/samples/medical_after.jpg",
     category: "Healthcare & Diagnostics",
     badge: "Clinical & Lab",
     title: "Medical Diagnostic Lab Report",
@@ -209,6 +237,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-7",
+    beforeUrl: "/samples/title_registry_before.webp",
+    afterUrl: "/samples/title_registry_after.webp",
+    fallbackBeforeJpg: "/samples/title_registry_before.jpg",
+    fallbackAfterJpg: "/samples/title_registry_after.jpg",
     category: "Government & Identity",
     badge: "Registration Form",
     title: "Official Property & Land Title Registry",
@@ -231,6 +263,10 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
   },
   {
     id: "showcase-8",
+    beforeUrl: "/samples/manuscript_before.webp",
+    afterUrl: "/samples/manuscript_after.webp",
+    fallbackBeforeJpg: "/samples/manuscript_before.jpg",
+    fallbackAfterJpg: "/samples/manuscript_after.jpg",
     category: "Publishing & Media",
     badge: "Manuscript & E-Book",
     title: "Literary Manuscript & Preview E-Book",
@@ -256,6 +292,137 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
 /* -------------------------------------------------------------------------- */
 /* MAIN COMPONENT                                                             */
 /* -------------------------------------------------------------------------- */
+
+function CaseStudyBeforeAfterSlider({
+  beforeUrl,
+  afterUrl,
+  fallbackBeforeJpg,
+  fallbackAfterJpg,
+  title,
+  watermarkText,
+}: {
+  beforeUrl: string;
+  afterUrl: string;
+  fallbackBeforeJpg: string;
+  fallbackAfterJpg: string;
+  title: string;
+  watermarkText: string;
+}) {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = (clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    const percent = Math.round((x / rect.width) * 100);
+    setSliderPosition(percent);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    setIsDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updatePosition(e.clientX);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    updatePosition(e.clientX);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      setSliderPosition((prev) => Math.max(0, prev - 5));
+    } else if (e.key === "ArrowRight") {
+      setSliderPosition((prev) => Math.min(100, prev + 5));
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="slider"
+      aria-valuenow={sliderPosition}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`Interactive Before and After slider for ${title}`}
+      className="relative aspect-[16/10] w-full rounded-2xl border border-rose-200/80 bg-slate-50 overflow-hidden shadow-inner mb-6 select-none cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-[#E11D48] group"
+    >
+      {/* AFTER IMAGE (Background / Full width) */}
+      <picture>
+        <source srcSet={afterUrl} type="image/webp" />
+        <img
+          src={fallbackAfterJpg}
+          alt={`Restored ${title} - 100% clean output`}
+          loading="lazy"
+          decoding="async"
+          width={1600}
+          height={1000}
+          className="absolute inset-0 size-full object-cover object-top"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = fallbackAfterJpg;
+          }}
+        />
+      </picture>
+
+      {/* After Badge */}
+      <div className="absolute top-3 right-3 text-[10px] font-bold font-sans uppercase bg-emerald-600/90 text-white px-2.5 py-1 rounded-full shadow-md z-10 flex items-center gap-1 backdrop-blur-xs">
+        <CheckCircle2 className="size-3" />
+        <span>After (100% Clean)</span>
+      </div>
+
+      {/* BEFORE IMAGE (Clipped / Left side) */}
+      <div
+        className="absolute inset-y-0 left-0 overflow-hidden border-r-2 border-[#E11D48]"
+        style={{ width: `${sliderPosition}%` }}
+      >
+        <picture>
+          <source srcSet={beforeUrl} type="image/webp" />
+          <img
+            src={fallbackBeforeJpg}
+            alt={`Original ${title} with ${watermarkText}`}
+            loading="lazy"
+            decoding="async"
+            width={1600}
+            height={1000}
+            className="absolute top-0 left-0 max-w-none size-full object-cover object-top"
+            style={{ width: containerRef.current ? `${containerRef.current.clientWidth}px` : "100%" }}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = fallbackBeforeJpg;
+            }}
+          />
+        </picture>
+
+        {/* Before Badge */}
+        <div className="absolute top-3 left-3 text-[10px] font-bold font-sans uppercase bg-rose-500/90 text-white px-2.5 py-1 rounded-full shadow-md z-10 backdrop-blur-xs">
+          <span>Before ({watermarkText})</span>
+        </div>
+      </div>
+
+      {/* Slider Knob */}
+      <div
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-8 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-xl border-2 border-white pointer-events-none transition-transform group-hover:scale-110"
+        style={{ left: `${sliderPosition}%` }}
+      >
+        <SlidersHorizontal className="size-4" />
+      </div>
+    </div>
+  );
+}
+
 export default function PdfWatermarkRemoverPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -500,18 +667,34 @@ export default function PdfWatermarkRemoverPage() {
           ? "Global_NDA_Agreement.pdf"
           : "Architectural_Plan_RevB.pdf";
 
-    // Set high-fidelity vector previews instantly
-    const origUrl = getSampleSvgDataUrl(type, true);
-    const cleanUrl = getSampleSvgDataUrl(type, false);
+    // Real synthetic high-resolution previews from /samples/
+    const sampleFiles = {
+      invoice: {
+        name: "Commercial_Tax_Invoice_2026.pdf",
+        before: "/samples/invoice_before.webp",
+        after: "/samples/invoice_after.webp"
+      },
+      contract: {
+        name: "Commercial_NDA_Agreement.pdf",
+        before: "/samples/nda_before.webp",
+        after: "/samples/nda_after.webp"
+      },
+      blueprint: {
+        name: "Architectural_Blueprint_Plan.pdf",
+        before: "/samples/blueprint_before.webp",
+        after: "/samples/blueprint_after.webp"
+      }
+    };
+    const sel = sampleFiles[type] || sampleFiles.invoice;
 
     setCurrentJobId(`sample_${type}_${Date.now()}`);
-    setSelectedFileName(displayName);
+    setSelectedFileName(sel.name);
     setTotalPages(1);
     setCurrentPage(1);
     setIsPdf(true);
-    setPreviewUrl(origUrl);
-    setOriginalPreviewUrl(origUrl);
-    setCleanedPreviewUrl(cleanUrl);
+    setPreviewUrl(sel.before);
+    setOriginalPreviewUrl(sel.before);
+    setCleanedPreviewUrl(sel.after);
     setUploadStatus("Sample loaded — Ready to clean");
     setIntegrityError(null);
     setDetectedRegions([
@@ -1366,71 +1549,14 @@ export default function PdfWatermarkRemoverPage() {
                     "{item.headline}"
                   </p>
 
-                  {/* INTERACTIVE BEFORE/AFTER VISUAL SPLIT */}
-                  <div className="relative aspect-[16/9] w-full rounded-2xl border border-rose-200/80 bg-white overflow-hidden shadow-inner mb-6 select-none group">
-                    {/* Left/Right Split Simulation */}
-                    <div className="absolute inset-0 flex">
-                      {/* BEFORE SIDE (LEFT 50%) */}
-                      <div className="w-1/2 h-full bg-[#FCFAF8] p-4 sm:p-5 border-r-2 border-[#E11D48] relative overflow-hidden flex flex-col justify-between font-serif">
-                        <div className="absolute top-2 left-2 text-[9px] font-bold font-sans uppercase bg-rose-500 text-white px-2 py-0.5 rounded shadow-sm z-10">
-                          Before (With Watermark)
-                        </div>
-
-                        {/* Watermark stamped across */}
-                        <div className="absolute inset-0 flex items-center justify-center rotate-[-22deg] pointer-events-none">
-                          <span
-                            className="text-base sm:text-lg font-semibold tracking-widest text-center uppercase border-2 border-dashed px-2 py-1 rounded select-none"
-                            style={{
-                              color: "#E11D48",
-                              borderColor: "#E11D48",
-                              opacity: 0.45,
-                            }}
-                          >
-                            {item.watermarkText}
-                          </span>
-                        </div>
-
-                        {/* Document Content Skeleton */}
-                        <div className="space-y-1.5 pt-4">
-                          <div className="h-2 bg-gray-300/80 rounded w-4/5" />
-                          <div className="h-2 bg-gray-200 rounded w-full" />
-                          <div className="h-2 bg-gray-200 rounded w-3/4" />
-                          <div className="h-2 bg-gray-200 rounded w-5/6" />
-                        </div>
-
-                        <div className="pt-2 border-t border-gray-200/60 flex justify-between text-[9px] text-gray-400 font-sans">
-                          <span>Ref: #892-REV</span>
-                          <span>STAMP DETECTED</span>
-                        </div>
-                      </div>
-
-                      {/* AFTER SIDE (RIGHT 50%) */}
-                      <div className="w-1/2 h-full bg-white p-4 sm:p-5 relative flex flex-col justify-between font-serif">
-                        <div className="absolute top-2 right-2 text-[9px] font-bold font-sans uppercase bg-emerald-600 text-white px-2 py-0.5 rounded shadow-sm z-10 flex items-center gap-1">
-                          <CheckCircle2 className="w-2.5 h-2.5" />
-                          After (100% Clean)
-                        </div>
-
-                        {/* Clean Document Content Skeleton */}
-                        <div className="space-y-1.5 pt-4">
-                          <div className="h-2 bg-gray-800 rounded w-4/5" />
-                          <div className="h-2 bg-gray-400 rounded w-full" />
-                          <div className="h-2 bg-gray-400 rounded w-3/4" />
-                          <div className="h-2 bg-gray-400 rounded w-5/6" />
-                        </div>
-
-                        <div className="pt-2 border-t border-gray-100 flex justify-between text-[9px] text-emerald-600 font-sans font-semibold">
-                          <span>Vector Restored</span>
-                          <span>4K Output</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Central separator handle icon */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-lg border-2 border-white pointer-events-none">
-                      <SlidersHorizontal className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
+                  <CaseStudyBeforeAfterSlider
+                    beforeUrl={item.beforeUrl}
+                    afterUrl={item.afterUrl}
+                    fallbackBeforeJpg={item.fallbackBeforeJpg}
+                    fallbackAfterJpg={item.fallbackAfterJpg}
+                    title={item.title}
+                    watermarkText={item.watermarkText}
+                  />
 
                   {/* Detailed Description on Right/Below */}
                   <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">

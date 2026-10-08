@@ -1,71 +1,82 @@
-# ── Stage 1: Builder ──────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+# ─────────────────────────────────────────────────────────────────────────────
+# BELLIX.US AI UNIFIED PRODUCTION DOCKERFILE
+# Multi-purpose GPU-accelerated container for FastAPI API & Celery GPU Workers
+# Base: NVIDIA CUDA 12.1 Runtime on Ubuntu 22.04 with PyTorch FP16 support
+# Deployable on: RunPod, Modal, AWS EC2 (G4/G5), GCP Compute Engine, Kubernetes
+# ─────────────────────────────────────────────────────────────────────────────
+
+FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04 AS base
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 WORKDIR /app
 
-# Install build dependencies
+# Install system dependencies (Python 3.10/3.11, OpenCV libs, FFmpeg, Tesseract OCR)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3.10-dev \
+    python3.10-distutils \
+    python3-pip \
     build-essential \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first for layer caching
-COPY backend/requirements.txt ./requirements.txt
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
-
-WORKDIR /app
-
-# Install runtime system dependencies (FFmpeg + OpenCV libs)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
     ffmpeg \
+    libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender1 \
     libgomp1 \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-hin \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed Python packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Set default python alias
+RUN ln -sf /usr/bin/python3.10 /usr/bin/python
 
-# Copy application code
+# Upgrade pip
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA 12.1 acceleration first for layer caching
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# Copy and install python dependencies
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+# Copy backend codebase
 COPY backend/ ./backend/
-COPY src/assets/gemini-logo-transparent.png ./backend/assets/gemini-logo-transparent.png
+COPY scripts/ ./scripts/
 
-# Create storage directories
+# Create persistent storage mount points and cache dirs
 RUN mkdir -p \
     /app/backend/storage/jobs \
     /app/backend/storage/image_jobs \
     /app/backend/storage/pdf_jobs \
     /app/backend/storage/background_jobs \
-    /app/backend/storage/video_enhancer_jobs \
     /app/backend/storage/temp \
-    /app/backend/models/weights
+    /app/backend/models/weights \
+    /tmp/bellix_cache
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV TEMP=/app/backend/storage/temp
-ENV TMP=/app/backend/storage/temp
+ENV TEMP=/app/backend/storage/temp \
+    TMP=/app/backend/storage/temp \
+    STORAGE_ROOT=/app/backend/storage \
+    PORT=8000
 
-# Expose port (Railway injects $PORT automatically)
+# Pre-download models during build or model warm-up (Optional offline build)
+# RUN python scripts/download_models.py
+
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import os, urllib.request; port = os.environ.get('PORT', '8000'); urllib.request.urlopen(f'http://localhost:{port}/health')" || exit 1
+# Healthcheck endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Start command — Railway injects PORT env var
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
-
+# Default entrypoint starts the FastAPI server
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

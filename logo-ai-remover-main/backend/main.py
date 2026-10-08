@@ -16,6 +16,7 @@ from backend.api.background_routes import router as background_router, router_al
 from backend.api.video_enhancer_routes import router as video_enhancer_router, health_router as video_enhancer_health_router
 from backend.api.ai_routes import router as ai_router
 from backend.api.stripe_routes import router as stripe_router
+from backend.api.unified_routes import router as unified_router
 
 
 # CRITICAL: Configure temp directory to Drive D: storage so multipart uploads never fail on C: disk full
@@ -122,4 +123,5 @@ app.include_router(video_enhancer_router)
 app.include_router(video_enhancer_health_router)
 app.include_router(ai_router)
 app.include_router(stripe_router)
+app.include_router(unified_router)
 

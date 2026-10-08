@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. REDIS MESSAGE BROKER & STATE STORE
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: bellix_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy noeviction
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # 2. FASTAPI PRODUCTION API SERVER
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bellix_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:5874,https://bellix.us,https://www.bellix.us
+      - STORAGE_ROOT=/app/backend/storage
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-}
+      - S3_SECRET_KEY=${S3_SECRET_KEY:-}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-bellix-assets}
+      - S3_PUBLIC_DOMAIN=${S3_PUBLIC_DOMAIN:-}
+      - RATE_LIMIT_PER_HOUR=60
+    volumes:
+      - app_storage:/app/backend/storage
+      - model_weights:/app/backend/models/weights
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # 3. CELERY GPU INFERENCE WORKER (CUDA FP16)
+  # ---------------------------------------------------------------------------
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bellix_gpu_worker
+    restart: unless-stopped
+    command: celery -A backend.workers.celery_app worker --loglevel=info --pool=solo -c 1 -Q high,default,low
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - STORAGE_ROOT=/app/backend/storage
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-}
+      - S3_SECRET_KEY=${S3_SECRET_KEY:-}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-bellix-assets}
+      - S3_PUBLIC_DOMAIN=${S3_PUBLIC_DOMAIN:-}
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - app_storage:/app/backend/storage
+      - model_weights:/app/backend/models/weights
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  redis_data:
+  app_storage:
+  model_weights:
