@@ -95,6 +95,7 @@ function SampleComparisonCard({ item }: { item: SampleImageItem }) {
   };
 
   const cutoutSrc = item.resultImage || item.originalImage;
+  const objectPosition = item.category === "people" ? "object-top" : "object-center";
 
   return (
     <article className="group rounded-3xl border border-gray-200/90 bg-white p-3.5 sm:p-5 shadow-md shadow-gray-200/50 hover:shadow-2xl hover:border-gray-300 transition-all duration-300 flex flex-col justify-between">
@@ -112,7 +113,7 @@ function SampleComparisonCard({ item }: { item: SampleImageItem }) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="relative aspect-[16/11] sm:aspect-[4/3] w-full rounded-2xl sm:rounded-2xl overflow-hidden bg-[#FAFAFC] border border-gray-200/80 cursor-ew-resize select-none touch-none focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
+        className="relative aspect-[1/1] w-full rounded-2xl overflow-hidden bg-[#FAFAFC] border border-gray-200/80 cursor-ew-resize select-none touch-none focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
       >
         {/* BASE CHECKERBOARD PATTERN (FOR AFTER / TRANSPARENCY) */}
         <div
@@ -124,19 +125,17 @@ function SampleComparisonCard({ item }: { item: SampleImageItem }) {
         />
 
         {/* AFTER LAYER: Cutout on Transparent Checkerboard */}
-        <div className="absolute inset-0 size-full flex items-center justify-center pointer-events-none select-none p-2 sm:p-3">
-          <img
-            src={cutoutSrc}
-            alt={`${item.alt} - Background Removed Cutout`}
-            className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-300 group-hover:scale-[1.01]"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+        <img
+          src={cutoutSrc}
+          alt={`${item.alt} - Background Removed Cutout`}
+          className={`absolute inset-0 size-full object-cover ${objectPosition} pointer-events-none select-none`}
+          loading="lazy"
+          decoding="async"
+        />
 
         {/* BEFORE LAYER: Original Image with Real Background (Clipped) */}
         <div
-          className="absolute inset-0 size-full flex items-center justify-center overflow-hidden pointer-events-none select-none p-2 sm:p-3"
+          className="absolute inset-0 size-full overflow-hidden pointer-events-none select-none"
           style={{
             clipPath: `inset(0 ${100 - sliderPos}% 0 0)`,
             WebkitClipPath: `inset(0 ${100 - sliderPos}% 0 0)`,
@@ -145,7 +144,7 @@ function SampleComparisonCard({ item }: { item: SampleImageItem }) {
           <img
             src={item.originalImage}
             alt={`${item.alt} - Original Image with Full Background`}
-            className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-300 group-hover:scale-[1.01]"
+            className={`absolute inset-0 size-full object-cover ${objectPosition} pointer-events-none select-none`}
             loading="lazy"
             decoding="async"
           />
@@ -368,8 +367,8 @@ function SampleImagesPage() {
             </Link>
           </div>
 
-          {/* 2-COLUMN RESPONSIVE GRID (DESKTOP: 2 COLS, 450-600px WIDE; MOBILE: 1 COL) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
+          {/* 2-COLUMN RESPONSIVE GRID (DESKTOP & TABLET: 2 COLS; MOBILE: 1 COL) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
             {displayedItems.map((item) => (
               <SampleComparisonCard key={item.id} item={item} />
             ))}
