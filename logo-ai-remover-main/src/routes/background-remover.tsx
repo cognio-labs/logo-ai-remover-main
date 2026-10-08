@@ -31,6 +31,7 @@ import {
   Plus,
   Loader2,
   ChevronDown,
+  AlertTriangle,
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import {
@@ -42,6 +43,7 @@ import {
   type CutoutResult,
 } from "@/lib/backgroundRemoverEngine";
 import { getDownloadUrl, type QualityMode, type ExportFormat } from "@/lib/backgroundApi";
+import { handleEditInCanva, CANVA_TERMS_URL } from "@/lib/canvaIntegration";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -786,49 +788,108 @@ function SeeTheDifferenceShowcase() {
   );
 }
 
+export type BackgroundRemovalStatus =
+  | "idle"
+  | "uploading"
+  | "processing"
+  | "success"
+  | "error";
+
+function CanvaLogoIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="canva-gradient-icon" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00C4CC" />
+          <stop offset="50%" stopColor="#0074E4" />
+          <stop offset="100%" stopColor="#7D2AE8" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="url(#canva-gradient-icon)" />
+      <path
+        d="M15 13.6c-.7.8-1.7 1.2-2.8 1.2-2.1 0-3.6-1.4-3.6-3.6 0-2.2 1.5-3.8 3.7-3.8 1 0 1.8.3 2.5.9l-.9 1.1c-.5-.4-1.1-.7-1.7-.7-1.3 0-2.2 2.4-2.2 2.4s.9 2.4 2.2 2.4c.7 0 1.3-.3 1.8-.7l1 1.1z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
+function StarSparkleIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg
+      className={className}
+      style={style}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
+    </svg>
+  );
+}
+
+const GOLD_SPARKLES = [
+  { id: 1, top: "14%", left: "18%", size: 14, delay: "0s", duration: "2.2s", color: "#FDE68A" },
+  { id: 2, top: "24%", left: "82%", size: 18, delay: "0.5s", duration: "2.7s", color: "#FCD34D" },
+  { id: 3, top: "36%", left: "28%", size: 12, delay: "1.1s", duration: "2.4s", color: "#FEF08A" },
+  { id: 4, top: "68%", left: "16%", size: 16, delay: "0.3s", duration: "2.5s", color: "#FDE047" },
+  { id: 5, top: "74%", left: "84%", size: 20, delay: "0.8s", duration: "3.0s", color: "#FDE68A" },
+  { id: 6, top: "48%", left: "78%", size: 14, delay: "1.4s", duration: "2.6s", color: "#FEF9C3" },
+  { id: 7, top: "82%", left: "32%", size: 12, delay: "0.2s", duration: "2.1s", color: "#FCD34D" },
+  { id: 8, top: "18%", left: "64%", size: 15, delay: "1.7s", duration: "2.8s", color: "#FEF08A" },
+];
+
+function formatCutoutFilename(originalName: string, ext: string = "png"): string {
+  const cleanBase = originalName
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[^\w\s\-_]/gi, "")
+    .trim()
+    .replaceAll(/\s+/g, "-")
+    .toLowerCase();
+
+  return `bellix-background-removed-${cleanBase || "cutout"}.${ext}`;
+}
+
 function BackgroundRemoverPage() {
+  const [status, setStatus] = useState<BackgroundRemovalStatus>("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [cutoutResult, setCutoutResult] = useState<CutoutResult | null>(null);
-  const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [stage, setStage] = useState("");
+  const [stage, setStage] = useState("Analyzing subject");
+  const [inlineError, setInlineError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   // Background customization state
   const [bgType, setBgType] = useState<BackgroundType>("transparent");
   const [solidColor, setSolidColor] = useState("#FFFFFF");
-  const [backdropId, setBackdropId] = useState("luxury-studio");
-  const [showOriginal, setShowOriginal] = useState(false);
-  const [useSplitView, setUseSplitView] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    "cutout" | "background" | "effects" | "adjust" | "design"
-  >("cutout");
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturation, setSaturation] = useState(100);
-  const [downloadDropdownOpen, setDownloadDropdownOpen] = useState(false);
   const [qualityMode, setQualityMode] = useState<QualityMode>("standard");
-  const [downloadFormat, setDownloadFormat] = useState<ExportFormat>("png");
+  const [viewMode, setViewMode] = useState<"after" | "before">("after");
+  const [isCanvaLoading, setIsCanvaLoading] = useState(false);
 
   // Code snippet tabs & FAQ accordion
   const [activeCodeTab, setActiveCodeTab] = useState<keyof typeof CODE_SNIPPETS>("curl");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { user, deductCredit, addJob } = useUserStore();
 
+  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
-      if (cutoutResult?.transparentBlobUrl.startsWith("blob:"))
+      if (cutoutResult?.transparentBlobUrl?.startsWith("blob:"))
         URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
-      if (cutoutResult?.compositeBlobUrl.startsWith("blob:"))
+      if (cutoutResult?.compositeBlobUrl?.startsWith("blob:"))
         URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (abortControllerRef.current) abortControllerRef.current.abort();
     };
   }, []);
 
-  // Global Ctrl+V image paste listener
+  // Global Ctrl+V / Cmd+V paste support
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
@@ -845,7 +906,7 @@ function BackgroundRemoverPage() {
         const file = imgItem.getAsFile();
         if (file) {
           e.preventDefault();
-          processFile(file);
+          handleIncomingFile(file);
           toast.success("Pasted image from clipboard!");
         }
       }
@@ -853,159 +914,290 @@ function BackgroundRemoverPage() {
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [bgType, solidColor, backdropId, qualityMode]);
+  }, [bgType, solidColor, qualityMode]);
 
-  const processFile = (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file (PNG, JPG, WebP, HEIC).");
+  // Validation & initialization
+  const handleIncomingFile = (file: File) => {
+    setInlineError(null);
+
+    // MIME type check
+    const validMimes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/heic",
+      "image/heif",
+    ];
+    const isImage =
+      file.type.startsWith("image/") ||
+      validMimes.includes(file.type.toLowerCase()) ||
+      /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+
+    if (!isImage) {
+      setInlineError("Unsupported file format.");
       return;
     }
-    if (file.size > 35 * 1024 * 1024) {
-      toast.error("File size exceeds 35MB limit.");
+
+    // Size limit check (35MB)
+    const MAX_SIZE_BYTES = 35 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      setInlineError("Image exceeds the 35MB limit.");
       return;
     }
+
+    // Cleanup previous object URLs
+    if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
+    if (cutoutResult?.transparentBlobUrl?.startsWith("blob:"))
+      URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
+    if (cutoutResult?.compositeBlobUrl?.startsWith("blob:"))
+      URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
 
     const objectUrl = URL.createObjectURL(file);
     setUploadedFile(file);
     setSourceUrl(objectUrl);
     setCutoutResult(null);
-    executeRemoval(objectUrl, file.name);
+    setViewMode("after");
+
+    executeRemoval(objectUrl, file);
   };
 
-  const loadDemo = (preset: (typeof DEMO_PRESETS)[0]) => {
-    setUploadedFile(null);
-    setSourceUrl(preset.image);
-    setCutoutResult(null);
-    toast.info(`Loading sample "${preset.name}"...`);
-    executeRemoval(preset.image, `${preset.name.toLowerCase().replaceAll(" ", "-")}.png`);
-  };
-
-  const executeRemoval = async (url: string, fileName: string) => {
+  const executeRemoval = async (imageUrl: string, file: File) => {
+    // Credit check
     if (user.credits <= 0 || !deductCredit()) {
-      toast.error("Insufficient credits. Please upgrade or wait for the daily reset.");
+      setInlineError("Insufficient credits. Please upgrade or wait for the daily reset.");
+      setStatus("error");
       return;
     }
 
-    setRunning(true);
+    // Abort any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    setStatus("processing");
     setProgress(5);
-    setStage("Initializing neural segmentation...");
+    setStage("Analyzing subject");
+
+    // Progressive text staging & visual progress 0 -> ~92%
+    const stages = [
+      "Analyzing subject",
+      "Detecting edges",
+      "Refining fine details",
+      "Creating transparent PNG",
+    ];
+    let currentStageIndex = 0;
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev < 92) {
+          const step = Math.max(1, Math.round((92 - prev) * 0.12));
+          const next = Math.min(92, prev + step);
+          const stageIdx = Math.min(stages.length - 1, Math.floor((next / 92) * stages.length));
+          if (stageIdx !== currentStageIndex) {
+            currentStageIndex = stageIdx;
+            setStage(stages[stageIdx]);
+          }
+          return next;
+        }
+        return prev;
+      });
+    }, 280);
 
     try {
       const res = await removeImageBackground(
-        url,
+        imageUrl,
         bgType,
         solidColor,
-        backdropId,
-        (currentStage, currentProgress) => {
-          setStage(currentStage);
-          setProgress(currentProgress);
+        "luxury-studio",
+        (currentStage) => {
+          if (currentStage) setStage(currentStage);
         },
       );
 
-      setCutoutResult(res);
-      setRunning(false);
-
-      addJob({
-        file_name: fileName,
-        file_type: "background-remover",
-        status: "completed",
-        quality: `Transparent (${res.width}×${res.height})`,
-        credits_used: 1,
-        processing_time: res.processingTimeMs
-          ? `${(res.processingTimeMs / 1000).toFixed(1)}s`
-          : "2.4s",
-        file_url: url,
-        result_url: res.transparentBlobUrl,
-      });
-
-      confetti({
-        particleCount: 70,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#38BDF8"],
-      });
-
-      toast.success("✦ Background removed! Download transparent PNG or customize.");
-    } catch (err) {
-      console.error("Background removal error:", err);
-      setRunning(false);
-      toast.error("Processing failed. Please try another image.");
-    }
-  };
-
-  // Live re-compositing when user switches background colors or backdrops
-  const updateBackgroundStyle = async (
-    newType: BackgroundType,
-    color?: string,
-    backdrop?: string,
-  ) => {
-    setBgType(newType);
-    if (color) setSolidColor(color);
-    if (backdrop) setBackdropId(backdrop);
-
-    if (!sourceUrl || !cutoutResult) return;
-
-    try {
-      const activeColor = color || solidColor;
-      const activeBackdrop = backdrop || backdropId;
-
-      if (cutoutResult.jobId) {
-        const recomputed = await recompositeCutout(
-          cutoutResult.jobId,
-          newType,
-          activeColor,
-          activeBackdrop,
-        );
-        setCutoutResult((prev) =>
-          prev
-            ? {
-                ...prev,
-                compositeBlobUrl: recomputed.compositeBlobUrl,
-                fileSizeFormatted: recomputed.sizeFormatted,
-              }
-            : null,
-        );
-      } else {
-        const updated = await removeImageBackground(
-          sourceUrl,
-          newType,
-          activeColor,
-          activeBackdrop,
-        );
-        setCutoutResult(updated);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
       }
-    } catch (err) {
-      console.warn("Re-composite error:", err);
+
+      // Backend finished: snap progress to 100%
+      setProgress(100);
+      setStage("Done");
+
+      setTimeout(() => {
+        setCutoutResult(res);
+        setStatus("success");
+
+        addJob({
+          file_name: file.name,
+          file_type: "background-remover",
+          status: "completed",
+          quality: `Transparent (${res.width}×${res.height})`,
+          credits_used: 1,
+          processing_time: res.processingTimeMs
+            ? `${(res.processingTimeMs / 1000).toFixed(1)}s`
+            : "2.1s",
+          file_url: imageUrl,
+          result_url: res.transparentBlobUrl,
+        });
+
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ["#E11D48", "#FF2E63", "#F59E0B", "#10B981"],
+        });
+
+        toast.success("Background removed successfully!");
+      }, 350);
+    } catch (err: any) {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      if (err?.name === "AbortError") {
+        console.log("Background removal was cancelled by user.");
+        return;
+      }
+      console.error("Background removal error:", err);
+      setStatus("error");
+      setInlineError("Something went wrong. Please try another image.");
+      toast.error("Failed to remove background. Please try again.");
     }
   };
 
-  const downloadResult = () => {
-    if (!cutoutResult) return;
-    const base = (uploadedFile?.name || "image").replace(/\.[^/.]+$/, "");
-    const isTrans = bgType === "transparent";
-    const selectedFormat = isTrans ? "png" : downloadFormat;
-
-    if (cutoutResult.jobId) {
-      // Direct backend download with correct headers
-      const downloadUrl = getDownloadUrl(cutoutResult.jobId, selectedFormat);
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = `bellix-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } else {
-      const a = document.createElement("a");
-      a.href = isTrans ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl;
-      a.download = `bellix-${base}-${isTrans ? "cutout" : bgType}.${selectedFormat}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+  const handleCancelProcessing = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    resetToUpload();
+  };
 
-    toast.success(
-      `Downloaded ${cutoutResult.width}×${cutoutResult.height}px ${isTrans ? "Transparent PNG" : "HD image"}!`,
-    );
+  const resetToUpload = () => {
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+
+    if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
+    if (cutoutResult?.transparentBlobUrl?.startsWith("blob:"))
+      URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
+    if (cutoutResult?.compositeBlobUrl?.startsWith("blob:"))
+      URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
+
+    setUploadedFile(null);
+    setSourceUrl(null);
+    setCutoutResult(null);
+    setStatus("idle");
+    setProgress(0);
+    setInlineError(null);
+    setViewMode("after");
+  };
+
+  const retryRemoval = () => {
+    if (sourceUrl && uploadedFile) {
+      executeRemoval(sourceUrl, uploadedFile);
+    } else {
+      resetToUpload();
+    }
+  };
+
+  // Download transparent PNG with pattern: bellix-background-removed-[original-file-name].png
+  const downloadTransparentPng = () => {
+    if (!cutoutResult) return;
+    const originalName = uploadedFile?.name || "image";
+    const downloadFilename = formatCutoutFilename(originalName, "png");
+
+    const link = document.createElement("a");
+    link.href =
+      bgType === "transparent" ? cutoutResult.transparentBlobUrl : cutoutResult.compositeBlobUrl;
+    link.download = downloadFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success(`Downloaded ${downloadFilename}`);
+  };
+
+  // Copy transparent PNG directly to system clipboard
+  const copyCutoutToClipboard = async () => {
+    if (!cutoutResult) return;
+    try {
+      let blobToCopy: Blob | null = cutoutResult.transparentBlob || null;
+      if (!blobToCopy) {
+        const resp = await fetch(cutoutResult.transparentBlobUrl);
+        blobToCopy = await resp.blob();
+      }
+
+      if (blobToCopy && navigator.clipboard?.write) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "image/png": blobToCopy,
+          }),
+        ]);
+        toast.success("Transparent PNG copied to clipboard!");
+      } else {
+        throw new Error("Clipboard API not supported");
+      }
+    } catch (clipErr) {
+      console.warn("Failed to copy image to clipboard:", clipErr);
+      toast.error("Could not copy directly. Please use Download PNG.");
+    }
+  };
+
+  // Dedicated Canva integration handler
+  const onEditInCanva = async () => {
+    if (!cutoutResult) return;
+    setIsCanvaLoading(true);
+    try {
+      let blobToShare: Blob | null = cutoutResult.transparentBlob || null;
+      if (!blobToShare) {
+        const resp = await fetch(cutoutResult.transparentBlobUrl);
+        blobToShare = await resp.blob();
+      }
+
+      const fileName = formatCutoutFilename(uploadedFile?.name || "cutout", "png");
+      const result = await handleEditInCanva(blobToShare, fileName);
+
+      if (result.success) {
+        toast.success(result.message, { duration: 6000 });
+      }
+    } catch (canvaErr) {
+      console.error("Canva launch error:", canvaErr);
+      toast.error("Could not launch Canva. Transparent PNG downloaded instead.");
+      downloadTransparentPng();
+    } finally {
+      setIsCanvaLoading(false);
+    }
+  };
+
+  // Re-composite when switching solid colors
+  const handleColorChange = async (colorHex: string) => {
+    setSolidColor(colorHex);
+    setBgType("color");
+    if (!cutoutResult?.jobId) return;
+    try {
+      const recomputed = await recompositeCutout(
+        cutoutResult.jobId,
+        "color",
+        colorHex,
+        "luxury-studio",
+      );
+      setCutoutResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              compositeBlobUrl: recomputed.compositeBlobUrl,
+              fileSizeFormatted: recomputed.sizeFormatted,
+            }
+          : null,
+      );
+    } catch (e) {
+      console.warn("Recomposite error:", e);
+    }
   };
 
   const copyCode = (code: string) => {
@@ -1013,362 +1205,12 @@ function BackgroundRemoverPage() {
     toast.success("API snippet copied to clipboard!");
   };
 
-  const resetAll = () => {
-    setUploadedFile(null);
-    setSourceUrl(null);
-    setCutoutResult(null);
-    setRunning(false);
-    setProgress(0);
-    setBgType("transparent");
-    setUseSplitView(false);
-  };
-
-  const activeCutoutDisplay =
-    bgType === "transparent" ? cutoutResult?.transparentBlobUrl : cutoutResult?.compositeBlobUrl;
-
-  if (sourceUrl) {
-    return (
-      <main className="min-h-[calc(100vh-70px)] bg-[#F8FAFC] text-gray-900 font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none relative">
-        {/* Hidden File Input for uploading more */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-          className="hidden"
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            const file = e.target.files?.[0];
-            if (file) processFile(file);
-          }}
-        />
-
-        {/* 1. TOP FLOATING TOOLBAR PILL (Screenshot 4 Matching) */}
-        <div className="w-full flex flex-col items-center gap-3 z-30">
-          <div className="w-full max-w-4xl bg-white/95 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_-8px_rgba(0,0,0,0.08)] rounded-full px-4 sm:px-6 py-2 flex items-center justify-between gap-2">
-            {/* Left Category Tabs */}
-            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-              <button
-                type="button"
-                onClick={() => setActiveTab("cutout")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "cutout"
-                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Paintbrush className="size-3.5" />
-                <span>Cutout</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("background")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "background"
-                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Palette className="size-3.5" />
-                <span>Background</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("effects")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "effects"
-                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <CircleDot className="size-3.5" />
-                <span>Effects</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("adjust")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "adjust"
-                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Sliders className="size-3.5" />
-                <span>Adjust</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("design")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "design"
-                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Layout className="size-3.5" />
-                <span>Design</span>
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="h-5 w-px bg-gray-200 shrink-0" />
-
-            {/* Right Tools: Split, Undo, Redo, Download */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => setUseSplitView(!useSplitView)}
-                title="Toggle Before/After Split Slider"
-                className={`flex size-8 items-center justify-center rounded-full transition-colors cursor-pointer ${
-                  useSplitView
-                    ? "bg-[#FFF1F4] text-[#E11D48]"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <SplitSquareVertical className="size-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setBgType("transparent");
-                  setBrightness(100);
-                  setContrast(100);
-                  setSaturation(100);
-                  toast.info("Reset adjustments");
-                }}
-                title="Undo adjustments"
-                className="flex size-8 items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
-              >
-                <Undo2 className="size-4" />
-              </button>
-
-              <button
-                type="button"
-                title="Redo"
-                className="flex size-8 items-center justify-center rounded-full text-gray-300 transition-colors cursor-not-allowed"
-                disabled
-              >
-                <Redo2 className="size-4" />
-              </button>
-
-              {/* Download Button */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={downloadResult}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold transition-all cursor-pointer"
-                >
-                  <span>Download</span>
-                  <ChevronDown className="size-3 text-gray-500" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Sub-tool panels */}
-          {activeTab === "background" && (
-            <div className="w-full max-w-xl bg-white/95 backdrop-blur-xl border border-gray-200 shadow-md rounded-2xl p-3 flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-top-1">
-              <button
-                type="button"
-                onClick={() => updateBackgroundStyle("transparent")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  bgType === "transparent"
-                    ? "bg-gray-900 text-white shadow-xs"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Checkerboard Transparent
-              </button>
-              <button
-                type="button"
-                onClick={() => updateBackgroundStyle("color", "#FFFFFF")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                  bgType === "color" && solidColor === "#FFFFFF"
-                    ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48]"
-                    : "border-gray-200 bg-white hover:bg-gray-50"
-                }`}
-              >
-                Pure White
-              </button>
-              {SOLID_COLOR_PRESETS.slice(1, 5).map((c) => (
-                <button
-                  key={c.hex}
-                  type="button"
-                  onClick={() => updateBackgroundStyle("color", c.hex)}
-                  className={`size-6 rounded-full border border-black/10 transition-transform ${
-                    bgType === "color" && solidColor === c.hex
-                      ? "scale-125 ring-2 ring-[#E11D48]"
-                      : "hover:scale-110"
-                  }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
-              {BACKDROP_PRESETS.slice(0, 3).map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => updateBackgroundStyle("backdrop", undefined, b.id)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium border ${
-                    bgType === "backdrop" && backdropId === b.id
-                      ? "border-[#E11D48] text-[#E11D48] bg-rose-50"
-                      : "border-gray-200 hover:bg-gray-50"
-                  }`}
-                >
-                  {b.name}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {activeTab === "adjust" && (
-            <div className="w-full max-w-lg bg-white/95 backdrop-blur-xl border border-gray-200 shadow-md rounded-2xl p-4 grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-1 text-xs">
-              <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">
-                  Brightness ({brightness}%)
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="150"
-                  value={brightness}
-                  onChange={(e) => setBrightness(Number(e.target.value))}
-                  className="w-full accent-[#E11D48]"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">
-                  Contrast ({contrast}%)
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="150"
-                  value={contrast}
-                  onChange={(e) => setContrast(Number(e.target.value))}
-                  className="w-full accent-[#E11D48]"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">
-                  Saturation ({saturation}%)
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="150"
-                  value={saturation}
-                  onChange={(e) => setSaturation(Number(e.target.value))}
-                  className="w-full accent-[#E11D48]"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 2. CENTER CANVAS STAGE (Screenshot 4 Matching) */}
-        <div className="my-auto py-6 flex flex-col items-center justify-center relative w-full">
-          {running ? (
-            <div className="relative aspect-square max-w-[440px] w-full rounded-3xl bg-white border border-gray-200 shadow-xl flex flex-col items-center justify-center p-8">
-              <img
-                src={sourceUrl}
-                alt="Source Preview"
-                className="size-full object-contain opacity-35 blur-xs rounded-2xl"
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/75 backdrop-blur-xs rounded-3xl">
-                <Loader2 className="size-10 text-[#E11D48] animate-spin mb-3" />
-                <span className="text-sm font-semibold text-gray-900">
-                  {stage || "Removing background..."}
-                </span>
-                <span className="text-xs text-gray-500 mt-1 font-mono">{progress}% completed</span>
-              </div>
-            </div>
-          ) : useSplitView && activeCutoutDisplay ? (
-            <div className="w-full max-w-2xl">
-              <WorkspaceSplitSlider
-                originalUrl={sourceUrl}
-                cutoutUrl={activeCutoutDisplay}
-                bgType={bgType}
-              />
-            </div>
-          ) : (
-            <div className="relative aspect-square max-w-[460px] w-full rounded-3xl overflow-hidden border border-gray-200/80 bg-white shadow-[0_20px_50px_-15px_rgba(0,0,0,0.12)] flex items-center justify-center p-4">
-              {bgType === "transparent" && (
-                <div
-                  className="absolute inset-0 size-full pointer-events-none"
-                  style={{
-                    backgroundImage: `linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
-                      linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
-                      linear-gradient(-45deg, transparent 75%, #f1f5f9 75%)`,
-                    backgroundSize: "20px 20px",
-                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
-                  }}
-                />
-              )}
-              <img
-                src={showOriginal ? sourceUrl : activeCutoutDisplay || sourceUrl}
-                alt="Cutout Preview"
-                style={{
-                  filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
-                }}
-                className="relative max-h-full max-w-full object-contain rounded-2xl filter drop-shadow-md transition-all duration-200"
-              />
-              <button
-                type="button"
-                onMouseDown={() => setShowOriginal(true)}
-                onMouseUp={() => setShowOriginal(false)}
-                onTouchStart={() => setShowOriginal(true)}
-                onTouchEnd={() => setShowOriginal(false)}
-                className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-gray-950/75 text-white text-[11px] font-medium backdrop-blur-md cursor-pointer hover:bg-black transition-colors flex items-center gap-1.5 shadow-md"
-              >
-                <Eye className="size-3" />
-                <span>{showOriginal ? "Showing Original" : "Hold for Original"}</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 3. BOTTOM THUMBNAILS NAVIGATION BAR (Screenshot 4 Matching) */}
-        <div className="w-full flex items-center justify-center gap-3 pt-4 z-20">
-          {/* Plus Button to Upload New Image */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex size-14 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-            title="Upload another image"
-          >
-            <Plus className="size-6" />
-          </button>
-
-          {/* Active Image Thumbnail with Blue Ring and Loading Spinner */}
-          <div
-            className="relative size-14 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-md bg-white ring-2 ring-blue-400/50 cursor-pointer"
-            title="Current active image"
-          >
-            <img src={sourceUrl} alt="Active asset" className="size-full object-cover" />
-            {running && (
-              <div className="absolute inset-0 bg-black/45 flex items-center justify-center backdrop-blur-2xs">
-                <Loader2 className="size-6 text-white animate-spin" />
-              </div>
-            )}
-          </div>
-
-          {/* Exit Editor Button */}
-          <button
-            type="button"
-            onClick={resetAll}
-            className="ml-2 text-xs text-gray-400 hover:text-red-500 font-medium transition-colors cursor-pointer"
-          >
-            Exit Editor
-          </button>
-        </div>
-      </main>
-    );
-  }
+  const displayImage =
+    viewMode === "before"
+      ? sourceUrl
+      : bgType === "transparent"
+        ? cutoutResult?.transparentBlobUrl
+        : cutoutResult?.compositeBlobUrl;
 
   return (
     <main className="min-h-screen bg-transparent text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
@@ -1398,112 +1240,14 @@ function BackgroundRemoverPage() {
             </p>
           </div>
 
-          {/* 2. INTERACTIVE WORKSPACE CARD */}
-          <div className="rounded-3xl border border-gray-200/80 bg-white/95 backdrop-blur-xl shadow-2xl shadow-gray-200/60 p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-              {/* LEFT / CENTER WORKSPACE (Dropzone OR Cutout Preview) */}
-              <div className="lg:col-span-7 flex flex-col justify-center">
-                {running ? (
-                  <div className="h-[380px] rounded-2xl border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-6 text-center">
-                    <PinkScanLoader progress={progress} stage={stage} />
-                  </div>
-                ) : cutoutResult && sourceUrl ? (
-                  /* STATE: CUTOUT RESULT PREVIEW */
-                  <div className="flex flex-col h-full space-y-3">
-                    <div className="flex items-center justify-between text-xs text-gray-600 px-1">
-                      <span className="font-medium flex items-center gap-1.5 text-gray-800">
-                        <FileImage className="size-4 text-[#E11D48]" />
-                        <span>{uploadedFile?.name || "cutout-transparent.png"}</span>
-                        <span className="text-gray-400 font-normal">
-                          · {cutoutResult.width} × {cutoutResult.height}px ·{" "}
-                          {cutoutResult.fileSizeFormatted}
-                        </span>
-                      </span>
-
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setUseSplitView(!useSplitView)}
-                          className={`font-medium flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors cursor-pointer ${
-                            useSplitView
-                              ? "bg-[#FFE4E9] text-[#E11D48]"
-                              : "text-gray-600 hover:text-gray-900 bg-gray-100"
-                          }`}
-                          title="Toggle Before/After Split Slider"
-                        >
-                          <SplitSquareVertical className="size-3.5" />
-                          <span>{useSplitView ? "Single View" : "Split View"}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={resetAll}
-                          className="font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors cursor-pointer"
-                          title="Upload another image"
-                        >
-                          <RefreshCw className="size-3.5" />
-                          <span>Upload New</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* The Canvas Frame */}
-                    {useSplitView && activeCutoutDisplay ? (
-                      <WorkspaceSplitSlider
-                        originalUrl={sourceUrl}
-                        cutoutUrl={activeCutoutDisplay}
-                        bgType={bgType}
-                      />
-                    ) : (
-                      <div className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none bg-slate-50">
-                        {/* Checkerboard Pattern for Transparent */}
-                        {bgType === "transparent" && (
-                          <div
-                            className="absolute inset-0 size-full"
-                            style={{
-                              backgroundImage: `linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-                                linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-                                linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-                                linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)`,
-                              backgroundSize: "16px 16px",
-                              backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-                            }}
-                          />
-                        )}
-
-                        {/* Displayed Cutout */}
-                        <img
-                          src={showOriginal ? sourceUrl : activeCutoutDisplay}
-                          alt="Cutout result"
-                          className="relative max-h-full max-w-full object-contain filter drop-shadow-md transition-all"
-                        />
-
-                        {/* Hold to See Original Toggle Button */}
-                        <button
-                          type="button"
-                          onMouseDown={() => setShowOriginal(true)}
-                          onMouseUp={() => setShowOriginal(false)}
-                          onTouchStart={() => setShowOriginal(true)}
-                          onTouchEnd={() => setShowOriginal(false)}
-                          className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-gray-900/80 hover:bg-gray-950 text-white text-xs font-medium backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
-                        >
-                          <Eye className="size-3.5" />
-                          <span>{showOriginal ? "Showing Original" : "Hold for Original"}</span>
-                        </button>
-
-                        {/* Badge indicator */}
-                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-medium uppercase tracking-wider backdrop-blur-md shadow-xs">
-                          {showOriginal
-                            ? "Original Image"
-                            : bgType === "transparent"
-                              ? "Transparent PNG"
-                              : "Background Applied"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* STATE: EMPTY DROPZONE */
+          {/* ============================================================== */}
+          {/* STATE 1: UPLOAD SCREEN (Idle state with 2-column card)           */}
+          {/* ============================================================== */}
+          {status === "idle" && (
+            <div className="rounded-3xl border border-gray-200/80 bg-white/95 backdrop-blur-xl shadow-2xl shadow-gray-200/60 p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                {/* LEFT SIDE: Large Drag-and-Drop Area */}
+                <div className="lg:col-span-7 flex flex-col justify-center">
                   <div
                     onDragEnter={(e) => {
                       e.preventDefault();
@@ -1521,36 +1265,62 @@ function BackgroundRemoverPage() {
                       e.preventDefault();
                       setIsDragging(false);
                       const file = e.dataTransfer.files?.[0];
-                      if (file) processFile(file);
+                      if (file) handleIncomingFile(file);
                     }}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`h-[380px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer ${
+                    className={`h-[390px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer relative group ${
                       isDragging
-                        ? "border-[#E11D48] bg-[#FFF5F7] scale-[1.01]"
-                        : "border-gray-300 hover:border-[#E11D48] hover:bg-[#FFF9FA]"
+                        ? "border-[#E11D48] bg-[#FFF5F7] ring-2 ring-[#E11D48]/20 scale-[1.01]"
+                        : "border-gray-300/90 hover:border-[#E11D48] hover:bg-[#FFF9FA]/80 bg-[#FAFAFC]/60"
                     }`}
                   >
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                      accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
                       className="hidden"
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         const file = e.target.files?.[0];
-                        if (file) processFile(file);
+                        if (file) handleIncomingFile(file);
                       }}
                     />
 
-                    <span className="size-16 rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-5 transition-transform hover:scale-110">
+                    {/* Inline Error Alert if any */}
+                    {inlineError && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute top-4 inset-x-4 mx-auto max-w-sm p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center justify-between gap-2 shadow-xs z-10"
+                      >
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="size-4 shrink-0 text-[#E11D48]" />
+                          <span className="font-medium">{inlineError}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setInlineError(null)}
+                          className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Pink/Red Circular Upload Icon Button */}
+                    <span
+                      className={`size-16 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-4 transition-transform group-hover:scale-110 ${
+                        isDragging ? "scale-110 animate-bounce" : ""
+                      }`}
+                    >
                       <Upload className="size-8" />
                     </span>
 
-                    <h3 className="text-xl font-medium text-gray-900 tracking-tight">
-                      Drop your image here
+                    <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight">
+                      {isDragging ? "Drop image to upload" : "Drop your image here"}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
+
+                    <p className="text-xs text-gray-500 mt-1.5 max-w-xs leading-relaxed font-normal">
                       PNG, JPG, WebP or HEIC · Up to 35MB · Paste (
-                      <kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">
+                      <kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-600 font-medium">
                         Ctrl+V
                       </kbd>
                       )
@@ -1562,248 +1332,501 @@ function BackgroundRemoverPage() {
                         e.stopPropagation();
                         fileInputRef.current?.click();
                       }}
-                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-2"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-semibold shadow-md shadow-[#E11D48]/25 transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
                     >
                       <Upload className="size-4" />
                       <span>Upload Image</span>
                     </button>
 
-                    <span className="text-[11px] text-gray-400 mt-2 font-normal">
+                    <span className="text-[11.5px] text-gray-400 mt-2 font-normal">
                       or click anywhere to browse
                     </span>
                   </div>
-                )}
-              </div>
-
-              {/* RIGHT / SETTINGS & BACKGROUND REPLACEMENT PANEL */}
-              <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
-                <div>
-                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">
-                    BACKGROUND OPTIONS
-                  </h4>
-
-                  {/* Mode Selector */}
-                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
-                    <button
-                      type="button"
-                      onClick={() => updateBackgroundStyle("transparent")}
-                      className={`py-2 rounded-lg transition-all ${
-                        bgType === "transparent"
-                          ? "bg-white text-gray-950 shadow-xs"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      Transparent
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateBackgroundStyle("color")}
-                      className={`py-2 rounded-lg transition-all ${
-                        bgType === "color"
-                          ? "bg-white text-gray-950 shadow-xs"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      Solid Color
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateBackgroundStyle("backdrop")}
-                      className={`py-2 rounded-lg transition-all ${
-                        bgType === "backdrop"
-                          ? "bg-white text-gray-950 shadow-xs"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      Studio Set
-                    </button>
-                  </div>
-
-                  {/* CONTROLS PER MODE */}
-                  {bgType === "transparent" && (
-                    <div className="rounded-xl p-4 bg-[#F8FAFC] border border-gray-200 text-xs space-y-2">
-                      <p className="font-medium text-gray-800 flex items-center gap-1.5">
-                        <CheckCircle2 className="size-4 text-emerald-600" />
-                        <span>32-Bit Transparent PNG</span>
-                      </p>
-                      <p className="text-gray-500 leading-relaxed font-normal">
-                        Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web
-                        code with true alpha transparency.
-                      </p>
-                    </div>
-                  )}
-
-                  {bgType === "color" && (
-                    <div className="space-y-3">
-                      <label className="text-xs font-medium text-gray-700">
-                        Choose Solid Color
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {SOLID_COLOR_PRESETS.map((c) => (
-                          <button
-                            key={c.hex}
-                            type="button"
-                            onClick={() => updateBackgroundStyle("color", c.hex)}
-                            className={`p-2 rounded-xl border text-left flex flex-col gap-1 transition-all ${
-                              solidColor.toLowerCase() === c.hex.toLowerCase()
-                                ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                          >
-                            <span
-                              className="size-5 rounded-md border border-black/10 shadow-2xs"
-                              style={{ backgroundColor: c.hex }}
-                            />
-                            <span className="text-[11px] font-medium text-gray-900 leading-tight">
-                              {c.name}
-                            </span>
-                            <span className="text-[9px] text-gray-400 font-normal">{c.badge}</span>
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Custom Color Input */}
-                      <div className="flex items-center gap-3 pt-2">
-                        <input
-                          type="color"
-                          value={solidColor}
-                          onChange={(e) => updateBackgroundStyle("color", e.target.value)}
-                          className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
-                        />
-                        <span className="text-xs font-medium text-gray-600">
-                          Custom Hex:{" "}
-                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">
-                            {solidColor}
-                          </code>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {bgType === "backdrop" && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-gray-700">
-                        Select Studio Backdrop
-                      </label>
-                      <div className="grid grid-cols-2 gap-2 max-h-[190px] overflow-y-auto pr-1">
-                        {BACKDROP_PRESETS.map((bp) => (
-                          <button
-                            key={bp.id}
-                            type="button"
-                            onClick={() => updateBackgroundStyle("backdrop", undefined, bp.id)}
-                            className={`p-2 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                              backdropId === bp.id
-                                ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                          >
-                            <span
-                              className="size-8 rounded-lg shrink-0 shadow-2xs"
-                              style={{
-                                background: `linear-gradient(135deg, ${bp.gradient[0]}, ${bp.gradient[2]})`,
-                              }}
-                            />
-                            <div>
-                              <p className="text-xs font-medium text-gray-900 leading-tight">
-                                {bp.name}
-                              </p>
-                              <p className="text-[10px] text-gray-400 font-normal">{bp.category}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quality & Processing Options */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
-                      <span className="font-medium flex items-center gap-1.5">
-                        <Sliders className="size-3.5 text-[#E11D48]" />
-                        <span>AI Quality Engine</span>
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-gray-600">
-                      {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => setQualityMode(mode)}
-                          className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${
-                            qualityMode === mode
-                              ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-medium"
-                              : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
-                          }`}
-                        >
-                          {mode === "standard" ? "Balanced" : mode === "fast" ? "Fast" : "Ultra HD"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
 
-                {/* ACTION BUTTONS & METRICS */}
-                <div className="space-y-3 pt-4 border-t border-gray-100">
-                  {cutoutResult ? (
-                    <div className="flex items-center gap-2">
+                {/* RIGHT SIDE: Settings / Options Panel */}
+                <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                      BACKGROUND OPTIONS
+                    </h4>
+
+                    {/* Mode Selector Tabs */}
+                    <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
                       <button
                         type="button"
-                        onClick={downloadResult}
-                        className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        onClick={() => setBgType("transparent")}
+                        className={`py-2 rounded-lg transition-all cursor-pointer ${
+                          bgType === "transparent"
+                            ? "bg-white text-gray-950 shadow-xs font-semibold"
+                            : "hover:text-gray-900"
+                        }`}
                       >
-                        <Download className="size-4" />
-                        <span>
-                          Download {bgType === "transparent" ? "Transparent PNG" : "HD Result"}
-                        </span>
+                        Transparent
                       </button>
 
-                      {bgType !== "transparent" && (
-                        <select
-                          value={downloadFormat}
-                          onChange={(e) => setDownloadFormat(e.target.value as ExportFormat)}
-                          className="py-3 px-3 rounded-full border border-gray-200 text-xs font-medium bg-white text-gray-800 cursor-pointer shadow-xs focus:ring-1 focus:ring-[#E11D48]"
-                        >
-                          <option value="png">PNG</option>
-                          <option value="jpg">JPG</option>
-                          <option value="webp">WebP</option>
-                        </select>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => setBgType("color")}
+                        className={`py-2 rounded-lg transition-all cursor-pointer ${
+                          bgType === "color"
+                            ? "bg-white text-gray-950 shadow-xs font-semibold"
+                            : "hover:text-gray-900"
+                        }`}
+                      >
+                        Solid Color
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled
+                        className="py-2 rounded-lg opacity-60 cursor-not-allowed flex items-center justify-center gap-1 text-gray-400"
+                        title="Studio Set is coming soon"
+                      >
+                        <span>Studio Set</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 font-normal">
+                          Soon
+                        </span>
+                      </button>
                     </div>
-                  ) : (
+
+                    {/* Transparent Description Card */}
+                    {bgType === "transparent" && (
+                      <div className="rounded-xl p-4 bg-[#F8FAFC] border border-gray-200 text-xs space-y-2">
+                        <p className="font-semibold text-gray-800 flex items-center gap-1.5">
+                          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                          <span>32-Bit Transparent PNG</span>
+                        </p>
+                        <p className="text-gray-500 leading-relaxed font-normal">
+                          Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web
+                          code with true alpha transparency.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Solid Color Selector */}
+                    {bgType === "color" && (
+                      <div className="space-y-3">
+                        <label className="text-xs font-medium text-gray-700">Choose Solid Color</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {SOLID_COLOR_PRESETS.slice(0, 6).map((c) => (
+                            <button
+                              key={c.hex}
+                              type="button"
+                              onClick={() => handleColorChange(c.hex)}
+                              className={`p-2 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
+                                solidColor.toLowerCase() === c.hex.toLowerCase()
+                                  ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}
+                            >
+                              <span
+                                className="size-5 rounded-md border border-black/10 shadow-2xs"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                              <span className="text-[11px] font-medium text-gray-900 leading-tight">
+                                {c.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-3 pt-1">
+                          <input
+                            type="color"
+                            value={solidColor}
+                            onChange={(e) => handleColorChange(e.target.value)}
+                            className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
+                          />
+                          <span className="text-xs font-medium text-gray-600">
+                            Custom Hex:{" "}
+                            <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">
+                              {solidColor}
+                            </code>
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* AI Quality Engine */}
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                        <span className="font-semibold flex items-center gap-1.5 text-gray-700">
+                          <Sliders className="size-3.5 text-[#E11D48]" />
+                          <span>AI Quality Engine</span>
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-gray-600">
+                        {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setQualityMode(mode)}
+                            className={`py-2 px-2 rounded-lg border text-center transition-all cursor-pointer ${
+                              qualityMode === mode
+                                ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
+                                : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
+                            }`}
+                          >
+                            {mode === "standard"
+                              ? "Balanced"
+                              : mode === "fast"
+                                ? "Fast"
+                                : "Ultra HD"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom CTA */}
+                  <div className="space-y-3 pt-4 border-t border-gray-100">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3.5 px-5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-medium shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-medium shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg"
                     >
                       <Upload className="size-4" />
                       <span>Choose An Image</span>
                     </button>
-                  )}
 
-                  {/* Trust Micro-Bullets */}
-                  <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-gray-500 pt-1">
-                    <span className="flex items-center gap-1.5">
-                      <Check className="size-3 text-emerald-500 shrink-0" />
-                      <span>Zero Quality Loss</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="size-3 text-[#E11D48] shrink-0" />
-                      <span>Private &amp; Encrypted</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Zap className="size-3 text-amber-500 shrink-0" />
-                      <span>Sub-Pixel AI Matting</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <ShoppingBag className="size-3 text-blue-500 shrink-0" />
-                      <span>Amazon 100% White</span>
-                    </span>
+                    {/* Trust Micro-Indicators */}
+                    <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-gray-500 pt-1">
+                      <span className="flex items-center gap-1.5">
+                        <Check className="size-3 text-emerald-500 shrink-0" />
+                        <span>Zero Quality Loss</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <ShieldCheck className="size-3 text-[#E11D48] shrink-0" />
+                        <span>Private &amp; Encrypted</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Zap className="size-3 text-amber-500 shrink-0" />
+                        <span>Sub-Pixel AI Matting</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <ShoppingBag className="size-3 text-blue-500 shrink-0" />
+                        <span>Amazon 100% White</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* STATE 2: PROCESSING SCREEN (Dark overlay + Gold Sparkles)        */}
+          {/* ============================================================== */}
+          {(status === "uploading" || status === "processing") && (
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
+              {/* Uploaded source image centered and dimmed */}
+              {sourceUrl && (
+                <img
+                  src={sourceUrl}
+                  alt="Uploading preview"
+                  className="max-h-[500px] max-w-full object-contain filter brightness-70 contrast-90"
+                />
+              )}
+
+              {/* Dark semi-transparent processing overlay */}
+              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px]" />
+
+              {/* Golden / Cream Sparkle Particles */}
+              {GOLD_SPARKLES.map((sparkle) => (
+                <StarSparkleIcon
+                  key={sparkle.id}
+                  className="absolute animate-sparkle pointer-events-none drop-shadow-[0_0_8px_rgba(253,230,138,0.7)]"
+                  style={{
+                    top: sparkle.top,
+                    left: sparkle.left,
+                    width: `${sparkle.size}px`,
+                    height: `${sparkle.size}px`,
+                    color: sparkle.color,
+                    ["--sparkle-delay" as any]: sparkle.delay,
+                    ["--sparkle-duration" as any]: sparkle.duration,
+                  }}
+                />
+              ))}
+
+              {/* Soft Scanning Beam Animation */}
+              <div className="absolute inset-x-0 h-28 pointer-events-none animate-scan-beam">
+                <div className="h-full bg-gradient-to-b from-transparent via-[#FF2E63]/25 to-transparent" />
+                <div className="h-[1.5px] bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_14px_#FF2E63]" />
+              </div>
+
+              {/* Center Loading Content */}
+              <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
+                {/* Optional status pill */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs font-medium mb-6 backdrop-blur-md">
+                  <span className="size-2 rounded-full bg-[#FF2E63] animate-ping" />
+                  <span>AI Background Removal</span>
+                </div>
+
+                {/* Animated circular loader / AI icon */}
+                <div className="relative size-20 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] flex items-center justify-center text-white shadow-2xl shadow-rose-900/50 mb-5">
+                  <Sparkles className="size-9 animate-spin" style={{ animationDuration: "8s" }} />
+                  <div
+                    className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"
+                    style={{ animationDuration: "2.4s" }}
+                  />
+                </div>
+
+                {/* Main heading */}
+                <h3 className="text-xl sm:text-2xl font-medium text-white tracking-tight">
+                  Removing background...
+                </h3>
+
+                {/* Progressive secondary text */}
+                <p className="text-xs sm:text-sm text-gray-300 mt-2 font-normal h-5 transition-all">
+                  {stage}
+                </p>
+
+                {/* Animated Progress Bar */}
+                <div className="w-64 sm:w-80 mt-6">
+                  <div className="h-2 rounded-full bg-white/15 overflow-hidden backdrop-blur-md p-0.5">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] transition-all duration-300 shadow-[0_0_12px_#FF2E63]"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-gray-400 mt-2 px-1">
+                    <span>Processing</span>
+                    <span className="font-medium text-white">{progress}%</span>
+                  </div>
+                </div>
+
+                {/* Cancel button */}
+                <button
+                  type="button"
+                  onClick={handleCancelProcessing}
+                  className="mt-6 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer underline underline-offset-4"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* STATE 3: FINAL RESULT SCREEN (Checkerboard + Canva Floating)    */}
+          {/* ============================================================== */}
+          {status === "success" && cutoutResult && (
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
+              {/* Header Info & Before / After Controls */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <FileImage className="size-4 text-[#E11D48]" />
+                  <span className="font-semibold text-gray-800 truncate max-w-[200px] sm:max-w-xs">
+                    {uploadedFile?.name || "cutout.png"}
+                  </span>
+                  <span className="text-gray-400 font-normal">
+                    · {cutoutResult.width} × {cutoutResult.height}px · 32-bit PNG
+                  </span>
+                </div>
+
+                {/* Before / After Toggle */}
+                <div className="flex items-center p-1 rounded-full bg-gray-100 border border-gray-200/80 text-xs font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("before")}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                      viewMode === "before"
+                        ? "bg-white text-gray-900 shadow-xs font-semibold"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    Before
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("after")}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                      viewMode === "after"
+                        ? "bg-white text-gray-900 shadow-xs font-semibold"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    After
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Preview Frame */}
+              <div
+                className={`relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden ${
+                  viewMode === "before"
+                    ? "bg-slate-100"
+                    : bgType === "transparent"
+                      ? "checkerboard-pattern"
+                      : ""
+                }`}
+                style={
+                  viewMode === "after" && bgType === "color"
+                    ? { backgroundColor: solidColor }
+                    : undefined
+                }
+              >
+                {/* Floating "Edit in Canva" Button (near top-center of preview) */}
+                <button
+                  type="button"
+                  onClick={onEditInCanva}
+                  disabled={isCanvaLoading}
+                  className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-white text-gray-900 text-xs sm:text-sm font-medium shadow-md hover:shadow-xl border border-gray-200/80 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer disabled:opacity-60"
+                  title="Export transparent PNG to Canva editor"
+                >
+                  <CanvaLogoIcon className="size-4" />
+                  <span>{isCanvaLoading ? "Opening in Canva..." : "Edit in Canva"}</span>
+                </button>
+
+                {/* Displayed Image */}
+                {displayImage && (
+                  <img
+                    src={displayImage}
+                    alt={viewMode === "before" ? "Original upload" : "Cutout result"}
+                    className="max-h-[420px] max-w-full object-contain filter drop-shadow-md transition-all duration-300"
+                  />
+                )}
+
+                {/* Bottom Disclaimer with soft gradient overlay */}
+                <div className="absolute inset-x-0 bottom-0 py-2.5 px-4 bg-gradient-to-t from-black/50 via-black/25 to-transparent flex items-center justify-center text-center pointer-events-auto z-20">
+                  <p className="text-[11px] sm:text-xs text-white/95 drop-shadow-xs font-normal">
+                    By sending your image to Canva you agree to{" "}
+                    <a
+                      href={CANVA_TERMS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-medium hover:text-white transition-colors"
+                    >
+                      Canva's Terms of Service
+                    </a>
+                    .
+                  </p>
+                </div>
+              </div>
+
+              {/* If user selected Solid Color: show swatch palette */}
+              {bgType === "color" && (
+                <div className="px-5 py-3 border-t border-gray-100 bg-gray-50 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <span className="font-semibold text-gray-700">Background Color:</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setBgType("transparent")}
+                      className="px-2.5 py-1 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 text-xs font-medium cursor-pointer"
+                    >
+                      Transparent
+                    </button>
+                    {SOLID_COLOR_PRESETS.slice(0, 5).map((c) => (
+                      <button
+                        key={c.hex}
+                        type="button"
+                        onClick={() => handleColorChange(c.hex)}
+                        className={`size-6 rounded-full border shadow-2xs transition-transform cursor-pointer ${
+                          solidColor.toLowerCase() === c.hex.toLowerCase()
+                            ? "scale-115 ring-2 ring-[#E11D48]"
+                            : "border-black/10 hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                        title={c.name}
+                      />
+                    ))}
+                    <input
+                      type="color"
+                      value={solidColor}
+                      onChange={(e) => handleColorChange(e.target.value)}
+                      className="size-6 rounded-full cursor-pointer border border-gray-300 p-0"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom Actions Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={resetToUpload}
+                    className="px-5 py-2.5 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <RefreshCw className="size-3.5" />
+                    <span>Upload Another Image</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={copyCutoutToClipboard}
+                    className="px-4 py-2.5 rounded-full border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Copy 32-bit PNG to clipboard"
+                  >
+                    <Copy className="size-3.5" />
+                    <span>Copy Image</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={downloadTransparentPng}
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-medium shadow-lg shadow-rose-500/25 transition-all flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
+                  >
+                    <Download className="size-4" />
+                    <span>Download PNG</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* STATE 4: ERROR SCREEN                                           */}
+          {/* ============================================================== */}
+          {status === "error" && (
+            <div className="relative rounded-3xl overflow-hidden border border-rose-200 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
+              {sourceUrl && (
+                <img
+                  src={sourceUrl}
+                  alt="Original upload"
+                  className="max-h-[500px] max-w-full object-contain filter brightness-40 blur-xs"
+                />
+              )}
+
+              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-white rounded-2xl p-6 sm:p-8 text-center shadow-2xl border border-gray-100">
+                  <span className="size-14 rounded-full bg-rose-50 text-[#E11D48] flex items-center justify-center mx-auto mb-4 border border-rose-100">
+                    <AlertTriangle className="size-7" />
+                  </span>
+
+                  <h3 className="text-xl font-semibold text-gray-950 tracking-tight">
+                    We couldn't remove this background.
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-gray-600 mt-2 leading-relaxed">
+                    {inlineError || "Please try again or upload another image."}
+                  </p>
+
+                  <div className="flex items-center justify-center gap-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={retryRemoval}
+                      className="px-5 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-medium transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <RefreshCw className="size-3.5" />
+                      <span>Try Again</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={resetToUpload}
+                      className="px-5 py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
+                    >
+                      Upload Another
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

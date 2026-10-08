@@ -92,6 +92,7 @@ export type CutoutResult = {
   transparentBlobUrl: string;
   compositeBlobUrl: string;
   maskBlobUrl?: string;
+  transparentBlob?: Blob;
   width: number;
   height: number;
   fileSizeBytes: number;
@@ -176,6 +177,7 @@ export async function removeImageBackground(
       transparentBlobUrl: transparentUrl,
       compositeBlobUrl: compositeUrl,
       maskBlobUrl: getMaskUrl(completedJob.id),
+      transparentBlob: resultBlob,
       width,
       height,
       fileSizeBytes: size,
@@ -292,6 +294,7 @@ async function clientSideFallbackRemoval(
         resolve({
           transparentBlobUrl: transUrl,
           compositeBlobUrl: transUrl,
+          transparentBlob: transBlob,
           width: w,
           height: h,
           fileSizeBytes: transBlob.size,

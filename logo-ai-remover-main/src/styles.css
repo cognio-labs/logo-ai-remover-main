@@ -3406,3 +3406,55 @@ body {
 .bg-results {
   background: linear-gradient(180deg, #fff8fb, #fff) !important;
 }
+
+/* Background Remover Processing Animations */
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.65) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle-twinkle var(--sparkle-duration, 2.5s) ease-in-out infinite;
+  animation-delay: var(--sparkle-delay, 0s);
+}
+
+@keyframes scan-beam {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-beam {
+  animation: scan-beam 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.checkerboard-pattern {
+  background-image: repeating-conic-gradient(#f1f5f9 0% 25%, #ffffff 0% 50%);
+  background-size: 20px 20px;
+  background-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sparkle,
+  .animate-scan-beam {
+    animation: none !important;
+  }
+}
+
