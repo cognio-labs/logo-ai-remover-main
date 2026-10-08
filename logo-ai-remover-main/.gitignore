@@ -48,3 +48,4 @@ backend/models/weights/*
 
 .vercel
 .playwright-cli/
+test_*.png

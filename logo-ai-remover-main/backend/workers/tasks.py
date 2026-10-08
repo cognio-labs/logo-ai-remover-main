@@ -75,7 +75,10 @@ def remove_bg_task(self, job_id: str, input_path: str, output_path: str, quality
         )
         signed_url = storage_service.get_signed_url(str(output_path))
         res["download_url"] = signed_url
-        update_job_status(job_id, "done", 100, "Background removed", result_data=res)
+        res["result_url"] = signed_url
+        res["job_id"] = job_id
+        final_msg = "No clear subject detected" if res.get("status") == "no_clear_subject" else "Background removed"
+        update_job_status(job_id, "done", 100, final_msg, result_data=res)
         return res
     except Exception as exc:
         logger.error(f"Background removal task failed: {exc}", exc_info=True)

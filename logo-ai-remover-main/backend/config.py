@@ -41,8 +41,9 @@ class Settings(BaseSettings):
     background_storage_root: Path = BACKEND_DIR / "storage" / "background_jobs"
     video_enhancer_storage_root: Path = BACKEND_DIR / "storage" / "video_enhancer_jobs"
     weights_root: Path = BACKEND_DIR / "models" / "weights"
-    bg_model_name: str = "u2net.onnx"
+    bg_model_name: str = "silueta.onnx"
     bg_fast_model_name: str = "silueta.onnx"
+    bg_ultra_model_name: str = "u2net.onnx"
     bg_device: str = "auto"
     bg_max_upload_mb: int = 35
     bg_tile_size: int = 1024

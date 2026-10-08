@@ -1078,6 +1078,51 @@ function BackgroundRemoverPage() {
     resetToUpload();
   };
 
+  const handleRemoveSkyOnly = async () => {
+    if (!uploadedFile) return;
+    setStatus("processing");
+    setProgress(35);
+    setStage("Isolating landscape terrain and removing sky...");
+    try {
+      const formData = new FormData();
+      formData.append("job_id", cutoutResult?.jobId || "sky_job");
+      formData.append("action", "remove_sky");
+      formData.append("image", uploadedFile);
+      formData.append("sync", "true");
+
+      const res = await fetch("/api/remove-bg", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data && (data.download_url || data.result_url)) {
+        const urlToFetch = data.download_url || data.result_url;
+        const dlRes = await fetch(urlToFetch);
+        const b = await dlRes.blob();
+        const url = URL.createObjectURL(b);
+        setCutoutResult((prev) =>
+          prev
+            ? {
+                ...prev,
+                transparentBlobUrl: url,
+                compositeBlobUrl: url,
+                status: "ok",
+                warnings: ["Sky removed successfully."],
+              }
+            : null,
+        );
+        setStatus("success");
+        toast.success("Sky removed successfully from landscape!");
+      } else {
+        throw new Error(data.detail || "Sky isolation failed");
+      }
+    } catch (err) {
+      console.error("Sky removal failed:", err);
+      toast.error("Could not isolate sky. Reverting to original view.");
+      setStatus("success");
+    }
+  };
+
   const resetToUpload = () => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
@@ -1519,18 +1564,20 @@ function BackgroundRemoverPage() {
           {/* STATE 2: PROCESSING SCREEN (Dark overlay + Gold Sparkles)        */}
           {/* ============================================================== */}
           {(status === "uploading" || status === "processing") && (
-            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
-              {/* Uploaded source image centered and dimmed */}
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none p-4 sm:p-8">
+              {/* Uploaded source image positioned as ambient background */}
               {sourceUrl && (
-                <img
-                  src={sourceUrl}
-                  alt="Uploading preview"
-                  className="max-h-[500px] max-w-full object-contain filter brightness-70 contrast-90"
-                />
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+                  <img
+                    src={sourceUrl}
+                    alt="Uploading preview"
+                    className="w-full h-full object-cover filter blur-sm brightness-[0.30] scale-105"
+                  />
+                </div>
               )}
 
               {/* Dark semi-transparent processing overlay */}
-              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px]" />
+              <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[3px] pointer-events-none" />
 
               {/* Golden / Cream Sparkle Particles */}
               {GOLD_SPARKLES.map((sparkle) => (
@@ -1556,11 +1603,11 @@ function BackgroundRemoverPage() {
               </div>
 
               {/* Center Loading Content */}
-              <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-                {/* Optional status pill */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/90 text-xs font-medium mb-6 backdrop-blur-md">
+              <div className="relative z-10 flex flex-col items-center justify-center p-6 sm:p-10 text-center max-w-lg mx-auto w-full">
+                {/* Status pill */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-medium mb-6 backdrop-blur-md shadow-xs">
                   <span className="size-2 rounded-full bg-[#FF2E63] animate-ping" />
-                  <span>AI Background Removal</span>
+                  <span className="tracking-wide">AI Background Removal</span>
                 </div>
 
                 {/* Animated circular loader / AI icon */}
@@ -1573,17 +1620,17 @@ function BackgroundRemoverPage() {
                 </div>
 
                 {/* Main heading */}
-                <h3 className="text-xl sm:text-2xl font-medium text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight break-words px-4">
                   Removing background...
                 </h3>
 
                 {/* Progressive secondary text */}
-                <p className="text-xs sm:text-sm text-gray-300 mt-2 font-normal h-5 transition-all">
+                <p className="text-xs sm:text-sm text-gray-300 mt-2 font-normal max-w-xs sm:max-w-md mx-auto truncate transition-all">
                   {stage}
                 </p>
 
                 {/* Animated Progress Bar */}
-                <div className="w-64 sm:w-80 mt-6">
+                <div className="w-full max-w-xs sm:max-w-sm mt-6">
                   <div className="h-2 rounded-full bg-white/15 overflow-hidden backdrop-blur-md p-0.5">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] transition-all duration-300 shadow-[0_0_12px_#FF2E63]"
@@ -1613,6 +1660,33 @@ function BackgroundRemoverPage() {
           {/* ============================================================== */}
           {status === "success" && cutoutResult && (
             <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
+              {/* Landscape / No Clear Subject Banner */}
+              {cutoutResult.status === "no_clear_subject" && (
+                <div className="m-4 sm:m-5 p-4 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-start gap-2.5">
+                    <AlertTriangle className="size-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-semibold text-amber-950">
+                        Landscape / Panoramic Scene Detected
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-amber-800 mt-0.5">
+                        No isolated foreground subject found. Your original image is kept 100% intact so nothing is damaged.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={handleRemoveSkyOnly}
+                      className="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Zap className="size-3.5" />
+                      <span>Remove Sky Only</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Header Info & Before / After Controls */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
                 <div className="flex items-center gap-2 text-xs text-gray-600">

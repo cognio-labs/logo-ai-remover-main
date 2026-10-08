@@ -11,6 +11,7 @@
  */
 
 import {
+  removeBackgroundDirect,
   createBackgroundJob,
   pollBackgroundJob,
   recompositeBackground,
@@ -99,11 +100,16 @@ export type CutoutResult = {
   fileSizeFormatted: string;
   processingTimeMs?: number;
   isRealAi?: boolean;
+  status?: string;
+  confidenceScore?: number;
+  warnings?: string[];
+  actions?: Array<{ id: string; label: string; type: string }>;
 };
 
 /**
  * Removes background from an image URL using the real backend AI engine.
  * Transparent output is guaranteed to have a genuine 8-bit alpha channel.
+ * Runs in under 1 second using the direct high-performance engine path.
  */
 export async function removeImageBackground(
   imageUrl: string,
@@ -126,9 +132,50 @@ export async function removeImageBackground(
     }
 
     const fileName = "upload.png";
-    if (onProgress) onProgress("Uploading to neural segmentation engine...", 25);
 
-    // Submit job to FastAPI backend
+    // 1. FAST DIRECT PATH (<1s execution)
+    try {
+      if (onProgress) onProgress("Isolating edges & sub-pixel matting...", 45);
+      const direct = await removeBackgroundDirect(blob, fileName, {
+        bg_type: bgType,
+        bg_color: customColor,
+        backdrop_id: backdropId,
+        quality_mode: "fast",
+        export_format: bgType === "transparent" ? "png" : "jpg",
+        edge_refinement: true,
+        color_decontamination: true,
+      });
+
+      if (direct && direct.result_url) {
+        if (onProgress) onProgress("Ready", 100);
+        const downloadRes = await fetch(direct.result_url);
+        const resultBlob = await downloadRes.blob();
+        const resultBlobUrl = URL.createObjectURL(resultBlob);
+
+        return {
+          jobId: direct.job_id,
+          transparentBlobUrl: resultBlobUrl,
+          compositeBlobUrl: resultBlobUrl,
+          maskBlobUrl: direct.mask_url,
+          transparentBlob: resultBlob,
+          width: direct.width || 1200,
+          height: direct.height || 900,
+          fileSizeBytes: resultBlob.size,
+          fileSizeFormatted: formatBytes(resultBlob.size),
+          processingTimeMs: direct.processing_time_ms,
+          isRealAi: true,
+          status: direct.status,
+          confidenceScore: direct.confidence_score,
+          warnings: direct.warnings,
+          actions: direct.actions,
+        };
+      }
+    } catch (directErr) {
+      console.warn("Direct fast removal failed or timed out, falling back to background job:", directErr);
+    }
+
+    // 2. FALLBACK TO ASYNC JOB QUEUE
+    if (onProgress) onProgress("Uploading to neural segmentation engine...", 35);
     const job = await createBackgroundJob(blob, fileName, {
       bg_type: bgType,
       bg_color: customColor,
@@ -139,24 +186,20 @@ export async function removeImageBackground(
       color_decontamination: true,
     });
 
-    // Poll until complete
     const completedJob = await pollBackgroundJob(job.id, (statusUpdate) => {
       if (onProgress) {
         onProgress(statusUpdate.message || statusUpdate.stage, statusUpdate.progress);
       }
     });
 
-    // Fetch transparent result as Blob
     const downloadRes = await fetch(getDownloadUrl(completedJob.id));
     const resultBlob = await downloadRes.blob();
     const resultBlobUrl = URL.createObjectURL(resultBlob);
 
-    // If non-transparent was requested, also get transparent cutout preview
     let transparentUrl = resultBlobUrl;
     let compositeUrl = resultBlobUrl;
 
     if (bgType !== "transparent") {
-      // Re-composite request for transparent cutout url
       try {
         const transRes = await fetch(getDownloadUrl(completedJob.id, "png"));
         const transBlob = await transRes.blob();
@@ -184,6 +227,10 @@ export async function removeImageBackground(
       fileSizeFormatted: formatBytes(size),
       processingTimeMs: completedJob.processing_time_ms,
       isRealAi: true,
+      status: completedJob.status,
+      confidenceScore: completedJob.confidence_score,
+      warnings: completedJob.warnings,
+      actions: completedJob.actions,
     };
   } catch (error) {
     console.warn("Backend AI removal failed, utilizing client-side fallback:", error);

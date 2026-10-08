@@ -34,8 +34,10 @@ class LocalBiRefNetEngine(BackgroundRemovalEngine):
                 providers.append("CUDAExecutionProvider")
             providers.append("CPUExecutionProvider")
 
+            import os
             opts = ort.SessionOptions()
-            opts.intra_op_num_threads = 4
+            opts.intra_op_num_threads = min(8, os.cpu_count() or 4)
+            opts.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
             opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
 
             if not self.model_path.is_file():

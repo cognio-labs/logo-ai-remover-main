@@ -64,6 +64,10 @@ export interface BackgroundJobResponse {
   result_metadata?: BackgroundJobMetadata;
   processing_time_ms: number;
   error?: string;
+  confidence_score?: number;
+  confidence_report?: any;
+  warnings?: string[];
+  actions?: Array<{ id: string; label: string; type: string }>;
 }
 
 export interface DirectRemovalResult {
@@ -75,6 +79,10 @@ export interface DirectRemovalResult {
   preview_url: string;
   result_url: string;
   mask_url: string;
+  confidence_score?: number;
+  confidence_report?: any;
+  warnings?: string[];
+  actions?: Array<{ id: string; label: string; type: string }>;
 }
 const API_ORIGIN =
   (

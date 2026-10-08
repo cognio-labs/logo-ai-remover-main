@@ -63,6 +63,49 @@ def process_background_removal(job_id: str) -> None:
         # Run inference
         raw_mask = model_manager.predict_mask(img_rgb, fast_mode=fast_mode, tiled=ultra_hd)
 
+        # Subject Detection & Landscape Protection
+        from backend.engines.subject_detector import subject_detector
+        confidence_report = subject_detector.analyze_mask(raw_mask.astype(np.float32) / 255.0, img_rgb)
+        logger.info(
+            "Job %s subject confidence: status=%s score=%.2f area=%.3f",
+            job_id, confidence_report.status, confidence_report.confidence_score, confidence_report.mask_area_ratio
+        )
+
+        if confidence_report.status == "NO_SUBJECT":
+            logger.warning("No prominent foreground subject detected in job %s. Preserving original image.", job_id)
+            # Safe Fallback: keep original image intact, do NOT tear into shredded cutout!
+            refined_mask = np.full((h, w), 255, dtype=np.uint8)
+            processed_fg = img_rgb
+            mask_path = background_job_service.save_mask(job_id, refined_mask)
+
+            export_ext = "png" if job.config.bg_type == BackgroundType.TRANSPARENT else job.config.export_format.value
+            composited_img = np.dstack([img_rgb, refined_mask]) if job.config.bg_type == BackgroundType.TRANSPARENT else img_rgb
+            result_path = background_job_service.save_result(job_id, composited_img, ext=export_ext)
+            preview_path = background_job_service.save_preview(job_id, composited_img)
+
+            elapsed_ms = int((time.time() - start_time) * 1000)
+            result_meta = BackgroundImageMetadata(
+                width=w, height=h, channels=4 if job.config.bg_type == BackgroundType.TRANSPARENT else 3,
+                format=export_ext, size_bytes=Path(result_path).stat().st_size
+            )
+            background_job_service.update(
+                job_id,
+                status=BackgroundJobStatus.NO_CLEAR_SUBJECT,
+                progress=100,
+                stage="No Clear Subject",
+                message="No prominent foreground subject detected in this landscape/scene photo.",
+                mask_path=str(mask_path),
+                result_path=str(result_path),
+                preview_path=str(preview_path),
+                result_metadata=result_meta,
+                processing_time_ms=elapsed_ms,
+                confidence_score=confidence_report.confidence_score,
+                confidence_report=confidence_report.to_dict(),
+                warnings=confidence_report.warnings,
+                actions=confidence_report.actions,
+            )
+            return
+
         # Step 3: Refining
         background_job_service.update(
             job_id,
@@ -163,6 +206,10 @@ def process_background_removal(job_id: str) -> None:
             preview_path=str(preview_path),
             result_metadata=result_meta,
             processing_time_ms=elapsed_ms,
+            confidence_score=confidence_report.confidence_score,
+            confidence_report=confidence_report.to_dict(),
+            warnings=confidence_report.warnings,
+            actions=confidence_report.actions,
         )
         logger.info("Job %s completed in %d ms", job_id, elapsed_ms)
 

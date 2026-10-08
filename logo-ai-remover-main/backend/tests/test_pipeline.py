@@ -51,3 +51,47 @@ def test_cache_service_hashing():
     h3 = cache.compute_hash(b"test_image_bytes", scale=2, mode="natural")
     assert h1 == h2, "Identical inputs must yield identical cache keys"
     assert h1 != h3, "Different parameters must yield different cache keys"
+
+def test_subject_detector_portrait_vs_landscape():
+    from backend.engines.subject_detector import subject_detector
+    # 1. Clear portrait mask (centered object covering ~30% of image)
+    portrait_mask = np.zeros((400, 400), dtype=np.float32)
+    portrait_mask[100:300, 120:280] = 0.95
+    rep_portrait = subject_detector.analyze_mask(portrait_mask)
+    assert rep_portrait.status == "GOOD", f"Expected GOOD status for portrait, got {rep_portrait.status}"
+    assert rep_portrait.confidence_score > 0.65
+
+    # 2. Landscape mask with tiny lake reflection (<2% area)
+    landscape_mask = np.zeros((400, 400), dtype=np.float32)
+    landscape_mask[220:250, 180:230] = 0.85
+    rep_landscape = subject_detector.analyze_mask(landscape_mask)
+    assert rep_landscape.status == "NO_SUBJECT", f"Expected NO_SUBJECT for landscape, got {rep_landscape.status}"
+    assert "no prominent foreground subject" in rep_landscape.warnings[0].lower()
+
+def test_mountain_lake_landscape_regression():
+    lake_path = Path("public/upscale/mountain_lake.jpg")
+    if not lake_path.exists():
+        pytest.skip("mountain_lake.jpg not found on disk")
+
+    engine = BiRefNetEngine()
+    out_path = Path("test_lake_regression_out.png")
+    res = engine.remove_background(lake_path, out_path, quality="fast")
+
+    assert res["status"] == "no_clear_subject", f"Expected 'no_clear_subject' for landscape lake, got {res['status']}"
+    assert "actions" in res or "confidence_report" in res
+    assert out_path.exists()
+    assert res["width"] == 2048 and res["height"] == 2048
+
+def test_sky_segmentation_filter():
+    engine = BiRefNetEngine()
+    # Create synthetic landscape image: top is blue sky, bottom is green terrain
+    img = np.zeros((300, 300, 3), dtype=np.uint8)
+    img[:120, :] = [135, 206, 235]  # Sky blue
+    img[120:, :] = [34, 139, 34]    # Forest green
+
+    sky_mask = engine.segment_sky(img)
+    assert sky_mask.shape == (300, 300)
+    # Top sky region should be removed (low alpha < 50)
+    assert np.mean(sky_mask[:80, :]) < 50
+    # Bottom terrain region should be kept (high alpha > 200)
+    assert np.mean(sky_mask[150:, :]) > 200

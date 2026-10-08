@@ -291,6 +291,10 @@ async def remove_background_direct(
         "preview_url": f"/api/v1/jobs/{job_id}/preview",
         "result_url": f"/api/v1/jobs/{job_id}/download",
         "mask_url": f"/api/v1/jobs/{job_id}/mask",
+        "confidence_score": updated_job.confidence_score,
+        "confidence_report": updated_job.confidence_report,
+        "warnings": updated_job.warnings,
+        "actions": updated_job.actions,
     }
 
 

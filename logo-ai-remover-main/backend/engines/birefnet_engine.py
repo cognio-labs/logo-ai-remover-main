@@ -270,7 +270,7 @@ class BiRefNetEngine:
             full_alpha = np.full((h, w), 255, dtype=np.uint8)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             rgba_intact = np.dstack([orig_np, full_alpha])
-            Image.fromarray(rgba_intact, mode="RGBA").save(output_path, "PNG", optimize=True)
+            Image.fromarray(rgba_intact, mode="RGBA").save(output_path, "PNG", compress_level=2)
 
             if debug_dir:
                 cv2.imwrite(str(debug_dir / "08_final_rgba.png"), cv2.cvtColor(rgba_intact, cv2.COLOR_RGBA2BGRA))
@@ -376,7 +376,7 @@ class BiRefNetEngine:
                 composite[final_alpha <= 5] = [255, 255, 255]
 
             final_pil = Image.fromarray(composite)
-            final_pil.save(output_path, "PNG", optimize=True)
+            final_pil.save(output_path, "PNG", compress_level=2)
 
         elif norm_mode == "studio" or norm_mode == "studio_set":
             # Studio Set with realistic drop/contact shadow
@@ -391,13 +391,13 @@ class BiRefNetEngine:
             backdrop_with_shadow = (bg_layer.astype(np.float32) * (1.0 - shifted_shadow * 0.6))
             composite = (clean_fg.astype(np.float32) * alpha_3d + backdrop_with_shadow * (1.0 - alpha_3d))
             final_pil = Image.fromarray(np.clip(composite, 0, 255).astype(np.uint8))
-            final_pil.save(output_path, "PNG", optimize=True)
+            final_pil.save(output_path, "PNG", compress_level=2)
 
         else:
             # 32-bit Transparent PNG with straight alpha
             rgba = np.dstack([clean_fg, final_alpha])
             final_pil = Image.fromarray(rgba, mode="RGBA")
-            final_pil.save(output_path, "PNG", optimize=True)
+            final_pil.save(output_path, "PNG", compress_level=2)
             if debug_dir:
                 cv2.imwrite(str(debug_dir / "08_final_rgba.png"), cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGRA))
 

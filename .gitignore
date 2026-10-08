@@ -35,3 +35,7 @@ logo-ai-remover-main/backend/models/weights/*
 .vercel/
 logo-ai-remover-main/.vercel/
 
+# Test artifacts
+test_*.png
+logo-ai-remover-main/test_*.png
+

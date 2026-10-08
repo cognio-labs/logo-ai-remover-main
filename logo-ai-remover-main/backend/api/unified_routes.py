@@ -77,6 +77,8 @@ async def api_upscale(
 # -------------------------------------------------------------------------
 # 2. BACKGROUND REMOVER: POST /api/remove-bg
 # -------------------------------------------------------------------------
+from backend.engines.birefnet_engine import birefnet_engine
+
 @router.post("/api/remove-bg")
 @router.post("/api/background/remove")
 async def api_remove_bg(
@@ -86,6 +88,8 @@ async def api_remove_bg(
     bg_mode: str = Form("transparent"),
     bg_color: str = Form("#FFFFFF"),
     studio_preset: str = Form("luxury-studio"),
+    action: Optional[str] = Form(None),
+    sync: bool = Form(False),
     format: str = Form("png"),
 ):
     rate_limiter.check_rate_limit(request)
@@ -105,6 +109,24 @@ async def api_remove_bg(
     with open(input_path, "wb") as f:
         f.write(content)
 
+    # Fast synchronous path (<1 second)
+    if sync or quality == "fast":
+        try:
+            res = birefnet_engine.remove_background(
+                input_path, output_path,
+                quality=quality, bg_mode=bg_mode, bg_color=bg_color,
+                studio_preset=studio_preset, action=action, job_id=job_id
+            )
+            signed_url = storage_service.get_signed_url(str(output_path))
+            res["job_id"] = job_id
+            res["download_url"] = signed_url
+            res["result_url"] = signed_url
+            res["preview_url"] = signed_url
+            update_job_status(job_id, "done", 100, "Completed", result_data=res)
+            return res
+        except Exception as e:
+            logger.error(f"Sync removal failed ({e}), falling back to background worker")
+
     update_job_status(job_id, "queued", 0, "Job enqueued")
 
     try:
@@ -116,6 +138,54 @@ async def api_remove_bg(
         ))
 
     return {"job_id": job_id, "status": "queued"}
+
+
+@router.post("/api/remove-bg/refine")
+@router.post("/api/background/refine")
+async def api_remove_bg_refine(
+    request: Request,
+    job_id: str = Form(...),
+    action: Optional[str] = Form(None),
+    positive_points: Optional[str] = Form(None),
+    negative_points: Optional[str] = Form(None),
+    box: Optional[str] = Form(None),
+    brush_strokes: Optional[str] = Form(None),
+):
+    """Refines background removal with user interactive brush strokes, points, or remove_sky."""
+    rate_limiter.check_rate_limit(request)
+    work_dir = settings.background_storage_root / job_id
+    if not work_dir.exists():
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    input_files = list(work_dir.glob("input.*"))
+    if not input_files:
+        raise HTTPException(status_code=404, detail="Original image not found")
+    input_path = input_files[0]
+    out_path = work_dir / "cutout_refined.png"
+    mask_path = work_dir / "mask.png"
+
+    if action == "remove_sky":
+        res = birefnet_engine.remove_background(
+            input_path, out_path, action="remove_sky", job_id=job_id
+        )
+    else:
+        import json
+        pos = json.loads(positive_points) if positive_points else None
+        neg = json.loads(negative_points) if negative_points else None
+        b = json.loads(box) if box else None
+        strokes = json.loads(brush_strokes) if brush_strokes else None
+
+        res = birefnet_engine.refine_mask_interactive(
+            input_path, mask_path, out_path,
+            positive_points=pos, negative_points=neg, box=b, brush_strokes=strokes
+        )
+
+    signed_url = storage_service.get_signed_url(str(out_path))
+    res["job_id"] = job_id
+    res["download_url"] = signed_url
+    res["result_url"] = signed_url
+    res["preview_url"] = signed_url
+    return res
 
 # -------------------------------------------------------------------------
 # 3. IMAGE CLEANER: POST /api/clean/detect & POST /api/clean

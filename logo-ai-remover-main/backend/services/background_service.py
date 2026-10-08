@@ -68,6 +68,10 @@ class BackgroundJobService:
         result_metadata: Optional[BackgroundImageMetadata] = None,
         config: Optional[BackgroundConfig] = None,
         processing_time_ms: Optional[int] = None,
+        confidence_score: Optional[float] = None,
+        confidence_report: Optional[dict] = None,
+        warnings: Optional[list] = None,
+        actions: Optional[list] = None,
         completed_at: Optional[str] = None,
     ) -> BackgroundJobRecord:
         with self._lock:
@@ -94,9 +98,17 @@ class BackgroundJobService:
                 job.config = config
             if processing_time_ms is not None:
                 job.processing_time_ms = processing_time_ms
+            if confidence_score is not None:
+                job.confidence_score = confidence_score
+            if confidence_report is not None:
+                job.confidence_report = confidence_report
+            if warnings is not None:
+                job.warnings = warnings
+            if actions is not None:
+                job.actions = actions
             if completed_at is not None:
                 job.completed_at = completed_at
-            elif status == BackgroundJobStatus.COMPLETED and not job.completed_at:
+            elif status in (BackgroundJobStatus.COMPLETED, BackgroundJobStatus.NO_CLEAR_SUBJECT) and not job.completed_at:
                 job.completed_at = datetime.now(timezone.utc).isoformat()
             return self.save(job)
 

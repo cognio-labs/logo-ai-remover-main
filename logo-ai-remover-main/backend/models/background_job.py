@@ -13,6 +13,7 @@ class BackgroundJobStatus(StrEnum):
     COMPOSITING = "compositing"
     VERIFYING = "verifying"
     COMPLETED = "completed"
+    NO_CLEAR_SUBJECT = "no_clear_subject"
     FAILED = "failed"
 
 
@@ -84,6 +85,10 @@ class BackgroundJobRecord(BaseModel):
     result_metadata: Optional[BackgroundImageMetadata] = None
     processing_time_ms: int = 0
     engine_used: str = "local_onnx"
+    confidence_score: float = 1.0
+    confidence_report: Optional[Dict[str, Any]] = None
+    warnings: List[str] = Field(default_factory=list)
+    actions: List[Dict[str, str]] = Field(default_factory=list)
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     completed_at: Optional[str] = None
     error: str = ""
@@ -91,6 +96,9 @@ class BackgroundJobRecord(BaseModel):
 
 class RefineMaskRequest(BaseModel):
     job_id: str
+    positive_points: Optional[List[List[float]]] = None
+    negative_points: Optional[List[List[float]]] = None
+    box: Optional[List[float]] = None
     strokes: List[ManualStroke] = Field(default_factory=list)
     edge_refine: bool = True
 

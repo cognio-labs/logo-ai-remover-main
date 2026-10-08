@@ -6,6 +6,6 @@
     "dev": "npm --prefix logo-ai-remover-main run dev",
     "backend": "npm --prefix logo-ai-remover-main run backend",
     "build": "npm --prefix logo-ai-remover-main run build",
-    "vercel-build": "npm --prefix logo-ai-remover-main install && npm --prefix logo-ai-remover-main run build"
+    "vercel-build": "cd logo-ai-remover-main && npm install && npm run build && node -e \"const fs = require('fs'); if (fs.existsSync('.vercel/output')) { fs.cpSync('.vercel/output', '../.vercel/output', { recursive: true }); } if (fs.existsSync('.output')) { fs.cpSync('.output', '../.output', { recursive: true }); }\""
   }
 }
