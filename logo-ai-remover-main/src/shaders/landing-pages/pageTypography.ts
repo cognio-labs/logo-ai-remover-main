@@ -138,16 +138,21 @@ function normalizeHex(value: string | undefined, fallback: string) {
 }
 
 function hexToHsl(hex: string): Hsl {
-  const [red, green, blue] = [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255);
+  const [red, green, blue] = [1, 3, 5].map(
+    (index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255,
+  );
   const max = Math.max(red, green, blue);
   const min = Math.min(red, green, blue);
   const l = (max + min) / 2;
   const delta = max - min;
   if (delta === 0) return { h: 0, s: 0, l };
   const s = delta / (1 - Math.abs(2 * l - 1));
-  const base = max === red
-    ? ((green - blue) / delta) % 6
-    : max === green ? (blue - red) / delta + 2 : (red - green) / delta + 4;
+  const base =
+    max === red
+      ? ((green - blue) / delta) % 6
+      : max === green
+        ? (blue - red) / delta + 2
+        : (red - green) / delta + 4;
   return { h: (base * 60 + 360) % 360, s, l };
 }
 
@@ -155,17 +160,25 @@ function hslToRgb({ h, s, l }: Hsl) {
   const c = (1 - Math.abs(2 * l - 1)) * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = l - c / 2;
-  const [r, g, b] = h < 60 ? [c, x, 0]
-    : h < 120 ? [x, c, 0]
-    : h < 180 ? [0, c, x]
-    : h < 240 ? [0, x, c]
-    : h < 300 ? [x, 0, c]
-    : [c, 0, x];
+  const [r, g, b] =
+    h < 60
+      ? [c, x, 0]
+      : h < 120
+        ? [x, c, 0]
+        : h < 180
+          ? [0, c, x]
+          : h < 240
+            ? [0, x, c]
+            : h < 300
+              ? [x, 0, c]
+              : [c, 0, x];
   return [r + m, g + m, b + m].map((channel) => Math.round(clamp01(channel) * 255));
 }
 
 function hslToHex(hsl: Hsl) {
-  return `#${hslToRgb(hsl).map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+  return `#${hslToRgb(hsl)
+    .map((channel) => channel.toString(16).padStart(2, "0"))
+    .join("")}`;
 }
 
 /**
@@ -193,12 +206,19 @@ function selectWeight(value: string | undefined, options: readonly string[], fal
   return options.includes(value as string) ? (value as string) : fallback;
 }
 
-function clampRange(value: number | undefined, [min, fallback, max]: readonly [number, number, number]) {
+function clampRange(
+  value: number | undefined,
+  [min, fallback, max]: readonly [number, number, number],
+) {
   return Number.isFinite(value) ? Math.min(max, Math.max(min, value as number)) : fallback;
 }
 
 function fontHrefFor(fonts: readonly PageFont[]) {
-  const families = [...new Set(fonts.map((font) => font.google).filter((family): family is string => Boolean(family)))];
+  const families = [
+    ...new Set(
+      fonts.map((font) => font.google).filter((family): family is string => Boolean(family)),
+    ),
+  ];
   if (!families.length) return undefined;
   return `https://fonts.googleapis.com/css2?${families.map((family) => `family=${family}`).join("&")}&display=swap`;
 }
@@ -208,7 +228,17 @@ function fontHrefFor(fonts: readonly PageFont[]) {
  * to the frame. Keeps each page component down to the two lines that differ.
  */
 export function splitTypographyProps<T extends PageTypographyProps>(props: T) {
-  const { headingFont, bodyFont, headingWeight, bodyWeight, primaryColor, headingSize, bodySize, headingLetterSpacing, ...rest } = props;
+  const {
+    headingFont,
+    bodyFont,
+    headingWeight,
+    bodyWeight,
+    primaryColor,
+    headingSize,
+    bodySize,
+    headingLetterSpacing,
+    ...rest
+  } = props;
   const type: PageTypographyProps = {
     headingFont,
     bodyFont,
@@ -224,8 +254,20 @@ export function splitTypographyProps<T extends PageTypographyProps>(props: T) {
 
 /* ── the hook every page in this family uses ─────────────────────────── */
 
-export function usePageTypography(recipe: PageTypographyRecipe, props: PageTypographyProps): LandingPageCustomization {
-  const { headingFont, bodyFont, headingWeight, bodyWeight, primaryColor, headingSize, bodySize, headingLetterSpacing } = props;
+export function usePageTypography(
+  recipe: PageTypographyRecipe,
+  props: PageTypographyProps,
+): LandingPageCustomization {
+  const {
+    headingFont,
+    bodyFont,
+    headingWeight,
+    bodyWeight,
+    primaryColor,
+    headingSize,
+    bodySize,
+    headingLetterSpacing,
+  } = props;
 
   return useMemo(() => {
     const heading = selectFont(headingFont, recipe.headingFonts);
@@ -246,12 +288,16 @@ export function usePageTypography(recipe: PageTypographyRecipe, props: PageTypog
 
     const retoneRgba = (color: string) => {
       if (untouched) return color;
-      const match = color.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/i);
+      const match = color.match(
+        /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/i,
+      );
       if (!match) return color;
       const hex = `#${[match[1], match[2], match[3]]
         .map((channel) => Math.round(Number(channel)).toString(16).padStart(2, "0"))
         .join("")}`;
-      const [red, green, blue] = [1, 3, 5].map((index) => Number.parseInt(retone(hex).slice(index, index + 2), 16));
+      const [red, green, blue] = [1, 3, 5].map((index) =>
+        Number.parseInt(retone(hex).slice(index, index + 2), 16),
+      );
       return match[4] === undefined
         ? `rgb(${red}, ${green}, ${blue})`
         : `rgba(${red}, ${green}, ${blue}, ${match[4]})`;
@@ -281,8 +327,22 @@ export function usePageTypography(recipe: PageTypographyRecipe, props: PageTypog
       filter,
     };
 
-    return { css: recipe.css(type), fontHref: fontHrefFor([heading, body]), inlineStyles: recipe.inlineStyles?.(type) };
-  }, [recipe, headingFont, bodyFont, headingWeight, bodyWeight, primaryColor, headingSize, bodySize, headingLetterSpacing]);
+    return {
+      css: recipe.css(type),
+      fontHref: fontHrefFor([heading, body]),
+      inlineStyles: recipe.inlineStyles?.(type),
+    };
+  }, [
+    recipe,
+    headingFont,
+    bodyFont,
+    headingWeight,
+    bodyWeight,
+    primaryColor,
+    headingSize,
+    bodySize,
+    headingLetterSpacing,
+  ]);
 }
 
 /* ── injection ───────────────────────────────────────────────────────── */
@@ -330,12 +390,18 @@ window.addEventListener("message", function (event) {
 });
 </script>`;
 
-export function postPageCustomization(frame: HTMLIFrameElement | null, customization?: LandingPageCustomization) {
-  frame?.contentWindow?.postMessage({
-    type: MESSAGE_TYPE,
-    css: customization?.css ?? "",
-    fontHref: customization?.fontHref,
-  }, "*");
+export function postPageCustomization(
+  frame: HTMLIFrameElement | null,
+  customization?: LandingPageCustomization,
+) {
+  frame?.contentWindow?.postMessage(
+    {
+      type: MESSAGE_TYPE,
+      css: customization?.css ?? "",
+      fontHref: customization?.fontHref,
+    },
+    "*",
+  );
 }
 
 /**
@@ -344,7 +410,10 @@ export function postPageCustomization(frame: HTMLIFrameElement | null, customiza
  * sheet last in the head, which is what lets it win against the page's own
  * rules at equal specificity without a single !important.
  */
-export function applyPageCustomization(frame: HTMLIFrameElement | null, customization?: LandingPageCustomization) {
+export function applyPageCustomization(
+  frame: HTMLIFrameElement | null,
+  customization?: LandingPageCustomization,
+) {
   const frameDocument = frame?.contentDocument;
   if (!frameDocument?.head) return;
 
@@ -364,14 +433,17 @@ export function applyPageCustomization(frame: HTMLIFrameElement | null, customiz
     return;
   }
 
-  const style = (frameDocument.getElementById(STYLE_ID) as HTMLStyleElement | null) ?? frameDocument.createElement("style");
+  const style =
+    (frameDocument.getElementById(STYLE_ID) as HTMLStyleElement | null) ??
+    frameDocument.createElement("style");
   style.id = STYLE_ID;
   if (style.textContent !== customization.css) style.textContent = customization.css;
   frameDocument.head.append(style);
 
   for (const override of customization.inlineStyles ?? []) {
     for (const element of frameDocument.querySelectorAll<HTMLElement>(override.selector)) {
-      for (const [property, value] of Object.entries(override.styles)) element.style.setProperty(property, value);
+      for (const [property, value] of Object.entries(override.styles))
+        element.style.setProperty(property, value);
     }
   }
 }

@@ -58,9 +58,7 @@ const FloatingDockMobile = ({
               const isInternal = item.href.startsWith("/");
               const InnerIcon = (
                 <div className="size-10 rounded-full bg-white dark:bg-neutral-900 border border-[#FCE7EC] dark:border-white/10 flex items-center justify-center text-gray-800 dark:text-white shadow-md">
-                  <div className="size-4.5 flex items-center justify-center">
-                    {item.icon}
-                  </div>
+                  <div className="size-4.5 flex items-center justify-center">{item.icon}</div>
                 </div>
               );
 
@@ -109,7 +107,11 @@ const FloatingDockMobile = ({
         className="size-10 rounded-full bg-white dark:bg-neutral-800 border border-[#FCE7EC] flex items-center justify-center text-gray-700 dark:text-white shadow-md cursor-pointer"
         aria-label="Toggle Dock"
       >
-        {open ? <X className="size-5 text-[#E11D48]" /> : <Menu className="size-5 text-[#E11D48]" />}
+        {open ? (
+          <X className="size-5 text-[#E11D48]" />
+        ) : (
+          <Menu className="size-5 text-[#E11D48]" />
+        )}
       </button>
     </div>
   );

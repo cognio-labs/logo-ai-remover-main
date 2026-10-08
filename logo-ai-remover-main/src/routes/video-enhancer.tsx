@@ -109,7 +109,7 @@ function VideoEnhancerPage() {
         setResolutionWarning(
           safe
             ? null
-            : `Resolution ${tw}x${th} exceeds the maximum supported 4K limit (4096x2304). Please choose a lower scale.`
+            : `Resolution ${tw}x${th} exceeds the maximum supported 4K limit (4096x2304). Please choose a lower scale.`,
         );
       });
 
@@ -201,7 +201,7 @@ function VideoEnhancerPage() {
         },
         () => {
           // SSE Error handling
-        }
+        },
       );
 
       return () => unsubscribe();
@@ -300,9 +300,7 @@ function VideoEnhancerPage() {
               <Film className="size-8" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-gray-900">
-                Uploading & Inspecting Video...
-              </h3>
+              <h3 className="text-xl font-bold text-gray-900">Uploading & Inspecting Video...</h3>
               <p className="text-sm text-gray-500">
                 Verifying container format, extracting streams, and generating previews.
               </p>
@@ -349,13 +347,21 @@ function VideoEnhancerPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-gray-600">
-                  <span>Duration: <strong>{inputMetadata.duration}s</strong></span>
-                  <span>Frames: <strong>{inputMetadata.frame_count}</strong></span>
-                  <span>Codec: <strong>{inputMetadata.video_codec?.toUpperCase()}</strong></span>
+                  <span>
+                    Duration: <strong>{inputMetadata.duration}s</strong>
+                  </span>
+                  <span>
+                    Frames: <strong>{inputMetadata.frame_count}</strong>
+                  </span>
+                  <span>
+                    Codec: <strong>{inputMetadata.video_codec?.toUpperCase()}</strong>
+                  </span>
                   <span>
                     Audio:{" "}
                     <strong>
-                      {inputMetadata.audio_present ? `${inputMetadata.audio_codec?.toUpperCase()}` : "None"}
+                      {inputMetadata.audio_present
+                        ? `${inputMetadata.audio_codec?.toUpperCase()}`
+                        : "None"}
                     </strong>
                   </span>
                   <span>
@@ -385,9 +391,7 @@ function VideoEnhancerPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-xs font-semibold text-gray-600 block">
-                    Scale Factor
-                  </label>
+                  <label className="text-xs font-semibold text-gray-600 block">Scale Factor</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { val: 1, label: "1x", desc: "Restore Only" },
@@ -623,9 +627,14 @@ function VideoEnhancerPage() {
                 <div>
                   <div className="text-xs text-gray-500 font-medium">Output Specification</div>
                   <div className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                    <span>{inputMetadata.width} × {inputMetadata.height}</span>
+                    <span>
+                      {inputMetadata.width} × {inputMetadata.height}
+                    </span>
                     <span className="text-[#E11D48]">→</span>
-                    <span className="text-[#E11D48]">{targetDimensions || `${inputMetadata.width * scale}x${inputMetadata.height * scale}`}</span>
+                    <span className="text-[#E11D48]">
+                      {targetDimensions ||
+                        `${inputMetadata.width * scale}x${inputMetadata.height * scale}`}
+                    </span>
                     <span>@ {interpolation ? targetFps : inputMetadata.fps} FPS</span>
                   </div>
                 </div>
@@ -710,7 +719,9 @@ function VideoEnhancerPage() {
                   {originalFile?.name || "Enhanced Video Clip"}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E11D48] text-white">
-                  {outputMetadata ? `${outputMetadata.width} × ${outputMetadata.height}` : targetDimensions}
+                  {outputMetadata
+                    ? `${outputMetadata.width} × ${outputMetadata.height}`
+                    : targetDimensions}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
                   {outputMetadata ? `${outputMetadata.fps} FPS` : `${inputMetadata.fps} FPS`}
@@ -755,9 +766,7 @@ function VideoEnhancerPage() {
                 </div>
                 <div className="space-y-1">
                   <div className="text-xs text-gray-500 font-medium">Verified Frame Rate</div>
-                  <div className="text-base font-bold text-gray-900">
-                    {outputMetadata.fps} FPS
-                  </div>
+                  <div className="text-base font-bold text-gray-900">{outputMetadata.fps} FPS</div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xs text-gray-500 font-medium">Total Frames</div>
@@ -783,7 +792,9 @@ function VideoEnhancerPage() {
               <XCircle className="size-8" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">Enhancement Failed</h3>
-            <p className="text-sm text-red-600">{errorMessage || "An unexpected error occurred during processing."}</p>
+            <p className="text-sm text-red-600">
+              {errorMessage || "An unexpected error occurred during processing."}
+            </p>
             <div className="pt-2">
               <PinkButton onClick={handleReset}>Try Again</PinkButton>
             </div>
@@ -802,8 +813,8 @@ function VideoEnhancerPage() {
             See what 4K AI enhancement looks like
           </h2>
           <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            The same video frame — original compressed quality on the left, AI-enhanced 4K UHD on the right. Every
-            detail is reconstructed with optical-flow precision.
+            The same video frame — original compressed quality on the left, AI-enhanced 4K UHD on
+            the right. Every detail is reconstructed with optical-flow precision.
           </p>
         </div>
 
@@ -834,8 +845,11 @@ function VideoEnhancerPage() {
             { value: "60 FPS", label: "Optical Flow Interpolation", icon: Zap },
             { value: "< 90s", label: "Processing Time / Minute", icon: RefreshCw },
             { value: "100%", label: "Original Audio Preserved", icon: Volume2 },
-          ].map(s => (
-            <div key={s.label} className="text-center p-6 rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#FCE7EC] hover:shadow-md transition-all duration-200">
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="text-center p-6 rounded-2xl bg-white border border-gray-100 shadow-xs hover:border-[#FCE7EC] hover:shadow-md transition-all duration-200"
+            >
               <div className="size-10 mx-auto mb-3 rounded-xl bg-[#FFF1F4] text-[#E11D48] flex items-center justify-center">
                 <s.icon className="size-5" />
               </div>
@@ -899,8 +913,11 @@ function VideoEnhancerPage() {
               accent: "bg-green-50 text-green-600",
               iconBg: "bg-green-100",
             },
-          ].map(f => (
-            <div key={f.title} className={`p-6 rounded-2xl ${f.accent} border border-gray-100 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200 space-y-3`}>
+          ].map((f) => (
+            <div
+              key={f.title}
+              className={`p-6 rounded-2xl ${f.accent} border border-gray-100 shadow-xs hover:shadow-md hover:-translate-y-1 transition-all duration-200 space-y-3`}
+            >
               <div className={`size-10 rounded-xl ${f.iconBg} flex items-center justify-center`}>
                 <f.icon className="size-5" />
               </div>

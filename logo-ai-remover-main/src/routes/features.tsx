@@ -34,7 +34,6 @@ export const Route = createFileRoute("/features")({
   component: FeaturesPage,
 });
 
-
 function FeaturesPage() {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -154,7 +153,9 @@ function FeaturesPage() {
             </h1>
 
             <p className="text-sm sm:text-base text-[#737373] max-w-2xl mx-auto leading-relaxed">
-              Control Bellix.us at the speed of thought. Press keys on your physical keyboard, click the virtual keycaps, or interact with the precision wireless mouse to trigger neural shortcuts with authentic switch acoustics.
+              Control Bellix.us at the speed of thought. Press keys on your physical keyboard, click
+              the virtual keycaps, or interact with the precision wireless mouse to trigger neural
+              shortcuts with authentic switch acoustics.
             </p>
           </div>
 
@@ -165,7 +166,11 @@ function FeaturesPage() {
 
           {/* Action quick links */}
           <div className="pt-2 pb-2 flex flex-wrap items-center justify-center gap-4">
-            <PinkButton size="lg" className="px-8 py-3.5 font-bold shadow-md shadow-rose-200" asChild>
+            <PinkButton
+              size="lg"
+              className="px-8 py-3.5 font-bold shadow-md shadow-rose-200"
+              asChild
+            >
               <Link to="/gemini-video-watermark-remover">
                 <span>Launch Studio Shortcut Hub</span>
                 <ArrowRight className="size-4 ml-1.5" />
@@ -260,7 +265,9 @@ function FeaturesPage() {
                 <span className="text-[11px] font-mono text-gray-400 block uppercase">
                   Benchmark Result
                 </span>
-                <span className="text-xl font-semibold text-[#E11D48] font-mono">{current.metric}</span>
+                <span className="text-xl font-semibold text-[#E11D48] font-mono">
+                  {current.metric}
+                </span>
               </div>
 
               <PinkButton size="sm" asChild>
@@ -281,11 +288,7 @@ function FeaturesPage() {
                   className="size-full object-cover"
                 />
               ) : (
-                <img
-                  src={current.preview}
-                  alt={current.title}
-                  className="size-full object-cover"
-                />
+                <img src={current.preview} alt={current.title} className="size-full object-cover" />
               )}
               <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-md">
                 Active Neural Preview
@@ -315,7 +318,9 @@ function FeaturesPage() {
                 <th className="py-4 px-6 font-bold text-center text-[#E11D48] bg-[#FFF1F4]">
                   Bellix.us
                 </th>
-                <th className="py-4 px-6 font-bold text-center text-gray-600">Generic Blur Tools</th>
+                <th className="py-4 px-6 font-bold text-center text-gray-600">
+                  Generic Blur Tools
+                </th>
                 <th className="py-4 px-6 font-bold text-center text-gray-600">Manual Photoshop</th>
               </tr>
             </thead>

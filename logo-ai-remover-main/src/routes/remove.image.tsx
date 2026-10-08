@@ -298,20 +298,12 @@ function ImageCleaner() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <PinkButton
-                      variant="outline"
-                      size="md"
-                      onClick={() => downloadResult("jpg")}
-                    >
+                    <PinkButton variant="outline" size="md" onClick={() => downloadResult("jpg")}>
                       <Download className="size-4" />
                       <span>Download JPG</span>
                     </PinkButton>
 
-                    <PinkButton
-                      variant="primary"
-                      size="md"
-                      onClick={() => downloadResult("png")}
-                    >
+                    <PinkButton variant="primary" size="md" onClick={() => downloadResult("png")}>
                       <Download className="size-4" />
                       <span>Download PNG (Lossless)</span>
                     </PinkButton>

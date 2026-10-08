@@ -57,9 +57,7 @@ function TrustBadgeItem({ icon, line1, line2 }: TrustBadgeItemProps) {
 
       {/* Center Icon & Text */}
       <div className="flex flex-col items-center justify-center text-center px-1">
-        <div className="text-[#1E293B] mb-2 flex items-center justify-center">
-          {icon}
-        </div>
+        <div className="text-[#1E293B] mb-2 flex items-center justify-center">{icon}</div>
         <div className="text-[#0F172A] font-bold text-xs sm:text-sm md:text-[15px] leading-snug tracking-tight whitespace-nowrap">
           <div>{line1}</div>
           <div>{line2}</div>

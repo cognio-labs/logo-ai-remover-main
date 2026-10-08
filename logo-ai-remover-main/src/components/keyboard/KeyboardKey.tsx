@@ -35,10 +35,10 @@ export function KeyboardKey({ config, isPressed, onPress }: KeyboardKeyProps) {
           isPressed
             ? "translate-y-[2px] bg-[#E7E7E7] border-[#D4D4D4] shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)]"
             : isAccent
-            ? "bg-[#FFFFFF] hover:bg-[#FFF5F7] border border-[#E11D48]/40 shadow-[0_1px_3px_rgba(225,29,72,0.12),0_2px_5px_rgba(0,0,0,0.06),inset_0_-1px_0_rgba(225,29,72,0.1)] hover:border-[#E11D48]/70 hover:shadow-[0_2px_6px_rgba(225,29,72,0.18)]"
-            : isSpecial
-            ? "bg-[#FAFAFA] hover:bg-[#F1F1F1] border border-[#E5E5E5] text-[#525252] shadow-[0_1px_2px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.03),inset_0_-1px_0_rgba(0,0,0,0.04)]"
-            : "bg-[#FFFFFF] hover:bg-[#F1F1F1] border border-[#E5E5E5] text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_2px_4px_rgba(0,0,0,0.04),inset_0_-1px_0_rgba(0,0,0,0.05)] hover:border-[#D4D4D4]"
+              ? "bg-[#FFFFFF] hover:bg-[#FFF5F7] border border-[#E11D48]/40 shadow-[0_1px_3px_rgba(225,29,72,0.12),0_2px_5px_rgba(0,0,0,0.06),inset_0_-1px_0_rgba(225,29,72,0.1)] hover:border-[#E11D48]/70 hover:shadow-[0_2px_6px_rgba(225,29,72,0.18)]"
+              : isSpecial
+                ? "bg-[#FAFAFA] hover:bg-[#F1F1F1] border border-[#E5E5E5] text-[#525252] shadow-[0_1px_2px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.03),inset_0_-1px_0_rgba(0,0,0,0.04)]"
+                : "bg-[#FFFFFF] hover:bg-[#F1F1F1] border border-[#E5E5E5] text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_2px_4px_rgba(0,0,0,0.04),inset_0_-1px_0_rgba(0,0,0,0.05)] hover:border-[#D4D4D4]"
         }
       `}
     >
@@ -50,7 +50,9 @@ export function KeyboardKey({ config, isPressed, onPress }: KeyboardKeyProps) {
           </span>
         )}
         {macSymbol && (
-          <span className={`text-[8px] sm:text-[9px] font-mono leading-none ${isAccent ? "text-[#E11D48]" : "text-[#737373]"}`}>
+          <span
+            className={`text-[8px] sm:text-[9px] font-mono leading-none ${isAccent ? "text-[#E11D48]" : "text-[#737373]"}`}
+          >
             {macSymbol}
           </span>
         )}
@@ -62,8 +64,8 @@ export function KeyboardKey({ config, isPressed, onPress }: KeyboardKeyProps) {
           isAccent
             ? "text-[9px] sm:text-[11px] text-[#E11D48] font-bold"
             : isSpecial
-            ? "text-[8px] sm:text-[10px] text-[#525252]"
-            : "text-[9px] sm:text-[11px] text-[#171717]"
+              ? "text-[8px] sm:text-[10px] text-[#525252]"
+              : "text-[9px] sm:text-[11px] text-[#171717]"
         }`}
       >
         {label}
@@ -73,7 +75,9 @@ export function KeyboardKey({ config, isPressed, onPress }: KeyboardKeyProps) {
       {isAccent && (
         <span
           className={`absolute bottom-0.5 size-1 rounded-full transition-opacity ${
-            isPressed ? "bg-[#E11D48] opacity-100" : "bg-[#E11D48]/40 opacity-70 group-hover:opacity-100"
+            isPressed
+              ? "bg-[#E11D48] opacity-100"
+              : "bg-[#E11D48]/40 opacity-70 group-hover:opacity-100"
           }`}
         />
       )}

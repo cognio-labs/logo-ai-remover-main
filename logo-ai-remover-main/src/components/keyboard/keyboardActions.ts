@@ -70,7 +70,7 @@ export const SHORTCUT_ACTIONS: Record<string, ShortcutAction> = {
 export function executeShortcutAction(
   actionKey: string,
   navigate?: (opts: { to: string }) => void,
-  customCallbacks?: Partial<Record<string, () => void>>
+  customCallbacks?: Partial<Record<string, () => void>>,
 ) {
   const normalized = actionKey.toLowerCase();
   const action = SHORTCUT_ACTIONS[normalized];

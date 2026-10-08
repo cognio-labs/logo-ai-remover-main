@@ -8,7 +8,15 @@ export type ImageMetadata = {
 
 export type UpscaleJobStatus = {
   jobId: string;
-  status: "queued" | "analyzing" | "upscaling" | "enhancing" | "encoding" | "verifying" | "completed" | "failed";
+  status:
+    | "queued"
+    | "analyzing"
+    | "upscaling"
+    | "enhancing"
+    | "encoding"
+    | "verifying"
+    | "completed"
+    | "failed";
   progress: number;
   stage: string;
   message: string;
@@ -34,7 +42,12 @@ export type UpscaleJobResult = {
   };
   resultVersion: number;
 };
-const API_ORIGIN = (((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_IMAGE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined)?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN =
+  (
+    ((import.meta as any).env?.VITE_API_URL ||
+      (import.meta as any).env?.VITE_IMAGE_API_URL ||
+      (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined
+  )?.replace(/\/$/u, "") ?? "";
 
 export const apiImageUrl = (path: string) => `${API_ORIGIN}${path}`;
 
@@ -56,7 +69,7 @@ export async function upscaleImage(
   mode: string,
   outputFormat: string,
   jobId?: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<{ success: true; jobId: string; status: "queued" }> {
   const form = new FormData();
   form.append("image", file, file.name);
@@ -71,24 +84,30 @@ export async function upscaleImage(
       body: form,
       cache: "no-store",
       signal,
-    })
+    }),
   );
 }
 
-export async function getImageStatus(jobId: string, signal?: AbortSignal): Promise<UpscaleJobStatus> {
+export async function getImageStatus(
+  jobId: string,
+  signal?: AbortSignal,
+): Promise<UpscaleJobStatus> {
   return parse<UpscaleJobStatus>(
     await fetch(apiImageUrl(`/api/image/status/${encodeURIComponent(jobId)}`), {
       cache: "no-store",
       signal,
-    })
+    }),
   );
 }
 
-export async function getImageResult(jobId: string, signal?: AbortSignal): Promise<UpscaleJobResult> {
+export async function getImageResult(
+  jobId: string,
+  signal?: AbortSignal,
+): Promise<UpscaleJobResult> {
   return parse<UpscaleJobResult>(
     await fetch(apiImageUrl(`/api/image/result/${encodeURIComponent(jobId)}`), {
       cache: "no-store",
       signal,
-    })
+    }),
   );
 }

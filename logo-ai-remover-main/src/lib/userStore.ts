@@ -33,7 +33,7 @@ interface UserState {
   user: UserProfile;
   isLoggedIn: boolean;
   jobs: JobItem[];
-  
+
   // Actions
   login: (email: string, name?: string, role?: UserRole) => void;
   logout: () => void;
@@ -53,7 +53,8 @@ const DEFAULT_USER: UserProfile = {
   id: "usr_mock_001",
   email: "sarah.creator@example.com",
   name: "Sarah Jenkins",
-  avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+  avatar_url:
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
   plan: "free",
   role: "admin", // set to admin by default so user can test both regular & admin features
   credits: 5,
@@ -71,8 +72,10 @@ const INITIAL_JOBS: JobItem[] = [
     credits_used: 1,
     processing_time: "4.2s",
     created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    file_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
-    result_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=95",
+    file_url:
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    result_url:
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=95",
   },
   {
     id: "job_02",
@@ -84,8 +87,10 @@ const INITIAL_JOBS: JobItem[] = [
     credits_used: 1,
     processing_time: "14.8s",
     created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
-    file_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80",
-    result_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&auto=format&fit=crop&q=95",
+    file_url:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80",
+    result_url:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&auto=format&fit=crop&q=95",
   },
   {
     id: "job_03",
@@ -97,8 +102,10 @@ const INITIAL_JOBS: JobItem[] = [
     credits_used: 1,
     processing_time: "6.1s",
     created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
-    file_url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&auto=format&fit=crop&q=80",
-    result_url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&auto=format&fit=crop&q=95",
+    file_url:
+      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&auto=format&fit=crop&q=80",
+    result_url:
+      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&auto=format&fit=crop&q=95",
   },
   {
     id: "job_04",
@@ -129,10 +136,7 @@ const loadState = () => {
 const saveState = (user: UserProfile, isLoggedIn: boolean, jobs: JobItem[]) => {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(
-      LOCAL_STORAGE_KEY,
-      JSON.stringify({ user, isLoggedIn, jobs })
-    );
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ user, isLoggedIn, jobs }));
   } catch {}
 };
 
@@ -236,7 +240,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       get().updateJob(id, {
         status: "completed",
         processing_time: "5.4s (recovered)",
-        result_url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&auto=format&fit=crop&q=95",
+        result_url:
+          "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&auto=format&fit=crop&q=95",
       });
     }, 2800);
   },

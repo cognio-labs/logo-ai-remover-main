@@ -28,7 +28,9 @@ const px = (value: number) => `${n(value)}px`;
 const unit = (value: number) => `calc(${n(value)} * var(--u))`;
 
 function withAlpha(hex: string, alpha: number) {
-  const [red, green, blue] = [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16));
+  const [red, green, blue] = [1, 3, 5].map((index) =>
+    Number.parseInt(hex.slice(index, index + 2), 16),
+  );
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
@@ -49,7 +51,8 @@ const LEXEND: PageFont = {
 const OUTFIT: PageFont = {
   value: "outfit",
   label: "Outfit",
-  stack: "Outfit, 'Outfit Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
+  stack:
+    "Outfit, 'Outfit Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
 };
 
 const SPACE_GROTESK: PageFont = {
@@ -147,7 +150,8 @@ const DM_SANS: PageFont = {
 const ROBOTO_FLEX_LOADED: PageFont = {
   value: "roboto-flex",
   label: "Roboto Flex",
-  stack: '"Roboto Flex", "Roboto Condensed", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif',
+  stack:
+    '"Roboto Flex", "Roboto Condensed", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif',
 };
 
 /* ── Anima ────────────────────────────────────────────────────────────────
@@ -304,7 +308,8 @@ const DM_MONO: PageFont = {
 const SYSTEM_UI: PageFont = {
   value: "system-ui",
   label: "System UI",
-  stack: "ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  stack:
+    "ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
 };
 
 const BIG_SHOULDERS_DISPLAY: PageFont = {
@@ -861,21 +866,68 @@ export const RENDERLAB_TYPOGRAPHY: PageTypographyRecipe = {
 .renderlab-site-header nav > a { font-family: ${type.body}; font-weight: ${type.bodyWeight}; }
 `,
   inlineStyles: (type): readonly PageInlineStyleOverride[] => [
-    { selector: "body", styles: { "font-family": type.body, "font-size": px(type.bodySize), "font-weight": type.bodyWeight, "--acid": type.primary } },
+    {
+      selector: "body",
+      styles: {
+        "font-family": type.body,
+        "font-size": px(type.bodySize),
+        "font-weight": type.bodyWeight,
+        "--acid": type.primary,
+      },
+    },
     { selector: '[style*="font-family:Impact"]', styles: { "font-family": type.heading } },
-    { selector: '[style*="font-family:Impact"][style*="font-weight:500"]', styles: { "font-weight": type.headingWeight } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(3.5rem,8vw,8rem)"]', styles: { "font-size": `clamp(3.5rem, 8vw, ${px((type.headingSize * 128) / 192)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(8rem,20vw,12rem)"]', styles: { "font-size": `clamp(8rem, 20vw, ${px(type.headingSize)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(6rem,13vw,13rem)"]', styles: { "font-size": `clamp(6rem, 13vw, ${px((type.headingSize * 208) / 192)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(5rem,14vw,15rem)"]', styles: { "font-size": `clamp(5rem, 14vw, ${px((type.headingSize * 240) / 192)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(4.8rem,11vw,12rem)"]', styles: { "font-size": `clamp(4.8rem, 11vw, ${px(type.headingSize)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(8rem,22vw,24rem)"]', styles: { "font-size": `clamp(8rem, 22vw, ${px(type.headingSize * 2)})` } },
-    { selector: '[style*="font-family:Impact"][style*="font-size:clamp(3rem,8vw,8rem)"]', styles: { "font-size": `clamp(3rem, 8vw, ${px((type.headingSize * 128) / 192)})` } },
-    { selector: '[style*="font-family:Impact"][style*="letter-spacing:-.05em"]', styles: { "letter-spacing": `${type.headingLetterSpacing}em` } },
-    { selector: '[style*="font-family:Impact"][style*="letter-spacing:-.055em"]', styles: { "letter-spacing": `${n(type.headingLetterSpacing - 0.005)}em` } },
-    { selector: '[style*="font-family:Impact"][style*="letter-spacing:-.08em"]', styles: { "letter-spacing": `${n(type.headingLetterSpacing - 0.03)}em` } },
-    { selector: '[style*="font-family:Impact"][style*="letter-spacing:-.035em"]', styles: { "letter-spacing": `${n(type.headingLetterSpacing + 0.015)}em` } },
-    { selector: '[style*="font-family:Impact"][style*="letter-spacing:-.04em"]', styles: { "letter-spacing": `${n(type.headingLetterSpacing + 0.01)}em` } },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-weight:500"]',
+      styles: { "font-weight": type.headingWeight },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(3.5rem,8vw,8rem)"]',
+      styles: { "font-size": `clamp(3.5rem, 8vw, ${px((type.headingSize * 128) / 192)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(8rem,20vw,12rem)"]',
+      styles: { "font-size": `clamp(8rem, 20vw, ${px(type.headingSize)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(6rem,13vw,13rem)"]',
+      styles: { "font-size": `clamp(6rem, 13vw, ${px((type.headingSize * 208) / 192)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(5rem,14vw,15rem)"]',
+      styles: { "font-size": `clamp(5rem, 14vw, ${px((type.headingSize * 240) / 192)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(4.8rem,11vw,12rem)"]',
+      styles: { "font-size": `clamp(4.8rem, 11vw, ${px(type.headingSize)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(8rem,22vw,24rem)"]',
+      styles: { "font-size": `clamp(8rem, 22vw, ${px(type.headingSize * 2)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="font-size:clamp(3rem,8vw,8rem)"]',
+      styles: { "font-size": `clamp(3rem, 8vw, ${px((type.headingSize * 128) / 192)})` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="letter-spacing:-.05em"]',
+      styles: { "letter-spacing": `${type.headingLetterSpacing}em` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="letter-spacing:-.055em"]',
+      styles: { "letter-spacing": `${n(type.headingLetterSpacing - 0.005)}em` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="letter-spacing:-.08em"]',
+      styles: { "letter-spacing": `${n(type.headingLetterSpacing - 0.03)}em` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="letter-spacing:-.035em"]',
+      styles: { "letter-spacing": `${n(type.headingLetterSpacing + 0.015)}em` },
+    },
+    {
+      selector: '[style*="font-family:Impact"][style*="letter-spacing:-.04em"]',
+      styles: { "letter-spacing": `${n(type.headingLetterSpacing + 0.01)}em` },
+    },
   ],
 };
 

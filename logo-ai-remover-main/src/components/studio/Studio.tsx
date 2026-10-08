@@ -1,12 +1,33 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { ArrowUpRight, ArrowRight, ScanLine, Upload, SlidersHorizontal, Download, Film, ImageUp, Scissors, FileText, WandSparkles, Check, Sparkles, Zap, ShieldCheck, Star } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  ScanLine,
+  Upload,
+  SlidersHorizontal,
+  Download,
+  Film,
+  ImageUp,
+  Scissors,
+  FileText,
+  WandSparkles,
+  Check,
+  Sparkles,
+  Zap,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 import { CreativeSuiteSection } from "@/components/ui/hero-parallax";
 
-export const studioAssets = { coast: "/creative-suite/hero_creator_masterpiece.webp", product: "/creative-suite/macro_jewelry_diamond.jpg", portrait: "/creative-suite/portrait_restorer.jpg" };
+export const studioAssets = {
+  coast: "/creative-suite/hero_creator_masterpiece.webp",
+  product: "/creative-suite/macro_jewelry_diamond.jpg",
+  portrait: "/creative-suite/portrait_restorer.jpg",
+};
 export const studioTools = [
   { name: "Upscale", path: "/upscale", icon: ImageUp },
   { name: "Background", path: "/background-remover", icon: Scissors },
@@ -64,8 +85,25 @@ function StudioAiMarquee() {
   );
 }
 
-export function StudioHeading({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
-  return <header className="studio-heading"><span className="studio-eyebrow"><span /></span>{eyebrow}<h1>{title}</h1><p>{text}</p></header>;
+export function StudioHeading({
+  eyebrow,
+  title,
+  text,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <header className="studio-heading">
+      <span className="studio-eyebrow">
+        <span />
+      </span>
+      {eyebrow}
+      <h1>{title}</h1>
+      <p>{text}</p>
+    </header>
+  );
 }
 
 const GALLERY_SAMPLES = [
@@ -111,7 +149,8 @@ export function SampleGallery({
           <h2>{title}</h2>
         </div>
         <p>
-          Experience what happens when precision AI models touch every frame. Sub-pixel cutouts, crystal caustics, and vast pristine landscapes ready to export.
+          Experience what happens when precision AI models touch every frame. Sub-pixel cutouts,
+          crystal caustics, and vast pristine landscapes ready to export.
         </p>
       </div>
 
@@ -144,9 +183,7 @@ export function SampleGallery({
                 <h3 className="text-lg font-semibold text-gray-950 mt-1 mb-2 group-hover:text-[#E11D48] transition-colors leading-snug">
                   {item.title}
                 </h3>
-                <p className="text-xs text-gray-600 leading-relaxed font-normal">
-                  {item.desc}
-                </p>
+                <p className="text-xs text-gray-600 leading-relaxed font-normal">{item.desc}</p>
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
@@ -175,7 +212,12 @@ export function WorkflowCards() {
     if (file.type.includes("pdf") || name.endsWith(".pdf")) {
       toast.success(`PDF "${file.name}" detected! Opening PDF Watermark Cleaner...`);
       navigate({ to: "/pdf-watermark-remover" });
-    } else if (file.type.includes("video") || name.endsWith(".mp4") || name.endsWith(".mov") || name.endsWith(".webm")) {
+    } else if (
+      file.type.includes("video") ||
+      name.endsWith(".mp4") ||
+      name.endsWith(".mov") ||
+      name.endsWith(".webm")
+    ) {
       toast.success(`Video "${file.name}" detected! Opening Video Enhancer...`);
       navigate({ to: "/video-enhancer" });
     } else {
@@ -202,10 +244,26 @@ export function WorkflowCards() {
 
   const triggerDownload = (format: "jpg" | "mp4" | "png" | "pdf") => {
     const formatMap = {
-      jpg: { url: "/upscale/mountain_lake.jpg", filename: "bellix-restored-preview.jpg", label: "Ultra HD JPG" },
-      mp4: { url: "/gemini-example-before.mp4", filename: "bellix-clean-preview.mp4", label: "60FPS Video (MP4)" },
-      png: { url: "/upscale/artwork.png", filename: "bellix-alpha-cutout.png", label: "Lossless Transparent PNG" },
-      pdf: { url: "/samples/sample_blueprint.pdf", filename: "bellix-clean-document.pdf", label: "Clean Vector PDF" },
+      jpg: {
+        url: "/upscale/mountain_lake.jpg",
+        filename: "bellix-restored-preview.jpg",
+        label: "Ultra HD JPG",
+      },
+      mp4: {
+        url: "/gemini-example-before.mp4",
+        filename: "bellix-clean-preview.mp4",
+        label: "60FPS Video (MP4)",
+      },
+      png: {
+        url: "/upscale/artwork.png",
+        filename: "bellix-alpha-cutout.png",
+        label: "Lossless Transparent PNG",
+      },
+      pdf: {
+        url: "/samples/sample_blueprint.pdf",
+        filename: "bellix-clean-document.pdf",
+        label: "Clean Vector PDF",
+      },
     };
     const target = formatMap[format];
     const link = document.createElement("a");
@@ -289,7 +347,10 @@ export function WorkflowCards() {
             {/* Dashed Dropzone interactive box */}
             <div
               onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               title="Click to browse or drop an Image, Video, or PDF file"
@@ -462,7 +523,8 @@ export function WorkflowCards() {
               FROM FILE TO FINISHED
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-950 tracking-tight leading-tight">
-              Less busywork.<br />
+              Less busywork.
+              <br />
               <span className="bg-gradient-to-r from-violet-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
                 More creating.
               </span>
@@ -481,15 +543,33 @@ export function WorkflowCards() {
                     01
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <Link to="/remove/image" className="px-2 py-1 rounded-md bg-[#FFE4C4] text-rose-800 text-[11px] font-semibold hover:bg-[#FFD6A5]">Image</Link>
-                    <Link to="/video-enhancer" className="px-2 py-1 rounded-md bg-purple-50 text-purple-600 text-[11px] font-semibold hover:bg-purple-100">Video</Link>
-                    <Link to="/pdf-watermark-remover" className="px-2 py-1 rounded-md bg-rose-50 text-rose-600 text-[11px] font-semibold hover:bg-rose-100">PDF</Link>
+                    <Link
+                      to="/remove/image"
+                      className="px-2 py-1 rounded-md bg-[#FFE4C4] text-rose-800 text-[11px] font-semibold hover:bg-[#FFD6A5]"
+                    >
+                      Image
+                    </Link>
+                    <Link
+                      to="/video-enhancer"
+                      className="px-2 py-1 rounded-md bg-purple-50 text-purple-600 text-[11px] font-semibold hover:bg-purple-100"
+                    >
+                      Video
+                    </Link>
+                    <Link
+                      to="/pdf-watermark-remover"
+                      className="px-2 py-1 rounded-md bg-rose-50 text-rose-600 text-[11px] font-semibold hover:bg-rose-100"
+                    >
+                      PDF
+                    </Link>
                   </div>
                 </div>
 
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
@@ -500,7 +580,9 @@ export function WorkflowCards() {
                 >
                   <Upload className="size-8 mx-auto text-[#E11D48] mb-2" />
                   <p className="text-sm font-bold text-gray-900">Drag & drop your files</p>
-                  <p className="text-xs text-rose-600 font-medium mt-1 underline">or browse from device</p>
+                  <p className="text-xs text-rose-600 font-medium mt-1 underline">
+                    or browse from device
+                  </p>
                 </div>
 
                 <h3 className="text-lg font-bold text-gray-950 mt-5">Bring your original</h3>
@@ -517,7 +599,9 @@ export function WorkflowCards() {
                   <span className="inline-flex items-center justify-center size-8 rounded-full bg-blue-100 text-blue-600 font-mono text-sm font-bold">
                     02
                   </span>
-                  <span className="text-[11px] font-semibold text-gray-400">Settings & AI Tools</span>
+                  <span className="text-[11px] font-semibold text-gray-400">
+                    Settings & AI Tools
+                  </span>
                 </div>
 
                 <div className="space-y-2 mb-4 bg-white/70 p-3.5 rounded-2xl border border-[#FED7AA]/50">
@@ -654,12 +738,48 @@ const STATS = [
 ];
 
 const TOOL_FEATURES = [
-  { icon: ImageUp, name: "AI Upscaler", desc: "2×, 4×, 8× resolution — preserve natural texture without plastic finish.", path: "/upscale", accent: "from-violet-500 to-purple-600" },
-  { icon: Scissors, name: "Background Remover", desc: "Precise hair, fur & edge cutouts. One-click transparent PNG export.", path: "/background-remover", accent: "from-rose-500 to-pink-600" },
-  { icon: Film, name: "Video Enhancer", desc: "4K super-resolution, deblock, denoise & 60 FPS interpolation.", path: "/video-enhancer", accent: "from-orange-500 to-amber-600" },
-  { icon: FileText, name: "PDF Cleaner", desc: "Remove CONFIDENTIAL stamps, logos & watermarks from any PDF.", path: "/pdf-watermark-remover", accent: "from-sky-500 to-blue-600" },
-  { icon: WandSparkles, name: "Image Cleaner", desc: "Brush-select and erase watermarks, logos & AI artifacts.", path: "/remove/image", accent: "from-emerald-500 to-teal-600" },
-  { icon: ScanLine, name: "Video Watermark", desc: "Frame-by-frame Gemini & Veo watermark removal at 4K/60FPS.", path: "/gemini-video-watermark-remover", accent: "from-indigo-500 to-violet-600" },
+  {
+    icon: ImageUp,
+    name: "AI Upscaler",
+    desc: "2×, 4×, 8× resolution — preserve natural texture without plastic finish.",
+    path: "/upscale",
+    accent: "from-violet-500 to-purple-600",
+  },
+  {
+    icon: Scissors,
+    name: "Background Remover",
+    desc: "Precise hair, fur & edge cutouts. One-click transparent PNG export.",
+    path: "/background-remover",
+    accent: "from-rose-500 to-pink-600",
+  },
+  {
+    icon: Film,
+    name: "Video Enhancer",
+    desc: "4K super-resolution, deblock, denoise & 60 FPS interpolation.",
+    path: "/video-enhancer",
+    accent: "from-orange-500 to-amber-600",
+  },
+  {
+    icon: FileText,
+    name: "PDF Cleaner",
+    desc: "Remove CONFIDENTIAL stamps, logos & watermarks from any PDF.",
+    path: "/pdf-watermark-remover",
+    accent: "from-sky-500 to-blue-600",
+  },
+  {
+    icon: WandSparkles,
+    name: "Image Cleaner",
+    desc: "Brush-select and erase watermarks, logos & AI artifacts.",
+    path: "/remove/image",
+    accent: "from-emerald-500 to-teal-600",
+  },
+  {
+    icon: ScanLine,
+    name: "Video Watermark",
+    desc: "Frame-by-frame Gemini & Veo watermark removal at 4K/60FPS.",
+    path: "/gemini-video-watermark-remover",
+    accent: "from-indigo-500 to-violet-600",
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -889,7 +1009,8 @@ function PanoramicHeroSection() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            Remove distractions, restore detail, upscale every frame and make your next piece look ready to publish. No technical knowledge required.
+            Remove distractions, restore detail, upscale every frame and make your next piece look
+            ready to publish. No technical knowledge required.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -912,9 +1033,15 @@ function PanoramicHeroSection() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600 pt-2">
-            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Six focused tools</span>
-            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Real processing status</span>
-            <span className="flex items-center gap-1.5"><Check size={14} className="text-emerald-500" /> Export-ready results</span>
+            <span className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500" /> Six focused tools
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500" /> Real processing status
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check size={14} className="text-emerald-500" /> Export-ready results
+            </span>
           </div>
         </div>
 
@@ -981,12 +1108,9 @@ export function StudioHome() {
       {/* ─── 3. RUNNING IMAGES: THIRD IMAGE (RESTORE & ENHANCE + CREATE & PROTECT RAILS) ─── */}
       <CreativeSuiteSection />
 
-
-
       {/* ─── CLEAN BANNER SECTION (Image 3 Matching) ─── */}
       <section className="studio-clean-banner-wrapper">
         <div className="studio-clean-banner">
-
           {/* Mobile-only: full-width ring image at top */}
           <div className="studio-clean-banner-mobile-img">
             <img
@@ -1005,12 +1129,14 @@ export function StudioHome() {
             </div>
 
             <h2 className="studio-clean-banner-title">
-              Keep the part<br />
+              Keep the part
+              <br />
               you <em>love.</em>
             </h2>
 
             <p className="studio-clean-banner-desc">
-              Give your images and videos a thoughtful finishing touch. Select unwanted marks, inspect the result and keep the frame that tells your story.
+              Give your images and videos a thoughtful finishing touch. Select unwanted marks,
+              inspect the result and keep the frame that tells your story.
             </p>
 
             <ul className="studio-clean-banner-checks">
@@ -1048,17 +1174,35 @@ export function StudioHome() {
       {/* ─── TRUST BADGES ─── */}
       <section className="studio-trust-section">
         <div className="studio-trust-inner">
-          <div className="studio-trust-item"><ShieldCheck size={20} /><span>Zero data retention</span></div>
-          <div className="studio-trust-item"><Zap size={20} /><span>Processing in seconds</span></div>
-          <div className="studio-trust-item"><Star size={20} /><span>4K & 8K export</span></div>
-          <div className="studio-trust-item"><Check size={20} /><span>No watermarks added</span></div>
+          <div className="studio-trust-item">
+            <ShieldCheck size={20} />
+            <span>Zero data retention</span>
+          </div>
+          <div className="studio-trust-item">
+            <Zap size={20} />
+            <span>Processing in seconds</span>
+          </div>
+          <div className="studio-trust-item">
+            <Star size={20} />
+            <span>4K & 8K export</span>
+          </div>
+          <div className="studio-trust-item">
+            <Check size={20} />
+            <span>No watermarks added</span>
+          </div>
         </div>
       </section>
 
       <section className="studio-section studio-end">
         <span className="studio-eyebrow">YOUR NEXT GREAT FRAME STARTS HERE</span>
-        <h2>Make something<br />worth a second look.</h2>
-        <Link to="/tools" className="studio-button">Find your tool <ArrowUpRight size={18} /></Link>
+        <h2>
+          Make something
+          <br />
+          worth a second look.
+        </h2>
+        <Link to="/tools" className="studio-button">
+          Find your tool <ArrowUpRight size={18} />
+        </Link>
       </section>
     </main>
   );
@@ -1069,25 +1213,57 @@ export function VideoDetails() {
     <div className="studio-page">
       <section className="studio-section">
         <div className="studio-section-title">
-          <div><span className="studio-eyebrow">MOTION DESERVES DETAIL</span><h2>Built for the way<br />you work with video.</h2></div>
-          <p>Resolution, texture and motion are different decisions. Fine-tune each one before processing.</p>
+          <div>
+            <span className="studio-eyebrow">MOTION DESERVES DETAIL</span>
+            <h2>
+              Built for the way
+              <br />
+              you work with video.
+            </h2>
+          </div>
+          <p>
+            Resolution, texture and motion are different decisions. Fine-tune each one before
+            processing.
+          </p>
         </div>
         <div className="studio-video-feature">
           <video src="/gemini-example-before.mp4" controls muted playsInline preload="metadata" />
           <div>
             <span className="studio-caption">SAMPLE SOURCE CLIP</span>
-            <h3>Inspect the motion.<br />Then choose your settings.</h3>
-            <p>This source clip demonstrates video playback, not a claimed enhancement result. Upload a clip to compare your own processed output.</p>
-            <a href="/gemini-example-before.mp4" download className="studio-text-link">Download source to try <Download size={16} /></a>
+            <h3>
+              Inspect the motion.
+              <br />
+              Then choose your settings.
+            </h3>
+            <p>
+              This source clip demonstrates video playback, not a claimed enhancement result. Upload
+              a clip to compare your own processed output.
+            </p>
+            <a href="/gemini-example-before.mp4" download className="studio-text-link">
+              Download source to try <Download size={16} />
+            </a>
           </div>
         </div>
         <div className="studio-workflow">
           {[
-            ["Resolution with context", "Choose scale and review target dimensions before running a job."],
-            ["Control the finish", "Adjust noise reduction, sharpening and compression cleanup to suit your clip."],
-            ["Keep the sound", "Preserve original audio and inspect your export before downloading."],
+            [
+              "Resolution with context",
+              "Choose scale and review target dimensions before running a job.",
+            ],
+            [
+              "Control the finish",
+              "Adjust noise reduction, sharpening and compression cleanup to suit your clip.",
+            ],
+            [
+              "Keep the sound",
+              "Preserve original audio and inspect your export before downloading.",
+            ],
           ].map(([t, c]) => (
-            <article key={t}><Film size={24} /><h3>{t}</h3><p>{c}</p></article>
+            <article key={t}>
+              <Film size={24} />
+              <h3>{t}</h3>
+              <p>{c}</p>
+            </article>
           ))}
         </div>
       </section>

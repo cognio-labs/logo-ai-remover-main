@@ -56,33 +56,73 @@ const applySequoiaMistVariant = (s: string) => s;
 export function KageLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(KAGE_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Kage — Where stillness reveals the unseen" sourceUrl="/landing-pages/kage.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Kage — Where stillness reveals the unseen"
+      sourceUrl="/landing-pages/kage.html"
+    />
+  );
 }
 
 export function CompleteShelfLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(COMPLETE_SHELF_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Working Volumes — Seven Tools for Making" sourceUrl="/landing-pages/complete-shelf-v2.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Working Volumes — Seven Tools for Making"
+      sourceUrl="/landing-pages/complete-shelf-v2.html"
+    />
+  );
 }
 
 export function BestsellersBookShowcase(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(BESTSELLERS_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Field Manuals — Tools for Thought" sourceUrl="/landing-pages/bestsellers-book-showcase.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Field Manuals — Tools for Thought"
+      sourceUrl="/landing-pages/bestsellers-book-showcase.html"
+    />
+  );
 }
 
 export function InkboundRiverStory(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(INKBOUND_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="The River Remembers — Inkbound" sourceUrl="/landing-pages/inkbound-river-story.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="The River Remembers — Inkbound"
+      sourceUrl="/landing-pages/inkbound-river-story.html"
+    />
+  );
 }
 
 export function NoctilucaLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Noctiluca — The dark is not empty" sourceUrl="/landing-pages/noctiluca.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Noctiluca — The dark is not empty"
+      sourceUrl="/landing-pages/noctiluca.html"
+    />
+  );
 }
 
 export function AgentArcanaLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Meng To — Agent Arcana" sourceUrl="/landing-pages/agent-arcana.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Meng To — Agent Arcana"
+      sourceUrl="/landing-pages/agent-arcana.html"
+    />
+  );
 }
 
 export const ASCII_FIELD_VARIANTS = ["vortex", "tide", "ridge", "canopy"] as const;
@@ -107,14 +147,22 @@ export type AsciiPageTransitionHeroProps = LandingPageProps & {
   presentation?: "page" | "background";
 };
 
-export function AsciiPageTransitionHero({ variant = "vortex", presentation = "background", ...props }: AsciiPageTransitionHeroProps) {
+export function AsciiPageTransitionHero({
+  variant = "vortex",
+  presentation = "background",
+  ...props
+}: AsciiPageTransitionHeroProps) {
   const safeVariant = ASCII_FIELD_VARIANTS.includes(variant) ? variant : "vortex";
   return (
     <LandingPageFrame
       {...props}
       key={safeVariant}
       backgroundCanvasSelector={presentation === "background" ? "#vortex" : undefined}
-      title={presentation === "page" && safeVariant === "vortex" ? "Sable — Agents should ship, not start over" : ASCII_FIELD_TITLES[safeVariant]}
+      title={
+        presentation === "page" && safeVariant === "vortex"
+          ? "Sable — Agents should ship, not start over"
+          : ASCII_FIELD_TITLES[safeVariant]
+      }
       sourceUrl="/landing-pages/ascii-page-transition-v1.html"
       srcDoc={buildAsciiFieldDocument(safeVariant)}
     />
@@ -126,13 +174,27 @@ export function AsciiPageTransitionPage(props: Omit<AsciiPageTransitionHeroProps
 }
 
 export function TrochilHero(props: LandingPageProps) {
-  return <LandingPageFrame {...props} backgroundCanvasSelector="#gl" title="Trochil — particle field background" sourceUrl="/landing-pages/trochil-hero.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      backgroundCanvasSelector="#gl"
+      title="Trochil — particle field background"
+      sourceUrl="/landing-pages/trochil-hero.html"
+    />
+  );
 }
 
 export function AttuneHero(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(ATTUNE_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="attune — Tuned to every visitor" sourceUrl="/landing-pages/attune-hero.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="attune — Tuned to every visitor"
+      sourceUrl="/landing-pages/attune-hero.html"
+    />
+  );
 }
 
 export const BETAWISE_GLOBE_VARIANTS = ["betawise", "moon", "mars", "saturn", "sun"] as const;
@@ -170,15 +232,24 @@ export type BetawiseGlobeSceneProps = {
   arcGlow?: number;
 };
 
-export type BetawiseLandingPageProps = LandingPageProps & PageTypographyProps & BetawiseGlobeSceneProps & {
-  variant?: BetawiseGlobeVariant;
-  presentation?: "page" | "background";
-};
+export type BetawiseLandingPageProps = LandingPageProps &
+  PageTypographyProps &
+  BetawiseGlobeSceneProps & {
+    variant?: BetawiseGlobeVariant;
+    presentation?: "page" | "background";
+  };
 
 /** Lifts the scene sliders out so the rest can go on to the frame untouched. */
-function splitBetawiseSceneProps<T extends BetawiseGlobeSceneProps>(
-  { tilt, surfaceContrast, limbGlow, exposure, bloom, starGlow, arcGlow, ...rest }: T,
-): [BetawiseGlobeSceneProps, Omit<T, keyof BetawiseGlobeSceneProps>] {
+function splitBetawiseSceneProps<T extends BetawiseGlobeSceneProps>({
+  tilt,
+  surfaceContrast,
+  limbGlow,
+  exposure,
+  bloom,
+  starGlow,
+  arcGlow,
+  ...rest
+}: T): [BetawiseGlobeSceneProps, Omit<T, keyof BetawiseGlobeSceneProps>] {
   return [{ tilt, surfaceContrast, limbGlow, exposure, bloom, starGlow, arcGlow }, rest];
 }
 
@@ -202,16 +273,21 @@ function betawiseSceneSettings(scene: BetawiseGlobeSceneProps) {
  */
 function useSceneSettings(settings: Record<string, number>) {
   const signature = JSON.stringify(settings);
-  return useCallback((element: HTMLIFrameElement) => {
-    const scene = betawiseScene(element);
-    const values = JSON.parse(signature) as Record<string, number>;
-    if (scene && Object.keys(values).length > 0) scene.set(values);
-  }, [signature]);
+  return useCallback(
+    (element: HTMLIFrameElement) => {
+      const scene = betawiseScene(element);
+      const values = JSON.parse(signature) as Record<string, number>;
+      if (scene && Object.keys(values).length > 0) scene.set(values);
+    },
+    [signature],
+  );
 }
 
 /** Reads the scene's published hook, which is absent until the frame has run. */
 function betawiseScene(element: HTMLIFrameElement) {
-  const view = element.contentWindow as { __betawise?: { set: (values: Record<string, number>) => void } } | null;
+  const view = element.contentWindow as {
+    __betawise?: { set: (values: Record<string, number>) => void };
+  } | null;
   return view?.__betawise;
 }
 
@@ -224,7 +300,11 @@ function betawiseScene(element: HTMLIFrameElement) {
  * so the node test can assert every anchor against the packaged file rather than
  * against a copy of it.
  */
-export function BetawiseLandingPage({ variant = "betawise", presentation = "background", ...props }: BetawiseLandingPageProps) {
+export function BetawiseLandingPage({
+  variant = "betawise",
+  presentation = "background",
+  ...props
+}: BetawiseLandingPageProps) {
   const safeVariant = BETAWISE_GLOBE_VARIANTS.includes(variant) ? variant : "betawise";
   const [type, rest] = splitTypographyProps(props);
   const customization = usePageTypography(BETAWISE_TYPOGRAPHY, type);
@@ -255,21 +335,49 @@ export function BetawiseGlobePage(props: Omit<BetawiseLandingPageProps, "present
 export function KairoLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(KAIRO_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="KAIRO — Heat With Intent." sourceUrl="/landing-pages/kairo-culinary.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="KAIRO — Heat With Intent."
+      sourceUrl="/landing-pages/kairo-culinary.html"
+    />
+  );
 }
 
 export function VoltaAtelierLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(VOLTA_ATELIER_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Volta Atelier — Creative Design & 3D Studio" sourceUrl="/landing-pages/volta-atelier.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Volta Atelier — Creative Design & 3D Studio"
+      sourceUrl="/landing-pages/volta-atelier.html"
+    />
+  );
 }
 
-export type BetawiseHeroProps = LandingPageProps & PageTypographyProps & { presentation?: "page" | "background" };
+export type BetawiseHeroProps = LandingPageProps &
+  PageTypographyProps & { presentation?: "page" | "background" };
 
 export function BetawiseHero({ presentation = "background", ...props }: BetawiseHeroProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(BETAWISE_HERO_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} backgroundCanvasSelector={presentation === "background" ? "#gl" : undefined} backgroundVisualSelector={presentation === "background" ? "#veil" : undefined} customization={customization} title={presentation === "background" ? "Betawise — particle bust background" : "Betawise — Redefining Attribution with AI-Powered Data Precision"} sourceUrl="/landing-pages/betawise-hero.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      backgroundCanvasSelector={presentation === "background" ? "#gl" : undefined}
+      backgroundVisualSelector={presentation === "background" ? "#veil" : undefined}
+      customization={customization}
+      title={
+        presentation === "background"
+          ? "Betawise — particle bust background"
+          : "Betawise — Redefining Attribution with AI-Powered Data Precision"
+      }
+      sourceUrl="/landing-pages/betawise-hero.html"
+    />
+  );
 }
 
 export function BetawiseParticlePage(props: Omit<BetawiseHeroProps, "presentation">) {
@@ -300,16 +408,35 @@ const AXONIS_TITLES: Record<AxonisVariant, string> = {
   dune: "Axonis — sand sea background",
 };
 
-export type AxonisLandingPageProps = LandingPageProps & PageTypographyProps & {
-  variant?: AxonisVariant;
-  presentation?: "page" | "background";
-};
+export type AxonisLandingPageProps = LandingPageProps &
+  PageTypographyProps & {
+    variant?: AxonisVariant;
+    presentation?: "page" | "background";
+  };
 
-export function AxonisLandingPage({ variant = "signal-tree", presentation = "background", ...props }: AxonisLandingPageProps) {
+export function AxonisLandingPage({
+  variant = "signal-tree",
+  presentation = "background",
+  ...props
+}: AxonisLandingPageProps) {
   const safeVariant = AXONIS_VARIANTS.includes(variant) ? variant : "signal-tree";
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(AXONIS_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} backgroundCanvasSelector={presentation === "background" ? "#scene" : undefined} key={safeVariant} customization={safeVariant === "signal-tree" ? customization : undefined} title={presentation === "page" && safeVariant === "signal-tree" ? "Axonis — Adaptive intelligence systems" : AXONIS_TITLES[safeVariant]} sourceUrl="/landing-pages/axonis.html" srcDoc={safeVariant === "signal-tree" ? undefined : AXONIS_DOCUMENTS[safeVariant]} />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      backgroundCanvasSelector={presentation === "background" ? "#scene" : undefined}
+      key={safeVariant}
+      customization={safeVariant === "signal-tree" ? customization : undefined}
+      title={
+        presentation === "page" && safeVariant === "signal-tree"
+          ? "Axonis — Adaptive intelligence systems"
+          : AXONIS_TITLES[safeVariant]
+      }
+      sourceUrl="/landing-pages/axonis.html"
+      srcDoc={safeVariant === "signal-tree" ? undefined : AXONIS_DOCUMENTS[safeVariant]}
+    />
+  );
 }
 
 export function AxonisPage(props: Omit<AxonisLandingPageProps, "presentation">) {
@@ -317,24 +444,52 @@ export function AxonisPage(props: Omit<AxonisLandingPageProps, "presentation">) 
 }
 
 export function HalfwaveLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Halfwave — analogue design studio" sourceUrl="/landing-pages/codescan.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Halfwave — analogue design studio"
+      sourceUrl="/landing-pages/codescan.html"
+    />
+  );
 }
 
 // The Halfwave build re-authored as a solo motion designer's portfolio.
-export type MiraSolvangLandingPageProps = LandingPageProps & { presentation?: "page" | "background" };
+export type MiraSolvangLandingPageProps = LandingPageProps & {
+  presentation?: "page" | "background";
+};
 
-export function MiraSolvangLandingPage({ presentation = "background", ...props }: MiraSolvangLandingPageProps) {
-  return <LandingPageFrame {...props} backgroundCanvasSelector={presentation === "background" ? "#gl" : undefined} title={presentation === "background" ? "Mira Solvang — monitor wall background" : "Mira Solvang — Motion Designer"} sourceUrl="/landing-pages/mira-solvang.html" />;
+export function MiraSolvangLandingPage({
+  presentation = "background",
+  ...props
+}: MiraSolvangLandingPageProps) {
+  return (
+    <LandingPageFrame
+      {...props}
+      backgroundCanvasSelector={presentation === "background" ? "#gl" : undefined}
+      title={
+        presentation === "background"
+          ? "Mira Solvang — monitor wall background"
+          : "Mira Solvang — Motion Designer"
+      }
+      sourceUrl="/landing-pages/mira-solvang.html"
+    />
+  );
 }
 
 export function MiraSolvangPage(props: Omit<MiraSolvangLandingPageProps, "presentation">) {
   return <MiraSolvangLandingPage {...props} presentation="page" />;
 }
 
-export const TIDECREST_HERO_VARIANTS = ["tidecrest", "harbour-nights", "dune-reach", "river-hollow"] as const;
+export const TIDECREST_HERO_VARIANTS = [
+  "tidecrest",
+  "harbour-nights",
+  "dune-reach",
+  "river-hollow",
+] as const;
 export type TidecrestHeroVariant = (typeof TIDECREST_HERO_VARIANTS)[number];
 
-export type TidecrestHeroProps = LandingPageProps & PageTypographyProps & { variant?: TidecrestHeroVariant; presentation?: "page" | "background" };
+export type TidecrestHeroProps = LandingPageProps &
+  PageTypographyProps & { variant?: TidecrestHeroVariant; presentation?: "page" | "background" };
 
 const TIDECREST_HERO_BASE_URL = "/landing-pages/tidecrest-hero.html";
 
@@ -354,7 +509,11 @@ const TIDECREST_HERO_TITLES: Record<TidecrestHeroVariant, string> = {
  * tidecrestVariants.js so the node test can assert every anchor against the packaged
  * file rather than against a copy of it.
  */
-export function TidecrestHero({ variant = "tidecrest", presentation = "background", ...props }: TidecrestHeroProps) {
+export function TidecrestHero({
+  variant = "tidecrest",
+  presentation = "background",
+  ...props
+}: TidecrestHeroProps) {
   const safeVariant = TIDECREST_HERO_VARIANTS.includes(variant) ? variant : "tidecrest";
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(TIDECREST_TYPOGRAPHY, type);
@@ -387,7 +546,13 @@ export function TidecrestPage(props: Omit<TidecrestHeroProps, "presentation">) {
 }
 
 export function CentraLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Centra — Intelligence In The Open" sourceUrl="/landing-pages/centra.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Centra — Intelligence In The Open"
+      sourceUrl="/landing-pages/centra.html"
+    />
+  );
 }
 
 export const NOCTURNE_CONTROL_KEYS = [
@@ -409,8 +574,12 @@ export const NOCTURNE_CONTROL_KEYS = [
 ] as const;
 export type NocturneControlKey = (typeof NOCTURNE_CONTROL_KEYS)[number];
 
-export type NocturneHeroProps = LandingPageProps & PageTypographyProps &
-  Partial<Record<NocturneControlKey, number>> & { variant?: NocturneVariant; presentation?: "page" | "background" };
+export type NocturneHeroProps = LandingPageProps &
+  PageTypographyProps &
+  Partial<Record<NocturneControlKey, number>> & {
+    variant?: NocturneVariant;
+    presentation?: "page" | "background";
+  };
 
 /**
  * The authored page is lumen.html; the page it holds is Nocturne. This entry
@@ -439,53 +608,61 @@ export function NocturneHero({
   pointerOrbit,
   ...props
 }: NocturneHeroProps) {
-  const safeVariant = (NOCTURNE_VARIANTS as readonly string[]).includes(variant) ? variant : "midnight";
+  const safeVariant = (NOCTURNE_VARIANTS as readonly string[]).includes(variant)
+    ? variant
+    : "midnight";
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(NOCTURNE_TYPOGRAPHY, type);
   const srcDoc = useMemo(
-    () => presentation === "page" && safeVariant === "midnight" ? undefined : buildNocturneDocument(safeVariant),
+    () =>
+      presentation === "page" && safeVariant === "midnight"
+        ? undefined
+        : buildNocturneDocument(safeVariant),
     [presentation, safeVariant],
   );
-  const applyScene = useCallback((element: HTMLIFrameElement) => {
-    const given = {
-      objectScale,
-      floatMotion,
-      metalHighlight,
-      haloScale,
-      haloGlow,
-      planetScale,
-      sunAzimuth,
-      planetGlow,
-      surfaceRelief,
-      clouds,
-      cityLights,
+  const applyScene = useCallback(
+    (element: HTMLIFrameElement) => {
+      const given = {
+        objectScale,
+        floatMotion,
+        metalHighlight,
+        haloScale,
+        haloGlow,
+        planetScale,
+        sunAzimuth,
+        planetGlow,
+        surfaceRelief,
+        clouds,
+        cityLights,
+        atmosphere,
+        stars,
+        waterMotion,
+        pointerOrbit,
+      };
+      const values: Record<string, number> = {};
+      for (const [key, value] of Object.entries(given)) {
+        if (typeof value === "number" && Number.isFinite(value)) values[key] = value;
+      }
+      element.contentWindow?.postMessage({ type: "threeui-nocturne-controls", values }, "*");
+    },
+    [
       atmosphere,
-      stars,
-      waterMotion,
+      cityLights,
+      clouds,
+      floatMotion,
+      haloGlow,
+      haloScale,
+      metalHighlight,
+      objectScale,
+      planetGlow,
+      planetScale,
       pointerOrbit,
-    };
-    const values: Record<string, number> = {};
-    for (const [key, value] of Object.entries(given)) {
-      if (typeof value === "number" && Number.isFinite(value)) values[key] = value;
-    }
-    element.contentWindow?.postMessage({ type: "threeui-nocturne-controls", values }, "*");
-  }, [
-    atmosphere,
-    cityLights,
-    clouds,
-    floatMotion,
-    haloGlow,
-    haloScale,
-    metalHighlight,
-    objectScale,
-    planetGlow,
-    planetScale,
-    pointerOrbit,
-    stars,
-    sunAzimuth,
-    surfaceRelief,
-    waterMotion,
-  ]);
+      stars,
+      sunAzimuth,
+      surfaceRelief,
+      waterMotion,
+    ],
+  );
   return (
     <LandingPageFrame
       {...frame}
@@ -525,7 +702,10 @@ export const MERIDIAN_CONTROL_KEYS = [
 export type MeridianControlKey = (typeof MERIDIAN_CONTROL_KEYS)[number];
 
 export type MeridianLandingPageProps = LandingPageProps &
-  Partial<Record<MeridianControlKey, number>> & { variant?: MeridianVariant; presentation?: "page" | "background" };
+  Partial<Record<MeridianControlKey, number>> & {
+    variant?: MeridianVariant;
+    presentation?: "page" | "background";
+  };
 
 const MERIDIAN_TITLES: Record<MeridianVariant, string> = {
   earth: "Meridian — orbital Earth background",
@@ -563,32 +743,65 @@ export function MeridianLandingPage({
   const safeVariant = MERIDIAN_VARIANTS.includes(variant) ? variant : "earth";
   /* the optional call is not defensiveness: on the public site the builder is a
      stub, and the Pro entry it belongs to is never mounted there */
-  const srcDoc = useMemo(() => buildMeridianDocument?.(safeVariant, presentation), [presentation, safeVariant]);
+  const srcDoc = useMemo(
+    () => buildMeridianDocument?.(safeVariant, presentation),
+    [presentation, safeVariant],
+  );
 
   /* Rebuilt whenever a slider moves, which is what re-runs the frame effect.
      A knob left undefined never reaches the document, so the authored value
      stands rather than being overwritten by a slider's own default. The three
      that are not uniforms — orbit speed, pointer sway, sun azimuth — need no
      apply at all: the frame loop reads them every frame. */
-  const applyScene = useCallback((element: HTMLIFrameElement) => {
-    const given = { orbitSpeed, pointerSway, sunAzimuth, haze, halo, exposure, relief, clouds, stars, rings };
-    const values: Record<string, number> = {};
-    for (const [key, value] of Object.entries(given)) {
-      if (typeof value === "number" && Number.isFinite(value)) values[key] = value;
-    }
-    if (Object.keys(values).length === 0) return;
+  const applyScene = useCallback(
+    (element: HTMLIFrameElement) => {
+      const given = {
+        orbitSpeed,
+        pointerSway,
+        sunAzimuth,
+        haze,
+        halo,
+        exposure,
+        relief,
+        clouds,
+        stars,
+        rings,
+      };
+      const values: Record<string, number> = {};
+      for (const [key, value] of Object.entries(given)) {
+        if (typeof value === "number" && Number.isFinite(value)) values[key] = value;
+      }
+      if (Object.keys(values).length === 0) return;
 
-    if (safeVariant === "earth") {
-      const scene = (element.contentWindow as { __meridian?: { set: (values: Record<string, number>) => void } } | null)?.__meridian;
-      scene?.set(values);
-      return;
-    }
+      if (safeVariant === "earth") {
+        const scene = (
+          element.contentWindow as {
+            __meridian?: { set: (values: Record<string, number>) => void };
+          } | null
+        )?.__meridian;
+        scene?.set(values);
+        return;
+      }
 
-    /* Derived documents use srcDoc and intentionally keep an opaque sandbox
+      /* Derived documents use srcDoc and intentionally keep an opaque sandbox
        origin. Reaching into contentWindow throws there, so their control seam
        travels through the same isolated postMessage bridge as Nocturne. */
-    element.contentWindow?.postMessage({ type: "threeui-meridian-controls", values }, "*");
-  }, [clouds, exposure, halo, haze, orbitSpeed, pointerSway, relief, rings, safeVariant, stars, sunAzimuth]);
+      element.contentWindow?.postMessage({ type: "threeui-meridian-controls", values }, "*");
+    },
+    [
+      clouds,
+      exposure,
+      halo,
+      haze,
+      orbitSpeed,
+      pointerSway,
+      relief,
+      rings,
+      safeVariant,
+      stars,
+      sunAzimuth,
+    ],
+  );
 
   return (
     <LandingPageFrame
@@ -611,77 +824,171 @@ export function MeridianPage(props: Omit<MeridianLandingPageProps, "presentation
 export function MengToSketchbookLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(MENG_TO_SKETCHBOOK_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Meng To — Singapore Sketchbook" sourceUrl="/landing-pages/meng-to-sketchbook.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Meng To — Singapore Sketchbook"
+      sourceUrl="/landing-pages/meng-to-sketchbook.html"
+    />
+  );
 }
 
 export function SekiteiLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Sekitei — One day in a dry garden" sourceUrl="/landing-pages/sekitei.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Sekitei — One day in a dry garden"
+      sourceUrl="/landing-pages/sekitei.html"
+    />
+  );
 }
 
 export function RenderLabLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(RENDERLAB_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="RenderLab — Motion House" sourceUrl="/landing-pages/renderlab-motion-house.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="RenderLab — Motion House"
+      sourceUrl="/landing-pages/renderlab-motion-house.html"
+    />
+  );
 }
 
 export function EchoValeLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(ECHO_VALE_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Echo Vale — Follow the signal beneath the stone" sourceUrl="/landing-pages/echo-vale.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Echo Vale — Follow the signal beneath the stone"
+      sourceUrl="/landing-pages/echo-vale.html"
+    />
+  );
 }
 
 export function AurelloLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(AURELLO_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Aurello — Orange Spritz, Ready to Drink" sourceUrl="/landing-pages/aurello-beverage.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Aurello — Orange Spritz, Ready to Drink"
+      sourceUrl="/landing-pages/aurello-beverage.html"
+    />
+  );
 }
 
 export function LampLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Latent — We develop film slowly, by hand" sourceUrl="/landing-pages/lamp.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Latent — We develop film slowly, by hand"
+      sourceUrl="/landing-pages/lamp.html"
+    />
+  );
 }
 
 export function MaraVossLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(MARA_VOSS_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Mara Voss — An Archive of Vanishing Sounds" sourceUrl="/landing-pages/mara-voss.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Mara Voss — An Archive of Vanishing Sounds"
+      sourceUrl="/landing-pages/mara-voss.html"
+    />
+  );
 }
 
 export function Mk78KeyboardLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(MK78_KEYBOARD_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="MK·78 — Every key. Every detail." sourceUrl="/landing-pages/mk78-keyboard.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="MK·78 — Every key. Every detail."
+      sourceUrl="/landing-pages/mk78-keyboard.html"
+    />
+  );
 }
 
 export function NoemaN1LandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(NOEMA_N1_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="NOEMA N1 — A machine that listens" sourceUrl="/landing-pages/noema-n1.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="NOEMA N1 — A machine that listens"
+      sourceUrl="/landing-pages/noema-n1.html"
+    />
+  );
 }
 
 export function AnthraA40LandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(ANTHRA_A40_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="Anthra A-40 — The titanium automatic" sourceUrl="/landing-pages/anthra-a40.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="Anthra A-40 — The titanium automatic"
+      sourceUrl="/landing-pages/anthra-a40.html"
+    />
+  );
 }
 
 export function AstralAtlasLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Astral Atlas — Singular Objects in Orbit" sourceUrl="/landing-pages/astral-atlas.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="Astral Atlas — Singular Objects in Orbit"
+      sourceUrl="/landing-pages/astral-atlas.html"
+    />
+  );
 }
 
 export function MugenLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="MUGEN — The Gate Remembers" sourceUrl="/landing-pages/mugen.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="MUGEN — The Gate Remembers"
+      sourceUrl="/landing-pages/mugen.html"
+    />
+  );
 }
 
 export function NodalLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="NODAL — Series A 40mm T1.9" sourceUrl="/landing-pages/nodal.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="NODAL — Series A 40mm T1.9"
+      sourceUrl="/landing-pages/nodal.html"
+    />
+  );
 }
 
 export function Kestrel65LandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="Kestrel 65" sourceUrl="/landing-pages/kestrel-65.html" />;
+  return (
+    <LandingPageFrame {...props} title="Kestrel 65" sourceUrl="/landing-pages/kestrel-65.html" />
+  );
 }
 
 export function OscillaM1LandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="OSCILLA M-1 — Blender-baked synthesiser" sourceUrl="/landing-pages/oscilla-m1.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="OSCILLA M-1 — Blender-baked synthesiser"
+      sourceUrl="/landing-pages/oscilla-m1.html"
+    />
+  );
 }
 
 // Halvorsen is Understory's layout and hand scene recut as a dark monotone
@@ -689,22 +996,47 @@ export function OscillaM1LandingPage(props: LandingPageProps) {
 export function HalvorsenLandingPage(props: LandingPageProps & PageTypographyProps) {
   const [type, frame] = splitTypographyProps(props);
   const customization = usePageTypography(HALVORSEN_TYPOGRAPHY, type);
-  return <LandingPageFrame {...frame} customization={customization} title="halvorsen — Interfaces built to disappear" sourceUrl="/landing-pages/halvorsen.html" />;
+  return (
+    <LandingPageFrame
+      {...frame}
+      customization={customization}
+      title="halvorsen — Interfaces built to disappear"
+      sourceUrl="/landing-pages/halvorsen.html"
+    />
+  );
 }
 
 export function SublevelStudioLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="sublevel.studio — We build the stuff people remember" sourceUrl="/landing-pages/sublevel-studio.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="sublevel.studio — We build the stuff people remember"
+      sourceUrl="/landing-pages/sublevel-studio.html"
+    />
+  );
 }
 
 // The authored file is named cogniwave.html; the page it holds is Understory.
 export function UnderstoryLandingPage(props: LandingPageProps) {
-  return <LandingPageFrame {...props} title="understory — What grows here grows slowly" sourceUrl="/landing-pages/cogniwave.html" />;
+  return (
+    <LandingPageFrame
+      {...props}
+      title="understory — What grows here grows slowly"
+      sourceUrl="/landing-pages/cogniwave.html"
+    />
+  );
 }
 
-export const SYLVA_HERO_VARIANTS = ["living-green", "sakura-sunset", "maple-autumn", "sequoia-mist"] as const;
+export const SYLVA_HERO_VARIANTS = [
+  "living-green",
+  "sakura-sunset",
+  "maple-autumn",
+  "sequoia-mist",
+] as const;
 export type SylvaHeroVariant = (typeof SYLVA_HERO_VARIANTS)[number];
 
-export type SylvaHeroProps = LandingPageProps & PageTypographyProps & { variant?: SylvaHeroVariant };
+export type SylvaHeroProps = LandingPageProps &
+  PageTypographyProps & { variant?: SylvaHeroVariant };
 
 const SYLVA_HERO_BASE_URL = "/landing-pages/inner-green-3d.html";
 
@@ -742,7 +1074,10 @@ type SylvaHeroChromeTone = {
   plate: string;
 };
 
-const SYLVA_HERO_CHROME_TONES: Record<Exclude<SylvaHeroVariant, "living-green">, SylvaHeroChromeTone> = {
+const SYLVA_HERO_CHROME_TONES: Record<
+  Exclude<SylvaHeroVariant, "living-green">,
+  SylvaHeroChromeTone
+> = {
   "sakura-sunset": {
     edge: "255, 236, 243",
     lift: "255, 240, 246",
@@ -850,10 +1185,13 @@ function sylvaHeroChromeStyle(tone: SylvaHeroChromeTone) {
 </style>`;
 }
 
-const SYLVA_HERO_SCENES: Record<Exclude<SylvaHeroVariant, "living-green">, {
-  style: string;
-  apply: (source: string) => string;
-}> = {
+const SYLVA_HERO_SCENES: Record<
+  Exclude<SylvaHeroVariant, "living-green">,
+  {
+    style: string;
+    apply: (source: string) => string;
+  }
+> = {
   "sakura-sunset": { style: SAKURA_SUNSET_STYLE, apply: applySakuraSunsetVariant },
   "maple-autumn": { style: MAPLE_AUTUMN_STYLE, apply: applyMapleAutumnVariant },
   "sequoia-mist": { style: SEQUOIA_MIST_STYLE, apply: applySequoiaMistVariant },
@@ -866,14 +1204,18 @@ export function buildSylvaHeroDocument(variant: Exclude<SylvaHeroVariant, "livin
   // <base>, so it would speculatively 404 on every asset before the real parse corrected it.
   const rooted = innerGreenSource
     .replaceAll(SYLVA_HERO_ASSET_DIR, SYLVA_HERO_ASSET_BASE)
-    .replace("</head>", `${scene.style}${sylvaHeroChromeStyle(SYLVA_HERO_CHROME_TONES[variant])}</head>`)
+    .replace(
+      "</head>",
+      `${scene.style}${sylvaHeroChromeStyle(SYLVA_HERO_CHROME_TONES[variant])}</head>`,
+    )
     // The Explore button's frosted plate has to be a sibling of its clip rather
     // than a child, so it is one added element rather than a CSS-only change.
     .replace(
       '<div class="pill-clip">',
       '<span class="pill-glass" aria-hidden="true"></span>\n    <div class="pill-clip">',
     );
-  if (!rooted.includes("pill-glass")) throw new Error("Sylva hero chrome no longer matches the authored page.");
+  if (!rooted.includes("pill-glass"))
+    throw new Error("Sylva hero chrome no longer matches the authored page.");
   return scene.apply(rooted);
 }
 

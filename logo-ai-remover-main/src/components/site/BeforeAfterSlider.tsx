@@ -78,12 +78,7 @@ export function BeforeAfterSlider({
         className="absolute inset-0 overflow-hidden transition-none"
         style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
       >
-        <img
-          src={src}
-          alt={labelAfter}
-          className="size-full object-cover"
-          draggable={false}
-        />
+        <img src={src} alt={labelAfter} className="size-full object-cover" draggable={false} />
       </div>
 
       {/* Slider Line & Handle */}

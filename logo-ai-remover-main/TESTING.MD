@@ -2,14 +2,14 @@
 
 ## Existing backend coverage
 
-| File under `backend/tests/` | Coverage represented by source/test names |
-| --- | --- |
-| `test_job_isolation.py` | Independent uploads, job-specific processing/download, refresh, failure and API aliases |
-| `test_frame_identity.py` | Frame sequence and unchanged content outside masks |
-| `test_image_upscale.py` | Upscale flow/formats, invalid/oversized input and isolation |
-| `test_pdf_cleaner.py` | Upload/preview, document cleaning and isolation |
-| `test_background_remover.py` | Capabilities, sync/async removal, compositing and brush refinement |
-| `test_video_enhancer.py` | Dimensions, processing engines, records, health, upload/inspect |
+| File under `backend/tests/`  | Coverage represented by source/test names                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
+| `test_job_isolation.py`      | Independent uploads, job-specific processing/download, refresh, failure and API aliases |
+| `test_frame_identity.py`     | Frame sequence and unchanged content outside masks                                      |
+| `test_image_upscale.py`      | Upscale flow/formats, invalid/oversized input and isolation                             |
+| `test_pdf_cleaner.py`        | Upload/preview, document cleaning and isolation                                         |
+| `test_background_remover.py` | Capabilities, sync/async removal, compositing and brush refinement                      |
+| `test_video_enhancer.py`     | Dimensions, processing engines, records, health, upload/inspect                         |
 
 Tests may mock services or use local fixtures. Passing them does not prove deployed models, processing quality, authorization or billing. No frontend test script is declared in `package.json`.
 
@@ -34,14 +34,14 @@ Pytest clears its base-temp directory. Never point it at real jobs or files to p
 
 ## Checks by change type
 
-| Change | Relevant verification |
-| --- | --- |
-| Docs | Relative links, referenced paths, factual claims and whitespace/diff |
-| UI | Typecheck, affected lint/build checks, desktop/mobile/keyboard inspection |
-| API | Client types, affected backend tests, success/error contracts |
-| Media | Regression tests, real-fixture output inspection, isolation, cancellation/failure |
-| Access/billing | Cross-user denial, forged input, replay/idempotency and entitlements |
-| Deployment | Build, health/model checks and authorized upload-to-download smoke test |
+| Change         | Relevant verification                                                             |
+| -------------- | --------------------------------------------------------------------------------- |
+| Docs           | Relative links, referenced paths, factual claims and whitespace/diff              |
+| UI             | Typecheck, affected lint/build checks, desktop/mobile/keyboard inspection         |
+| API            | Client types, affected backend tests, success/error contracts                     |
+| Media          | Regression tests, real-fixture output inspection, isolation, cancellation/failure |
+| Access/billing | Cross-user denial, forged input, replay/idempotency and entitlements              |
+| Deployment     | Build, health/model checks and authorized upload-to-download smoke test           |
 
 Start scoped; broaden for shared changes. Separate pre-existing failures and avoid unrelated fixes.
 

@@ -451,33 +451,32 @@ function GeminiVideoRemoverPage() {
                 iconColor: "text-emerald-600",
                 badge: "Zero crop",
               },
-            ].map(card => (
+            ].map((card) => (
               <div
                 key={card.title}
                 className={`p-8 sm:p-10 rounded-3xl bg-gradient-to-br ${card.gradient} border border-gray-100 shadow-xs hover:shadow-[0_20px_45px_-10px_rgba(225,29,72,0.12)] hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between`}
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className={`size-14 rounded-2xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shadow-xs`}>
+                    <div
+                      className={`size-14 rounded-2xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shadow-xs`}
+                    >
                       <card.icon className="size-7" />
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs ${card.iconBg} ${card.iconColor} border border-white`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs ${card.iconBg} ${card.iconColor} border border-white`}
+                    >
                       {card.badge}
                     </span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl text-gray-950">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {card.desc}
-                  </p>
+                  <h3 className="text-xl sm:text-2xl text-gray-950">{card.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
-
 
       {/* 4. "REMOVE A GEMINI VIDEO WATERMARK IN 3 STEPS" SECTION (Screenshot 3 Matching) */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">

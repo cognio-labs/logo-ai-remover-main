@@ -49,7 +49,9 @@ function AboutPage() {
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Bellix.us was founded on a simple vision: to give designers, video editors, and digital creators the power to restore, clean, and elevate any visual asset in seconds with zero loss in quality.
+            Bellix.us was founded on a simple vision: to give designers, video editors, and digital
+            creators the power to restore, clean, and elevate any visual asset in seconds with zero
+            loss in quality.
           </p>
         </div>
       </section>
@@ -65,7 +67,11 @@ function AboutPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                We bridge the gap between creative craft and state-of-the-art neural computation. Where traditional editing software requires hours of meticulous manual retouching and cloning, Bellix.us’s deep learning models reconstruct covered textures, lighting angles, and grain instantly — letting solo creators ship work that previously required entire post-production studios.
+                We bridge the gap between creative craft and state-of-the-art neural computation.
+                Where traditional editing software requires hours of meticulous manual retouching
+                and cloning, Bellix.us’s deep learning models reconstruct covered textures, lighting
+                angles, and grain instantly — letting solo creators ship work that previously
+                required entire post-production studios.
               </p>
             </div>
 
@@ -75,7 +81,10 @@ function AboutPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">The Technology</h2>
               <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                Rather than applying crude blurs or smudged pixel fills, our neural inpainting engine uses multi-frame spatio-temporal flow vectors and latent diffusion. This guarantees pristine 4K/8K resolution fidelity, zero temporal flickering in video playback, and natural texture synthesis across every frame.
+                Rather than applying crude blurs or smudged pixel fills, our neural inpainting
+                engine uses multi-frame spatio-temporal flow vectors and latent diffusion. This
+                guarantees pristine 4K/8K resolution fidelity, zero temporal flickering in video
+                playback, and natural texture synthesis across every frame.
               </p>
             </div>
           </div>
@@ -84,7 +93,9 @@ function AboutPage() {
           <div className="space-y-8">
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-semibold text-gray-900">What We Stand For</h2>
-              <p className="text-gray-600 text-sm sm:text-base">Built by creators for creators, with speed, privacy, and precision at the core.</p>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Built by creators for creators, with speed, privacy, and precision at the core.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -94,7 +105,8 @@ function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Uncompromising Fidelity</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Every pixel matters. We train our algorithms to preserve fine details, natural skin tones, micro-textures, and high dynamic range lighting.
+                  Every pixel matters. We train our algorithms to preserve fine details, natural
+                  skin tones, micro-textures, and high dynamic range lighting.
                 </p>
               </div>
 
@@ -104,7 +116,8 @@ function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Instant Browser Workflows</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  No hefty installations or complex plugins needed. Access pro-grade AI video and image processing tools straight from your web browser.
+                  No hefty installations or complex plugins needed. Access pro-grade AI video and
+                  image processing tools straight from your web browser.
                 </p>
               </div>
 
@@ -114,7 +127,8 @@ function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Privacy & Security</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Your creative files are processed with end-to-end encryption and automatically purged from our cloud servers after download.
+                  Your creative files are processed with end-to-end encryption and automatically
+                  purged from our cloud servers after download.
                 </p>
               </div>
             </div>
@@ -127,7 +141,8 @@ function AboutPage() {
               Ready to experience true visual clarity?
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-              Try our neural watermark remover and video enhancer directly online with zero setup required.
+              Try our neural watermark remover and video enhancer directly online with zero setup
+              required.
             </p>
             <div className="pt-2 flex flex-wrap justify-center gap-4">
               <Link to="/">
@@ -144,4 +159,3 @@ function AboutPage() {
     </div>
   );
 }
-

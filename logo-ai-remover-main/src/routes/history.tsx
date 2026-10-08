@@ -215,8 +215,8 @@ function HistoryPage() {
                           item.status === "completed"
                             ? "bg-green-500 text-white"
                             : item.status === "processing"
-                            ? "bg-yellow-500 text-white"
-                            : "bg-red-500 text-white"
+                              ? "bg-yellow-500 text-white"
+                              : "bg-red-500 text-white"
                         }`}
                       >
                         {item.status === "completed" && <CheckCircle2 className="size-3" />}

@@ -109,7 +109,7 @@ export async function removeImageBackground(
   bgType: BackgroundType = "transparent",
   customColor: string = "#FFFFFF",
   backdropId: string = "luxury-studio",
-  onProgress?: (stage: string, progress: number) => void
+  onProgress?: (stage: string, progress: number) => void,
 ): Promise<CutoutResult> {
   try {
     if (onProgress) onProgress("Preparing image for AI analysis...", 15);
@@ -165,8 +165,10 @@ export async function removeImageBackground(
       }
     }
 
-    const width = completedJob.result_metadata?.width || completedJob.original_metadata?.width || 1200;
-    const height = completedJob.result_metadata?.height || completedJob.original_metadata?.height || 900;
+    const width =
+      completedJob.result_metadata?.width || completedJob.original_metadata?.width || 1200;
+    const height =
+      completedJob.result_metadata?.height || completedJob.original_metadata?.height || 900;
     const size = completedJob.result_metadata?.size_bytes || resultBlob.size;
 
     return {
@@ -194,7 +196,7 @@ export async function recompositeCutout(
   jobId: string,
   bgType: BackgroundType,
   customColor = "#FFFFFF",
-  backdropId = "luxury-studio"
+  backdropId = "luxury-studio",
 ): Promise<{ compositeBlobUrl: string; sizeFormatted: string }> {
   const result = await recompositeBackground(jobId, {
     bg_type: bgType,
@@ -217,7 +219,7 @@ export async function recompositeCutout(
 export async function refineCutoutStrokes(
   jobId: string,
   strokes: ManualStroke[],
-  edgeRefine = true
+  edgeRefine = true,
 ): Promise<{ previewUrl: string; maskUrl: string }> {
   const res = await refineMaskStrokes(jobId, strokes, edgeRefine);
   return {
@@ -233,7 +235,7 @@ async function clientSideFallbackRemoval(
   imageUrl: string,
   bgType: BackgroundType,
   customColor: string,
-  backdropId: string
+  backdropId: string,
 ): Promise<CutoutResult> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -263,10 +265,14 @@ async function clientSideFallbackRemoval(
       }
 
       const data = imgData.data;
-      const bgR = data[0], bgG = data[1], bgB = data[2];
+      const bgR = data[0],
+        bgG = data[1],
+        bgB = data[2];
 
       for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2];
+        const r = data[i],
+          g = data[i + 1],
+          b = data[i + 2];
         const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
         if (dist < 35) {
           data[i + 3] = 0;

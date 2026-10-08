@@ -17,7 +17,9 @@ const icons = {
 
 async function run() {
   for (const [name, config] of Object.entries(icons)) {
-    const res = await fetch(`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${config.src}`);
+    const res = await fetch(
+      `https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${config.src}`,
+    );
     if (!res.ok) {
       throw new Error(`Failed to fetch ${name}: ${res.status}`);
     }

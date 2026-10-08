@@ -418,8 +418,7 @@
 
   isolation: isolate;
   container-type: inline-size;
-  background:
-    linear-gradient(180deg, #050505 0%, #020202 44%, #000 100%);
+  background: linear-gradient(180deg, #050505 0%, #020202 44%, #000 100%);
 }
 
 /* Each scene keeps the same engraved grammar and only moves the ground tone the
@@ -427,22 +426,19 @@
 .terrain-plume-component[data-terrain-scene="river"] {
   --fe-bg: #03070a;
 
-  background:
-    linear-gradient(180deg, #05090d 0%, #020507 44%, #000 100%);
+  background: linear-gradient(180deg, #05090d 0%, #020507 44%, #000 100%);
 }
 
 .terrain-plume-component[data-terrain-scene="desert"] {
   --fe-bg: #0a0603;
 
-  background:
-    linear-gradient(180deg, #0d0805 0%, #060302 44%, #000 100%);
+  background: linear-gradient(180deg, #0d0805 0%, #060302 44%, #000 100%);
 }
 
 .terrain-plume-component[data-terrain-scene="bridge-city"] {
   --fe-bg: #03050b;
 
-  background:
-    linear-gradient(180deg, #050810 0%, #020407 44%, #000 100%);
+  background: linear-gradient(180deg, #050810 0%, #020407 44%, #000 100%);
 }
 
 /* The authored plume sits at the foot of its own canvas, where the terrain band
@@ -479,7 +475,12 @@
 
 .terrain-plume-component::before {
   background:
-    linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255, 255, 255, 0.05) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(
+      90deg,
+      transparent calc(50% - 0.5px),
+      rgba(255, 255, 255, 0.05) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 11.5vw),
     repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 5.8rem);
   opacity: 0.74;
@@ -798,7 +799,10 @@ img.sunset-valley-fallback {
   justify-content: space-between;
   padding-bottom: clamp(14px, 2.6cqw, 30px);
   color: #62625e;
-  font: 400 clamp(8px, 0.85cqw, 10px) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 clamp(8px, 0.85cqw, 10px) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.12em;
 }
 
@@ -822,7 +826,10 @@ img.sunset-valley-fallback {
 .article-headings-component__index,
 .article-headings-component__meta {
   color: #60605c;
-  font: 400 clamp(8px, 0.85cqw, 10px) / 1.3 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 clamp(8px, 0.85cqw, 10px) / 1.3 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.06em;
 }
 
@@ -869,7 +876,10 @@ img.sunset-valley-fallback {
   position: absolute;
   z-index: 6;
   color: #62625e;
-  font: 400 9px/1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 9px/1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.1em;
 }
 
@@ -884,8 +894,7 @@ img.sunset-valley-fallback {
   place-items: center;
   isolation: isolate;
   background:
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.035), transparent 34%),
-    #080808;
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.035), transparent 34%), #080808;
 }
 
 .animated-top-dock__nav {
@@ -902,7 +911,9 @@ img.sunset-valley-fallback {
   border: 1px solid #292929;
   border-radius: 11px;
   background: rgba(14, 14, 14, 0.86);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.48), inset 0 1px rgba(255, 255, 255, 0.035);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.48),
+    inset 0 1px rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(18px) saturate(75%);
   transform: translateX(-50%);
   isolation: isolate;
@@ -923,12 +934,19 @@ img.sunset-valley-fallback {
   outline: none;
   color: #858580;
   background: rgba(21, 21, 20, 0.9);
-  font: 400 10px/1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 10px/1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.1em;
   white-space: nowrap;
   backdrop-filter: blur(14px) saturate(70%);
   transform-origin: 50% 0;
-  transition: color 0.15s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  transition:
+    color 0.15s,
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s;
   will-change: width, height, transform;
   cursor: pointer;
 }
@@ -1182,7 +1200,9 @@ img.sunset-valley-fallback {
   border-radius: 999px;
   background: transparent;
   font: 500 var(--atd-label) / 1 inherit;
-  transition: color 0.16s, background 0.16s;
+  transition:
+    color 0.16s,
+    background 0.16s;
   cursor: pointer;
 }
 
@@ -1193,7 +1213,9 @@ img.sunset-valley-fallback {
   font: 600 var(--atd-label) / 1 inherit;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s;
   cursor: pointer;
 }
 
@@ -1226,7 +1248,9 @@ img.sunset-valley-fallback {
   border: 1px solid rgba(255, 255, 255, 0.045);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(25, 27, 36, 0.86), rgba(12, 13, 18, 0.82));
-  box-shadow: 0 22px 52px -24px rgba(0, 0, 0, 0.92), inset 0 1px rgba(255, 255, 255, 0.045);
+  box-shadow:
+    0 22px 52px -24px rgba(0, 0, 0, 0.92),
+    inset 0 1px rgba(255, 255, 255, 0.045);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
@@ -1249,7 +1273,12 @@ img.sunset-valley-fallback {
   background: transparent;
   font: 500 var(--atd-label) / 1 inherit;
   letter-spacing: -0.005em;
-  transition: color 0.16s, border-color 0.18s, background 0.18s, box-shadow 0.18s, backdrop-filter 0.18s;
+  transition:
+    color 0.16s,
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s,
+    backdrop-filter 0.18s;
 }
 
 /* :hover is carried alongside the proximity flag so the glass still lands when
@@ -1260,7 +1289,9 @@ img.sunset-valley-fallback {
   color: #f4f5f9;
   border-color: rgba(255, 255, 255, 0.055);
   background: rgba(255, 255, 255, 0.055);
-  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.9), inset 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 20px -14px rgba(0, 0, 0, 0.9),
+    inset 0 1px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(18px) saturate(170%);
   -webkit-backdrop-filter: blur(18px) saturate(170%);
 }
@@ -1269,7 +1300,9 @@ img.sunset-valley-fallback {
   color: #0a0b10;
   border-color: transparent;
   background: linear-gradient(180deg, #ffffff, #dfe3ef);
-  box-shadow: 0 10px 24px -12px rgba(120, 150, 255, 0.75), inset 0 -1px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 10px 24px -12px rgba(120, 150, 255, 0.75),
+    inset 0 -1px rgba(0, 0, 0, 0.14);
 }
 
 .atd-modern__icon,
@@ -1320,7 +1353,9 @@ img.sunset-valley-fallback {
   border: 0;
   color: #0a0b10;
   background: linear-gradient(180deg, #ffffff, #d8ddec);
-  box-shadow: 0 10px 26px -14px rgba(150, 175, 255, 0.95), inset 0 -1px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 10px 26px -14px rgba(150, 175, 255, 0.95),
+    inset 0 -1px rgba(0, 0, 0, 0.16);
 }
 
 .atd-modern__cta svg {
@@ -1338,7 +1373,9 @@ img.sunset-valley-fallback {
 }
 
 .atd-modern__cta:hover {
-  box-shadow: 0 16px 32px -14px rgba(150, 175, 255, 1), inset 0 -1px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 16px 32px -14px rgba(150, 175, 255, 1),
+    inset 0 -1px rgba(0, 0, 0, 0.16);
   transform: translateY(-1px);
 }
 
@@ -1356,7 +1393,10 @@ img.sunset-valley-fallback {
 .atd-modern__eyebrow {
   margin: 0 0 clamp(8px, 0.9cqw, 18px);
   color: #7d84a0;
-  font: 400 clamp(8px, 0.62cqw, 13px) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 clamp(8px, 0.62cqw, 13px) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -1407,7 +1447,13 @@ img.sunset-valley-fallback {
   pointer-events: none;
   background:
     radial-gradient(124% 90% at 50% 34%, transparent 28%, rgba(6, 4, 16, 0.62) 100%),
-    linear-gradient(180deg, rgba(6, 4, 16, 0.6) 0%, transparent 24%, transparent 62%, rgba(6, 4, 16, 0.58) 100%);
+    linear-gradient(
+      180deg,
+      rgba(6, 4, 16, 0.6) 0%,
+      transparent 24%,
+      transparent 62%,
+      rgba(6, 4, 16, 0.58) 100%
+    );
 }
 
 /* the raster runs at screen resolution, not at the field's pixel scale, so the
@@ -1441,7 +1487,10 @@ img.sunset-valley-fallback {
   border-right: 2px solid #4b2f7e;
   color: #f9c74f;
   background: #150c28;
-  font: 400 var(--atd-brand) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 var(--atd-brand) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.12em;
 }
 
@@ -1478,9 +1527,14 @@ img.sunset-valley-fallback {
   border-right: 2px solid #4b2f7e;
   color: #b9a7e8;
   background: #241548;
-  font: 400 var(--atd-label) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 var(--atd-label) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.14em;
-  transition: color 0.1s steps(2), background 0.1s steps(2);
+  transition:
+    color 0.1s steps(2),
+    background 0.1s steps(2);
 }
 
 .atd-retro__item[data-dock-near="true"],
@@ -1512,9 +1566,14 @@ img.sunset-valley-fallback {
   border-left: 2px solid #f4e6c8;
   color: #1a1030;
   background: #f47b5c;
-  font: 400 var(--atd-label) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 var(--atd-label) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.16em;
-  transition: background 0.1s steps(2), color 0.1s steps(2);
+  transition:
+    background 0.1s steps(2),
+    color 0.1s steps(2);
   cursor: pointer;
 }
 
@@ -1532,7 +1591,10 @@ img.sunset-valley-fallback {
   gap: clamp(12px, 2.4cqw, 42px);
   margin: 0;
   color: #a08fd4;
-  font: 400 clamp(9px, 0.62cqw, 13px) / 1 "ThreeUI Fragment Mono", ui-monospace, monospace;
+  font:
+    400 clamp(9px, 0.62cqw, 13px) / 1 "ThreeUI Fragment Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.2em;
   transform: translateX(-50%);
 }
@@ -1599,7 +1661,13 @@ img.sunset-valley-fallback {
   pointer-events: none;
   content: "";
   border-radius: inherit;
-  background: linear-gradient(168deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 76%, rgba(255, 255, 255, 0.14) 100%);
+  background: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0) 76%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
 }
 
 .atd-glass__brand {
@@ -1610,13 +1678,20 @@ img.sunset-valley-fallback {
 
 .atd-glass__mark {
   border-radius: clamp(7px, 0.5cqw, 11px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .atd-glass__hairline {
   height: 1px;
   margin: clamp(2px, 0.2cqw, 5px) clamp(6px, 0.5cqw, 12px);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.04));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.26),
+    rgba(255, 255, 255, 0.04)
+  );
 }
 
 .atd-glass__dock {
@@ -1638,7 +1713,11 @@ img.sunset-valley-fallback {
   letter-spacing: -0.005em;
   /* the rail grows downward from each item's own top edge */
   transform-origin: 0 50%;
-  transition: color 0.18s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition:
+    color 0.18s,
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
 }
 
 .atd-glass__item[data-dock-near="true"],
@@ -1646,14 +1725,18 @@ img.sunset-valley-fallback {
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.24);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.07));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.46), 0 8px 18px -10px rgba(0, 0, 0, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    0 8px 18px -10px rgba(0, 0, 0, 0.8);
 }
 
 .atd-glass__item[aria-pressed="true"] {
   color: #0d0f16;
   border-color: rgba(255, 255, 255, 0.6);
   background: linear-gradient(180deg, #ffffff, #e6e9f4);
-  box-shadow: 0 10px 24px -12px rgba(255, 255, 255, 0.5), inset 0 -1px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 10px 24px -12px rgba(255, 255, 255, 0.5),
+    inset 0 -1px rgba(0, 0, 0, 0.14);
 }
 
 .atd-glass__cta {
@@ -1666,7 +1749,9 @@ img.sunset-valley-fallback {
   border: 1px solid rgba(255, 255, 255, 0.55);
   color: #0d0f16;
   background: linear-gradient(180deg, #ffffff, #dfe3f0);
-  box-shadow: 0 12px 30px -14px rgba(255, 255, 255, 0.6), inset 0 -1px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 12px 30px -14px rgba(255, 255, 255, 0.6),
+    inset 0 -1px rgba(0, 0, 0, 0.16);
 }
 
 .atd-glass__cta svg {
@@ -1680,7 +1765,9 @@ img.sunset-valley-fallback {
 }
 
 .atd-glass__cta:hover {
-  box-shadow: 0 16px 34px -14px rgba(255, 255, 255, 0.75), inset 0 -1px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 16px 34px -14px rgba(255, 255, 255, 0.75),
+    inset 0 -1px rgba(0, 0, 0, 0.16);
   transform: translateY(-1px);
 }
 

@@ -22,6 +22,10 @@ logo-ai-remover-main/backend/storage/*_jobs/*
 !logo-ai-remover-main/backend/storage/*_jobs/.gitkeep
 logo-ai-remover-main/backend/storage/jobs/*
 !logo-ai-remover-main/backend/storage/jobs/.gitkeep
+logo-ai-remover-main/backend/storage/temp/
+backend/storage/temp/
+logo-ai-remover-main/supabase/.temp/
+supabase/.temp/
 logo-ai-remover-main/backend/models/weights/*
 !logo-ai-remover-main/backend/models/weights/.gitkeep
 *.tsbuildinfo
@@ -30,3 +34,4 @@ logo-ai-remover-main/backend/models/weights/*
 # Vercel
 .vercel/
 logo-ai-remover-main/.vercel/
+

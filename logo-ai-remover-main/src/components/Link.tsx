@@ -3,8 +3,10 @@
 import NextLink, { type LinkProps as NextLinkProps } from "next/link";
 import React from "react";
 
-export interface LinkProps
-  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof NextLinkProps | "href"> {
+export interface LinkProps extends Omit<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  keyof NextLinkProps | "href"
+> {
   href?: string;
   to?: string;
   children?: React.ReactNode;
@@ -23,7 +25,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         {children}
       </NextLink>
     );
-  }
+  },
 );
 
 Link.displayName = "Link";

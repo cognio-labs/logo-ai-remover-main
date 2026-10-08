@@ -53,13 +53,15 @@ export function HeroComparisonSlider({
     setIsDragging(false);
   };
 
-  const beforeText = beforeDims && beforeDims.width > 0
-    ? `${beforeLabel} · ${beforeDims.width}×${beforeDims.height}`
-    : beforeLabel;
+  const beforeText =
+    beforeDims && beforeDims.width > 0
+      ? `${beforeLabel} · ${beforeDims.width}×${beforeDims.height}`
+      : beforeLabel;
 
-  const afterText = afterDims && afterDims.width > 0
-    ? `${afterLabel} · ${afterDims.width}×${afterDims.height}`
-    : `${afterLabel} · ${scale}× HD`;
+  const afterText =
+    afterDims && afterDims.width > 0
+      ? `${afterLabel} · ${afterDims.width}×${afterDims.height}`
+      : `${afterLabel} · ${scale}× HD`;
 
   return (
     <div
@@ -93,9 +95,7 @@ export function HeroComparisonSlider({
       />
 
       {/* Before Pill badge (Left) */}
-      <span className="up-hero-pill up-pill-before">
-        {beforeText}
-      </span>
+      <span className="up-hero-pill up-pill-before">{beforeText}</span>
 
       {/* After Pill badge (Right) */}
       <span className="up-hero-pill up-pill-after">
@@ -104,10 +104,7 @@ export function HeroComparisonSlider({
       </span>
 
       {/* Interactive Divider Line and Handle */}
-      <div
-        className="up-hero-slider-divider"
-        style={{ left: `${position}%` }}
-      >
+      <div className="up-hero-slider-divider" style={{ left: `${position}%` }}>
         <div className={`up-hero-slider-handle ${isDragging ? "active" : ""}`}>
           <ChevronLeft className="size-3.5 -mr-1" />
           <ChevronRight className="size-3.5 -ml-1" />

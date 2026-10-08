@@ -39,14 +39,16 @@ function AffiliatePage() {
   const [partnerEmail, setPartnerEmail] = useState("");
   const [partnerChannel, setPartnerChannel] = useState("");
 
-  // Average subscription: $19/mo * 30% commission = $5.70 / user / month
-  const monthlyEarnings = Math.round(referredUsers * 19 * 0.3);
+  // Average Creator Pro subscription: $39/mo * 30% commission = $11.70 / user / month
+  const monthlyEarnings = Math.round(referredUsers * 39 * 0.3);
   const annualEarnings = monthlyEarnings * 12;
 
   const handleApply = (e: React.FormEvent) => {
     e.preventDefault();
     if (!partnerName || !partnerEmail) return;
-    toast.success("Affiliate application received! We will send your referral link within 24 hours.");
+    toast.success(
+      "Affiliate application received! We will send your referral link within 24 hours.",
+    );
     setPartnerName("");
     setPartnerEmail("");
     setPartnerChannel("");
@@ -185,10 +187,26 @@ function AffiliatePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-left">
           {[
-            { step: "1", title: "Join Free", desc: "Submit the quick form below. Instant approval." },
-            { step: "2", title: "Share Link", desc: "Post your link on YouTube, TikTok, X, or blog." },
-            { step: "3", title: "Track Sales", desc: "Live dashboard tracking clicks, trials, and sales." },
-            { step: "4", title: "Get Paid", desc: "Receive 30% payouts every month via Stripe or PayPal." },
+            {
+              step: "1",
+              title: "Join Free",
+              desc: "Submit the quick form below. Instant approval.",
+            },
+            {
+              step: "2",
+              title: "Share Link",
+              desc: "Post your link on YouTube, TikTok, X, or blog.",
+            },
+            {
+              step: "3",
+              title: "Track Sales",
+              desc: "Live dashboard tracking clicks, trials, and sales.",
+            },
+            {
+              step: "4",
+              title: "Get Paid",
+              desc: "Receive 30% payouts every month via Stripe or PayPal.",
+            },
           ].map((item) => (
             <div key={item.step} className="p-5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
               <span className="text-2xl font-semibold text-[#E11D48] font-mono">{item.step}</span>

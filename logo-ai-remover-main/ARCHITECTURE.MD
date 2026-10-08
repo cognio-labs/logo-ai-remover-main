@@ -4,16 +4,16 @@ Baseline: 2026-09-25. Current means present in this checkout, not verified in de
 
 ## Current stack
 
-| Layer | Implementation |
-| --- | --- |
-| Web | React 19, TypeScript, TanStack Start/Router, Vite |
-| UI | Tailwind CSS 4, Radix/shadcn, Framer Motion, Lucide |
-| Client state | React, Zustand demo user store, localStorage |
-| API | Python FastAPI, Pydantic, Uvicorn |
-| Media | FFmpeg/ffprobe, OpenCV, tool-specific engines/providers |
-| Execution | In-process thread pools and FastAPI background tasks |
-| Persistence | Job-specific local directories and JSON metadata |
-| Deployment configuration | Vercel frontend; Python Dockerfile and Railway |
+| Layer                    | Implementation                                          |
+| ------------------------ | ------------------------------------------------------- |
+| Web                      | React 19, TypeScript, TanStack Start/Router, Vite       |
+| UI                       | Tailwind CSS 4, Radix/shadcn, Framer Motion, Lucide     |
+| Client state             | React, Zustand demo user store, localStorage            |
+| API                      | Python FastAPI, Pydantic, Uvicorn                       |
+| Media                    | FFmpeg/ffprobe, OpenCV, tool-specific engines/providers |
+| Execution                | In-process thread pools and FastAPI background tasks    |
+| Persistence              | Job-specific local directories and JSON metadata        |
+| Deployment configuration | Vercel frontend; Python Dockerfile and Railway          |
 
 Next.js packages/configuration remain, but npm dev/build invoke Vite. Supabase is scaffolded. Redis/Celery, database-backed billing and managed job storage are proposed architecture, not established current services.
 
@@ -38,33 +38,33 @@ flowchart LR
 
 ## Source map
 
-| Path | Responsibility |
-| --- | --- |
-| `src/routes/` | File-based pages, metadata and tool screens |
-| `src/routes/__root.tsx` | Shared application shell |
-| `src/router.tsx`, `src/start.ts`, `src/server.ts` | Router, startup and SSR integration |
-| `src/routeTree.gen.ts` | Generated route tree; do not hand-edit |
-| `src/components/site/` | Navigation, footer, upload/comparison and video cleaner |
-| `src/components/ui/` | Shared primitives |
-| `src/lib/*Api.ts`, `src/lib/videoJobs.ts` | API contracts and job communication |
-| `src/lib/userStore.ts`, `src/lib/history.ts` | Browser-controlled state, not authorization |
-| `backend/api/` | Upload/process/status/result/deletion endpoints |
-| `backend/models/`, `backend/schemas/` | Job records and request contracts |
-| `backend/services/`, `backend/engines/` | Storage, processing and verification |
-| `backend/workers/` | Background orchestration |
-| `backend/storage/` | Runtime files, not source fixtures |
-| `backend/tests/` | Python regression tests |
-| `public/`, `src/assets/` | Brand assets, samples and static media |
+| Path                                              | Responsibility                                          |
+| ------------------------------------------------- | ------------------------------------------------------- |
+| `src/routes/`                                     | File-based pages, metadata and tool screens             |
+| `src/routes/__root.tsx`                           | Shared application shell                                |
+| `src/router.tsx`, `src/start.ts`, `src/server.ts` | Router, startup and SSR integration                     |
+| `src/routeTree.gen.ts`                            | Generated route tree; do not hand-edit                  |
+| `src/components/site/`                            | Navigation, footer, upload/comparison and video cleaner |
+| `src/components/ui/`                              | Shared primitives                                       |
+| `src/lib/*Api.ts`, `src/lib/videoJobs.ts`         | API contracts and job communication                     |
+| `src/lib/userStore.ts`, `src/lib/history.ts`      | Browser-controlled state, not authorization             |
+| `backend/api/`                                    | Upload/process/status/result/deletion endpoints         |
+| `backend/models/`, `backend/schemas/`             | Job records and request contracts                       |
+| `backend/services/`, `backend/engines/`           | Storage, processing and verification                    |
+| `backend/workers/`                                | Background orchestration                                |
+| `backend/storage/`                                | Runtime files, not source fixtures                      |
+| `backend/tests/`                                  | Python regression tests                                 |
+| `public/`, `src/assets/`                          | Brand assets, samples and static media                  |
 
 ## API map
 
-| Tool/client | Main sequence |
-| --- | --- |
-| Video cleanup / `videoJobs.ts` | `POST /api/video/upload` → `POST /api/video/process` → `GET /api/video/status/{job_id}` → result/download |
-| Upscale / `imageApi.ts` | `POST /api/image/upscale` → `GET /api/image/status/{job_id}` → result/download |
-| PDF / `pdfApi.ts` | `POST /api/pdf/upload` → `/detect/{job_id}` → `/process/{job_id}` → status/download |
-| Background / `backgroundApi.ts` | `/api/v1/background/process` or `/remove` → `/api/v1/jobs/{job_id}` → result/download; composite/refine actions |
-| Enhancer / `videoEnhancerApi.ts` | `POST /api/v1/video/upload` → `/inspect` → `/process` → `/jobs/{job_id}` or `/events` → `/result` |
+| Tool/client                      | Main sequence                                                                                                   |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Video cleanup / `videoJobs.ts`   | `POST /api/video/upload` → `POST /api/video/process` → `GET /api/video/status/{job_id}` → result/download       |
+| Upscale / `imageApi.ts`          | `POST /api/image/upscale` → `GET /api/image/status/{job_id}` → result/download                                  |
+| PDF / `pdfApi.ts`                | `POST /api/pdf/upload` → `/detect/{job_id}` → `/process/{job_id}` → status/download                             |
+| Background / `backgroundApi.ts`  | `/api/v1/background/process` or `/remove` → `/api/v1/jobs/{job_id}` → result/download; composite/refine actions |
+| Enhancer / `videoEnhancerApi.ts` | `POST /api/v1/video/upload` → `/inspect` → `/process` → `/jobs/{job_id}` or `/events` → `/result`               |
 
 Video cleanup also exposes `/api/video-watermark`; background has `/api/background` aliases. Preserve compatibility. Running FastAPI `/docs` and `/openapi.json` provide complete request/response contracts.
 

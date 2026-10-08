@@ -26,7 +26,6 @@ import { HeroParallax } from "@/components/ui/hero-parallax";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -98,14 +97,24 @@ function HeroSection() {
                 </Link>
               </PinkButton>
 
-              <PinkButton variant="outline" size="lg" className="px-6 py-3 text-sm font-bold" asChild>
+              <PinkButton
+                variant="outline"
+                size="lg"
+                className="px-6 py-3 text-sm font-bold"
+                asChild
+              >
                 <Link to="/video-enhancer" className="flex items-center gap-2">
                   <Video className="size-4" />
                   <span>Video Enhancer</span>
                 </Link>
               </PinkButton>
 
-              <PinkButton variant="outline" size="lg" className="px-6 py-3 text-sm font-bold" asChild>
+              <PinkButton
+                variant="outline"
+                size="lg"
+                className="px-6 py-3 text-sm font-bold"
+                asChild
+              >
                 <Link to="/remove/image" className="flex items-center gap-2">
                   <WandSparkles className="size-4" />
                   <span>Image Cleaner</span>
@@ -132,77 +141,79 @@ function HeroSection() {
 
           {/* Right Column: Interactive Before/After Comparison Card */}
           <div className="lg:col-span-6 flex flex-col justify-center">
-              {/* Slider Container */}
+            {/* Slider Container */}
+            <div
+              ref={sliderRef}
+              className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] bg-gray-900"
+              onPointerDown={(e) => {
+                isDragging.current = true;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                handlePointerMove(e.clientX);
+              }}
+              onPointerMove={(e) => {
+                if (isDragging.current) handlePointerMove(e.clientX);
+              }}
+              onPointerUp={() => {
+                isDragging.current = false;
+              }}
+            >
+              {/* BEFORE LAYER (Original with Gemini Logo & Compression Artifacts) */}
+              <img
+                src="/hero-before-gemini.png"
+                alt="Original with Gemini Logo"
+                className="absolute inset-0 size-full object-cover"
+                draggable={false}
+              />
+
+              {/* AFTER LAYER (Clean 4K Result, Logo Removed) */}
               <div
-                ref={sliderRef}
-                className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] bg-gray-900"
-                onPointerDown={(e) => {
-                  isDragging.current = true;
-                  e.currentTarget.setPointerCapture(e.pointerId);
-                  handlePointerMove(e.clientX);
-                }}
-                onPointerMove={(e) => {
-                  if (isDragging.current) handlePointerMove(e.clientX);
-                }}
-                onPointerUp={() => {
-                  isDragging.current = false;
-                }}
+                className="absolute inset-0 overflow-hidden transition-none"
+                style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
               >
-                {/* BEFORE LAYER (Original with Gemini Logo & Compression Artifacts) */}
                 <img
-                  src="/hero-before-gemini.png"
-                  alt="Original with Gemini Logo"
-                  className="absolute inset-0 size-full object-cover"
+                  src="/hero-after-clean.png"
+                  alt="Cleaned Result"
+                  className="size-full object-cover"
                   draggable={false}
                 />
+              </div>
 
-                {/* AFTER LAYER (Clean 4K Result, Logo Removed) */}
-                <div
-                  className="absolute inset-0 overflow-hidden transition-none"
-                  style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
-                >
-                  <img
-                    src="/hero-after-clean.png"
-                    alt="Cleaned Result"
-                    className="size-full object-cover"
-                    draggable={false}
-                  />
-                </div>
-
-                {/* RED SLIDER LINE & DRAGGABLE HANDLE */}
-                <div
-                  className="absolute inset-y-0 w-1 bg-gradient-to-b from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_0_12px_rgba(225,29,72,0.9)] z-20"
-                  style={{ left: `${sliderPos}%` }}
-                >
-                  <div className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white shadow-[0_4px_18px_rgba(225,29,72,0.6)] group-hover:scale-110 active:scale-95 transition-transform cursor-ew-resize">
-                    <span className="text-xs font-semibold select-none tracking-tighter">⇄</span>
-                  </div>
-                </div>
-
-                {/* BADGES ON TOP OF SLIDER */}
-                <div className="absolute top-3 left-3 z-10 pointer-events-none">
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/65 border border-white/20 text-white text-[11px] font-bold backdrop-blur-md">
-                    <span className="size-1.5 rounded-full bg-red-400" />
-                    <span className="sm:hidden">Original</span><span className="hidden sm:inline">Low Quality (✦ Gemini Logo)</span>
-                  </span>
-                </div>
-
-                <div className="absolute top-3 right-3 z-10 pointer-events-none">
-                  <span className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/95 border border-[#FCE7EC] text-[#E11D48] text-[11px] font-semibold backdrop-blur-md shadow-xs">
-                    <Sparkles className="size-3 text-[#E11D48]" />
-                    <span className="sm:hidden">Clean 4K</span><span className="hidden sm:inline">High 4K Clean (Logo Removed)</span>
-                  </span>
+              {/* RED SLIDER LINE & DRAGGABLE HANDLE */}
+              <div
+                className="absolute inset-y-0 w-1 bg-gradient-to-b from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_0_12px_rgba(225,29,72,0.9)] z-20"
+                style={{ left: `${sliderPos}%` }}
+              >
+                <div className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white shadow-[0_4px_18px_rgba(225,29,72,0.6)] group-hover:scale-110 active:scale-95 transition-transform cursor-ew-resize">
+                  <span className="text-xs font-semibold select-none tracking-tighter">⇄</span>
                 </div>
               </div>
 
-              {/* Slider Controls Bar Below Card */}
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-2">
-                <span className="text-gray-500 font-medium">Drag slider to compare</span>
-                <span className="flex items-center gap-1 text-[#E11D48] font-mono font-bold text-xs">
-                  <CheckCircle2 className="size-3.5 text-green-600" />
-                  <span>100% Logo Free • 4K Detail</span>
+              {/* BADGES ON TOP OF SLIDER */}
+              <div className="absolute top-3 left-3 z-10 pointer-events-none">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/65 border border-white/20 text-white text-[11px] font-bold backdrop-blur-md">
+                  <span className="size-1.5 rounded-full bg-red-400" />
+                  <span className="sm:hidden">Original</span>
+                  <span className="hidden sm:inline">Low Quality (✦ Gemini Logo)</span>
                 </span>
               </div>
+
+              <div className="absolute top-3 right-3 z-10 pointer-events-none">
+                <span className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/95 border border-[#FCE7EC] text-[#E11D48] text-[11px] font-semibold backdrop-blur-md shadow-xs">
+                  <Sparkles className="size-3 text-[#E11D48]" />
+                  <span className="sm:hidden">Clean 4K</span>
+                  <span className="hidden sm:inline">High 4K Clean (Logo Removed)</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Slider Controls Bar Below Card */}
+            <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-2">
+              <span className="text-gray-500 font-medium">Drag slider to compare</span>
+              <span className="flex items-center gap-1 text-[#E11D48] font-mono font-bold text-xs">
+                <CheckCircle2 className="size-3.5 text-green-600" />
+                <span>100% Logo Free • 4K Detail</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -353,7 +364,11 @@ function VideoCleanupResultSection() {
 
               {/* Gemini watermark only on BEFORE video */}
               <div className="absolute bottom-4 right-4 z-20 flex size-9 items-center justify-center rounded-full border border-white/20 bg-black/60 p-2 shadow-lg backdrop-blur-md">
-                <img src="/gemini-logo.png" alt="Gemini Mark" className="size-full object-contain" />
+                <img
+                  src="/gemini-logo.png"
+                  alt="Gemini Mark"
+                  className="size-full object-contain"
+                />
               </div>
             </div>
 
@@ -524,7 +539,8 @@ function BentoFeatures() {
             Clean results without the artificial finish
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm font-normal leading-6 text-gray-600 sm:text-base">
-            Three practical advantages you can see in the final export, from the first frame to the last.
+            Three practical advantages you can see in the final export, from the first frame to the
+            last.
           </p>
         </div>
 
@@ -543,8 +559,12 @@ function BentoFeatures() {
                 </span>
               </div>
 
-              <h3 className="text-xl font-normal tracking-[-0.025em] text-gray-950">{feature.title}</h3>
-              <p className="mt-3 text-sm font-normal leading-6 text-gray-600">{feature.description}</p>
+              <h3 className="text-xl font-normal tracking-[-0.025em] text-gray-950">
+                {feature.title}
+              </h3>
+              <p className="mt-3 text-sm font-normal leading-6 text-gray-600">
+                {feature.description}
+              </p>
 
               <div className="mt-auto border-t border-gray-100 pt-5">
                 {feature.facts.map((fact) => (
@@ -596,7 +616,6 @@ function StepsSection() {
   return (
     <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50 relative overflow-hidden">
       <div className="mx-auto max-w-6xl text-center relative z-10">
-        
         <div className="max-w-2xl mx-auto mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-[#E11D48] tracking-wider uppercase">
             <Zap className="size-3.5 text-[#E11D48]" />
@@ -606,7 +625,8 @@ function StepsSection() {
             Remove watermarks in 3 simple steps
           </h2>
           <p className="text-sm sm:text-base text-gray-600">
-            No technical knowledge needed. Our neural models handle frame reconstruction automatically.
+            No technical knowledge needed. Our neural models handle frame reconstruction
+            automatically.
           </p>
         </div>
 
@@ -633,9 +653,7 @@ function StepsSection() {
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 mb-2.5 relative z-10">
-                  {s.title}
-                </h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2.5 relative z-10">{s.title}</h3>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 relative z-10">
                   {s.desc}
                 </p>
@@ -670,7 +688,8 @@ function FinalCTA() {
           Clear the watermark. Keep 100% of the image.
         </h2>
         <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
-          Start for free in your browser. No software installation, credit card, or account required.
+          Start for free in your browser. No software installation, credit card, or account
+          required.
         </p>
         <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
           <PinkButton size="lg" className="px-8 py-3 font-bold shadow-md" asChild>
@@ -679,7 +698,12 @@ function FinalCTA() {
               <ArrowRight className="size-4 ml-1.5" />
             </Link>
           </PinkButton>
-          <PinkButton variant="outline" size="lg" className="px-7 py-3 font-bold bg-[#FFF7ED]/90 border border-[#FED7AA] hover:bg-[#FFE4C4]" asChild>
+          <PinkButton
+            variant="outline"
+            size="lg"
+            className="px-7 py-3 font-bold bg-[#FFF7ED]/90 border border-[#FED7AA] hover:bg-[#FFE4C4]"
+            asChild
+          >
             <Link to="/pricing">View Pricing Plans</Link>
           </PinkButton>
         </div>

@@ -31,7 +31,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/background_remover_studio.jpg",
     badge: "Instant Alpha",
     category: "BiRefNet Neural Cutout",
-    description: "Sub-pixel alpha masking for glass, fine hair, transparent materials, and complex edges.",
+    description:
+      "Sub-pixel alpha masking for glass, fine hair, transparent materials, and complex edges.",
   },
   {
     id: "upscale-8k",
@@ -58,7 +59,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/pdf_cleaner_blueprint.jpg",
     badge: "Vector Lossless",
     category: "Document Restoration",
-    description: "Deterministic PDF stream parser removing background watermarks without rasterizing.",
+    description:
+      "Deterministic PDF stream parser removing background watermarks without rasterizing.",
   },
 
   // --- ROW 2: Generative Inpainting & Visual Restoration ---
@@ -69,7 +71,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/inpainter_landscape.jpg",
     badge: "Zero Smudge",
     category: "LaMa Inpainting",
-    description: "Fast Fourier transform neural inpainting removing unwanted objects and tourists seamlessly.",
+    description:
+      "Fast Fourier transform neural inpainting removing unwanted objects and tourists seamlessly.",
   },
   {
     id: "portrait-restorer",
@@ -78,7 +81,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/portrait_restorer.jpg",
     badge: "Micro-Texture",
     category: "GFPGAN + CodeFormer",
-    description: "High-fidelity facial detail synthesis preserving natural skin pores and realistic iris depth.",
+    description:
+      "High-fidelity facial detail synthesis preserving natural skin pores and realistic iris depth.",
   },
   {
     id: "motion-interpolator",
@@ -105,7 +109,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/color_grade_hdr.jpg",
     badge: "HDR 10-Bit",
     category: "Neural Colorimetry",
-    description: "Rec.2020 / DCI-P3 dynamic range tone mapping with cinema-grade highlight recovery.",
+    description:
+      "Rec.2020 / DCI-P3 dynamic range tone mapping with cinema-grade highlight recovery.",
   },
 
   // --- ROW 3: Infrastructure, Intelligence & Security ---
@@ -152,7 +157,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/privacy_vault_shield.jpg",
     badge: "256-Bit SSL",
     category: "Transient In-Memory",
-    description: "Ephemeral processing architecture with instant RAM disposal and zero permanent storage.",
+    description:
+      "Ephemeral processing architecture with instant RAM disposal and zero permanent storage.",
   },
 
   // --- ROW 4: Advanced Cinema & Macro Refinement ---
@@ -163,7 +169,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/cinematic_drone_8k.jpg",
     badge: "Gyroscopic 8K",
     category: "Aerial Cinematography",
-    description: "Deep horizon leveling and atmospheric haze penetration for dynamic drone footage.",
+    description:
+      "Deep horizon leveling and atmospheric haze penetration for dynamic drone footage.",
   },
   {
     id: "luxury-couple-studio",
@@ -172,7 +179,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/attractive_couple_portrait.jpg",
     badge: "Glamour 8K",
     category: "Fashion Editorial",
-    description: "Ultra-high fidelity facial aesthetics, glowing skin textures, and haute couture lighting.",
+    description:
+      "Ultra-high fidelity facial aesthetics, glowing skin textures, and haute couture lighting.",
   },
   {
     id: "anime-dog-cutout",
@@ -181,7 +189,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/anime_dog_cutout.jpg",
     badge: "Instant Alpha",
     category: "AI Pet & Anime Cutout",
-    description: "Sub-pixel background isolation for cute anime pets, character illustrations, and furry textures.",
+    description:
+      "Sub-pixel background isolation for cute anime pets, character illustrations, and furry textures.",
   },
   {
     id: "macro-jewelry",
@@ -190,7 +199,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/macro_jewelry_diamond.jpg",
     badge: "Prismatic 8K",
     category: "Commercial Macro",
-    description: "Extreme optical clarity rendering prismatic caustic reflections on precious gems.",
+    description:
+      "Extreme optical clarity rendering prismatic caustic reflections on precious gems.",
   },
   {
     id: "night-vision",
@@ -199,7 +209,8 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/night_vision_denoise.jpg",
     badge: "Sub-Lux ISO",
     category: "Low-Light Enhancement",
-    description: "Temporal noise extraction revealing hidden depth under extreme low-light environments.",
+    description:
+      "Temporal noise extraction revealing hidden depth under extreme low-light environments.",
   },
   {
     id: "neural-restoration-studio",
@@ -217,6 +228,7 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     thumbnail: "/creative-suite/privacy_processing_vault.png",
     badge: "Zero Retention",
     category: "Secure Local Pipeline",
-    description: "A privacy-first transient workflow that clears media as soon as processing finishes.",
-  },];
-
+    description:
+      "A privacy-first transient workflow that clears media as soon as processing finishes.",
+  },
+];

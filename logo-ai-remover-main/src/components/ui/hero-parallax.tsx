@@ -2,7 +2,17 @@
 
 import React from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronLeft, ChevronRight, ImageUp, Infinity as InfinityIcon, Shield, Video, WandSparkles, Zap } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  ImageUp,
+  Infinity as InfinityIcon,
+  Shield,
+  Video,
+  WandSparkles,
+  Zap,
+} from "lucide-react";
 import { CREATIVE_SUITE_ASSETS, type ProductCardItem } from "@/config/creativeSuiteAssets";
 
 export { type ProductCardItem };
@@ -119,14 +129,27 @@ export const HeroParallax = ({
       <div className="pointer-events-none absolute -right-32 top-56 size-[28rem] rounded-full bg-fuchsia-100/35 blur-3xl" />
       <Header title={title} subtitle={subtitle} />
       <div className="relative z-10 mt-8 space-y-7 sm:mt-12 sm:space-y-8">
-        <ProductRail products={cardList.slice(0, splitAt)} label="Restore & enhance" direction="left" showProgressBar={true} />
-        <ProductRail products={cardList.slice(splitAt)} label="Create & protect" direction="right" />
+        <ProductRail
+          products={cardList.slice(0, splitAt)}
+          label="Restore & enhance"
+          direction="left"
+          showProgressBar={true}
+        />
+        <ProductRail
+          products={cardList.slice(splitAt)}
+          label="Create & protect"
+          direction="right"
+        />
       </div>
     </section>
   );
 };
 
-export const CreativeSuiteSection = ({ products = CREATIVE_SUITE_ASSETS }: { products?: ProductCardItem[] }) => {
+export const CreativeSuiteSection = ({
+  products = CREATIVE_SUITE_ASSETS,
+}: {
+  products?: ProductCardItem[];
+}) => {
   const cardList = products.length ? products : CREATIVE_SUITE_ASSETS;
   const splitAt = Math.ceil(cardList.length / 2);
 
@@ -149,35 +172,108 @@ export const CreativeSuiteSection = ({ products = CREATIVE_SUITE_ASSETS }: { pro
   );
 };
 
-export const Header = ({ title, subtitle }: { title?: React.ReactNode; subtitle?: React.ReactNode }) => (
+export const Header = ({
+  title,
+  subtitle,
+}: {
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+}) => (
   <div className="relative z-20 mx-auto w-full max-w-7xl px-4 pb-4 pt-2 sm:px-6 md:pt-6 lg:px-8">
     <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-6">
       <div className="space-y-5 text-left lg:col-span-5">
-        <div className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-white px-3.5 py-1.5 text-xs text-rose-600 shadow-sm"><span className="size-2 rounded-full bg-rose-500" /><span className="tracking-wide">All-in-one AI creative suite</span></div>
-        <h1 className="text-4xl font-normal leading-[1.06] tracking-[-0.045em] text-gray-950 sm:text-5xl lg:text-[3.45rem]">{title || <span>Make every frame look<span className="block bg-gradient-to-r from-rose-600 to-fuchsia-500 bg-clip-text text-transparent">intentionally perfect.</span></span>}</h1>
-        <p className="max-w-xl text-base font-normal leading-7 text-gray-600 sm:text-lg">{subtitle || "Remove watermarks, restore detail, upscale footage, and isolate backgrounds in one focused AI workspace."}</p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-white px-3.5 py-1.5 text-xs text-rose-600 shadow-sm">
+          <span className="size-2 rounded-full bg-rose-500" />
+          <span className="tracking-wide">All-in-one AI creative suite</span>
+        </div>
+        <h1 className="text-4xl font-normal leading-[1.06] tracking-[-0.045em] text-gray-950 sm:text-5xl lg:text-[3.45rem]">
+          {title || (
+            <span>
+              Make every frame look
+              <span className="block bg-gradient-to-r from-rose-600 to-fuchsia-500 bg-clip-text text-transparent">
+                intentionally perfect.
+              </span>
+            </span>
+          )}
+        </h1>
+        <p className="max-w-xl text-base font-normal leading-7 text-gray-600 sm:text-lg">
+          {subtitle ||
+            "Remove watermarks, restore detail, upscale footage, and isolate backgrounds in one focused AI workspace."}
+        </p>
         <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
-          {[[Zap, "AI-powered", "Fast processing"], [Shield, "Private", "Zero retention"], [InfinityIcon, "All-in-one", "One workspace"]].map(([Icon, name, detail]) => {
+          {[
+            [Zap, "AI-powered", "Fast processing"],
+            [Shield, "Private", "Zero retention"],
+            [InfinityIcon, "All-in-one", "One workspace"],
+          ].map(([Icon, name, detail]) => {
             const ItemIcon = Icon as typeof Zap;
-            return <div key={name as string} className="flex items-center gap-2.5"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600"><ItemIcon className="size-4" /></span><span><span className="block text-sm text-gray-900">{name as string}</span><span className="block text-xs text-gray-500">{detail as string}</span></span></div>;
+            return (
+              <div key={name as string} className="flex items-center gap-2.5">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600">
+                  <ItemIcon className="size-4" />
+                </span>
+                <span>
+                  <span className="block text-sm text-gray-900">{name as string}</span>
+                  <span className="block text-xs text-gray-500">{detail as string}</span>
+                </span>
+              </div>
+            );
           })}
         </div>
         <div className="grid gap-2.5 pt-2 sm:grid-cols-2">
-          <Link to="/video-enhancer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-5 text-sm text-white shadow-[0_10px_24px_rgba(225,29,72,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(225,29,72,.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"><WandSparkles className="size-4" />Try Video Enhancer<ArrowUpRight className="size-4" /></Link>
-          <Link to="/gemini-video-watermark-remover" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-5 text-sm text-gray-800 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"><Video className="size-4 text-rose-600" />Remove Watermarks</Link>
-          <Link to="/background-remover" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/85 px-5 text-sm text-gray-700 transition hover:border-rose-200 hover:text-rose-600">Background Remover</Link>
-          <Link to="/upscale" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/85 px-5 text-sm text-gray-700 transition hover:border-rose-200 hover:text-rose-600"><ImageUp className="size-4" />AI Image Upscaler</Link>
+          <Link
+            to="/video-enhancer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-5 text-sm text-white shadow-[0_10px_24px_rgba(225,29,72,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(225,29,72,.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+          >
+            <WandSparkles className="size-4" />
+            Try Video Enhancer
+            <ArrowUpRight className="size-4" />
+          </Link>
+          <Link
+            to="/gemini-video-watermark-remover"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rose-200 bg-white px-5 text-sm text-gray-800 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+          >
+            <Video className="size-4 text-rose-600" />
+            Remove Watermarks
+          </Link>
+          <Link
+            to="/background-remover"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/85 px-5 text-sm text-gray-700 transition hover:border-rose-200 hover:text-rose-600"
+          >
+            Background Remover
+          </Link>
+          <Link
+            to="/upscale"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/85 px-5 text-sm text-gray-700 transition hover:border-rose-200 hover:text-rose-600"
+          >
+            <ImageUp className="size-4" />
+            AI Image Upscaler
+          </Link>
         </div>
       </div>
       <div className="relative flex items-center justify-end lg:col-span-7 lg:-mr-8 xl:-mr-14">
         <div className="pointer-events-none absolute right-8 top-1/2 size-[26rem] -translate-y-1/2 rounded-full bg-rose-100/70 blur-3xl" />
-        <div className="relative ml-auto w-full max-w-3xl overflow-hidden rounded-[2rem]"><img src="/creative-suite/hero_creator_masterpiece.webp" alt="Creator using Bellix AI tools" loading="eager" decoding="async" className="h-auto w-full object-contain" /></div>
+        <div className="relative ml-auto w-full max-w-3xl overflow-hidden rounded-[2rem]">
+          <img
+            src="/creative-suite/hero_creator_masterpiece.webp"
+            alt="Creator using Bellix AI tools"
+            loading="eager"
+            decoding="async"
+            className="h-auto w-full object-contain"
+          />
+        </div>
       </div>
     </div>
   </div>
 );
 
-export const ProductCard = ({ product, priority = false }: { product: ProductCardItem; priority?: boolean }) => {
+export const ProductCard = ({
+  product,
+  priority = false,
+}: {
+  product: ProductCardItem;
+  priority?: boolean;
+}) => {
   const isInternal = product.link.startsWith("/");
   const content = (
     <>
@@ -233,5 +329,3 @@ export const ProductCard = ({ product, priority = false }: { product: ProductCar
     </a>
   );
 };
-
-

@@ -240,7 +240,10 @@ export function JobVideoCleaner() {
           window.clearInterval(timer);
           if (isSubscribed) {
             setCleanedVideo(null);
-            setError(status.error || "Video processing could not be completed. Your original video is unmodified.");
+            setError(
+              status.error ||
+                "Video processing could not be completed. Your original video is unmodified.",
+            );
           }
         } else if (status.status === "cancelled") {
           window.clearInterval(timer);
@@ -324,17 +327,16 @@ export function JobVideoCleaner() {
         totalFrames: metadata.frameCount,
         processedFrames: 0,
       });
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ jobId, fileName: file.name, metadata }),
-      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ jobId, fileName: file.name, metadata }));
       toast.success(`Loaded "${file.name}". Ready for processing.`);
     } catch (problem) {
       if (!controller.signal.aborted) {
         const errorMsg = problem instanceof Error ? problem.message : String(problem);
         setError(errorMsg);
         setProcessingJob((current) =>
-          current ? { ...current, status: "failed", stage: "Upload failed", message: errorMsg } : null,
+          current
+            ? { ...current, status: "failed", stage: "Upload failed", message: errorMsg }
+            : null,
         );
       }
     }
@@ -355,11 +357,16 @@ export function JobVideoCleaner() {
       processedFrames: 0,
     });
     try {
-      const response = await processVideo(originalVideo.jobId, selectedPreset === "auto" ? null : manualRegion);
+      const response = await processVideo(
+        originalVideo.jobId,
+        selectedPreset === "auto" ? null : manualRegion,
+      );
       assertCurrentJob(response.jobId);
     } catch (problem) {
       setProcessingJob((current) =>
-        current ? { ...current, status: "failed", progress: 0, stage: "Processing failed" } : current,
+        current
+          ? { ...current, status: "failed", progress: 0, stage: "Processing failed" }
+          : current,
       );
       setError(problem instanceof Error ? problem.message : String(problem));
     }
@@ -408,7 +415,9 @@ export function JobVideoCleaner() {
     }
     try {
       const query = quality ? `/${quality}` : "";
-      const downloadEndpoint = apiUrl(`/api/video-watermark/download/${encodeURIComponent(originalVideo.jobId)}${query}`);
+      const downloadEndpoint = apiUrl(
+        `/api/video-watermark/download/${encodeURIComponent(originalVideo.jobId)}${query}`,
+      );
       const response = await fetch(downloadEndpoint, { cache: "no-store" });
       if (!response.ok) throw new Error("Cleaned video could not be downloaded. Please retry.");
       const url = URL.createObjectURL(await response.blob());
@@ -426,7 +435,9 @@ export function JobVideoCleaner() {
     return (
       <div
         className={`relative flex min-h-[370px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-12 text-center transition-colors ${
-          dragOver ? "border-[#E11D48] bg-[#FFF5F7]" : "border-[#FCA5A5] bg-white hover:bg-[#FFF9FA]"
+          dragOver
+            ? "border-[#E11D48] bg-[#FFF5F7]"
+            : "border-[#FCA5A5] bg-white hover:bg-[#FFF9FA]"
         }`}
         onClick={() => inputRef.current?.click()}
         onDragOver={(event) => {
@@ -444,7 +455,9 @@ export function JobVideoCleaner() {
         <span className="flex size-18 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)]">
           <UploadCloud className="size-8" />
         </span>
-        <h3 className="mt-5 text-2xl font-semibold tracking-tight text-gray-950">Drop your video here</h3>
+        <h3 className="mt-5 text-2xl font-semibold tracking-tight text-gray-950">
+          Drop your video here
+        </h3>
         <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-gray-500">
           Upload MP4, MOV, WebM, AVI, or MKV • Drag &amp; drop
         </p>
@@ -576,10 +589,10 @@ export function JobVideoCleaner() {
             {metadata
               ? `${metadata.width} × ${metadata.height} • ${metadata.fps.toFixed(1)} FPS • ${metadata.duration.toFixed(1)}s`
               : processingJob?.status === "uploading"
-              ? "Uploading video file..."
-              : error
-              ? "Upload failed"
-              : "Verifying container…"}
+                ? "Uploading video file..."
+                : error
+                  ? "Upload failed"
+                  : "Verifying container…"}
           </p>
         </div>
         <button
@@ -613,31 +626,33 @@ export function JobVideoCleaner() {
             >
               ✦ Auto Detect
             </button>
-            {(["top-right", "bottom-right", "top-left", "bottom-left"] as PresetKey[]).map((key) => {
-              const isSelected = selectedPreset === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setSelectedPreset(key);
-                    setManualRegion(PRESETS[key].region);
-                    setShowBoxOverlay(true);
-                  }}
-                  disabled={busy}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                    isSelected
-                      ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
-                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {key === "top-right" && "↗️ Top Right"}
-                  {key === "bottom-right" && "↘️ Bottom Right"}
-                  {key === "top-left" && "↖️ Top Left"}
-                  {key === "bottom-left" && "↙️ Bottom Left"}
-                </button>
-              );
-            })}
+            {(["top-right", "bottom-right", "top-left", "bottom-left"] as PresetKey[]).map(
+              (key) => {
+                const isSelected = selectedPreset === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPreset(key);
+                      setManualRegion(PRESETS[key].region);
+                      setShowBoxOverlay(true);
+                    }}
+                    disabled={busy}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                      isSelected
+                        ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
+                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {key === "top-right" && "↗️ Top Right"}
+                    {key === "bottom-right" && "↘️ Bottom Right"}
+                    {key === "top-left" && "↖️ Top Left"}
+                    {key === "bottom-left" && "↙️ Bottom Left"}
+                  </button>
+                );
+              },
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -649,7 +664,7 @@ export function JobVideoCleaner() {
                   setManualRegion((prev) => ({
                     ...prev,
                     width: Math.min(0.48, +(prev.width + 0.04).toFixed(3)),
-                    height: Math.min(0.40, +(prev.height + 0.04).toFixed(3)),
+                    height: Math.min(0.4, +(prev.height + 0.04).toFixed(3)),
                     x: prev.x > 0.5 ? Math.max(0.52, +(prev.x - 0.04).toFixed(3)) : prev.x,
                   }));
                 }}
@@ -664,7 +679,7 @@ export function JobVideoCleaner() {
                   setManualRegion((prev) => ({
                     ...prev,
                     width: Math.max(0.12, +(prev.width - 0.04).toFixed(3)),
-                    height: Math.max(0.10, +(prev.height - 0.04).toFixed(3)),
+                    height: Math.max(0.1, +(prev.height - 0.04).toFixed(3)),
                     x: prev.x > 0.5 ? Math.min(0.88, +(prev.x + 0.04).toFixed(3)) : prev.x,
                   }));
                 }}
@@ -721,7 +736,10 @@ export function JobVideoCleaner() {
               >
                 <div className="absolute -top-7 right-0 rounded-md bg-rose-600 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase shadow-md flex items-center gap-1 whitespace-nowrap">
                   <Sparkles className="size-2.5" />
-                  <span>Removal Area ({Math.round(manualRegion.width * 100)}% × {Math.round(manualRegion.height * 100)}%)</span>
+                  <span>
+                    Removal Area ({Math.round(manualRegion.width * 100)}% ×{" "}
+                    {Math.round(manualRegion.height * 100)}%)
+                  </span>
                 </div>
               </div>
             )}
@@ -858,7 +876,10 @@ export function JobVideoCleaner() {
 
       {/* Error alert if processing fails */}
       {error && (
-        <div role="alert" className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           <XCircle className="size-4 shrink-0 text-red-600" />
           <span>{error}</span>
         </div>
@@ -869,11 +890,7 @@ export function JobVideoCleaner() {
         {!cleanedVideo && (
           <div className="flex items-center gap-3">
             {processingJob?.status === "failed" ? (
-              <PinkButton
-                type="button"
-                onClick={() => void startCleaning()}
-                disabled={busy}
-              >
+              <PinkButton type="button" onClick={() => void startCleaning()} disabled={busy}>
                 <RefreshCw className="size-4" /> Try Again
               </PinkButton>
             ) : (
@@ -882,12 +899,17 @@ export function JobVideoCleaner() {
                 onClick={() => void startCleaning()}
                 disabled={busy || processingJob?.status === "uploading" || !metadata}
               >
-                {busy ? <LoaderCircle className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                {busy ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : (
+                  <Sparkles className="size-4" />
+                )}
                 {busy ? "Processing Video…" : "Clean Video Watermark"}
               </PinkButton>
             )}
             <span className="text-xs text-gray-500">
-              Source resolution preserved{metadata ? ` (${metadata.width}×${metadata.height})` : ""}.
+              Source resolution preserved{metadata ? ` (${metadata.width}×${metadata.height})` : ""}
+              .
             </span>
           </div>
         )}
@@ -924,7 +946,9 @@ export function JobVideoCleaner() {
             {metadata && (
               <p className="text-[11px] text-gray-500">
                 Source resolution: {metadata.width}×{metadata.height}.{" "}
-                {metadata.height < 2160 ? "Source resolution limits maximum detail." : "Full native 4K preserved."}
+                {metadata.height < 2160
+                  ? "Source resolution limits maximum detail."
+                  : "Full native 4K preserved."}
               </p>
             )}
           </div>
@@ -933,5 +957,3 @@ export function JobVideoCleaner() {
     </div>
   );
 }
-
-

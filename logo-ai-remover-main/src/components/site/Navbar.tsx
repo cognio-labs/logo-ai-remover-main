@@ -1,16 +1,27 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, ArrowUpRight, ImageUp, Scissors, Film, FileText, WandSparkles, ScanLine, Sparkles } from "lucide-react";
+import {
+  Menu,
+  X,
+  ArrowUpRight,
+  ImageUp,
+  Scissors,
+  Film,
+  FileText,
+  WandSparkles,
+  ScanLine,
+  Sparkles,
+} from "lucide-react";
 import navbarLogo from "@/assets/navbar-logo.png";
 import { studioTools } from "@/components/studio/Studio";
 
 const TOOL_DESCRIPTIONS: Record<string, string> = {
-  "/upscale":                         "2×, 4×, 8× upscaling",
-  "/background-remover":              "One-click PNG cutout",
-  "/video-enhancer":                  "4K 60FPS restoration",
-  "/pdf-watermark-remover":           "Clean any PDF stamp",
-  "/remove/image":                    "Brush & erase marks",
-  "/gemini-video-watermark-remover":  "Remove Gemini & Veo marks",
+  "/upscale": "2×, 4×, 8× upscaling",
+  "/background-remover": "One-click PNG cutout",
+  "/video-enhancer": "4K 60FPS restoration",
+  "/pdf-watermark-remover": "Clean any PDF stamp",
+  "/remove/image": "Brush & erase marks",
+  "/gemini-video-watermark-remover": "Remove Gemini & Veo marks",
 };
 
 export function Navbar() {
@@ -40,10 +51,14 @@ export function Navbar() {
               to={t.path}
               className="group inline-flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-full text-xs font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-[#FFE4C4]/50 transition-all cursor-pointer whitespace-nowrap"
               activeProps={{
-                className: "bg-[#FFE4C4] text-[#E11D48] border border-[#FED7AA] shadow-2xs font-bold",
+                className:
+                  "bg-[#FFE4C4] text-[#E11D48] border border-[#FED7AA] shadow-2xs font-bold",
               }}
             >
-              <t.icon size={13} className="shrink-0 text-gray-500 group-hover:text-[#E11D48] group-[.bg-\[\#FFE4C4\]]:text-[#E11D48] transition-colors" />
+              <t.icon
+                size={13}
+                className="shrink-0 text-gray-500 group-hover:text-[#E11D48] group-[.bg-\[\#FFE4C4\]]:text-[#E11D48] transition-colors"
+              />
               <span>{t.name}</span>
             </Link>
           ))}
@@ -90,8 +105,13 @@ export function Navbar() {
         <nav id="studio-mobile-nav" className="studio-nav-mobile" aria-label="Mobile navigation">
           <div className="studio-nav-mobile-section">
             <span className="studio-nav-mobile-label">Tools</span>
-            {studioTools.map(t => (
-              <Link key={t.path} to={t.path} onClick={() => setOpen(false)} className="studio-nav-mobile-tool">
+            {studioTools.map((t) => (
+              <Link
+                key={t.path}
+                to={t.path}
+                onClick={() => setOpen(false)}
+                className="studio-nav-mobile-tool"
+              >
                 <t.icon size={16} />
                 <span>
                   <strong>{t.name}</strong>
@@ -101,7 +121,9 @@ export function Navbar() {
               </Link>
             ))}
           </div>
-          <Link to="/pricing" onClick={() => setOpen(false)} className="studio-nav-mobile-link">Pricing</Link>
+          <Link to="/pricing" onClick={() => setOpen(false)} className="studio-nav-mobile-link">
+            Pricing
+          </Link>
           <Link to="/tools" onClick={() => setOpen(false)} className="studio-nav-mobile-cta">
             Open studio <ArrowUpRight size={15} />
           </Link>

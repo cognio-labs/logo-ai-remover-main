@@ -22,7 +22,7 @@ export type InpaintResult = {
 export function removeWatermarksFromCanvas(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number
+  height: number,
 ): InpaintResult {
   let imgData: ImageData;
   try {
@@ -44,7 +44,7 @@ export function removeWatermarksFromCanvas(
   // Zone B: Bottom-right corner (x: 65% - 99%, y: 70% - 99%)
   // Zone C: Bottom-left corner (x: 1% - 35%, y: 70% - 99%)
 
-  const minX = Math.floor(width * 0.50);
+  const minX = Math.floor(width * 0.5);
   const maxX = Math.floor(width * 0.99);
   const minY = Math.floor(height * 0.15);
   const maxY = Math.floor(height * 0.98);
@@ -86,7 +86,10 @@ export function removeWatermarksFromCanvas(
   // and sparkle stars in proximity
   if (detectedCount > 30) {
     // Find bounding box of the star
-    let sMinX = width, sMaxX = 0, sMinY = height, sMaxY = 0;
+    let sMinX = width,
+      sMaxX = 0,
+      sMinY = height,
+      sMaxY = 0;
     for (let y = minY; y < maxY; y++) {
       for (let x = minX; x < maxX; x++) {
         if (mask[y * width + x] === 1) {
@@ -171,8 +174,14 @@ export function removeWatermarksFromCanvas(
       const idxR = (y * width + (x + 1)) * 4;
       const idxD = ((y + 1) * width + x) * 4;
 
-      const diffR = Math.abs(data[idx] - data[idxR]) + Math.abs(data[idx + 1] - data[idxR + 1]) + Math.abs(data[idx + 2] - data[idxR + 2]);
-      const diffD = Math.abs(data[idx] - data[idxD]) + Math.abs(data[idx + 1] - data[idxD + 1]) + Math.abs(data[idx + 2] - data[idxD + 2]);
+      const diffR =
+        Math.abs(data[idx] - data[idxR]) +
+        Math.abs(data[idx + 1] - data[idxR + 1]) +
+        Math.abs(data[idx + 2] - data[idxR + 2]);
+      const diffD =
+        Math.abs(data[idx] - data[idxD]) +
+        Math.abs(data[idx + 1] - data[idxD + 1]) +
+        Math.abs(data[idx + 2] - data[idxD + 2]);
 
       // Detect high-frequency sharp synthetic logo strokes
       if (diffR > 80 || diffD > 80) {
@@ -234,7 +243,10 @@ export function removeWatermarksFromCanvas(
   // --------------------------------------------------------------------------
   // 5. CONTENT-AWARE INPAINTING (Multi-Ray Boundary Synthesis)
   // --------------------------------------------------------------------------
-  let bMinX = width, bMaxX = 0, bMinY = height, bMaxY = 0;
+  let bMinX = width,
+    bMaxX = 0,
+    bMinY = height,
+    bMaxY = 0;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (dilatedMask[y * width + x] === 1) {
@@ -248,10 +260,22 @@ export function removeWatermarksFromCanvas(
 
   // 16 direction vectors for ray marching to clean boundary
   const directions = [
-    [-1, 0], [1, 0], [0, -1], [0, 1],
-    [-1, -1], [1, -1], [-1, 1], [1, 1],
-    [-2, -1], [2, -1], [-2, 1], [2, 1],
-    [-1, -2], [1, -2], [-1, 2], [1, 2],
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+    [-2, -1],
+    [2, -1],
+    [-2, 1],
+    [2, 1],
+    [-1, -2],
+    [1, -2],
+    [-1, 2],
+    [1, 2],
   ];
 
   const outData = new Uint8ClampedArray(data);
@@ -317,7 +341,9 @@ export function removeWatermarksFromCanvas(
       for (let x = bMinX + 1; x < bMaxX; x++) {
         if (dilatedMask[y * width + x] !== 1) continue;
 
-        let rAcc = 0, gAcc = 0, bAcc = 0;
+        let rAcc = 0,
+          gAcc = 0,
+          bAcc = 0;
         let count = 0;
 
         for (let ky = -1; ky <= 1; ky++) {

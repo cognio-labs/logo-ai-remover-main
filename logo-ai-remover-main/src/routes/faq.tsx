@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   ArrowRight,
   ChevronDown,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -28,14 +29,68 @@ export const Route = createFileRoute("/faq")({
   component: FaqPage,
 });
 
+const DEFAULT_FAQS = [
+  {
+    category: "Video Watermarks",
+    q: "How does the AI remove Google Gemini and Veo video watermarks?",
+    a: "Bellix.us utilizes a multi-frame spatio-temporal deep neural network. It detects the 4-point Gemini star and timestamp coordinates, analyzes optical flow across adjacent video frames, and inlays the covered pixel area with photorealistic texture that matches native motion and lighting.",
+  },
+  {
+    category: "Video Watermarks",
+    q: "Will the video suffer from edge flickering or blur in the watermark area?",
+    a: "No! Unlike simple blur filters or spatial-only inpainters, our temporal alignment model maintains strict consistency between consecutive frames at up to 60 FPS, eliminating edge flickering, boiling artifacts, and hazy discoloration.",
+  },
+  {
+    category: "Billing & Credits",
+    q: "How do credits work across different tools?",
+    a: "Each image watermark removal or background removal uses 1 credit. High-resolution video cleanups use 3 credits. Credits refresh on your monthly billing date and unused credits roll over up to 90 days on Creator and Studio plans.",
+  },
+  {
+    category: "Billing & Credits",
+    q: "Can I cancel or change my plan anytime?",
+    a: "Yes, you can upgrade, downgrade, or cancel your subscription at any time with a single click in your dashboard. If you cancel, your access continues until the end of your billing cycle.",
+  },
+  {
+    category: "Privacy & Storage",
+    q: "Are my uploaded media files stored or used for AI training?",
+    a: "Never. All videos and images are processed transiently in volatile GPU RAM and purged automatically upon download. We never store or train models on user data.",
+  },
+];
+
 function FaqPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [allFaqs, setAllFaqs] = useState(DEFAULT_FAQS);
 
   // Support form state
   const [ticketEmail, setTicketEmail] = useState("");
   const [ticketMsg, setTicketMsg] = useState("");
+
+  useEffect(() => {
+    async function loadLiveFaqs() {
+      try {
+        const { data: dbFaqs, error } = await supabase
+          .from("faq_items")
+          .select("*")
+          .eq("active", true)
+          .order("order_num");
+
+        if (!error && dbFaqs && dbFaqs.length > 0) {
+          setAllFaqs(
+            dbFaqs.map((f) => ({
+              category: f.category || "General",
+              q: f.question,
+              a: f.answer,
+            }))
+          );
+        }
+      } catch (err) {
+        console.warn("Using default FAQs:", err);
+      }
+    }
+    loadLiveFaqs();
+  }, []);
 
   const categories = [
     "All",
@@ -44,69 +99,6 @@ function FaqPage() {
     "Upscaling & Quality",
     "Billing & Credits",
     "Privacy & Storage",
-  ];
-
-  const allFaqs = [
-    {
-      category: "Video Watermarks",
-      q: "How does the AI remove Google Gemini and Veo video watermarks?",
-      a: "Bellix.us utilizes a multi-frame spatio-temporal deep neural network. It detects the 4-point Gemini star and timestamp coordinates, analyzes optical flow across adjacent video frames, and inlays the covered pixel area with photorealistic texture that matches native motion and lighting.",
-    },
-    {
-      category: "Video Watermarks",
-      q: "Will the video suffer from edge flickering or blur in the watermark area?",
-      a: "No! Unlike simple blur filters or spatial-only inpainters, our temporal alignment model maintains strict consistency between consecutive frames at up to 60 FPS, eliminating edge flickering, boiling artifacts, and hazy discoloration.",
-    },
-    {
-      category: "Video Watermarks",
-      q: "What video file formats and durations are supported?",
-      a: "We support MP4, MOV, WebM, AVI, MPG, MPEG, and MKV files. Free users can process clips up to 15 seconds, while Pro and Studio users can process clips up to 120 seconds or custom durations via API.",
-    },
-    {
-      category: "Image Cleaning",
-      q: "Can I clean tiled transparent stock watermarks from images?",
-      a: "Yes. Our neural inpainting model automatically handles tiled diagonal proof overlays, copyright stamps, photographer signatures, and camera date labels, restoring the background image cleanly.",
-    },
-    {
-      category: "Image Cleaning",
-      q: "If a watermark covers a face or eye, will it look distorted?",
-      a: "Our models are trained on high-resolution facial datasets to synthesize natural skin pores, eyelids, and hair transitions rather than smudging the facial area.",
-    },
-    {
-      category: "Upscaling & Quality",
-      q: "What is the maximum export resolution?",
-      a: "Free plans export up to 1080p Full HD. Pro plans export in pristine 4K UHD. Studio and Enterprise plans support up to 8K ultra super-resolution upscaling.",
-    },
-    {
-      category: "Upscaling & Quality",
-      q: "Does the processing reduce the video frame rate?",
-      a: "Never. The original frame rate (24 FPS, 30 FPS, 60 FPS) and container color space are preserved with bit-perfect fidelity.",
-    },
-    {
-      category: "Billing & Credits",
-      q: "How are credits deducted?",
-      a: "Each image cleanup costs 1 credit. Each video removal (up to 120 seconds) costs 3 credits. Credits refresh each month according to your billing cycle.",
-    },
-    {
-      category: "Billing & Credits",
-      q: "Do unused credits roll over?",
-      a: "Yes! On both Creator Pro and Studio plans, unused credits roll over for up to 90 days as long as your subscription remains active.",
-    },
-    {
-      category: "Billing & Credits",
-      q: "Can I get a refund if it doesn't work for my file?",
-      a: "Yes. We offer an unconditional 14-day money-back guarantee. If you are ever dissatisfied with output quality, contact support for a prompt 100% refund.",
-    },
-    {
-      category: "Privacy & Storage",
-      q: "Are my uploaded videos and images kept private?",
-      a: "100% yes. All uploads are processed in transient, volatile GPU memory with 256-bit SSL encryption. We never train our neural models on user media, and assets are permanently purged upon download.",
-    },
-    {
-      category: "Privacy & Storage",
-      q: "Do you offer commercial usage rights?",
-      a: "Yes. Both Creator Pro and Studio plans grant full, royalty-free commercial usage rights for all exported media.",
-    },
   ];
 
   const filteredFaqs = useMemo(() => {
@@ -146,8 +138,8 @@ function FaqPage() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
-            Find instant answers regarding video processing, format compatibility, credit usage,
-            and neural inpainting quality.
+            Find instant answers regarding video processing, format compatibility, credit usage, and
+            neural inpainting quality.
           </p>
 
           {/* Search Box */}
@@ -235,9 +227,7 @@ function FaqPage() {
             <div className="size-12 mx-auto rounded-2xl bg-white border border-[#FCE7EC] flex items-center justify-center text-[#E11D48] shadow-2xs">
               <Headphones className="size-6" />
             </div>
-            <h2 className="text-2xl font-serif font-normal text-gray-950">
-              Still have questions?
-            </h2>
+            <h2 className="text-2xl font-serif font-normal text-gray-950">Still have questions?</h2>
             <p className="text-xs text-gray-600">
               Our engineering & AI research team is available 24/7. Send us a message below.
             </p>

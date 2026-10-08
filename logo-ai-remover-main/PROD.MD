@@ -10,19 +10,19 @@ The public homepage, `/tools`, `/pricing` and `/remove/video` returned HTTP 200 
 
 ## Current feature inventory
 
-| Route | Purpose | Implementation evidence and limitation |
-| --- | --- | --- |
-| `/` | Creative suite landing page | Live HTML and `src/routes/index.tsx`; marketing claims require validation |
-| `/tools` | Tool discovery | Five main tools; title and copy still use Pilio branding |
-| `/remove/video` | Video watermark cleanup | `JobVideoCleaner.tsx`, `videoJobs.ts`, FastAPI routes/workers |
-| `/gemini-video-watermark-remover` | Specialized video entry | Existing route with video cleaning experience |
-| `/remove/image` | Brush-based image cleanup | Simulated `runPipeline`; not verified restoration |
-| `/upscale` | Image upscaling | `imageApi.ts` and `/api/image/upscale` |
-| `/video-enhancer` | Video enhancement | Dedicated API, worker, status/events and result endpoints |
-| `/background-remover` | Cutout/refinement/compositing | Dedicated background API/services |
-| `/pdf-watermark-remover` | Document cleanup | Upload, detect, process, preview/download API |
-| `/history` | Processing history | Browser state; not verified account-wide persistence |
-| `/pricing` | Plan comparison | CTAs navigate to tools/API pages; payment enforcement not established |
+| Route                             | Purpose                       | Implementation evidence and limitation                                    |
+| --------------------------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| `/`                               | Creative suite landing page   | Live HTML and `src/routes/index.tsx`; marketing claims require validation |
+| `/tools`                          | Tool discovery                | Five main tools; title and copy still use Pilio branding                  |
+| `/remove/video`                   | Video watermark cleanup       | `JobVideoCleaner.tsx`, `videoJobs.ts`, FastAPI routes/workers             |
+| `/gemini-video-watermark-remover` | Specialized video entry       | Existing route with video cleaning experience                             |
+| `/remove/image`                   | Brush-based image cleanup     | Simulated `runPipeline`; not verified restoration                         |
+| `/upscale`                        | Image upscaling               | `imageApi.ts` and `/api/image/upscale`                                    |
+| `/video-enhancer`                 | Video enhancement             | Dedicated API, worker, status/events and result endpoints                 |
+| `/background-remover`             | Cutout/refinement/compositing | Dedicated background API/services                                         |
+| `/pdf-watermark-remover`          | Document cleanup              | Upload, detect, process, preview/download API                             |
+| `/history`                        | Processing history            | Browser state; not verified account-wide persistence                      |
+| `/pricing`                        | Plan comparison               | CTAs navigate to tools/API pages; payment enforcement not established     |
 
 Other source routes: `/about`, `/contact`, `/features`, `/faq`, `/how-it-works`, `/api-reference`, `/affiliate`. A route existing does not prove its forms or advertised service work end to end.
 
@@ -41,11 +41,11 @@ Sources: [homepage](https://www.bellix.us/), [tools](https://www.bellix.us/tools
 
 ## Advertised pricing — not enforced entitlements
 
-| Plan | Monthly billing | Annual monthly equivalent | Advertised credits/month |
-| --- | --- | --- | --- |
-| Starter Free | $0 | $0 | 5 |
-| Creator Pro | $19 | $15 ($180/year) | 150 |
-| Studio & API | $49 | $39 ($468/year) | 600 |
+| Plan         | Monthly billing | Annual monthly equivalent | Advertised credits/month |
+| ------------ | --------------- | ------------------------- | ------------------------ |
+| Starter Free | $0              | $0                        | 5                        |
+| Creator Pro  | $19             | $15 ($180/year)           | 150                      |
+| Studio & API | $49             | $39 ($468/year)           | 600                      |
 
 The page defaults to annual billing (`src/routes/pricing.tsx`). Backend defaults include 500 MB video uploads, a 60-second video analysis limit, 35 MB image/background uploads and 50 MB/100-page PDFs (`backend/config.py`). Route-specific validation remains authoritative; unlimited pricing copy is not a backend guarantee.
 

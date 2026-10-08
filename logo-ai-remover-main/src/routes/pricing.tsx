@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Check,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -30,89 +31,150 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
+const DEFAULT_TIERS = [
+  {
+    id: "free",
+    name: "Starter Free",
+    desc: "Perfect for testing watermark removal on personal clips and images.",
+    priceMonthly: 0,
+    priceAnnual: 0,
+    credits: "5 credits / mo",
+    badge: null,
+    popular: false,
+    features: [
+      "Up to 1080p Full HD resolution",
+      "Video clips up to 15 seconds",
+      "Standard GPU processing queue",
+      "Remove Google Gemini & Veo marks",
+      "Single file upload at a time",
+      "Community Discord support",
+    ],
+    ctaText: "Start Free",
+    ctaLink: "/gemini-video-watermark-remover",
+    variant: "outline" as const,
+  },
+  {
+    id: "creator",
+    name: "Creator Pro",
+    desc: "Ideal for video editors, social creators, and content producers.",
+    priceMonthly: 39,
+    priceAnnual: 32,
+    credits: "150 credits / mo",
+    badge: "Most Popular",
+    popular: true,
+    features: [
+      "Pristine 4K UHD Export resolution",
+      "Videos up to 120 seconds in length",
+      "Priority NVIDIA H100 Cloud GPU queue",
+      "Multi-frame temporal consistency",
+      "Batch processing (up to 20 files)",
+      "Commercial usage license",
+      "Gemini, Sora, Veo & Kling AI support",
+      "Priority 24/7 email support",
+    ],
+    ctaText: "Get Creator Pro",
+    ctaLink: "/gemini-video-watermark-remover",
+    variant: "primary" as const,
+  },
+  {
+    id: "studio",
+    name: "Studio & API",
+    desc: "For production studios, agencies, and high-volume automated pipelines.",
+    priceMonthly: 99,
+    priceAnnual: 79,
+    credits: "600 credits / mo",
+    badge: "Best Value",
+    popular: false,
+    features: [
+      "8K Ultra Super-Resolution",
+      "Unlimited video duration & size",
+      "Dedicated cloud GPU worker pods",
+      "REST API Access & Webhook alerts",
+      "Unlimited batch uploads",
+      "Full enterprise commercial rights",
+      "Raw ProRes / Lossless exports",
+      "Dedicated account manager",
+    ],
+    ctaText: "Get Studio Plan",
+    ctaLink: "/api-reference",
+    variant: "outline" as const,
+  },
+];
+
 function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
   const [videoCount, setVideoCount] = useState(25);
   const [imageCount, setImageCount] = useState(80);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [tiers, setTiers] = useState(DEFAULT_TIERS);
 
   // Credit calculation: 3 credits per video, 1 credit per image
   const totalCreditsNeeded = videoCount * 3 + imageCount;
 
-  const tiers = [
-    {
-      name: "Starter Free",
-      desc: "Perfect for testing watermark removal on personal clips and images.",
-      priceMonthly: 0,
-      priceAnnual: 0,
-      credits: "5 credits / mo",
-      badge: null,
-      popular: false,
-      features: [
-        "Up to 1080p Full HD resolution",
-        "Video clips up to 15 seconds",
-        "Standard GPU processing queue",
-        "Remove Google Gemini & Veo marks",
-        "Single file upload at a time",
-        "Community Discord support",
-      ],
-      ctaText: "Start Free",
-      ctaLink: "/gemini-video-watermark-remover",
-      variant: "outline" as const,
-    },
-    {
-      name: "Creator Pro",
-      desc: "Ideal for video editors, social creators, and content producers.",
-      priceMonthly: 19,
-      priceAnnual: 15,
-      credits: "150 credits / mo",
-      badge: "Most Popular",
-      popular: true,
-      features: [
-        "Pristine 4K UHD Export resolution",
-        "Videos up to 120 seconds in length",
-        "Priority NVIDIA H100 Cloud GPU queue",
-        "Multi-frame temporal consistency",
-        "Batch processing (up to 20 files)",
-        "Commercial usage license",
-        "Gemini, Sora, Veo & Kling AI support",
-        "Priority 24/7 email support",
-      ],
-      ctaText: "Get Creator Pro",
-      ctaLink: "/gemini-video-watermark-remover",
-      variant: "primary" as const,
-    },
-    {
-      name: "Studio & API",
-      desc: "For production studios, agencies, and high-volume automated pipelines.",
-      priceMonthly: 49,
-      priceAnnual: 39,
-      credits: "600 credits / mo",
-      badge: "Best Value",
-      popular: false,
-      features: [
-        "8K Ultra Super-Resolution",
-        "Unlimited video duration & size",
-        "Dedicated cloud GPU worker pods",
-        "REST API Access & Webhook alerts",
-        "Unlimited batch uploads",
-        "Full enterprise commercial rights",
-        "Raw ProRes / Lossless exports",
-        "Dedicated account manager",
-      ],
-      ctaText: "Get Studio Plan",
-      ctaLink: "/api-reference",
-      variant: "outline" as const,
-    },
-  ];
+  // Load real pricing from Supabase plans table
+  useEffect(() => {
+    async function loadLivePlans() {
+      try {
+        const { data: dbPlans, error } = await supabase
+          .from("plans")
+          .select("*")
+          .eq("active", true);
+
+        if (!error && dbPlans && dbPlans.length > 0) {
+          // Public website only displays published plans (exclude draft or archived)
+          const publishedPlans = dbPlans.filter((p: any) => p.status ? p.status === "published" : p.active !== false);
+
+          setTiers((prev) =>
+            prev.map((tier) => {
+              const matched = publishedPlans.find((p: any) => p.id === tier.id || p.name?.toLowerCase().includes(tier.id));
+              if (matched) {
+                const pMonthly = Number(matched.price_monthly ?? tier.priceMonthly);
+                const pAnnualRaw = Number(matched.price_annual ?? tier.priceAnnual * 12);
+                const pAnnual = pAnnualRaw > 0 ? Math.round(pAnnualRaw / 12) : Math.round(pMonthly * 0.8);
+                return {
+                  ...tier,
+                  name: matched.name || tier.name,
+                  priceMonthly: pMonthly,
+                  priceAnnual: pAnnual,
+                  credits: `${matched.credits || 0} credits / mo`,
+                  features: Array.isArray(matched.features_json) && matched.features_json.length > 0
+                    ? matched.features_json
+                    : tier.features,
+                };
+              }
+              return tier;
+            })
+          );
+        }
+      } catch (err) {
+        console.warn("Using fallback pricing tiers:", err);
+      }
+    }
+    loadLivePlans();
+  }, []);
 
   const comparisonFeatures = [
     { name: "Max Resolution", free: "1080p", pro: "4K UHD", studio: "8K Ultra" },
     { name: "Max Video Duration", free: "15 seconds", pro: "120 seconds", studio: "Unlimited" },
     { name: "Batch Processing", free: "1 at a time", pro: "20 files", studio: "Unlimited" },
-    { name: "Temporal Frame Inpainting", free: "Basic", pro: "Advanced 60 FPS", studio: "Studio-Grade" },
-    { name: "Supported Formats", free: "MP4 only", pro: "7 Video + 5 Image Formats", studio: "All + ProRes" },
-    { name: "Processing Speed", free: "Standard (~45s)", pro: "Fast (<10s)", studio: "Instant (<3s)" },
+    {
+      name: "Temporal Frame Inpainting",
+      free: "Basic",
+      pro: "Advanced 60 FPS",
+      studio: "Studio-Grade",
+    },
+    {
+      name: "Supported Formats",
+      free: "MP4 only",
+      pro: "7 Video + 5 Image Formats",
+      studio: "All + ProRes",
+    },
+    {
+      name: "Processing Speed",
+      free: "Standard (~45s)",
+      pro: "Fast (<10s)",
+      studio: "Instant (<3s)",
+    },
     { name: "REST API Access", free: false, pro: false, studio: true },
     { name: "Commercial License", free: false, pro: true, studio: true },
     { name: "Dedicated GPU Priority", free: false, pro: true, studio: true },
@@ -269,7 +331,8 @@ function PricingPage() {
               Estimate your monthly volume & credits
             </h2>
             <p className="text-xs sm:text-sm text-gray-600">
-              Drag the sliders below to see your estimated monthly credit requirement and ideal plan.
+              Drag the sliders below to see your estimated monthly credit requirement and ideal
+              plan.
             </p>
           </div>
 
@@ -327,13 +390,21 @@ function PricingPage() {
                 {totalCreditsNeeded}{" "}
                 <span className="text-base font-normal text-gray-600">credits / mo</span>
               </h3>
-              <p className="text-xs text-[#E11D48] font-semibold mt-1">
-                {totalCreditsNeeded <= 5
-                  ? "✓ Covered fully under Starter Free tier!"
-                  : totalCreditsNeeded <= 150
-                  ? "✓ Creator Pro Plan ($19/mo) is the perfect fit!"
-                  : "✓ Studio Plan ($49/mo) provides optimal high-volume pricing!"}
-              </p>
+              {(() => {
+                const creatorTier = tiers.find((t) => t.id === "creator");
+                const studioTier = tiers.find((t) => t.id === "studio");
+                const creatorPrice = isAnnual ? `$${creatorTier?.priceAnnual ?? 32}/mo` : `$${creatorTier?.priceMonthly ?? 39}/mo`;
+                const studioPrice = isAnnual ? `$${studioTier?.priceAnnual ?? 79}/mo` : `$${studioTier?.priceMonthly ?? 99}/mo`;
+                return (
+                  <p className="text-xs text-[#E11D48] font-semibold mt-1">
+                    {totalCreditsNeeded <= 5
+                      ? "✓ Covered fully under Starter Free tier!"
+                      : totalCreditsNeeded <= 150
+                        ? `✓ ${creatorTier?.name || "Creator Pro"} (${creatorPrice}) is the perfect fit!`
+                        : `✓ ${studioTier?.name || "Studio Plan"} (${studioPrice}) provides optimal high-volume pricing!`}
+                  </p>
+                );
+              })()}
             </div>
 
             <PinkButton size="md" className="shrink-0 font-bold" asChild>
@@ -349,7 +420,9 @@ function PricingPage() {
       {/* 4. Full Feature Comparison Matrix */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">Detailed Plan Comparison</h2>
+          <h2 className="text-3xl font-serif font-normal text-gray-950">
+            Detailed Plan Comparison
+          </h2>
           <p className="text-xs sm:text-sm text-gray-600 mt-1">
             Compare all features across Free, Creator Pro, and Studio tiers.
           </p>
@@ -414,7 +487,9 @@ function PricingPage() {
         <div className="p-4 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-1">
           <ShieldCheck className="size-6 text-[#E11D48] mx-auto" />
           <h4 className="text-xs font-bold text-gray-900">14-Day Money Back</h4>
-          <p className="text-[11px] text-gray-500">100% refund if not satisfied with output quality</p>
+          <p className="text-[11px] text-gray-500">
+            100% refund if not satisfied with output quality
+          </p>
         </div>
 
         <div className="p-4 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-1">
@@ -426,7 +501,9 @@ function PricingPage() {
         <div className="p-4 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-1">
           <Zap className="size-6 text-[#E11D48] mx-auto" />
           <h4 className="text-xs font-bold text-gray-900">Cancel Anytime</h4>
-          <p className="text-[11px] text-gray-500">No lock-in contract, pause or cancel in 1 click</p>
+          <p className="text-[11px] text-gray-500">
+            No lock-in contract, pause or cancel in 1 click
+          </p>
         </div>
       </section>
 

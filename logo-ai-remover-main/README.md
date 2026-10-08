@@ -6,18 +6,18 @@ Current stack: React + TypeScript + TanStack Start/Router + Vite, with a Python 
 
 ## Project documentation
 
-| Document | Purpose |
-| --- | --- |
-| [PROD.MD](PROD.MD) | Website analysis, scope, routes and user flow |
-| [ARCHITECTURE.MD](ARCHITECTURE.MD) | Stack, source map, API/job flow and deployment |
-| [RULES.MD](RULES.MD) | Engineering/repository rules |
-| [DESIGN.MD](DESIGN.MD) | Visual tokens, components and UX states |
-| [TASKS.MD](TASKS.MD) | Prioritized backlog and acceptance criteria |
-| [MEMORY.MD](MEMORY.MD) | Dated findings and decisions |
-| [SECURITY.MD](SECURITY.MD) | Controls, gaps and remediation |
-| [CODE STYLE.MD](CODE%20STYLE.MD) | React/TypeScript and Python conventions |
-| [TESTING.MD](TESTING.MD) | Coverage, commands and checklists |
-| [AGENTS.md](AGENTS.md) | Agent instructions and Lovable history protection |
+| Document                           | Purpose                                           |
+| ---------------------------------- | ------------------------------------------------- |
+| [PROD.MD](PROD.MD)                 | Website analysis, scope, routes and user flow     |
+| [ARCHITECTURE.MD](ARCHITECTURE.MD) | Stack, source map, API/job flow and deployment    |
+| [RULES.MD](RULES.MD)               | Engineering/repository rules                      |
+| [DESIGN.MD](DESIGN.MD)             | Visual tokens, components and UX states           |
+| [TASKS.MD](TASKS.MD)               | Prioritized backlog and acceptance criteria       |
+| [MEMORY.MD](MEMORY.MD)             | Dated findings and decisions                      |
+| [SECURITY.MD](SECURITY.MD)         | Controls, gaps and remediation                    |
+| [CODE STYLE.MD](CODE%20STYLE.MD)   | React/TypeScript and Python conventions           |
+| [TESTING.MD](TESTING.MD)           | Coverage, commands and checklists                 |
+| [AGENTS.md](AGENTS.md)             | Agent instructions and Lovable history protection |
 
 ## Local development
 

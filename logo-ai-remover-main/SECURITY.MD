@@ -8,16 +8,16 @@ Files, filenames, masks, IDs and browser state are untrusted. Media crosses into
 
 ## Observations
 
-| Evidence | Finding | Follow-up |
-| --- | --- | --- |
-| `backend/utils/file_utils.py`, video routes | Job ID/path checks and isolated directories exist | Preserve and test across all tools |
-| Configuration/upload routes | File, duration, page and pixel limits exist | Align UI and add resource/concurrency enforcement |
-| `backend/main.py` | Credentialed CORS includes `https?://.*` | Restrict origins; CORS does not replace authentication |
-| Inspected `backend/api/` routes | No evident authenticated-owner dependency for job operations | Enforce owner or scoped guest credentials on every operation |
-| `src/lib/userStore.ts` | Mock identity with editable role/credits; default demo role is admin | Never trust for privileges/billing |
-| `src/lib/supabase.ts` | Client configuration and commented schema | Add migrations, verified sessions and database access policies |
-| Storage/retention search | Media persists on disk; a setting alone does not delete it | Implement monitored cleanup and truthful disclosures |
-| General exception handler | Returns raw exception text | Return safe messages/correlation IDs with restricted diagnostics |
+| Evidence                                    | Finding                                                              | Follow-up                                                        |
+| ------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `backend/utils/file_utils.py`, video routes | Job ID/path checks and isolated directories exist                    | Preserve and test across all tools                               |
+| Configuration/upload routes                 | File, duration, page and pixel limits exist                          | Align UI and add resource/concurrency enforcement                |
+| `backend/main.py`                           | Credentialed CORS includes `https?://.*`                             | Restrict origins; CORS does not replace authentication           |
+| Inspected `backend/api/` routes             | No evident authenticated-owner dependency for job operations         | Enforce owner or scoped guest credentials on every operation     |
+| `src/lib/userStore.ts`                      | Mock identity with editable role/credits; default demo role is admin | Never trust for privileges/billing                               |
+| `src/lib/supabase.ts`                       | Client configuration and commented schema                            | Add migrations, verified sessions and database access policies   |
+| Storage/retention search                    | Media persists on disk; a setting alone does not delete it           | Implement monitored cleanup and truthful disclosures             |
+| General exception handler                   | Returns raw exception text                                           | Return safe messages/correlation IDs with restricted diagnostics |
 
 ## Implementation requirements
 

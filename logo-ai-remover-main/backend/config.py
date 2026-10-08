@@ -17,7 +17,7 @@ os.environ["TMP"] = str(_STORAGE_TEMP)
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=BACKEND_DIR / ".env",
+        env_file=(BACKEND_DIR / ".env", BACKEND_DIR.parent / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -26,6 +26,15 @@ class Settings(BaseSettings):
     openrouter_model: str = "google/gemma-4-26b-a4b-it:free"
     openrouter_fallback_model: str = "openrouter/free"
     openrouter_timeout_seconds: float = 45.0
+    supabase_url: str = ""
+    vite_supabase_url: str = ""
+    supabase_service_role_key: str = ""
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+
+    @property
+    def resolved_supabase_url(self) -> str:
+        return self.supabase_url or self.vite_supabase_url or "https://aspuvqzpmlccppweutso.supabase.co"
     storage_root: Path = BACKEND_DIR / "storage" / "jobs"
     image_storage_root: Path = BACKEND_DIR / "storage" / "image_jobs"
     pdf_storage_root: Path = BACKEND_DIR / "storage" / "pdf_jobs"

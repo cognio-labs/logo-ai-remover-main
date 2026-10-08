@@ -92,7 +92,8 @@ const SHOWCASE_ITEMS = [
     id: "hair",
     category: "FINE HAIR & PORTRAITS",
     title: "Zero Flyaway Hair Loss",
-    description: "Preserves individual wisps, curls, and transparent fringes without halos or jagged cuts.",
+    description:
+      "Preserves individual wisps, curls, and transparent fringes without halos or jagged cuts.",
     originalImage: "/upscale/portrait.png",
     cutoutImage: "/upscale/portrait_cutout.png",
   },
@@ -100,7 +101,8 @@ const SHOWCASE_ITEMS = [
     id: "product",
     category: "E-COMMERCE & PRODUCTS",
     title: "Crisp Catalog Product Cutouts",
-    description: "Amazon, Shopify, and eBay 100% pure white background compliant with razor-sharp contours.",
+    description:
+      "Amazon, Shopify, and eBay 100% pure white background compliant with razor-sharp contours.",
     originalImage: "/upscale/product.png",
     cutoutImage: "/upscale/product_cutout.png",
   },
@@ -108,7 +110,8 @@ const SHOWCASE_ITEMS = [
     id: "pet",
     category: "PETS & WILDLIFE",
     title: "Soft Fur, Feathers & Whiskers",
-    description: "Handles intricate textures, soft fur, and whisker details without blurring or artificial lines.",
+    description:
+      "Handles intricate textures, soft fur, and whisker details without blurring or artificial lines.",
     originalImage: "/upscale/wildlife.png",
     cutoutImage: "/upscale/wildlife_cutout.png",
   },
@@ -116,7 +119,8 @@ const SHOWCASE_ITEMS = [
     id: "jewelry",
     category: "JEWELRY & REFLECTIONS",
     title: "Transparent Facets & Metal Edges",
-    description: "Accurately isolates transparent gemstones, shiny metals, and fine filigree with edge clarity.",
+    description:
+      "Accurately isolates transparent gemstones, shiny metals, and fine filigree with edge clarity.",
     originalImage: "/upscale/jewelry.png",
     cutoutImage: "/upscale/jewelry_cutout.png",
   },
@@ -128,7 +132,11 @@ const PERSONAS = [
     title: "Individuals & Creators",
     subtitle: "Avatars, Stickers & Socials",
     desc: "Create professional LinkedIn profile headshots, transparent WhatsApp/iMessage stickers, and eye-catching YouTube thumbnail cutouts in seconds.",
-    bullets: ["One-click profile photo background blur", "Transparent PNG for stickers and memes", "Instant creator cutouts for banners"],
+    bullets: [
+      "One-click profile photo background blur",
+      "Transparent PNG for stickers and memes",
+      "Instant creator cutouts for banners",
+    ],
     color: "from-[#FFF1F4] to-[#FFE4E9]",
     accent: "#E11D48",
   },
@@ -137,7 +145,11 @@ const PERSONAS = [
     title: "E-Commerce & Marketplaces",
     subtitle: "Amazon, Shopify & eBay",
     desc: "100% pure white background compliance for Amazon, Google Shopping, and Shopify. Increase conversion rates with studio-grade product presentations.",
-    bullets: ["Batch background removal for catalogs", "Pure white (#FFFFFF) export in 1 click", "Crisp jewelry, sneaker & apparel edges"],
+    bullets: [
+      "Batch background removal for catalogs",
+      "Pure white (#FFFFFF) export in 1 click",
+      "Crisp jewelry, sneaker & apparel edges",
+    ],
     color: "from-[#F0FDF4] to-[#DCFCE7]",
     accent: "#16A34A",
   },
@@ -146,7 +158,11 @@ const PERSONAS = [
     title: "Photographers & Studios",
     subtitle: "Retouching 10x Faster",
     desc: "Replace tedious Photoshop pen-tool clipping paths. Speed up client deliveries by processing dozens of portraits and weddings automatically.",
-    bullets: ["Sub-pixel hair and veil edge matting", "Replace backdrop with luxury studio sets", "Preserves original 4K/8K resolution"],
+    bullets: [
+      "Sub-pixel hair and veil edge matting",
+      "Replace backdrop with luxury studio sets",
+      "Preserves original 4K/8K resolution",
+    ],
     color: "from-[#EFF6FF] to-[#DBEAFE]",
     accent: "#2563EB",
   },
@@ -155,7 +171,11 @@ const PERSONAS = [
     title: "Marketers & Designers",
     subtitle: "Pitch Decks & Ad Campaigns",
     desc: "Drop isolated subjects straight into Figma, Canva, or Photoshop. Build high-converting social media creatives and promotional posters effortlessly.",
-    bullets: ["Transparent PNG with drag-and-drop", "Custom brand color background swap", "Pixel-perfect composition ready"],
+    bullets: [
+      "Transparent PNG with drag-and-drop",
+      "Custom brand color background swap",
+      "Pixel-perfect composition ready",
+    ],
     color: "from-[#FAF5FF] to-[#F3E8FF]",
     accent: "#9333EA",
   },
@@ -164,7 +184,11 @@ const PERSONAS = [
     title: "Developers & Enterprise",
     subtitle: "High-Throughput REST API",
     desc: "Integrate automatic background removal directly into your SaaS, e-commerce platform, or mobile app with our fast, reliable REST API.",
-    bullets: ["Sub-second processing response time", "99.9% uptime SLA with global endpoints", "SDKs for Python, Node.js, cURL & PHP"],
+    bullets: [
+      "Sub-second processing response time",
+      "99.9% uptime SLA with global endpoints",
+      "SDKs for Python, Node.js, cURL & PHP",
+    ],
     color: "from-[#FFF7ED] to-[#FFEDD5]",
     accent: "#EA580C",
   },
@@ -395,7 +419,9 @@ function ShowcaseSlider({
 
       <div className="p-5 sm:p-6 bg-white border-t border-gray-100 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-[11px] font-semibold text-[#E11D48] uppercase tracking-widest">{category}</p>
+          <p className="text-[11px] font-semibold text-[#E11D48] uppercase tracking-widest">
+            {category}
+          </p>
           <h3 className="text-xl font-semibold text-gray-950 mt-1 tracking-tight">{title}</h3>
           <p className="text-sm text-gray-600 mt-1.5 leading-relaxed font-normal">{description}</p>
         </div>
@@ -688,7 +714,9 @@ function SeeTheDifferenceShowcase() {
         {/* 4 CARDS IN ONE HORIZONTAL ROW */}
         <div
           className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 transition-all duration-300 ${
-            isTransitioning ? "opacity-30 translate-y-2 scale-[0.99]" : "opacity-100 translate-y-0 scale-100"
+            isTransitioning
+              ? "opacity-30 translate-y-2 scale-[0.99]"
+              : "opacity-100 translate-y-0 scale-100"
           }`}
         >
           {cards.map((card) => (
@@ -773,7 +801,9 @@ function BackgroundRemoverPage() {
   const [backdropId, setBackdropId] = useState("luxury-studio");
   const [showOriginal, setShowOriginal] = useState(false);
   const [useSplitView, setUseSplitView] = useState(false);
-  const [activeTab, setActiveTab] = useState<"cutout" | "background" | "effects" | "adjust" | "design">("cutout");
+  const [activeTab, setActiveTab] = useState<
+    "cutout" | "background" | "effects" | "adjust" | "design"
+  >("cutout");
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [saturation, setSaturation] = useState(100);
@@ -791,8 +821,10 @@ function BackgroundRemoverPage() {
   useEffect(() => {
     return () => {
       if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
-      if (cutoutResult?.transparentBlobUrl.startsWith("blob:")) URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
-      if (cutoutResult?.compositeBlobUrl.startsWith("blob:")) URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
+      if (cutoutResult?.transparentBlobUrl.startsWith("blob:"))
+        URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
+      if (cutoutResult?.compositeBlobUrl.startsWith("blob:"))
+        URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
     };
   }, []);
 
@@ -800,7 +832,10 @@ function BackgroundRemoverPage() {
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
         return;
       }
 
@@ -864,7 +899,7 @@ function BackgroundRemoverPage() {
         (currentStage, currentProgress) => {
           setStage(currentStage);
           setProgress(currentProgress);
-        }
+        },
       );
 
       setCutoutResult(res);
@@ -876,7 +911,9 @@ function BackgroundRemoverPage() {
         status: "completed",
         quality: `Transparent (${res.width}×${res.height})`,
         credits_used: 1,
-        processing_time: res.processingTimeMs ? `${(res.processingTimeMs / 1000).toFixed(1)}s` : "2.4s",
+        processing_time: res.processingTimeMs
+          ? `${(res.processingTimeMs / 1000).toFixed(1)}s`
+          : "2.4s",
         file_url: url,
         result_url: res.transparentBlobUrl,
       });
@@ -897,7 +934,11 @@ function BackgroundRemoverPage() {
   };
 
   // Live re-compositing when user switches background colors or backdrops
-  const updateBackgroundStyle = async (newType: BackgroundType, color?: string, backdrop?: string) => {
+  const updateBackgroundStyle = async (
+    newType: BackgroundType,
+    color?: string,
+    backdrop?: string,
+  ) => {
     setBgType(newType);
     if (color) setSolidColor(color);
     if (backdrop) setBackdropId(backdrop);
@@ -909,7 +950,12 @@ function BackgroundRemoverPage() {
       const activeBackdrop = backdrop || backdropId;
 
       if (cutoutResult.jobId) {
-        const recomputed = await recompositeCutout(cutoutResult.jobId, newType, activeColor, activeBackdrop);
+        const recomputed = await recompositeCutout(
+          cutoutResult.jobId,
+          newType,
+          activeColor,
+          activeBackdrop,
+        );
         setCutoutResult((prev) =>
           prev
             ? {
@@ -917,10 +963,15 @@ function BackgroundRemoverPage() {
                 compositeBlobUrl: recomputed.compositeBlobUrl,
                 fileSizeFormatted: recomputed.sizeFormatted,
               }
-            : null
+            : null,
         );
       } else {
-        const updated = await removeImageBackground(sourceUrl, newType, activeColor, activeBackdrop);
+        const updated = await removeImageBackground(
+          sourceUrl,
+          newType,
+          activeColor,
+          activeBackdrop,
+        );
         setCutoutResult(updated);
       }
     } catch (err) {
@@ -952,7 +1003,9 @@ function BackgroundRemoverPage() {
       document.body.removeChild(a);
     }
 
-    toast.success(`Downloaded ${cutoutResult.width}×${cutoutResult.height}px ${isTrans ? "Transparent PNG" : "HD image"}!`);
+    toast.success(
+      `Downloaded ${cutoutResult.width}×${cutoutResult.height}px ${isTrans ? "Transparent PNG" : "HD image"}!`,
+    );
   };
 
   const copyCode = (code: string) => {
@@ -997,7 +1050,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => setActiveTab("cutout")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "cutout" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  activeTab === "cutout"
+                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <Paintbrush className="size-3.5" />
@@ -1008,7 +1063,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => setActiveTab("background")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "background" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  activeTab === "background"
+                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <Palette className="size-3.5" />
@@ -1019,7 +1076,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => setActiveTab("effects")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "effects" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  activeTab === "effects"
+                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <CircleDot className="size-3.5" />
@@ -1030,7 +1089,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => setActiveTab("adjust")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "adjust" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  activeTab === "adjust"
+                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <Sliders className="size-3.5" />
@@ -1041,7 +1102,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => setActiveTab("design")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === "design" ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  activeTab === "design"
+                    ? "bg-[#FFF1F4] text-[#E11D48] shadow-2xs"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <Layout className="size-3.5" />
@@ -1059,7 +1122,9 @@ function BackgroundRemoverPage() {
                 onClick={() => setUseSplitView(!useSplitView)}
                 title="Toggle Before/After Split Slider"
                 className={`flex size-8 items-center justify-center rounded-full transition-colors cursor-pointer ${
-                  useSplitView ? "bg-[#FFF1F4] text-[#E11D48]" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  useSplitView
+                    ? "bg-[#FFF1F4] text-[#E11D48]"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <SplitSquareVertical className="size-4" />
@@ -1110,7 +1175,9 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => updateBackgroundStyle("transparent")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  bgType === "transparent" ? "bg-gray-900 text-white shadow-xs" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  bgType === "transparent"
+                    ? "bg-gray-900 text-white shadow-xs"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 Checkerboard Transparent
@@ -1119,30 +1186,36 @@ function BackgroundRemoverPage() {
                 type="button"
                 onClick={() => updateBackgroundStyle("color", "#FFFFFF")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                  bgType === "color" && solidColor === "#FFFFFF" ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48]" : "border-gray-200 bg-white hover:bg-gray-50"
+                  bgType === "color" && solidColor === "#FFFFFF"
+                    ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48]"
+                    : "border-gray-200 bg-white hover:bg-gray-50"
                 }`}
               >
                 Pure White
               </button>
-              {SOLID_COLOR_PRESETS.slice(1, 5).map(c => (
+              {SOLID_COLOR_PRESETS.slice(1, 5).map((c) => (
                 <button
                   key={c.hex}
                   type="button"
                   onClick={() => updateBackgroundStyle("color", c.hex)}
                   className={`size-6 rounded-full border border-black/10 transition-transform ${
-                    bgType === "color" && solidColor === c.hex ? "scale-125 ring-2 ring-[#E11D48]" : "hover:scale-110"
+                    bgType === "color" && solidColor === c.hex
+                      ? "scale-125 ring-2 ring-[#E11D48]"
+                      : "hover:scale-110"
                   }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
                 />
               ))}
-              {BACKDROP_PRESETS.slice(0, 3).map(b => (
+              {BACKDROP_PRESETS.slice(0, 3).map((b) => (
                 <button
                   key={b.id}
                   type="button"
                   onClick={() => updateBackgroundStyle("backdrop", undefined, b.id)}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-medium border ${
-                    bgType === "backdrop" && backdropId === b.id ? "border-[#E11D48] text-[#E11D48] bg-rose-50" : "border-gray-200 hover:bg-gray-50"
+                    bgType === "backdrop" && backdropId === b.id
+                      ? "border-[#E11D48] text-[#E11D48] bg-rose-50"
+                      : "border-gray-200 hover:bg-gray-50"
                   }`}
                 >
                   {b.name}
@@ -1154,7 +1227,9 @@ function BackgroundRemoverPage() {
           {activeTab === "adjust" && (
             <div className="w-full max-w-lg bg-white/95 backdrop-blur-xl border border-gray-200 shadow-md rounded-2xl p-4 grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-1 text-xs">
               <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">Brightness ({brightness}%)</label>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">
+                  Brightness ({brightness}%)
+                </label>
                 <input
                   type="range"
                   min="50"
@@ -1165,7 +1240,9 @@ function BackgroundRemoverPage() {
                 />
               </div>
               <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">Contrast ({contrast}%)</label>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">
+                  Contrast ({contrast}%)
+                </label>
                 <input
                   type="range"
                   min="50"
@@ -1176,7 +1253,9 @@ function BackgroundRemoverPage() {
                 />
               </div>
               <div>
-                <label className="text-[11px] font-medium text-gray-600 block mb-1">Saturation ({saturation}%)</label>
+                <label className="text-[11px] font-medium text-gray-600 block mb-1">
+                  Saturation ({saturation}%)
+                </label>
                 <input
                   type="range"
                   min="50"
@@ -1201,7 +1280,9 @@ function BackgroundRemoverPage() {
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/75 backdrop-blur-xs rounded-3xl">
                 <Loader2 className="size-10 text-[#E11D48] animate-spin mb-3" />
-                <span className="text-sm font-semibold text-gray-900">{stage || "Removing background..."}</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {stage || "Removing background..."}
+                </span>
                 <span className="text-xs text-gray-500 mt-1 font-mono">{progress}% completed</span>
               </div>
             </div>
@@ -1268,11 +1349,7 @@ function BackgroundRemoverPage() {
             className="relative size-14 rounded-2xl overflow-hidden border-2 border-blue-500 shadow-md bg-white ring-2 ring-blue-400/50 cursor-pointer"
             title="Current active image"
           >
-            <img
-              src={sourceUrl}
-              alt="Active asset"
-              className="size-full object-cover"
-            />
+            <img src={sourceUrl} alt="Active asset" className="size-full object-cover" />
             {running && (
               <div className="absolute inset-0 bg-black/45 flex items-center justify-center backdrop-blur-2xs">
                 <Loader2 className="size-6 text-white animate-spin" />
@@ -1296,7 +1373,10 @@ function BackgroundRemoverPage() {
   return (
     <main className="min-h-screen bg-transparent text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
       {/* 1. HERO SECTION */}
-      <section id="upload-studio-section" className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-radial-[at_50%_0%] from-[#FFF0F5] via-white to-white">
+      <section
+        id="upload-studio-section"
+        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-radial-[at_50%_0%] from-[#FFF0F5] via-white to-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Title & Pitch */}
           <div className="text-center max-w-3xl mx-auto mb-10">
@@ -1313,7 +1393,8 @@ function BackgroundRemoverPage() {
             </h1>
 
             <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto font-normal">
-              Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and complex product silhouettes with sub-pixel edge matting.
+              Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and
+              complex product silhouettes with sub-pixel edge matting.
             </p>
           </div>
 
@@ -1334,7 +1415,8 @@ function BackgroundRemoverPage() {
                         <FileImage className="size-4 text-[#E11D48]" />
                         <span>{uploadedFile?.name || "cutout-transparent.png"}</span>
                         <span className="text-gray-400 font-normal">
-                          · {cutoutResult.width} × {cutoutResult.height}px · {cutoutResult.fileSizeFormatted}
+                          · {cutoutResult.width} × {cutoutResult.height}px ·{" "}
+                          {cutoutResult.fileSizeFormatted}
                         </span>
                       </span>
 
@@ -1343,7 +1425,9 @@ function BackgroundRemoverPage() {
                           type="button"
                           onClick={() => setUseSplitView(!useSplitView)}
                           className={`font-medium flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors cursor-pointer ${
-                            useSplitView ? "bg-[#FFE4E9] text-[#E11D48]" : "text-gray-600 hover:text-gray-900 bg-gray-100"
+                            useSplitView
+                              ? "bg-[#FFE4E9] text-[#E11D48]"
+                              : "text-gray-600 hover:text-gray-900 bg-gray-100"
                           }`}
                           title="Toggle Before/After Split Slider"
                         >
@@ -1409,7 +1493,11 @@ function BackgroundRemoverPage() {
 
                         {/* Badge indicator */}
                         <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-medium uppercase tracking-wider backdrop-blur-md shadow-xs">
-                          {showOriginal ? "Original Image" : bgType === "transparent" ? "Transparent PNG" : "Background Applied"}
+                          {showOriginal
+                            ? "Original Image"
+                            : bgType === "transparent"
+                              ? "Transparent PNG"
+                              : "Background Applied"}
                         </span>
                       </div>
                     )}
@@ -1461,7 +1549,11 @@ function BackgroundRemoverPage() {
                       Drop your image here
                     </h3>
                     <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
-                      PNG, JPG, WebP or HEIC · Up to 35MB · Paste (<kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">Ctrl+V</kbd>)
+                      PNG, JPG, WebP or HEIC · Up to 35MB · Paste (
+                      <kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">
+                        Ctrl+V
+                      </kbd>
+                      )
                     </p>
 
                     <button
@@ -1476,7 +1568,9 @@ function BackgroundRemoverPage() {
                       <span>Upload Image</span>
                     </button>
 
-                    <span className="text-[11px] text-gray-400 mt-2 font-normal">or click anywhere to browse</span>
+                    <span className="text-[11px] text-gray-400 mt-2 font-normal">
+                      or click anywhere to browse
+                    </span>
                   </div>
                 )}
               </div>
@@ -1494,7 +1588,9 @@ function BackgroundRemoverPage() {
                       type="button"
                       onClick={() => updateBackgroundStyle("transparent")}
                       className={`py-2 rounded-lg transition-all ${
-                        bgType === "transparent" ? "bg-white text-gray-950 shadow-xs" : "hover:text-gray-900"
+                        bgType === "transparent"
+                          ? "bg-white text-gray-950 shadow-xs"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       Transparent
@@ -1503,7 +1599,9 @@ function BackgroundRemoverPage() {
                       type="button"
                       onClick={() => updateBackgroundStyle("color")}
                       className={`py-2 rounded-lg transition-all ${
-                        bgType === "color" ? "bg-white text-gray-950 shadow-xs" : "hover:text-gray-900"
+                        bgType === "color"
+                          ? "bg-white text-gray-950 shadow-xs"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       Solid Color
@@ -1512,7 +1610,9 @@ function BackgroundRemoverPage() {
                       type="button"
                       onClick={() => updateBackgroundStyle("backdrop")}
                       className={`py-2 rounded-lg transition-all ${
-                        bgType === "backdrop" ? "bg-white text-gray-950 shadow-xs" : "hover:text-gray-900"
+                        bgType === "backdrop"
+                          ? "bg-white text-gray-950 shadow-xs"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       Studio Set
@@ -1527,14 +1627,17 @@ function BackgroundRemoverPage() {
                         <span>32-Bit Transparent PNG</span>
                       </p>
                       <p className="text-gray-500 leading-relaxed font-normal">
-                        Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web code with true alpha transparency.
+                        Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web
+                        code with true alpha transparency.
                       </p>
                     </div>
                   )}
 
                   {bgType === "color" && (
                     <div className="space-y-3">
-                      <label className="text-xs font-medium text-gray-700">Choose Solid Color</label>
+                      <label className="text-xs font-medium text-gray-700">
+                        Choose Solid Color
+                      </label>
                       <div className="grid grid-cols-3 gap-2">
                         {SOLID_COLOR_PRESETS.map((c) => (
                           <button
@@ -1551,7 +1654,9 @@ function BackgroundRemoverPage() {
                               className="size-5 rounded-md border border-black/10 shadow-2xs"
                               style={{ backgroundColor: c.hex }}
                             />
-                            <span className="text-[11px] font-medium text-gray-900 leading-tight">{c.name}</span>
+                            <span className="text-[11px] font-medium text-gray-900 leading-tight">
+                              {c.name}
+                            </span>
                             <span className="text-[9px] text-gray-400 font-normal">{c.badge}</span>
                           </button>
                         ))}
@@ -1566,7 +1671,10 @@ function BackgroundRemoverPage() {
                           className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
                         />
                         <span className="text-xs font-medium text-gray-600">
-                          Custom Hex: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">{solidColor}</code>
+                          Custom Hex:{" "}
+                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">
+                            {solidColor}
+                          </code>
                         </span>
                       </div>
                     </div>
@@ -1574,7 +1682,9 @@ function BackgroundRemoverPage() {
 
                   {bgType === "backdrop" && (
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-gray-700">Select Studio Backdrop</label>
+                      <label className="text-xs font-medium text-gray-700">
+                        Select Studio Backdrop
+                      </label>
                       <div className="grid grid-cols-2 gap-2 max-h-[190px] overflow-y-auto pr-1">
                         {BACKDROP_PRESETS.map((bp) => (
                           <button
@@ -1594,7 +1704,9 @@ function BackgroundRemoverPage() {
                               }}
                             />
                             <div>
-                              <p className="text-xs font-medium text-gray-900 leading-tight">{bp.name}</p>
+                              <p className="text-xs font-medium text-gray-900 leading-tight">
+                                {bp.name}
+                              </p>
                               <p className="text-[10px] text-gray-400 font-normal">{bp.category}</p>
                             </div>
                           </button>
@@ -1641,7 +1753,9 @@ function BackgroundRemoverPage() {
                         className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Download className="size-4" />
-                        <span>Download {bgType === "transparent" ? "Transparent PNG" : "HD Result"}</span>
+                        <span>
+                          Download {bgType === "transparent" ? "Transparent PNG" : "HD Result"}
+                        </span>
                       </button>
 
                       {bgType !== "transparent" && (
@@ -1707,7 +1821,8 @@ function BackgroundRemoverPage() {
               Stunning Results on Hair, Fur &amp; Complex Edges
             </h2>
             <p className="mt-3 text-base text-gray-600 font-normal">
-              Drag the interactive slider to inspect the actual transparent cutout over the professional checkerboard pattern.
+              Drag the interactive slider to inspect the actual transparent cutout over the
+              professional checkerboard pattern.
             </p>
           </div>
 
@@ -1737,7 +1852,8 @@ function BackgroundRemoverPage() {
               One Tool. Endless Possibilities.
             </h2>
             <p className="mt-3 text-base text-gray-600 font-normal">
-              Whether you need 100% white backgrounds for your e-commerce store or transparent stickers for social media.
+              Whether you need 100% white backgrounds for your e-commerce store or transparent
+              stickers for social media.
             </p>
           </div>
 
@@ -1758,7 +1874,9 @@ function BackgroundRemoverPage() {
                     </span>
                     <h3 className="text-xl font-medium text-gray-900">{p.title}</h3>
                     <p className="text-xs font-medium text-[#E11D48] mt-0.5">{p.subtitle}</p>
-                    <p className="text-xs text-gray-600 mt-3 leading-relaxed font-normal">{p.desc}</p>
+                    <p className="text-xs text-gray-600 mt-3 leading-relaxed font-normal">
+                      {p.desc}
+                    </p>
                   </div>
 
                   <ul className="mt-6 pt-5 border-t border-gray-100 space-y-2 text-xs text-gray-600">
@@ -1795,7 +1913,11 @@ function BackgroundRemoverPage() {
               </span>
               <h3 className="text-lg font-medium text-gray-900">Upload or Paste Image</h3>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
-                Drag and drop your JPG, PNG, WebP or HEIC file, or press <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700 font-normal">Ctrl+V</kbd> from anywhere.
+                Drag and drop your JPG, PNG, WebP or HEIC file, or press{" "}
+                <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700 font-normal">
+                  Ctrl+V
+                </kbd>{" "}
+                from anywhere.
               </p>
             </div>
 
@@ -1805,7 +1927,8 @@ function BackgroundRemoverPage() {
               </span>
               <h3 className="text-lg font-medium text-gray-900">AI Isolates Subject</h3>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
-                Our sub-pixel neural matting separates fine hair, jewelry, and products from distracting backdrops in under 5 seconds.
+                Our sub-pixel neural matting separates fine hair, jewelry, and products from
+                distracting backdrops in under 5 seconds.
               </p>
             </div>
 
@@ -1815,7 +1938,8 @@ function BackgroundRemoverPage() {
               </span>
               <h3 className="text-lg font-medium text-gray-900">Customize &amp; Download</h3>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
-                Export transparent 4K PNGs or instantly replace the background with Amazon-compliant Pure White, studio colors, or scenic backdrops.
+                Export transparent 4K PNGs or instantly replace the background with Amazon-compliant
+                Pure White, studio colors, or scenic backdrops.
               </p>
             </div>
           </div>
@@ -1835,7 +1959,8 @@ function BackgroundRemoverPage() {
                 Integrate Background Removal in 1 Line of Code
               </h2>
               <p className="text-sm text-gray-400 leading-relaxed font-normal">
-                Power your web app, e-commerce backend, or mobile tool with our high-speed global endpoints. Zero infrastructure headache.
+                Power your web app, e-commerce backend, or mobile tool with our high-speed global
+                endpoints. Zero infrastructure headache.
               </p>
               <div className="pt-2 flex flex-wrap gap-4 text-xs text-gray-400 font-normal">
                 <span className="flex items-center gap-1.5">
@@ -1947,7 +2072,8 @@ function BackgroundRemoverPage() {
               </h2>
 
               <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed font-normal">
-                Join thousands of designers, e-commerce sellers, and photographers saving hours of manual cutout work every day.
+                Join thousands of designers, e-commerce sellers, and photographers saving hours of
+                manual cutout work every day.
               </p>
 
               <div className="pt-4 flex flex-wrap justify-center gap-3">

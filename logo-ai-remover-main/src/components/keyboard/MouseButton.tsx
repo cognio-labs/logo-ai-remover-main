@@ -8,13 +8,7 @@ export interface MouseButtonProps {
   children?: React.ReactNode;
 }
 
-export function MouseButton({
-  side,
-  isPressed,
-  onPress,
-  onRelease,
-  children,
-}: MouseButtonProps) {
+export function MouseButton({ side, isPressed, onPress, onRelease, children }: MouseButtonProps) {
   const isLeft = side === "left";
   return (
     <button

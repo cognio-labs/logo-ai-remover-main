@@ -24,6 +24,8 @@ backend/storage/*_jobs/*
 !backend/storage/*_jobs/.gitkeep
 backend/storage/jobs/*
 !backend/storage/jobs/.gitkeep
+backend/storage/temp/
+supabase/.temp/
 backend/models/weights/*
 !backend/models/weights/.gitkeep
 *.tsbuildinfo

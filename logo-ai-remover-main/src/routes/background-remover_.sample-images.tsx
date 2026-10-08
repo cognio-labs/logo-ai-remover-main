@@ -274,7 +274,9 @@ function SampleImagesPage() {
           </h1>
 
           <p className="mt-4 text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto font-normal">
-            Explore real examples across people, products, animals, cars and graphics. See how Bellix removes complex backgrounds while preserving fine edges, hair, fur and product details.
+            Explore real examples across people, products, animals, cars and graphics. See how
+            Bellix removes complex backgrounds while preserving fine edges, hair, fur and product
+            details.
           </p>
 
           <p className="mt-2 text-xs text-gray-400 font-normal">
@@ -322,9 +324,7 @@ function SampleImagesPage() {
                     <span>{cat.label}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
-                        isActive
-                          ? "bg-white/25 text-white"
-                          : "bg-gray-200/80 text-gray-600"
+                        isActive ? "bg-white/25 text-white" : "bg-gray-200/80 text-gray-600"
                       }`}
                     >
                       {count}
@@ -353,9 +353,12 @@ function SampleImagesPage() {
           {/* Top Bar: Sample Count & Clear "Try your own image →" CTA */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 pb-4 border-b border-gray-100">
             <p className="text-xs sm:text-sm text-gray-500 font-medium">
-              Showing <span className="font-semibold text-gray-900">{displayedItems.length}</span> of{" "}
-              <span className="font-semibold text-gray-900">{filteredItems.length}</span> samples in{" "}
-              <span className="text-[#E11D48] font-semibold">{CATEGORY_INFO[activeCategory].label}</span>
+              Showing <span className="font-semibold text-gray-900">{displayedItems.length}</span>{" "}
+              of <span className="font-semibold text-gray-900">{filteredItems.length}</span> samples
+              in{" "}
+              <span className="text-[#E11D48] font-semibold">
+                {CATEGORY_INFO[activeCategory].label}
+              </span>
             </p>
 
             <Link
@@ -426,9 +429,7 @@ function SampleImagesPage() {
             </Link>
           </div>
 
-          <p className="text-xs text-gray-400 mt-4 font-normal">
-            No design skills required.
-          </p>
+          <p className="text-xs text-gray-400 mt-4 font-normal">No design skills required.</p>
         </div>
       </section>
     </main>

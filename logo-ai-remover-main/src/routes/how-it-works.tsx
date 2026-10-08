@@ -102,7 +102,11 @@ function HowItWorksPage() {
     { ext: "WebM", type: "Video", desc: "VP9 web video format from online sources" },
     { ext: "AVI / MKV", type: "Video", desc: "High-bitrate studio master containers" },
     { ext: "PNG", type: "Image", desc: "Lossless 8-bit and 16-bit transparent images" },
-    { ext: "JPG / JPEG", type: "Image", desc: "Standard photographic format with high compression" },
+    {
+      ext: "JPG / JPEG",
+      type: "Image",
+      desc: "Standard photographic format with high compression",
+    },
     { ext: "WebP", type: "Image", desc: "Modern web format with lossy and lossless modes" },
     { ext: "HEIC", type: "Image", desc: "Apple iPhone high-efficiency photos" },
   ];
@@ -257,9 +261,7 @@ function HowItWorksPage() {
       {/* 4. SUPPORTED FORMATS GRID */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center mb-10 space-y-2">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">
-            Supported Media Formats
-          </h2>
+          <h2 className="text-3xl font-serif font-normal text-gray-950">Supported Media Formats</h2>
           <p className="text-xs sm:text-sm text-gray-600">
             Upload from mobile, desktop, studio cameras, or web exports with full container support.
           </p>

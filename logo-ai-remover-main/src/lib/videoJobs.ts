@@ -64,7 +64,11 @@ export type VideoResult = {
   resultVersion: number;
   downloadUrls?: Record<string, string>;
 };
-const API_ORIGIN = (((import.meta as any).env?.VITE_API_URL || import.meta.env.VITE_VIDEO_API_URL) as string | undefined)?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN =
+  (
+    ((import.meta as any).env?.VITE_API_URL || import.meta.env.VITE_VIDEO_API_URL) as
+      string | undefined
+  )?.replace(/\/$/u, "") ?? "";
 
 export const apiUrl = (path: string) => `${API_ORIGIN}${path}`;
 
@@ -86,7 +90,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
       rawText = await response.text();
     }
   } catch (err) {
-    throw new Error(`Failed to read response from server (${response.status}): ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Failed to read response from server (${response.status}): ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
   if (response.ok) {
@@ -99,7 +105,8 @@ async function parseResponse<T>(response: Response): Promise<T> {
     if (bodyData.error?.message) {
       errorMessage = bodyData.error.message;
     } else if (bodyData.detail) {
-      errorMessage = typeof bodyData.detail === "string" ? bodyData.detail : JSON.stringify(bodyData.detail);
+      errorMessage =
+        typeof bodyData.detail === "string" ? bodyData.detail : JSON.stringify(bodyData.detail);
     } else if (bodyData.message) {
       errorMessage = bodyData.message;
     }
@@ -143,13 +150,19 @@ async function safeFetch<T>(url: string, init?: RequestInit): Promise<T> {
     return await parseResponse<T>(res);
   } catch (err) {
     if (err instanceof TypeError && err.message.includes("fetch")) {
-      throw new Error("Cannot connect to video processing service. Ensure the backend server is running.");
+      throw new Error(
+        "Cannot connect to video processing service. Ensure the backend server is running.",
+      );
     }
     throw err;
   }
 }
 
-export async function uploadVideo(file: File, jobId: string, signal?: AbortSignal): Promise<UploadResult> {
+export async function uploadVideo(
+  file: File,
+  jobId: string,
+  signal?: AbortSignal,
+): Promise<UploadResult> {
   const form = new FormData();
   // Field name MUST be "file" to match FastAPI UploadFile parameter exactly
   form.append("file", file, file.name);
@@ -172,7 +185,11 @@ export type ManualRegion = {
   height: number;
 };
 
-export async function processVideo(jobId: string, manualRegion?: ManualRegion | null, signal?: AbortSignal) {
+export async function processVideo(
+  jobId: string,
+  manualRegion?: ManualRegion | null,
+  signal?: AbortSignal,
+) {
   return safeFetch<{ success: boolean; jobId: string; status: "queued" }>(
     apiUrl("/api/video-watermark/process"),
     {
@@ -220,4 +237,3 @@ export function getDownloadUrl(jobId: string, quality?: "720p" | "1080p" | "4k")
   const query = quality ? `/${quality}` : "";
   return apiUrl(`/api/video-watermark/download/${encodeURIComponent(jobId)}${query}`);
 }
-

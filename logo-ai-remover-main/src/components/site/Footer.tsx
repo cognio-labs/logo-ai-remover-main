@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles, Instagram, Twitter, Linkedin, ShieldCheck, Heart, ArrowRight } from "lucide-react";
+import {
+  Sparkles,
+  Instagram,
+  Twitter,
+  Linkedin,
+  ShieldCheck,
+  Heart,
+  ArrowRight,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PinkButton } from "./PinkButton";
@@ -36,11 +44,16 @@ export function Footer() {
           </h2>
 
           <p className="mt-4 max-w-xl text-sm sm:text-base text-gray-300 font-normal leading-relaxed">
-            Eliminate watermarks, restore micro-textures, and upscale images & videos to 8K clarity with zero plastic blur.
+            Eliminate watermarks, restore micro-textures, and upscale images & videos to 8K clarity
+            with zero plastic blur.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <PinkButton size="lg" className="px-8 py-3.5 text-sm font-bold shadow-[0_10px_30px_rgba(225,29,72,0.5)]" asChild>
+            <PinkButton
+              size="lg"
+              className="px-8 py-3.5 text-sm font-bold shadow-[0_10px_30px_rgba(225,29,72,0.5)]"
+              asChild
+            >
               <Link to="/gemini-video-watermark-remover">
                 <span>Start Free Studio</span>
                 <ArrowRight className="size-4 ml-1.5" />
@@ -157,7 +170,10 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/pdf-watermark-remover" className="hover:text-[#E11D48] transition-colors">
+                <Link
+                  to="/pdf-watermark-remover"
+                  className="hover:text-[#E11D48] transition-colors"
+                >
                   PDF Watermark Remover
                 </Link>
               </li>
@@ -167,7 +183,10 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/gemini-video-watermark-remover" className="hover:text-[#E11D48] transition-colors">
+                <Link
+                  to="/gemini-video-watermark-remover"
+                  className="hover:text-[#E11D48] transition-colors"
+                >
                   Gemini Video Watermark Remover
                 </Link>
               </li>
@@ -247,6 +266,12 @@ export function Footer() {
             <span className="hover:text-gray-900 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-gray-900 cursor-pointer">Terms of Service</span>
             <span className="hover:text-gray-900 cursor-pointer">Security</span>
+            <Link
+              to="/admin"
+              className="hover:text-[#E11D48] text-gray-500 font-semibold transition-colors"
+            >
+              Admin Portal
+            </Link>
           </div>
 
           <div className="flex items-center gap-1 text-gray-400">

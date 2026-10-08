@@ -73,12 +73,10 @@ export function ModelIcon({
 
   // Primary asset mapping
   const primarySrc = MODEL_ASSET_MAP[normalizedId] || `/models/${normalizedId}.svg`;
-  
+
   // Specific fallback: if Sora fails, fall back to OpenAI official logo
   const fallbackSrc =
-    normalizedId === "sora" || normalizedId === "openai-sora"
-      ? "/models/openai.svg"
-      : null;
+    normalizedId === "sora" || normalizedId === "openai-sora" ? "/models/openai.svg" : null;
 
   const [currentSrc, setCurrentSrc] = useState(primarySrc);
 
@@ -124,4 +122,3 @@ export function ModelIcon({
 }
 
 export default ModelIcon;
-

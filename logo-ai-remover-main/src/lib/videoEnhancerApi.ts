@@ -118,7 +118,12 @@ export interface VideoCapabilitiesResponse {
     realtime_sse: boolean;
   };
 }
-const API_ORIGIN = ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL || "")?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN =
+  (
+    (import.meta as any).env?.VITE_API_URL ||
+    (import.meta as any).env?.VITE_VIDEO_API_URL ||
+    ""
+  )?.replace(/\/$/u, "") ?? "";
 const API_BASE = `${API_ORIGIN}/api/v1/video`;
 
 /**
@@ -127,7 +132,7 @@ const API_BASE = `${API_ORIGIN}/api/v1/video`;
 export async function uploadVideo(
   file: File,
   jobId?: string,
-  onProgress?: (percent: number) => void
+  onProgress?: (percent: number) => void,
 ): Promise<UploadVideoResponse> {
   const formData = new FormData();
   formData.append("file", file);
@@ -178,7 +183,7 @@ export async function uploadVideo(
 export async function inspectVideoSettings(
   jobId: string,
   scale: number,
-  targetResolution: string
+  targetResolution: string,
 ): Promise<VideoInspectionResponse> {
   const res = await fetch(`${API_BASE}/inspect`, {
     method: "POST",
@@ -258,7 +263,7 @@ export function subscribeJobEvents(
     output_metadata?: VideoStreamMetadata | null;
     error?: string | null;
   }) => void,
-  onError?: (err: Event) => void
+  onError?: (err: Event) => void,
 ): () => void {
   const sseUrl = `${API_BASE}/jobs/${jobId}/events`;
   const eventSource = new EventSource(sseUrl);

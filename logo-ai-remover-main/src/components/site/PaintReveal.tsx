@@ -22,15 +22,19 @@ const SAMPLE_IMAGES: SampleImage[] = [
   {
     id: "ai-model",
     name: "AI Portrait Model",
-    cleanSrc: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1600&auto=format&fit=crop&q=90",
-    watermarkSrc: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1600&auto=format&fit=crop&q=90",
+    cleanSrc:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1600&auto=format&fit=crop&q=90",
+    watermarkSrc:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1600&auto=format&fit=crop&q=90",
     tag: "Midjourney v6 Portrait",
   },
   {
     id: "cyberpunk-city",
     name: "Cyberpunk Metropolis",
-    cleanSrc: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=90",
-    watermarkSrc: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=90",
+    cleanSrc:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=90",
+    watermarkSrc:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop&q=90",
     tag: "Sora AI Generation",
   },
 ];
@@ -126,7 +130,7 @@ export function PaintReveal() {
       // Update cleanliness percentage estimate
       setCleanedPercent((prev) => Math.min(100, Math.round(prev + 1.2)));
     },
-    [brushSize]
+    [brushSize],
   );
 
   // Pointer event handlers

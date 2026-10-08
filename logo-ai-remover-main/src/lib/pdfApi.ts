@@ -34,7 +34,15 @@ export interface PdfProcessResponse {
 
 export interface PdfStatusResponse {
   jobId: string;
-  status: "queued" | "analyzing" | "detecting" | "restoring" | "rebuilding" | "verifying" | "completed" | "failed";
+  status:
+    | "queued"
+    | "analyzing"
+    | "detecting"
+    | "restoring"
+    | "rebuilding"
+    | "verifying"
+    | "completed"
+    | "failed";
   progress: number;
   stage: string;
   message: string;
@@ -54,13 +62,19 @@ export interface PdfResultResponse {
 }
 
 const API_ORIGIN =
-  (((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_IMAGE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined)?.replace(/\/$/u, "") ??
-  "";
+  (
+    ((import.meta as any).env?.VITE_API_URL ||
+      (import.meta as any).env?.VITE_IMAGE_API_URL ||
+      (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined
+  )?.replace(/\/$/u, "") ?? "";
 
 export const apiPdfUrl = (path: string) => `${API_ORIGIN}${path}`;
 
-export const pdfPreviewUrl = (jobId: string, page: number = 1, type: "original" | "cleaned" = "original") =>
-  apiPdfUrl(`/api/pdf/preview/${encodeURIComponent(jobId)}/${page}?type=${type}`);
+export const pdfPreviewUrl = (
+  jobId: string,
+  page: number = 1,
+  type: "original" | "cleaned" = "original",
+) => apiPdfUrl(`/api/pdf/preview/${encodeURIComponent(jobId)}/${page}?type=${type}`);
 
 export const pdfDownloadUrl = (jobId: string) =>
   apiPdfUrl(`/api/pdf/download/${encodeURIComponent(jobId)}`);
@@ -78,10 +92,7 @@ async function parse<T>(response: Response): Promise<T> {
   throw new Error(detail);
 }
 
-export async function uploadPdfDocument(
-  file: File,
-  jobId?: string,
-): Promise<PdfUploadResponse> {
+export async function uploadPdfDocument(file: File, jobId?: string): Promise<PdfUploadResponse> {
   const form = new FormData();
   form.append("file", file);
   if (jobId) form.append("jobId", jobId);
@@ -97,12 +108,9 @@ export async function detectPdfWatermarks(
   jobId: string,
   page: number = 1,
 ): Promise<PdfDetectResponse> {
-  const res = await fetch(
-    apiPdfUrl(`/api/pdf/detect/${encodeURIComponent(jobId)}?page=${page}`),
-    {
-      method: "POST",
-    },
-  );
+  const res = await fetch(apiPdfUrl(`/api/pdf/detect/${encodeURIComponent(jobId)}?page=${page}`), {
+    method: "POST",
+  });
   return parse<PdfDetectResponse>(res);
 }
 
@@ -123,13 +131,10 @@ export async function processPdfDocument(
     form.append("manualRegions", JSON.stringify(options.manualRegions));
   }
 
-  const res = await fetch(
-    apiPdfUrl(`/api/pdf/process/${encodeURIComponent(jobId)}`),
-    {
-      method: "POST",
-      body: form,
-    },
-  );
+  const res = await fetch(apiPdfUrl(`/api/pdf/process/${encodeURIComponent(jobId)}`), {
+    method: "POST",
+    body: form,
+  });
   return parse<PdfProcessResponse>(res);
 }
 

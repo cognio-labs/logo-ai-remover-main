@@ -43,7 +43,16 @@ export interface BackgroundJobMetadata {
 
 export interface BackgroundJobResponse {
   id: string;
-  status: "created" | "validating" | "preparing" | "segmenting" | "refining" | "compositing" | "verifying" | "completed" | "failed";
+  status:
+    | "created"
+    | "validating"
+    | "preparing"
+    | "segmenting"
+    | "refining"
+    | "compositing"
+    | "verifying"
+    | "completed"
+    | "failed";
   progress: number;
   stage: string;
   message: string;
@@ -67,7 +76,12 @@ export interface DirectRemovalResult {
   result_url: string;
   mask_url: string;
 }
-const API_ORIGIN = ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.VITE_VIDEO_API_URL || "")?.replace(/\/$/u, "") ?? "";
+const API_ORIGIN =
+  (
+    (import.meta as any).env?.VITE_API_URL ||
+    (import.meta as any).env?.VITE_VIDEO_API_URL ||
+    ""
+  )?.replace(/\/$/u, "") ?? "";
 const API_BASE = `${API_ORIGIN}/api/v1`;
 
 /**
@@ -76,7 +90,7 @@ const API_BASE = `${API_ORIGIN}/api/v1`;
 export async function removeBackgroundDirect(
   file: File | Blob,
   fileName = "image.png",
-  options: BackgroundOptions = {}
+  options: BackgroundOptions = {},
 ): Promise<DirectRemovalResult> {
   const formData = new FormData();
   formData.append("image", file, fileName);
@@ -109,7 +123,7 @@ export async function removeBackgroundDirect(
 export async function createBackgroundJob(
   file: File | Blob,
   fileName = "image.png",
-  options: BackgroundOptions = {}
+  options: BackgroundOptions = {},
 ): Promise<BackgroundJobResponse> {
   const formData = new FormData();
   formData.append("image", file, fileName);
@@ -146,7 +160,7 @@ export async function pollBackgroundJob(
   jobId: string,
   onProgress?: (job: BackgroundJobResponse) => void,
   intervalMs = 400,
-  maxTimeoutMs = 120000
+  maxTimeoutMs = 120000,
 ): Promise<BackgroundJobResponse> {
   const start = Date.now();
 
@@ -183,7 +197,7 @@ export async function pollBackgroundJob(
  */
 export async function recompositeBackground(
   jobId: string,
-  options: BackgroundOptions
+  options: BackgroundOptions,
 ): Promise<{ status: string; job_id: string; preview_url: string; download_url: string }> {
   const payload = {
     job_id: jobId,
@@ -195,7 +209,13 @@ export async function recompositeBackground(
       quality_mode: options.quality_mode || "standard",
       edge_refinement: options.edge_refinement ?? true,
       color_decontamination: options.color_decontamination ?? true,
-      shadow: options.shadow || { enabled: false, offset_x: 0, offset_y: 15, blur: 25, opacity: 0.35 },
+      shadow: options.shadow || {
+        enabled: false,
+        offset_x: 0,
+        offset_y: 15,
+        blur: 25,
+        opacity: 0.35,
+      },
     },
   };
 
@@ -219,7 +239,7 @@ export async function recompositeBackground(
 export async function refineMaskStrokes(
   jobId: string,
   strokes: ManualStroke[],
-  edgeRefine = true
+  edgeRefine = true,
 ): Promise<{ status: string; job_id: string; preview_url: string; mask_url: string }> {
   const payload = {
     job_id: jobId,
@@ -242,7 +262,9 @@ export async function refineMaskStrokes(
 }
 
 export function getDownloadUrl(jobId: string, format?: string): string {
-  return format ? `${API_BASE}/jobs/${jobId}/download?format=${format}` : `${API_BASE}/jobs/${jobId}/download`;
+  return format
+    ? `${API_BASE}/jobs/${jobId}/download?format=${format}`
+    : `${API_BASE}/jobs/${jobId}/download`;
 }
 
 export function getPreviewUrl(jobId: string): string {

@@ -63,7 +63,15 @@ interface ShowcaseDoc {
   description: string;
   removedItems: string[];
   metrics: { label: string; value: string }[];
-  docType: "invoice" | "contract" | "blueprint" | "certificate" | "research" | "medical" | "form" | "ebook";
+  docType:
+    | "invoice"
+    | "contract"
+    | "blueprint"
+    | "certificate"
+    | "research"
+    | "medical"
+    | "form"
+    | "ebook";
   watermarkText: string;
   watermarkColor: string;
 }
@@ -77,7 +85,11 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Eliminates Large 'PAID / VOID' Overlay Stamps Without Distorting Financial Figures",
     description:
       "Financial documents frequently have heavy diagonal audit stamps or 'SAMPLE COPY' marks that obscure critical VAT numbers, item totals, and account IBANs. Our temporal neural filter isolates vector ink from raster stamp overlays, reconstructing pristine white paper background behind every single digit.",
-    removedItems: ["Diagonal 'PAID IN FULL' red ink stamp", "Stock billing watermark pattern", "Accounting audit seal"],
+    removedItems: [
+      "Diagonal 'PAID IN FULL' red ink stamp",
+      "Stock billing watermark pattern",
+      "Accounting audit seal",
+    ],
     metrics: [
       { label: "Number Clarity", value: "100% Preserved" },
       { label: "Paper Texture", value: "Lossless Rebuild" },
@@ -95,7 +107,11 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Removes 'CONFIDENTIAL / DRAFT' Watermarks Across Multi-Page Legal Typography",
     description:
       "Watermarks stamped across paragraph clauses often cause OCR distortion and look unprofessional during client review. Bellix.us extracts the semi-transparent red/gray draft watermark layer while maintaining 100% razor-sharp serif typography and clause paragraph numbers.",
-    removedItems: ["45° 'STRICTLY CONFIDENTIAL' stamp", "Draft review revision mark", "Law firm background seal"],
+    removedItems: [
+      "45° 'STRICTLY CONFIDENTIAL' stamp",
+      "Draft review revision mark",
+      "Law firm background seal",
+    ],
     metrics: [
       { label: "Font Sharpness", value: "Zero Anti-Aliasing Loss" },
       { label: "Alignment", value: "100% Intact" },
@@ -110,10 +126,15 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     category: "Architecture & Engineering",
     badge: "CAD & Structural",
     title: "Architectural Blueprint & Floorplan",
-    headline: "Erases Complex CAD Software Grid Watermarks Without Breaking Critical Dimension Lines",
+    headline:
+      "Erases Complex CAD Software Grid Watermarks Without Breaking Critical Dimension Lines",
     description:
       "Engineering blueprints and CAD exports often come with evaluation trial stamps or checkered pattern grids that obstruct measurements, wall thicknesses, and elevation markers. The inpainting network follows line geometry to erase only the watermark mesh.",
-    removedItems: ["AutoCAD evaluation banner", "Trial grid overlay lines", "Architect firm copyright stamp"],
+    removedItems: [
+      "AutoCAD evaluation banner",
+      "Trial grid overlay lines",
+      "Architect firm copyright stamp",
+    ],
     metrics: [
       { label: "CAD Vector Lines", value: "Sub-pixel Precision" },
       { label: "Dimension Text", value: "100% Readable" },
@@ -131,7 +152,11 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Cleans Obsolete Verification Seals and Specimen Marks from High-Value Credentials",
     description:
       "Certificates often get marked with 'SPECIMEN', 'SAMPLE', or outdated issuer stamps. Bellix.us reconstructs intricate guilloche security borders, parchment textures, and calligraphy lettering so the final document is ready for official portfolio presentation.",
-    removedItems: ["Archived 'SPECIMEN' watermark stamp", "Faint diagonal sample overlay", "Issuer trial watermark"],
+    removedItems: [
+      "Archived 'SPECIMEN' watermark stamp",
+      "Faint diagonal sample overlay",
+      "Issuer trial watermark",
+    ],
     metrics: [
       { label: "Guilloche Border", value: "Flawless Vector" },
       { label: "Color Tone", value: "True Parchment" },
@@ -164,10 +189,15 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     category: "Healthcare & Diagnostics",
     badge: "Clinical & Lab",
     title: "Medical Diagnostic Lab Report",
-    headline: "Safely Cleans Hospital Evaluation Stamps While Preserving Critical Diagnostic Readings",
+    headline:
+      "Safely Cleans Hospital Evaluation Stamps While Preserving Critical Diagnostic Readings",
     description:
       "Patient records stamped with 'SAMPLE RECORD' or 'COPY NOT FOR CLINICAL USE' need cleaning for case-study presentations. Bellix.us maintains pixel-level accuracy across blood counts, reference ranges, and physician notes.",
-    removedItems: ["Red 'SAMPLE RECORD' rubber stamp", "Hospital archival watermark", "Fax transmission stamp"],
+    removedItems: [
+      "Red 'SAMPLE RECORD' rubber stamp",
+      "Hospital archival watermark",
+      "Fax transmission stamp",
+    ],
     metrics: [
       { label: "Table Structure", value: "100% Intact" },
       { label: "Numeric Values", value: "Zero Alteration" },
@@ -185,7 +215,11 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Strips Heavy Watermark Scans and Moire Patterns from Old Archival Documents",
     description:
       "Public record documents and land deeds often suffer from micro-dot watermark security patterns that degrade readability. Our dual-channel frequency separator isolates and removes the repetitive background noise.",
-    removedItems: ["Micro-dot security grid", "Municipal archive watermark", "County clerk copy stamp"],
+    removedItems: [
+      "Micro-dot security grid",
+      "Municipal archive watermark",
+      "County clerk copy stamp",
+    ],
     metrics: [
       { label: "Stamp Isolation", value: "Sub-pixel Clean" },
       { label: "Handwriting Ink", value: "Preserved" },
@@ -203,7 +237,11 @@ const SHOWCASE_ITEMS: ShowcaseDoc[] = [
     headline: "Eradicates Full-Page Repeating Watermark Grids Across Hundreds of Book Pages",
     description:
       "Publishers watermarking review copies with reviewer emails across every page ruin the reading experience. Bellix.us cleans the pattern batch-wise, outputting a publisher-grade PDF with original font embedding and margins intact.",
-    removedItems: ["Full-page reviewer email grid", "Sample chapter banner", "Copyright watermark band"],
+    removedItems: [
+      "Full-page reviewer email grid",
+      "Sample chapter banner",
+      "Copyright watermark band",
+    ],
     metrics: [
       { label: "Page Formatting", value: "100% Original" },
       { label: "Font Kerning", value: "Zero Shift" },
@@ -299,7 +337,7 @@ export default function PdfWatermarkRemoverPage() {
       setProgress(0);
       setActiveDocPreset(null);
       toast.success(
-        `Uploaded "${file.name}" ready for watermark removal (${resp.pageCount} page${resp.pageCount > 1 ? "s" : ""}).`
+        `Uploaded "${file.name}" ready for watermark removal (${resp.pageCount} page${resp.pageCount > 1 ? "s" : ""}).`,
       );
     } catch (err) {
       setIsProcessing(false);
@@ -329,7 +367,10 @@ export default function PdfWatermarkRemoverPage() {
   };
 
   // High-fidelity vector SVG document generator for instant preset samples
-  const getSampleSvgDataUrl = (type: "invoice" | "contract" | "blueprint", withWatermark: boolean) => {
+  const getSampleSvgDataUrl = (
+    type: "invoice" | "contract" | "blueprint",
+    withWatermark: boolean,
+  ) => {
     let svgContent = "";
     if (type === "invoice") {
       svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
@@ -368,10 +409,14 @@ export default function PdfWatermarkRemoverPage() {
   <text x="740" y="478" font-family="system-ui" font-size="14" font-weight="700" fill="#e11d48">$16,197.50</text>
   <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Authorized Signature: Validated Digitally · Bellix.us Verified</text>
   <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
-  ${withWatermark ? `<g transform="translate(450,310) rotate(-22)">
+  ${
+    withWatermark
+      ? `<g transform="translate(450,310) rotate(-22)">
     <rect x="-260" y="-42" width="520" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">PAID SAMPLE COPY</text>
-  </g>` : ""}
+  </g>`
+      : ""
+  }
 </svg>`;
     } else if (type === "contract") {
       svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
@@ -397,10 +442,14 @@ export default function PdfWatermarkRemoverPage() {
   <text x="480" y="480" font-family="system-ui" font-size="12" fill="#9ca3af">Signatory: Elena Rostova, General Counsel</text>
   <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Electronic Seal: SHA-256 Validated · Bellix.us Verified</text>
   <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
-  ${withWatermark ? `<g transform="translate(450,300) rotate(-22)">
+  ${
+    withWatermark
+      ? `<g transform="translate(450,300) rotate(-22)">
     <rect x="-280" y="-42" width="560" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">CONFIDENTIAL · DRAFT</text>
-  </g>` : ""}
+  </g>`
+      : ""
+  }
 </svg>`;
     } else {
       svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
@@ -428,10 +477,14 @@ export default function PdfWatermarkRemoverPage() {
   <text x="600" y="280" font-family="monospace" font-size="11" fill="#cbd5e1">• Thermal insulation R-30</text>
   <text x="60" y="550" font-family="monospace" font-size="12" fill="#64748b">CAD Vector Geometry · Sub-pixel Verification Passed</text>
   <text x="780" y="550" font-family="monospace" font-size="12" fill="#64748b">SHEET A-102</text>
-  ${withWatermark ? `<g transform="translate(450,300) rotate(-22)">
+  ${
+    withWatermark
+      ? `<g transform="translate(450,300) rotate(-22)">
     <rect x="-290" y="-42" width="580" height="84" rx="12" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.5"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#ef4444" opacity="0.5" text-anchor="middle" letter-spacing="5">TRIAL · NOT FOR BUILD</text>
-  </g>` : ""}
+  </g>`
+      : ""
+  }
 </svg>`;
     }
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
@@ -444,8 +497,8 @@ export default function PdfWatermarkRemoverPage() {
       type === "invoice"
         ? "Commercial_Invoice_2026.pdf"
         : type === "contract"
-        ? "Global_NDA_Agreement.pdf"
-        : "Architectural_Plan_RevB.pdf";
+          ? "Global_NDA_Agreement.pdf"
+          : "Architectural_Plan_RevB.pdf";
 
     // Set high-fidelity vector previews instantly
     const origUrl = getSampleSvgDataUrl(type, true);
@@ -513,11 +566,11 @@ export default function PdfWatermarkRemoverPage() {
       setDetectedRegions(resp.regions);
       if (resp.regions.length > 0) {
         toast.success(
-          `Identified ${resp.regions.length} watermark & overlay zone${resp.regions.length > 1 ? "s" : ""}!`
+          `Identified ${resp.regions.length} watermark & overlay zone${resp.regions.length > 1 ? "s" : ""}!`,
         );
       } else {
         toast.info(
-          `No obvious removable marks found on page ${currentPage}. Click or drag on the canvas to mark a region.`
+          `No obvious removable marks found on page ${currentPage}. Click or drag on the canvas to mark a region.`,
         );
       }
     } catch (err) {
@@ -634,7 +687,8 @@ export default function PdfWatermarkRemoverPage() {
             setIsProcessing(false);
             setIsCompleted(true);
             setStageText("Clean PDF ready");
-            const cleanedUrl = pdfPreviewUrl(activeJobId, currentPage, "cleaned") + `&v=${Date.now()}`;
+            const cleanedUrl =
+              pdfPreviewUrl(activeJobId, currentPage, "cleaned") + `&v=${Date.now()}`;
             setCleanedPreviewUrl(cleanedUrl);
             setOriginalPreviewUrl(pdfPreviewUrl(activeJobId, currentPage, "original"));
             setPreviewUrl(cleanedUrl);
@@ -736,17 +790,21 @@ export default function PdfWatermarkRemoverPage() {
 
           {/* Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-gray-900 mb-4">
-            AI PDF &amp; Document <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">Watermark Remover</span>
+            AI PDF &amp; Document{" "}
+            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+              Watermark Remover
+            </span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 mb-10 leading-relaxed font-normal">
-            Select or paint over unwanted watermarks, stamps, logos, or background drafts. Our neural inpaint engine reconstructs the original document structure with 100% crisp typography.
+            Select or paint over unwanted watermarks, stamps, logos, or background drafts. Our
+            neural inpaint engine reconstructs the original document structure with 100% crisp
+            typography.
           </p>
 
           {/* MAIN INTERACTIVE CLEANER CARD (Matches /background-remover & /upscale modern two-column studio architecture) */}
           <div className="max-w-6xl mx-auto bg-white/95 backdrop-blur-xl rounded-3xl border border-[#FCE7EC] shadow-[0_20px_60px_-15px_rgba(225,29,72,0.12)] p-6 sm:p-8 transition-all">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
               {/* LEFT COLUMN: UPLOADER DROPZONE OR DOCUMENT CANVAS (lg:col-span-7) */}
               <div className="lg:col-span-7">
                 {!previewUrl && !currentJobId ? (
@@ -791,10 +849,16 @@ export default function PdfWatermarkRemoverPage() {
                     </span>
 
                     <h3 className="text-xl font-medium text-gray-900 tracking-tight">
-                      {isDragging ? "Drop your PDF or document right here" : "Drop your PDF or document here"}
+                      {isDragging
+                        ? "Drop your PDF or document right here"
+                        : "Drop your PDF or document here"}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
-                      PDF, PNG, JPG or WebP · Up to 50MB · Paste (<kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">Ctrl+V</kbd>)
+                      PDF, PNG, JPG or WebP · Up to 50MB · Paste (
+                      <kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">
+                        Ctrl+V
+                      </kbd>
+                      )
                     </p>
 
                     <button
@@ -809,7 +873,9 @@ export default function PdfWatermarkRemoverPage() {
                       <span>Upload PDF / Image</span>
                     </button>
 
-                    <span className="text-[11px] text-gray-400 mt-2 font-normal">or click anywhere to browse</span>
+                    <span className="text-[11px] text-gray-400 mt-2 font-normal">
+                      or click anywhere to browse
+                    </span>
                   </div>
                 ) : (
                   /* STATE 2: DOCUMENT LOADED WORKSPACE WITH TOP TOOLBAR */
@@ -902,7 +968,10 @@ export default function PdfWatermarkRemoverPage() {
                             <img
                               src={previewUrl}
                               alt="Document Preview"
-                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              style={{
+                                transform: `scale(${zoomLevel})`,
+                                transformOrigin: "center center",
+                              }}
                               className="max-h-full max-w-full object-contain pointer-events-none select-none bg-[#f9fafb] transition-transform duration-150"
                             />
                           </div>
@@ -916,7 +985,9 @@ export default function PdfWatermarkRemoverPage() {
                               key={idx}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setManualRegions((prev) => prev.filter((_, i) => i !== idx - detectedRegions.length));
+                                setManualRegions((prev) =>
+                                  prev.filter((_, i) => i !== idx - detectedRegions.length),
+                                );
                                 setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
                                 toast.info("Removed target area.");
                               }}
@@ -943,14 +1014,18 @@ export default function PdfWatermarkRemoverPage() {
                               <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
                               <Wand2 className="absolute inset-0 m-auto size-6 text-[#E11D48]" />
                             </div>
-                            <p className="text-sm font-bold text-gray-800 mb-2">{stageText || "Analyzing PDF…"}</p>
+                            <p className="text-sm font-bold text-gray-800 mb-2">
+                              {stageText || "Analyzing PDF…"}
+                            </p>
                             <div className="w-52 bg-rose-100 rounded-full h-2 overflow-hidden">
                               <div
                                 className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
-                            <span className="text-xs text-rose-600 font-mono mt-1 font-bold">{progress}%</span>
+                            <span className="text-xs text-rose-600 font-mono mt-1 font-bold">
+                              {progress}%
+                            </span>
                           </div>
                         )}
                       </div>
@@ -963,13 +1038,18 @@ export default function PdfWatermarkRemoverPage() {
                               <FileText className="size-3 text-gray-500" />
                               Original
                             </span>
-                            <span className="font-mono text-gray-400">{currentPage}/{totalPages}</span>
+                            <span className="font-mono text-gray-400">
+                              {currentPage}/{totalPages}
+                            </span>
                           </div>
                           <div className="relative aspect-[16/11] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-1.5">
                             <img
                               src={originalPreviewUrl || previewUrl || ""}
                               alt="Original"
-                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              style={{
+                                transform: `scale(${zoomLevel})`,
+                                transformOrigin: "center center",
+                              }}
                               className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
                             />
                           </div>
@@ -981,13 +1061,18 @@ export default function PdfWatermarkRemoverPage() {
                               <CheckCircle2 className="size-3 text-emerald-600" />
                               Cleaned
                             </span>
-                            <span className="font-mono text-emerald-600">{currentPage}/{totalPages}</span>
+                            <span className="font-mono text-emerald-600">
+                              {currentPage}/{totalPages}
+                            </span>
                           </div>
                           <div className="relative aspect-[16/11] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-1.5">
                             <img
                               src={cleanedPreviewUrl || ""}
                               alt="Cleaned"
-                              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                              style={{
+                                transform: `scale(${zoomLevel})`,
+                                transformOrigin: "center center",
+                              }}
                               className="max-h-full max-w-full object-contain pointer-events-none select-none transition-transform duration-150"
                             />
                           </div>
@@ -1011,7 +1096,9 @@ export default function PdfWatermarkRemoverPage() {
                       type="button"
                       onClick={() => setCleanMode("auto")}
                       className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "auto" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                        cleanMode === "auto"
+                          ? "bg-white text-gray-950 shadow-xs font-semibold"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       Auto Inpaint
@@ -1020,7 +1107,9 @@ export default function PdfWatermarkRemoverPage() {
                       type="button"
                       onClick={() => setCleanMode("vector")}
                       className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "vector" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                        cleanMode === "vector"
+                          ? "bg-white text-gray-950 shadow-xs font-semibold"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       Vector Lossless
@@ -1029,7 +1118,9 @@ export default function PdfWatermarkRemoverPage() {
                       type="button"
                       onClick={() => setCleanMode("text")}
                       className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "text" ? "bg-white text-gray-950 shadow-xs font-semibold" : "hover:text-gray-900"
+                        cleanMode === "text"
+                          ? "bg-white text-gray-950 shadow-xs font-semibold"
+                          : "hover:text-gray-900"
                       }`}
                     >
                       OCR Preserved
@@ -1054,7 +1145,9 @@ export default function PdfWatermarkRemoverPage() {
                         }`}
                       >
                         <Receipt className="size-4 text-[#E11D48]" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Tax Invoice</span>
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
+                          Tax Invoice
+                        </span>
                         <span className="text-[9px] text-gray-400">Paid stamp</span>
                       </button>
 
@@ -1069,7 +1162,9 @@ export default function PdfWatermarkRemoverPage() {
                         }`}
                       >
                         <Scale className="size-4 text-purple-600" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Legal NDA</span>
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
+                          Legal NDA
+                        </span>
                         <span className="text-[9px] text-gray-400">Confidential</span>
                       </button>
 
@@ -1084,7 +1179,9 @@ export default function PdfWatermarkRemoverPage() {
                         }`}
                       >
                         <Building className="size-4 text-sky-600" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">Blueprint</span>
+                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
+                          Blueprint
+                        </span>
                         <span className="text-[9px] text-gray-400">CAD mark</span>
                       </button>
                     </div>
@@ -1230,7 +1327,6 @@ export default function PdfWatermarkRemoverPage() {
       {/* -------------------------------------------------------------------- */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-[#E11D48] mb-3">
               <Sparkle className="w-3.5 h-3.5" />
@@ -1240,7 +1336,8 @@ export default function PdfWatermarkRemoverPage() {
               See 8 Real-World PDF &amp; Document Restorations
             </h2>
             <p className="text-base text-gray-600 leading-relaxed">
-              Every document type presents unique challenges—from delicate mathematical formulas to micro-print financial figures. Inspect our Before &amp; After proof below.
+              Every document type presents unique challenges—from delicate mathematical formulas to
+              micro-print financial figures. Inspect our Before &amp; After proof below.
             </p>
           </div>
 
@@ -1264,16 +1361,13 @@ export default function PdfWatermarkRemoverPage() {
                   </div>
 
                   {/* Title & Headline */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {item.title}
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
                   <p className="text-sm font-semibold text-[#E11D48] mb-4 leading-snug">
                     "{item.headline}"
                   </p>
 
                   {/* INTERACTIVE BEFORE/AFTER VISUAL SPLIT */}
                   <div className="relative aspect-[16/9] w-full rounded-2xl border border-rose-200/80 bg-white overflow-hidden shadow-inner mb-6 select-none group">
-                    
                     {/* Left/Right Split Simulation */}
                     <div className="absolute inset-0 flex">
                       {/* BEFORE SIDE (LEFT 50%) */}
@@ -1281,7 +1375,7 @@ export default function PdfWatermarkRemoverPage() {
                         <div className="absolute top-2 left-2 text-[9px] font-bold font-sans uppercase bg-rose-500 text-white px-2 py-0.5 rounded shadow-sm z-10">
                           Before (With Watermark)
                         </div>
-                        
+
                         {/* Watermark stamped across */}
                         <div className="absolute inset-0 flex items-center justify-center rotate-[-22deg] pointer-events-none">
                           <span
@@ -1392,7 +1486,8 @@ export default function PdfWatermarkRemoverPage() {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Your PDF or Scan</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Drag and drop your PDF, image, or scan. We support multi-page text PDFs, scanned documents, invoices, and blueprints up to 50MB.
+                Drag and drop your PDF, image, or scan. We support multi-page text PDFs, scanned
+                documents, invoices, and blueprints up to 50MB.
               </p>
             </div>
 
@@ -1402,7 +1497,8 @@ export default function PdfWatermarkRemoverPage() {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Auto-Detect or Brush Marks</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Click “Auto-Detect” to identify repeating watermark patterns and confidential stamps, or brush over specific unwanted areas manually.
+                Click “Auto-Detect” to identify repeating watermark patterns and confidential
+                stamps, or brush over specific unwanted areas manually.
               </p>
             </div>
 
@@ -1412,7 +1508,8 @@ export default function PdfWatermarkRemoverPage() {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Download Pristine Output</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Review the side-by-side comparison and export your document as a clean, high-resolution vector PDF or 4K lossless image in seconds.
+                Review the side-by-side comparison and export your document as a clean,
+                high-resolution vector PDF or 4K lossless image in seconds.
               </p>
             </div>
           </div>

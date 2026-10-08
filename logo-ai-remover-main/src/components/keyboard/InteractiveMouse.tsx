@@ -83,11 +83,7 @@ export function InteractiveMouse({
         {/* Top Click Zones with Center Seam & Wheel */}
         <div className="relative w-full h-24 flex items-stretch border-b border-[#E8E8E8]/70">
           {/* Left Click Area */}
-          <MouseButton
-            side="left"
-            isPressed={leftPressed}
-            onPress={handleLeftClick}
-          />
+          <MouseButton side="left" isPressed={leftPressed} onPress={handleLeftClick} />
 
           {/* Central Scroll Wheel Slot */}
           <div className="absolute left-1/2 top-4 -translate-x-1/2 z-20 flex flex-col items-center">
@@ -95,11 +91,7 @@ export function InteractiveMouse({
           </div>
 
           {/* Right Click Area */}
-          <MouseButton
-            side="right"
-            isPressed={rightPressed}
-            onPress={() => handleRightClick()}
-          />
+          <MouseButton side="right" isPressed={rightPressed} onPress={() => handleRightClick()} />
         </div>
 
         {/* Minimal Palm Rest with Brand Dot */}
@@ -150,7 +142,9 @@ export function InteractiveMouse({
                 <Zap className="size-3 text-[#E11D48]" />
                 <span className="font-medium">Instant Inpaint</span>
               </div>
-              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">␣</span>
+              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">
+                ␣
+              </span>
             </button>
 
             <button
@@ -166,7 +160,9 @@ export function InteractiveMouse({
                 <Image className="size-3 text-[#E11D48]" />
                 <span className="font-medium">8K AI Upscale</span>
               </div>
-              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">U</span>
+              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">
+                U
+              </span>
             </button>
 
             <button
@@ -182,7 +178,9 @@ export function InteractiveMouse({
                 <Video className="size-3 text-[#E11D48]" />
                 <span className="font-medium">Video AI Clean</span>
               </div>
-              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">V</span>
+              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">
+                V
+              </span>
             </button>
 
             <button
@@ -198,7 +196,9 @@ export function InteractiveMouse({
                 <FileText className="size-3 text-[#E11D48]" />
                 <span className="font-medium">PDF Cleaner</span>
               </div>
-              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">P</span>
+              <span className="text-[9px] font-mono text-[#737373] bg-[#F0F0F0] px-1 rounded">
+                P
+              </span>
             </button>
           </div>
 

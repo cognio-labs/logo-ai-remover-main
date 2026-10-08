@@ -11,10 +11,7 @@ export interface CustomShowcaseCursorProps {
   ripples: ClickRipple[];
 }
 
-export function CustomShowcaseCursor({
-  cursorPos,
-  ripples,
-}: CustomShowcaseCursorProps) {
+export function CustomShowcaseCursor({ cursorPos, ripples }: CustomShowcaseCursorProps) {
   return (
     <>
       {/* Tiny Click Ripples */}

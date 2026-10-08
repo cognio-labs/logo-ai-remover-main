@@ -84,7 +84,10 @@ async function processCardImages() {
   // 1. Sub-pixel face
   const facePath = path.join(OUT_DIR, "subpixel_face.jpg");
   if (fs.existsSync(facePath)) {
-    const high = await sharp(facePath).resize(500, 500, { fit: "cover" }).jpeg({ quality: 92 }).toBuffer();
+    const high = await sharp(facePath)
+      .resize(500, 500, { fit: "cover" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, "card_subpixel_high.jpg"), high);
 
     const low = await sharp(facePath)
@@ -100,7 +103,10 @@ async function processCardImages() {
   // 2. Mountain lake
   const mountainPath = path.join(OUT_DIR, "mountain_lake.jpg");
   if (fs.existsSync(mountainPath)) {
-    const high = await sharp(mountainPath).resize(500, 500, { fit: "cover" }).jpeg({ quality: 92 }).toBuffer();
+    const high = await sharp(mountainPath)
+      .resize(500, 500, { fit: "cover" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, "card_mountain_high.jpg"), high);
 
     const low = await sharp(mountainPath)
@@ -115,7 +121,10 @@ async function processCardImages() {
   // 3. Skin detail
   const skinPath = path.join(OUT_DIR, "skin_detail.jpg");
   if (fs.existsSync(skinPath)) {
-    const high = await sharp(skinPath).resize(500, 500, { fit: "cover" }).jpeg({ quality: 92 }).toBuffer();
+    const high = await sharp(skinPath)
+      .resize(500, 500, { fit: "cover" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, "card_skin_high.jpg"), high);
 
     const low = await sharp(skinPath)
@@ -130,7 +139,10 @@ async function processCardImages() {
   // 4. Wildlife texture (Snow Leopard fur & whiskers)
   const wildlifePath = path.join(OUT_DIR, "wildlife.png");
   if (fs.existsSync(wildlifePath)) {
-    const high = await sharp(wildlifePath).resize(500, 500, { fit: "cover", position: "centre" }).jpeg({ quality: 92 }).toBuffer();
+    const high = await sharp(wildlifePath)
+      .resize(500, 500, { fit: "cover", position: "centre" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, "card_fur_high.jpg"), high);
 
     const low = await sharp(wildlifePath)
@@ -146,7 +158,10 @@ async function processCardImages() {
   // 6. Smart Edge Restoration (Portrait edge)
   const portraitPath = path.join(OUT_DIR, "portrait.png");
   if (fs.existsSync(portraitPath)) {
-    const high = await sharp(portraitPath).resize(500, 500, { fit: "cover", position: "top" }).jpeg({ quality: 92 }).toBuffer();
+    const high = await sharp(portraitPath)
+      .resize(500, 500, { fit: "cover", position: "top" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, "card_edge_high.jpg"), high);
 
     const low = await sharp(portraitPath)

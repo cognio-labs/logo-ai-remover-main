@@ -60,7 +60,12 @@ export function ImageUploader({
 
   // Object URL management: revoke previous blob only when replaced with another local blob
   const safeSetPreviewUrl = (newUrl: string | null) => {
-    if (prevPreviewUrlRef.current && prevPreviewUrlRef.current !== newUrl && prevPreviewUrlRef.current.startsWith("blob:") && newUrl !== null) {
+    if (
+      prevPreviewUrlRef.current &&
+      prevPreviewUrlRef.current !== newUrl &&
+      prevPreviewUrlRef.current.startsWith("blob:") &&
+      newUrl !== null
+    ) {
       URL.revokeObjectURL(prevPreviewUrlRef.current);
     }
     prevPreviewUrlRef.current = newUrl;
@@ -74,7 +79,9 @@ export function ImageUploader({
     setErrorMsg(null);
 
     // 1. File Type Validation
-    const isSupported = ALLOWED_TYPES.some((t) => file.type.toLowerCase().includes(t.replace("image/", ""))) || file.type.startsWith("image/");
+    const isSupported =
+      ALLOWED_TYPES.some((t) => file.type.toLowerCase().includes(t.replace("image/", ""))) ||
+      file.type.startsWith("image/");
     if (!isSupported) {
       const err = "Please upload a supported image file (PNG, JPG, WebP, GIF, AVIF).";
       setErrorMsg(err);
@@ -133,9 +140,14 @@ export function ImageUploader({
 
       // Do not intercept text paste in input / textarea
       const target = e.target as HTMLElement;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
         // If clipboard contains NO image, let normal text paste proceed
-        const hasImage = Array.from(e.clipboardData?.items || []).some((item) => item.type.startsWith("image/"));
+        const hasImage = Array.from(e.clipboardData?.items || []).some((item) =>
+          item.type.startsWith("image/"),
+        );
         if (!hasImage) return;
       }
 
@@ -209,7 +221,9 @@ export function ImageUploader({
 
     if (disabled || isProcessing) return;
 
-    const file = e.dataTransfer.files?.[0] || (e.dataTransfer.items?.[0]?.kind === "file" ? e.dataTransfer.items[0].getAsFile() : null);
+    const file =
+      e.dataTransfer.files?.[0] ||
+      (e.dataTransfer.items?.[0]?.kind === "file" ? e.dataTransfer.items[0].getAsFile() : null);
     if (file) {
       handleImageFile(file);
     }
@@ -312,11 +326,7 @@ export function ImageUploader({
 
           {/* Actual Visible Image Preview Frame */}
           <div className="up-preview-canvas" onClick={openFilePicker} title="Click to change image">
-            <img
-              src={previewUrl}
-              alt="Uploaded image preview"
-              className="uploaded-image"
-            />
+            <img src={previewUrl} alt="Uploaded image preview" className="uploaded-image" />
           </div>
 
           {/* Footer with "Ready to Upscale" and "Change Image" */}

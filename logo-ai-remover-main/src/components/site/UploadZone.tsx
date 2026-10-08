@@ -12,7 +12,14 @@ type Props = {
   compact?: boolean;
 };
 
-export function UploadZone({ accept, hint, type = "image", onFile, onAutoDetect, compact = false }: Props) {
+export function UploadZone({
+  accept,
+  hint,
+  type = "image",
+  onFile,
+  onAutoDetect,
+  compact = false,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
@@ -120,7 +127,9 @@ export function UploadZone({ accept, hint, type = "image", onFile, onAutoDetect,
       onDrop={(e) => {
         e.preventDefault();
         setOver(false);
-        const file = e.dataTransfer.files?.[0] || (e.dataTransfer.items?.[0]?.kind === "file" ? e.dataTransfer.items[0].getAsFile() : null);
+        const file =
+          e.dataTransfer.files?.[0] ||
+          (e.dataTransfer.items?.[0]?.kind === "file" ? e.dataTransfer.items[0].getAsFile() : null);
         handle(file);
       }}
       onClick={() => inputRef.current?.click()}
@@ -131,11 +140,15 @@ export function UploadZone({ accept, hint, type = "image", onFile, onAutoDetect,
       }`}
     >
       {/* Pink upload icon with subtle pulse */}
-      <span className={`flex ${compact ? "size-12 rounded-2xl" : "size-18 rounded-3xl"} items-center justify-center bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)] transition-transform hover:scale-105`}>
+      <span
+        className={`flex ${compact ? "size-12 rounded-2xl" : "size-18 rounded-3xl"} items-center justify-center bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)] transition-transform hover:scale-105`}
+      >
         <UploadCloud className={`${compact ? "size-6" : "size-8"} text-white`} />
       </span>
 
-      <h3 className={`${compact ? "mt-3 text-lg sm:text-xl" : "mt-5 text-xl sm:text-2xl"} font-display font-bold text-gray-900 tracking-tight`}>
+      <h3
+        className={`${compact ? "mt-3 text-lg sm:text-xl" : "mt-5 text-xl sm:text-2xl"} font-display font-bold text-gray-900 tracking-tight`}
+      >
         Drop your {type} here
       </h3>
       <p className={`${compact ? "mt-1" : "mt-1.5"} max-w-md text-sm text-gray-500 font-medium`}>
@@ -143,7 +156,9 @@ export function UploadZone({ accept, hint, type = "image", onFile, onAutoDetect,
       </p>
 
       {/* Buttons */}
-      <div className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap items-center justify-center gap-3`}>
+      <div
+        className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap items-center justify-center gap-3`}
+      >
         <PinkButton
           type="button"
           size="md"
@@ -172,7 +187,9 @@ export function UploadZone({ accept, hint, type = "image", onFile, onAutoDetect,
         )}
       </div>
 
-      <div className={`${compact ? "mt-4" : "mt-6"} flex items-center gap-1.5 text-xs text-gray-400 font-medium`}>
+      <div
+        className={`${compact ? "mt-4" : "mt-6"} flex items-center gap-1.5 text-xs text-gray-400 font-medium`}
+      >
         <ShieldCheck className="size-3.5 text-[#E11D48]" />
         <span>Files processed securely in isolated memory • Never used for training</span>
       </div>

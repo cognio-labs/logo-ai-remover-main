@@ -1,7 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChangeEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, ArrowLeftRight, ArrowRight, Check, ChevronRight, Download, Feather, ImageUp, Layers3, LockKeyhole, RefreshCw, RotateCcw, ScanSearch, ShieldCheck, SlidersHorizontal, Sparkles, Upload, WandSparkles, Zap } from "lucide-react";
-import { FeatureComparisonCard, type FeatureCardData } from "@/components/upscale/FeatureComparisonCard";
+import {
+  AlertTriangle,
+  ArrowLeftRight,
+  ArrowRight,
+  Check,
+  ChevronRight,
+  Download,
+  Feather,
+  ImageUp,
+  Layers3,
+  LockKeyhole,
+  RefreshCw,
+  RotateCcw,
+  ScanSearch,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Upload,
+  WandSparkles,
+  Zap,
+} from "lucide-react";
+import {
+  FeatureComparisonCard,
+  type FeatureCardData,
+} from "@/components/upscale/FeatureComparisonCard";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import { HeroComparisonSlider } from "@/components/upscale/HeroComparisonSlider";
 import { ImageUploader, type ImageFileMetadata } from "@/components/upscale/ImageUploader";
@@ -17,7 +40,7 @@ export function calculateMaxSafeDimensions(
   origW: number,
   origH: number,
   maxPixels: number = MAX_SAFE_IMAGE_PIXELS,
-  maxDim: number = MAX_SAFE_IMAGE_DIMENSION
+  maxDim: number = MAX_SAFE_IMAGE_DIMENSION,
 ): { safeWidth: number; safeHeight: number; safeScale: number } {
   if (origW <= 0 || origH <= 0) return { safeWidth: 0, safeHeight: 0, safeScale: 1 };
   const sPixels = Math.sqrt(maxPixels / (origW * origH));
@@ -30,7 +53,8 @@ export function calculateMaxSafeDimensions(
 }
 
 export const Route = createFileRoute("/upscale")({
-  head: () => ({ meta: [{ title: "AI Upscaler — Bellix.us" }] }), component: UpscalePage,
+  head: () => ({ meta: [{ title: "AI Upscaler — Bellix.us" }] }),
+  component: UpscalePage,
 });
 type Scale = "2" | "4" | "8";
 type Format = "PNG" | "JPG";
@@ -60,7 +84,8 @@ const SHOWCASE_ITEMS: ShowcaseItem[] = [
     category: "PEOPLE • SKIN • HAIR • DETAIL",
     title: "Professional Portrait",
     statement: "Recover natural facial detail.",
-    description: "Recover natural facial detail and fine textures without making the image look artificial.",
+    description:
+      "Recover natural facial detail and fine textures without making the image look artificial.",
     source: "512 × 512",
     output: "4096 × 4096",
     scale: "8",
@@ -146,7 +171,8 @@ const FEATURE_CARDS: FeatureCardData[] = [
     icon: ScanSearch,
     centerIcon: ArrowRight,
     title: "Sub-Pixel Reconstruction",
-    description: "Rebuilds fine structures such as skin pores, fabric weave, hair and natural texture.",
+    description:
+      "Rebuilds fine structures such as skin pores, fabric weave, hair and natural texture.",
     lowImage: "/upscale/card_subpixel_low.jpg",
     highImage: "/upscale/card_subpixel_high.jpg",
   },
@@ -155,7 +181,8 @@ const FEATURE_CARDS: FeatureCardData[] = [
     icon: Feather,
     centerIcon: ArrowRight,
     title: "Zero-Plastic Finishing",
-    description: "Avoids fake, oversmoothed cartoon looks. Enhances authentic high-frequency details.",
+    description:
+      "Avoids fake, oversmoothed cartoon looks. Enhances authentic high-frequency details.",
     lowImage: "/upscale/card_skin_low.jpg",
     highImage: "/upscale/card_skin_high.jpg",
   },
@@ -191,12 +218,46 @@ const FEATURE_CARDS: FeatureCardData[] = [
     icon: Zap,
     centerIcon: Zap,
     title: "Smart Edge Restoration",
-    description: "Repairs compression damage and soft edges while keeping the image visually natural.",
+    description:
+      "Repairs compression damage and soft edges while keeping the image visually natural.",
     lowImage: "/upscale/card_edge_low.jpg",
     highImage: "/upscale/card_edge_high.jpg",
   },
 ];
-const FAQS = [["How does Bellix.us upscale an image without making it look artificial?","Bellix.us focuses on rebuilding fine visual structures such as edges, textures and micro-detail instead of simply stretching existing pixels. The goal is a sharper result that still feels natural."],["Which upscale level should I choose: 2, 4 or 8?","Use 2 for already-good images that need extra resolution, 4 for most web and creative work, and 8 when starting from smaller images or when a much larger output is required."],["Will the aspect ratio of my image change?","No. Upscaling increases resolution while preserving the original image proportions unless you intentionally crop or resize it separately."],["Does it work with AI-generated images?","Yes. The enhancement workflow can be used with AI artwork, portraits, concept art, product images, illustrations and other generated visuals."],["Can it improve faces and skin without creating a plastic look?","The portrait enhancement mode should prioritize natural skin texture, eyelashes, hair and facial detail while avoiding excessive smoothing."],["Can Bellix.us enhance logos and typography?","Yes. Graphic-focused enhancement can improve text edges, logos, symbols and other high-contrast design elements."],["Which image formats are supported?","Support common formats such as PNG, JPG, JPEG, WebP and AVIF, with the exact size limit shown beside the uploader."],["Are uploaded images private?","Images are processed according to Bellix.us's privacy policy. Review the current policy for the applicable processing, storage and deletion practices before uploading sensitive material."]];
+const FAQS = [
+  [
+    "How does Bellix.us upscale an image without making it look artificial?",
+    "Bellix.us focuses on rebuilding fine visual structures such as edges, textures and micro-detail instead of simply stretching existing pixels. The goal is a sharper result that still feels natural.",
+  ],
+  [
+    "Which upscale level should I choose: 2, 4 or 8?",
+    "Use 2 for already-good images that need extra resolution, 4 for most web and creative work, and 8 when starting from smaller images or when a much larger output is required.",
+  ],
+  [
+    "Will the aspect ratio of my image change?",
+    "No. Upscaling increases resolution while preserving the original image proportions unless you intentionally crop or resize it separately.",
+  ],
+  [
+    "Does it work with AI-generated images?",
+    "Yes. The enhancement workflow can be used with AI artwork, portraits, concept art, product images, illustrations and other generated visuals.",
+  ],
+  [
+    "Can it improve faces and skin without creating a plastic look?",
+    "The portrait enhancement mode should prioritize natural skin texture, eyelashes, hair and facial detail while avoiding excessive smoothing.",
+  ],
+  [
+    "Can Bellix.us enhance logos and typography?",
+    "Yes. Graphic-focused enhancement can improve text edges, logos, symbols and other high-contrast design elements.",
+  ],
+  [
+    "Which image formats are supported?",
+    "Support common formats such as PNG, JPG, JPEG, WebP and AVIF, with the exact size limit shown beside the uploader.",
+  ],
+  [
+    "Are uploaded images private?",
+    "Images are processed according to Bellix.us's privacy policy. Review the current policy for the applicable processing, storage and deletion practices before uploading sensitive material.",
+  ],
+];
 
 function UpscaleComparisonSlider({
   beforeImage,
@@ -421,8 +482,14 @@ function UpscalePage() {
             const result = await getImageResult(activeJobId);
             setResultUrl(apiImageUrl(`${result.upscaledImageUrl}?v=${result.resultVersion}`));
             setDimensions({
-              original: { width: result.metadata.originalWidth, height: result.metadata.originalHeight },
-              upscaled: { width: result.metadata.upscaledWidth, height: result.metadata.upscaledHeight },
+              original: {
+                width: result.metadata.originalWidth,
+                height: result.metadata.originalHeight,
+              },
+              upscaled: {
+                width: result.metadata.upscaledWidth,
+                height: result.metadata.upscaledHeight,
+              },
             });
             setResultSize(formatBytes(result.metadata.fileSizeBytes));
             setRunning(false);
@@ -440,7 +507,7 @@ function UpscalePage() {
             });
 
             toast.success(
-              `✦ Crystal-clear ${scale}× upscale complete! (${result.metadata.upscaledWidth}×${result.metadata.upscaledHeight}px)`
+              `✦ Crystal-clear ${scale}× upscale complete! (${result.metadata.upscaledWidth}×${result.metadata.upscaledHeight}px)`,
             );
           } else if (status.status === "failed") {
             if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
@@ -473,7 +540,9 @@ function UpscalePage() {
       const blob = await response.blob();
       const ext = item.image.endsWith(".jpg") ? "jpg" : "png";
       const fileName = `${item.name.toLowerCase().replaceAll(" ", "-")}.${ext}`;
-      const file = new File([blob], fileName, { type: blob.type || (ext === "jpg" ? "image/jpeg" : "image/png") });
+      const file = new File([blob], fileName, {
+        type: blob.type || (ext === "jpg" ? "image/jpeg" : "image/png"),
+      });
 
       const dims = await getImageDimensions(item.image);
       const meta: ImageFileMetadata = {
@@ -536,7 +605,7 @@ function UpscalePage() {
     link.click();
     document.body.removeChild(link);
     toast.success(
-      `Downloading ${dimensions.upscaled ? `${dimensions.upscaled.width}×${dimensions.upscaled.height}px ` : ""}${format} master...`
+      `Downloading ${dimensions.upscaled ? `${dimensions.upscaled.width}×${dimensions.upscaled.height}px ` : ""}${format} master...`,
     );
   };
 
@@ -546,8 +615,13 @@ function UpscalePage() {
         <div className="up-shell">
           <div className="up-intro">
             <p className="up-eyebrow">AI IMAGE UPSCALER</p>
-            <h1>Turn Low-Resolution Images Into <em>Crystal-Clear 4K &amp; 8K</em></h1>
-            <p>Restore texture, recover fine details and upscale your images while keeping them natural, sharp and realistic.</p>
+            <h1>
+              Turn Low-Resolution Images Into <em>Crystal-Clear 4K &amp; 8K</em>
+            </h1>
+            <p>
+              Restore texture, recover fine details and upscale your images while keeping them
+              natural, sharp and realistic.
+            </p>
           </div>
 
           {/* Quick Demo Preset Pills */}
@@ -557,7 +631,11 @@ function UpscalePage() {
               <button
                 key={p.name}
                 type="button"
-                className={fileMetadata?.name.includes(p.name.toLowerCase().replaceAll(" ", "-")) ? "active" : ""}
+                className={
+                  fileMetadata?.name.includes(p.name.toLowerCase().replaceAll(" ", "-"))
+                    ? "active"
+                    : ""
+                }
                 onClick={() => loadDemo(p)}
               >
                 <img src={p.image} alt={p.name} />
@@ -570,13 +648,26 @@ function UpscalePage() {
           <div className="up-tool-card">
             <div className="up-tool-copy">
               <p className="up-eyebrow">AI IMAGE UPSCALER</p>
-              <h2>Turn Low-Resolution Images Into <span>Crystal-Clear 4K &amp; 8K</span></h2>
-              <p>Restore texture, recover fine details and upscale your images while keeping them natural, sharp and realistic.</p>
+              <h2>
+                Turn Low-Resolution Images Into <span>Crystal-Clear 4K &amp; 8K</span>
+              </h2>
+              <p>
+                Restore texture, recover fine details and upscale your images while keeping them
+                natural, sharp and realistic.
+              </p>
               <div className="up-trust">
-                <span><Check /> No Watermark</span>
-                <span><ShieldCheck /> Private Processing</span>
-                <span><Sparkles /> Natural Detail</span>
-                <span><ImageUp /> 4K &amp; 8K Ready</span>
+                <span>
+                  <Check /> No Watermark
+                </span>
+                <span>
+                  <ShieldCheck /> Private Processing
+                </span>
+                <span>
+                  <Sparkles /> Natural Detail
+                </span>
+                <span>
+                  <ImageUp /> 4K &amp; 8K Ready
+                </span>
               </div>
             </div>
 
@@ -626,7 +717,9 @@ function UpscalePage() {
                         meta.height * 2 <= MAX_SAFE_IMAGE_DIMENSION;
                       if (can2x && scale !== "2") {
                         setScale("2");
-                        toast.info(`Large image (${meta.width}×${meta.height}px). Auto-switched to safe 2× scale.`);
+                        toast.info(
+                          `Large image (${meta.width}×${meta.height}px). Auto-switched to safe 2× scale.`,
+                        );
                       }
                     }
                   }}
@@ -655,17 +748,27 @@ function UpscalePage() {
                       }}
                       className={scale === x ? "selected" : ""}
                     >
-                      {x}<small>×</small>
+                      {x}
+                      <small>×</small>
                     </button>
                   ))}
                 </div>
                 {fileMetadata && fileMetadata.width > 0 ? (
                   <div className="mt-1.5 flex items-center justify-between text-[11px] text-gray-500">
                     <span className={safeInfo.isExceeded ? "text-rose-600 font-medium" : ""}>
-                      Target: <b>{targetW.toLocaleString()} × {targetH.toLocaleString()} px</b>
+                      Target:{" "}
+                      <b>
+                        {targetW.toLocaleString()} × {targetH.toLocaleString()} px
+                      </b>
                       {safeInfo.isExceeded && " (Exceeds Limit)"}
                     </span>
-                    <span className={safeInfo.isExceeded ? "font-semibold text-rose-600" : "font-semibold text-[#E11D48]"}>
+                    <span
+                      className={
+                        safeInfo.isExceeded
+                          ? "font-semibold text-rose-600"
+                          : "font-semibold text-[#E11D48]"
+                      }
+                    >
                       {scale}× {scale === "8" ? "8K" : scale === "4" ? "4K" : "HD"}
                     </span>
                   </div>
@@ -681,13 +784,20 @@ function UpscalePage() {
                       <AlertTriangle className="size-4 shrink-0 text-rose-500 mt-0.5" />
                       <div className="space-y-1">
                         <p className="font-semibold text-rose-800 leading-snug">
-                          {scale}× output exceeds the maximum supported image size. Choose 2× or reduce the source/output dimensions.
+                          {scale}× output exceeds the maximum supported image size. Choose 2× or
+                          reduce the source/output dimensions.
                         </p>
                         <p className="text-[11px] text-rose-600 leading-normal">
-                          Target pixel count ({Math.round(targetPixels / 1_000_000)}M px) exceeds safe processing limit ({Math.round(MAX_SAFE_IMAGE_PIXELS / 1_000_000)}M px).
+                          Target pixel count ({Math.round(targetPixels / 1_000_000)}M px) exceeds
+                          safe processing limit ({Math.round(MAX_SAFE_IMAGE_PIXELS / 1_000_000)}M
+                          px).
                         </p>
                         <p className="text-[11px] text-rose-700">
-                          Max safe dimensions: <b>{safeInfo.safeWidth.toLocaleString()} × {safeInfo.safeHeight.toLocaleString()} px</b>
+                          Max safe dimensions:{" "}
+                          <b>
+                            {safeInfo.safeWidth.toLocaleString()} ×{" "}
+                            {safeInfo.safeHeight.toLocaleString()} px
+                          </b>
                         </p>
                       </div>
                     </div>
@@ -738,7 +848,10 @@ function UpscalePage() {
               </div>
 
               {errorMsg && (
-                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-red-600">
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-red-600"
+                >
                   {errorMsg}
                 </div>
               )}
@@ -746,22 +859,22 @@ function UpscalePage() {
               {done && resultUrl ? (
                 <>
                   <div className="up-result-meta">
-                    <span><b>Original:</b> {dimensions.original?.width || 512} × {dimensions.original?.height || 512}</span>
-                    <span><b>Upscaled:</b> {dimensions.upscaled?.width || 2048} × {dimensions.upscaled?.height || 2048} ({scale}× HD)</span>
-                    <span><b>Output:</b> {format} · {resultSize || "Ultra HD"}</span>
+                    <span>
+                      <b>Original:</b> {dimensions.original?.width || 512} ×{" "}
+                      {dimensions.original?.height || 512}
+                    </span>
+                    <span>
+                      <b>Upscaled:</b> {dimensions.upscaled?.width || 2048} ×{" "}
+                      {dimensions.upscaled?.height || 2048} ({scale}× HD)
+                    </span>
+                    <span>
+                      <b>Output:</b> {format} · {resultSize || "Ultra HD"}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    className="up-start"
-                    onClick={download}
-                  >
+                  <button type="button" className="up-start" onClick={download}>
                     <Download className="size-4" /> Download Upscaled Image ({scale}× {format})
                   </button>
-                  <button
-                    type="button"
-                    className="up-reset-btn"
-                    onClick={resetAll}
-                  >
+                  <button type="button" className="up-reset-btn" onClick={resetAll}>
                     <RotateCcw className="size-3" /> Upscale Another Image
                   </button>
                 </>
@@ -776,8 +889,8 @@ function UpscalePage() {
                   {running
                     ? "Upscaling Image…"
                     : safeInfo.isExceeded
-                    ? "Safe Limit Exceeded"
-                    : "Start Upscaling"}
+                      ? "Safe Limit Exceeded"
+                      : "Start Upscaling"}
                 </button>
               )}
             </aside>
@@ -795,7 +908,8 @@ function UpscalePage() {
               See Every Detail Come Back to Life
             </h2>
             <p className="mt-3 text-base text-gray-600 font-normal leading-relaxed">
-              Drag the interactive slider to reveal how Bellix.us restores texture, clarity and detail from low-quality images.
+              Drag the interactive slider to reveal how Bellix.us restores texture, clarity and
+              detail from low-quality images.
             </p>
           </header>
 
@@ -841,25 +955,19 @@ function UpscalePage() {
                         <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
                           SOURCE
                         </span>
-                        <span className="text-xs font-semibold text-gray-800">
-                          {item.source}
-                        </span>
+                        <span className="text-xs font-semibold text-gray-800">{item.source}</span>
                       </div>
                       <div className="bg-white/85 border border-gray-200/60 rounded-xl p-2 text-center shadow-2xs">
                         <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
                           OUTPUT
                         </span>
-                        <span className="text-xs font-semibold text-gray-800">
-                          {item.output}
-                        </span>
+                        <span className="text-xs font-semibold text-gray-800">{item.output}</span>
                       </div>
                       <div className="bg-white/85 border border-gray-200/60 rounded-xl p-2 text-center shadow-2xs">
                         <span className="text-[8.5px] uppercase font-semibold text-gray-400 block tracking-wider">
                           UPSCALE
                         </span>
-                        <span className="text-xs font-semibold text-gray-800">
-                          {item.scale}×
-                        </span>
+                        <span className="text-xs font-semibold text-gray-800">{item.scale}×</span>
                       </div>
                     </div>
 
@@ -882,10 +990,14 @@ function UpscalePage() {
           <header className="up-section-heading">
             <p className="up-eyebrow">BUILT FOR REAL DETAIL</p>
             <h2>More Than More Pixels</h2>
-            <p>Bellix.us reconstructs the visual information that ordinary resizing leaves behind.</p>
+            <p>
+              Bellix.us reconstructs the visual information that ordinary resizing leaves behind.
+            </p>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {FEATURE_CARDS.map(card => <FeatureComparisonCard key={card.id} card={card} />)}
+            {FEATURE_CARDS.map((card) => (
+              <FeatureComparisonCard key={card.id} card={card} />
+            ))}
           </div>
         </div>
       </section>
@@ -898,7 +1010,7 @@ function UpscalePage() {
           [ShieldCheck, "Natural-Looking Results", "No plastic oversmoothing"],
           [LockKeyhole, "Private Image Processing", "Your uploads remain protected"],
           [SlidersHorizontal, "Multiple Upscale Levels", "Choose 2, 4 or 8"],
-          [Sparkles, "AI + Photography Ready", "Portraits, art, products and graphics"]
+          [Sparkles, "AI + Photography Ready", "Portraits, art, products and graphics"],
         ].map(([Icon, title, copy]) => {
           const I = Icon as typeof ShieldCheck;
           return (
@@ -962,4 +1074,3 @@ function UpscalePage() {
     </main>
   );
 }
-

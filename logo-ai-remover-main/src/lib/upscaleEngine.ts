@@ -42,7 +42,7 @@ export async function upscaleImageCanvas(
   scale: number,
   mode: string,
   format: "PNG" | "JPG" = "PNG",
-  removeLogo: boolean = true
+  removeLogo: boolean = true,
 ): Promise<UpscaleResult> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -137,7 +137,7 @@ export async function upscaleImageCanvas(
           saturation = 1.03;
           sharpen = 0.22;
         } else if (mode === "Art") {
-          contrast = 1.10;
+          contrast = 1.1;
           saturation = 1.12;
           sharpen = 0.35;
         } else if (mode === "Product") {
@@ -207,7 +207,7 @@ export async function upscaleImageCanvas(
           });
         },
         mime,
-        quality
+        quality,
       );
     };
 
@@ -219,12 +219,7 @@ export async function upscaleImageCanvas(
   });
 }
 
-function applyUnsharpMask(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  strength: number
-) {
+function applyUnsharpMask(ctx: CanvasRenderingContext2D, w: number, h: number, strength: number) {
   const src = ctx.getImageData(0, 0, w, h);
   const srcData = src.data;
   const dst = ctx.createImageData(w, h);

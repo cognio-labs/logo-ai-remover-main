@@ -23,7 +23,10 @@ export const PinkScanLoader: React.FC<PinkScanLoaderProps> = ({
         {isCompleted ? (
           <CheckCircle2 className="w-8 h-8 text-white" />
         ) : (
-          <Sparkles className="w-8 h-8 text-white animate-spin" style={{ animationDuration: "6s" }} />
+          <Sparkles
+            className="w-8 h-8 text-white animate-spin"
+            style={{ animationDuration: "6s" }}
+          />
         )}
       </div>
 

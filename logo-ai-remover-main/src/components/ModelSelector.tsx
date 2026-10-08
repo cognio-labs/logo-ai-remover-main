@@ -10,12 +10,7 @@ export interface ModelCardProps {
   className?: string;
 }
 
-export function ModelCard({
-  model,
-  isSelected = false,
-  onSelect,
-  className = "",
-}: ModelCardProps) {
+export function ModelCard({ model, isSelected = false, onSelect, className = "" }: ModelCardProps) {
   return (
     <div
       role="button"
@@ -50,9 +45,7 @@ export function ModelCard({
           <span className="text-[11px] font-mono text-gray-600 tracking-tight truncate font-semibold">
             {model.version}
           </span>
-          <span className="text-[10px] text-gray-500 line-clamp-1">
-            {model.description}
-          </span>
+          <span className="text-[10px] text-gray-500 line-clamp-1">{model.description}</span>
         </div>
       </div>
 

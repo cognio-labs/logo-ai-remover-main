@@ -102,7 +102,7 @@ export function InteractiveKeyboard({
         });
       }, 150);
     },
-    [soundOn, onKeyPress, navigate]
+    [soundOn, onKeyPress, navigate],
   );
 
   // Global physical keyboard listeners
@@ -139,7 +139,7 @@ export function InteractiveKeyboard({
 
       const allKeys = MAC_KEYBOARD_ROWS.flat();
       const matched = allKeys.find(
-        (k) => k.code === e.code || k.label.toLowerCase() === e.key.toLowerCase()
+        (k) => k.code === e.code || k.label.toLowerCase() === e.key.toLowerCase(),
       );
 
       if (matched) {
@@ -225,17 +225,52 @@ export function InteractiveKeyboard({
 
   // Filtered commands for CMD+K palette
   const commandList = [
-    { label: "8K AI Upscaler", shortcut: "U", route: "/upscale", desc: "Super-resolution neural upscaling" },
-    { label: "AI Background Remover", shortcut: "B", route: "/background-remover", desc: "Sub-pixel alpha edge background removal" },
-    { label: "Video Watermark Remover", shortcut: "V", route: "/remove/video", desc: "Clean Gemini & Veo video watermarks" },
-    { label: "PDF Watermark Cleaner", shortcut: "P", route: "/pdf-watermark-remover", desc: "Clean document stamps & logos" },
-    { label: "Instant Inpaint Studio", shortcut: "SPACE", route: "/remove/image", desc: "Direct neural brush & inpaint" },
-    { label: "Gemini Video Cleaner", shortcut: "G", route: "/gemini-video-watermark-remover", desc: "Specialized Gemini logo remover" },
-    { label: "Pricing Plans", shortcut: "$", route: "/pricing", desc: "View flexible credit tiers" },
+    {
+      label: "8K AI Upscaler",
+      shortcut: "U",
+      route: "/upscale",
+      desc: "Super-resolution neural upscaling",
+    },
+    {
+      label: "AI Background Remover",
+      shortcut: "B",
+      route: "/background-remover",
+      desc: "Sub-pixel alpha edge background removal",
+    },
+    {
+      label: "Video Watermark Remover",
+      shortcut: "V",
+      route: "/remove/video",
+      desc: "Clean Gemini & Veo video watermarks",
+    },
+    {
+      label: "PDF Watermark Cleaner",
+      shortcut: "P",
+      route: "/pdf-watermark-remover",
+      desc: "Clean document stamps & logos",
+    },
+    {
+      label: "Instant Inpaint Studio",
+      shortcut: "SPACE",
+      route: "/remove/image",
+      desc: "Direct neural brush & inpaint",
+    },
+    {
+      label: "Gemini Video Cleaner",
+      shortcut: "G",
+      route: "/gemini-video-watermark-remover",
+      desc: "Specialized Gemini logo remover",
+    },
+    {
+      label: "Pricing Plans",
+      shortcut: "$",
+      route: "/pricing",
+      desc: "View flexible credit tiers",
+    },
   ].filter(
     (c) =>
       c.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.desc.toLowerCase().includes(searchQuery.toLowerCase())
+      c.desc.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -280,10 +315,7 @@ export function InteractiveKeyboard({
 
           {/* Mac-Style White Precision Mouse */}
           <div className="shrink-0 flex items-center justify-center pt-2 lg:pt-0">
-            <InteractiveMouse
-              enableSound={soundOn}
-              onAction={handleMouseAction}
-            />
+            <InteractiveMouse enableSound={soundOn} onAction={handleMouseAction} />
           </div>
         </div>
 
@@ -297,7 +329,9 @@ export function InteractiveKeyboard({
             onClick={() => setCommandPaletteOpen(true)}
             className="hover:text-[#171717] hover:underline flex items-center gap-1 cursor-pointer"
           >
-            <kbd className="px-1 py-0.5 rounded bg-[#F0F0F0] border border-[#E0E0E0] text-[9px]">⌘K</kbd>
+            <kbd className="px-1 py-0.5 rounded bg-[#F0F0F0] border border-[#E0E0E0] text-[9px]">
+              ⌘K
+            </kbd>
             <span>Command Palette</span>
           </button>
           <span>•</span>
@@ -306,7 +340,9 @@ export function InteractiveKeyboard({
             onClick={() => setShortcutsHelpOpen(true)}
             className="hover:text-[#171717] hover:underline flex items-center gap-1 cursor-pointer"
           >
-            <kbd className="px-1 py-0.5 rounded bg-[#F0F0F0] border border-[#E0E0E0] text-[9px]">⌘/</kbd>
+            <kbd className="px-1 py-0.5 rounded bg-[#F0F0F0] border border-[#E0E0E0] text-[9px]">
+              ⌘/
+            </kbd>
             <span>Keyboard Shortcuts</span>
           </button>
         </div>
@@ -385,7 +421,9 @@ export function InteractiveKeyboard({
             {/* Modal Footer */}
             <div className="px-4 py-2 bg-[#FAFAFA] border-t border-[#E5E5E5] flex items-center justify-between text-[10px] font-mono text-[#737373]">
               <span>Navigation: Click or press Hotkey</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-[#FFFFFF] border border-[#E5E5E5]">ESC to close</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-[#FFFFFF] border border-[#E5E5E5]">
+                ESC to close
+              </kbd>
             </div>
           </div>
         </div>
@@ -423,27 +461,39 @@ export function InteractiveKeyboard({
             <div className="space-y-2 text-xs">
               <div className="flex items-center justify-between py-1 border-b border-[#F0F0F0]">
                 <span className="text-[#525252]">8K AI Upscale</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">U</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">
+                  U
+                </kbd>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#F0F0F0]">
                 <span className="text-[#525252]">Video AI Watermark Remover</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">V</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">
+                  V
+                </kbd>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#F0F0F0]">
                 <span className="text-[#525252]">PDF Document Cleaner</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">P</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">
+                  P
+                </kbd>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#F0F0F0]">
                 <span className="text-[#525252]">Instant Neural Inpaint Fill</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">SPACE</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">
+                  SPACE
+                </kbd>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-[#F0F0F0]">
                 <span className="text-[#525252]">Execute Primary Model</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">ENTER</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#E11D48]">
+                  ENTER
+                </kbd>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span className="text-[#525252]">Open Command Palette</span>
-                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#171717]">⌘K</kbd>
+                <kbd className="px-2 py-0.5 rounded bg-[#F5F5F5] border border-[#E5E5E5] font-mono font-bold text-[#171717]">
+                  ⌘K
+                </kbd>
               </div>
             </div>
 

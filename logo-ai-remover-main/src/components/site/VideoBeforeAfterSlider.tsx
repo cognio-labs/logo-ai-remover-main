@@ -206,7 +206,9 @@ export function VideoBeforeAfterSlider({
       {/* Helper text below card */}
       <div className="mt-3 text-center text-xs font-semibold text-gray-500 flex items-center justify-center gap-2">
         <span className="text-[#E11D48] font-bold">⇄ Drag the red line:</span>
-        <span>Left shows video with Gemini logo • Right reveals pristine video with logo removed</span>
+        <span>
+          Left shows video with Gemini logo • Right reveals pristine video with logo removed
+        </span>
       </div>
     </div>
   );

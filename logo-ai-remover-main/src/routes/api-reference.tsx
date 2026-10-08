@@ -267,7 +267,11 @@ func main() {
                 onClick={handleCopyCode}
                 className="ml-3 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold transition-colors border border-gray-700"
               >
-                {copied ? <Check className="size-3.5 text-green-400" /> : <Copy className="size-3.5" />}
+                {copied ? (
+                  <Check className="size-3.5 text-green-400" />
+                ) : (
+                  <Copy className="size-3.5" />
+                )}
                 <span>{copied ? "Copied" : "Copy"}</span>
               </button>
             </div>
@@ -292,7 +296,7 @@ func main() {
                       webhook_registered: true,
                     },
                     null,
-                    2
+                    2,
                   )
                 : JSON.stringify(
                     {
@@ -302,7 +306,7 @@ func main() {
                       latency_ms: 380,
                     },
                     null,
-                    2
+                    2,
                   )}
             </pre>
           </div>
@@ -328,8 +332,8 @@ func main() {
               <span className="text-xs text-gray-500">Asynchronous Video Removal</span>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Submit a video URL for spatio-temporal watermark erasure. Returns a job ID and triggers
-              your webhook upon completion.
+              Submit a video URL for spatio-temporal watermark erasure. Returns a job ID and
+              triggers your webhook upon completion.
             </p>
           </div>
 

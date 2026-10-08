@@ -40,7 +40,8 @@ export type LandingPageProps = Omit<
   "sourceUrl" | "title" | "customization" | "backgroundCanvasSelector" | "backgroundVisualSelector"
 >;
 
-const URL_FRAME_SANDBOX = "allow-downloads allow-forms allow-modals allow-popups allow-same-origin allow-scripts";
+const URL_FRAME_SANDBOX =
+  "allow-downloads allow-forms allow-modals allow-popups allow-same-origin allow-scripts";
 const SRCDOC_FRAME_SANDBOX = "allow-downloads allow-forms allow-modals allow-popups allow-scripts";
 
 const BACKGROUND_PRESENTATION_STYLE_ID = "threeui-background-presentation";
@@ -133,7 +134,11 @@ export function LandingPageFrame({
   useEffect(() => {
     applyPageCustomization(frameRef.current, customization);
     postPageCustomization(frameRef.current, customization);
-    applyBackgroundPresentation(frameRef.current, backgroundCanvasSelector, backgroundVisualSelector);
+    applyBackgroundPresentation(
+      frameRef.current,
+      backgroundCanvasSelector,
+      backgroundVisualSelector,
+    );
     if (frameRef.current) applyScene?.(frameRef.current);
   }, [applyScene, backgroundCanvasSelector, backgroundVisualSelector, customization]);
 
@@ -141,7 +146,13 @@ export function LandingPageFrame({
     <div
       className={`threeui-background landing-page-frame${className ? ` ${className}` : ""}`}
       data-state={ready ? "ready" : "loading"}
-      style={{ position: "relative", overflow: "hidden", background: style?.background || "transparent", pointerEvents: "auto", ...style }}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: style?.background || "transparent",
+        pointerEvents: "auto",
+        ...style,
+      }}
     >
       <iframe
         ref={frameRef}
@@ -152,7 +163,11 @@ export function LandingPageFrame({
         onLoad={(event) => {
           applyPageCustomization(event.currentTarget, customization);
           postPageCustomization(event.currentTarget, customization);
-          applyBackgroundPresentation(event.currentTarget, backgroundCanvasSelector, backgroundVisualSelector);
+          applyBackgroundPresentation(
+            event.currentTarget,
+            backgroundCanvasSelector,
+            backgroundVisualSelector,
+          );
           applyScene?.(event.currentTarget);
           setReady(true);
         }}
