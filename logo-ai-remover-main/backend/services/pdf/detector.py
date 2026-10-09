@@ -40,6 +40,7 @@ REMOVABLE_ANNOT_TYPE_IDS = {
     pymupdf.PDF_ANNOT_STAMP,       # 13
     pymupdf.PDF_ANNOT_WATERMARK,   # 22
     pymupdf.PDF_ANNOT_FREE_TEXT,   # 2  — only if content matches keywords
+    pymupdf.PDF_ANNOT_HIGHLIGHT,   # 8  — only a wide, visibly colored overlay
 }
 
 ALWAYS_PRESERVE_ANNOT_TYPE_IDS = {
@@ -191,6 +192,12 @@ def _inspect_annotations(
                     logger.debug(
                         "Skipping FreeText annot without watermark keyword: '%s'", content[:60]
                     )
+                    continue
+                confidence = 0.80
+            elif type_id == pymupdf.PDF_ANNOT_HIGHLIGHT:
+                stroke = (annot.colors or {}).get("stroke") or ()
+                colored = len(stroke) >= 3 and max(stroke) - min(stroke) >= 0.25
+                if not colored or annot.rect.width < pw * 0.25:
                     continue
                 confidence = 0.80
             else:

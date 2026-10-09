@@ -704,7 +704,7 @@ function FinalCTA() {
             className="px-7 py-3 font-bold bg-[#FFF7ED]/90 border border-[#FED7AA] hover:bg-[#FFE4C4]"
             asChild
           >
-            <Link to="/pricing">View Pricing Plans</Link>
+            <Link to="/background-remover">Background Remover</Link>
           </PinkButton>
         </div>
       </div>

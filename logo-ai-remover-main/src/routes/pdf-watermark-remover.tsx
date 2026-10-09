@@ -880,7 +880,7 @@ export default function PdfWatermarkRemoverPage() {
               file_name: selectedFileName || "Cleaned_Document.pdf",
               file_type: isPdf ? "pdf" : "image",
               status: "completed",
-              quality: "Lossless PDF Vector / Clean",
+              quality: isPdf ? "Processed PDF" : "Processed image",
               credits_used: 1,
               processing_time: "Completed",
               file_url: pdfPreviewUrl(activeJobId, 1, "original"),
@@ -894,7 +894,7 @@ export default function PdfWatermarkRemoverPage() {
               colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
             });
 
-            toast.success("Watermarks & stamps successfully eliminated! Clean document ready.");
+            toast.success("Document processed. Review text beneath removed marks before downloading.");
           } else if (status.status === "failed") {
             if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
             setIsProcessing(false);
@@ -981,8 +981,7 @@ export default function PdfWatermarkRemoverPage() {
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 mb-10 leading-relaxed font-normal">
             Select or paint over unwanted watermarks, stamps, logos, or background drafts. Our
-            neural inpaint engine reconstructs the original document structure with 100% crisp
-            typography.
+            cleanup keeps unmarked pixels intact and lets you review text beneath removed marks.
           </p>
 
           {/* MAIN INTERACTIVE CLEANER CARD (Matches /background-remover & /upscale modern two-column studio architecture) */}
@@ -1487,11 +1486,11 @@ export default function PdfWatermarkRemoverPage() {
                   <div className="space-y-1.5 pt-2 text-[11px] text-gray-500 font-normal">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                      <span>100% Vector &amp; Typography Intact</span>
+                      <span>Unmarked document pixels are preserved</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                      <span>Transient In-Memory Processing (Zero Retention)</span>
+                      <span>Review restored text before sharing</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
@@ -1660,7 +1659,7 @@ export default function PdfWatermarkRemoverPage() {
             {[
               {
                 q: "Does removing watermarks damage or blur the text underneath?",
-                a: "No. Our dual-mode engine uses structural vector extraction for text PDFs to unbind the watermark layer without touching the text. For scanned PDFs and images, our 4K neural inpainter reconstructs background paper textures while preserving 100% edge sharpness.",
+                a: "Native PDF watermark layers can often be removed without changing the underlying text. For scanned images, cleanup estimates pixels beneath translucent colored marks; fully hidden letters cannot be guaranteed and should be reviewed.",
               },
               {
                 q: "Can it remove colored stamps like red PAID, VOID, or CONFIDENTIAL marks?",
@@ -1672,7 +1671,7 @@ export default function PdfWatermarkRemoverPage() {
               },
               {
                 q: "Can I download the output in high resolution print quality?",
-                a: "Yes! You can download your cleaned documents as full vector PDF files or lossless 4K PNG/JPEG files suitable for professional printing and archiving.",
+                a: "PDF results retain their page dimensions. Image results keep the uploaded pixel dimensions; a low-resolution screenshot cannot gain genuine print detail from cleanup alone.",
               },
             ].map((faq, fIdx) => (
               <div
@@ -1711,7 +1710,7 @@ export default function PdfWatermarkRemoverPage() {
             Ready to Clean Your PDF &amp; Documents?
           </h2>
           <p className="text-rose-100 text-sm sm:text-base max-w-xl mx-auto mb-8">
-            Experience 100% watermark-free documents in seconds. No software installation required.
+            Clean removable document marks online and review the result before sharing.
           </p>
           <button
             type="button"

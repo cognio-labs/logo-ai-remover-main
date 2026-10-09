@@ -34,7 +34,8 @@ class CompositingService:
     @staticmethod
     def create_transparent_rgba(
         image_rgb: np.ndarray,
-        alpha_mask: np.ndarray
+        alpha_mask: np.ndarray,
+        shadow_config: Optional[Dict[str, Any]] = None,
     ) -> np.ndarray:
         """
         Merge an RGB image with an 8-bit alpha mask into a true 4-channel RGBA image.
@@ -50,6 +51,30 @@ class CompositingService:
         rgba = np.zeros((h, w, 4), dtype=np.uint8)
         rgba[:, :, :3] = image_rgb[:, :, :3]
         rgba[:, :, 3] = alpha_mask
+
+        if shadow_config and shadow_config.get("enabled", False):
+            # A small shadow beneath the bottom contact area stays on the alpha layer.
+            ys, xs = np.where(alpha_mask >= 200)
+            if len(ys):
+                bottom = int(ys.max())
+                contact = xs[ys >= bottom - max(2, h // 30)]
+                if len(contact):
+                    shadow = np.zeros((h, w), dtype=np.uint8)
+                    center_x = int(np.median(contact))
+                    radius_x = max(3, int((np.percentile(contact, 90) - np.percentile(contact, 10)) / 2))
+                    center_y = min(h - 1, bottom + max(2, h // 100))
+                    cv2.ellipse(shadow, (center_x, center_y), (radius_x, max(2, h // 150)), 0, 0, 360, 255, -1)
+                    shadow = cv2.GaussianBlur(shadow, (0, 0), sigmaX=max(2, min(h, w) / 150))
+                    opacity = min(0.10, max(0.05, float(shadow_config.get("opacity", 0.08))))
+                    foreground_alpha = alpha_mask.astype(np.float32) / 255.0
+                    shadow_alpha = (shadow.astype(np.float32) / 255.0) * opacity * (1.0 - foreground_alpha)
+                    combined = foreground_alpha + shadow_alpha
+                    safe_alpha = np.maximum(combined, 1e-6)
+                    rgba[:, :, :3] = np.clip(
+                        image_rgb.astype(np.float32) * (foreground_alpha / safe_alpha)[:, :, None],
+                        0, 255,
+                    ).astype(np.uint8)
+                    rgba[:, :, 3] = np.clip(combined * 255, 0, 255).astype(np.uint8)
         return rgba
 
     @staticmethod
@@ -205,7 +230,7 @@ class CompositingService:
             - 3-channel RGB ndarray if bg_type in ("color", "image", "backdrop")
         """
         if bg_type == "transparent":
-            return cls.create_transparent_rgba(image_rgb, alpha_mask)
+            return cls.create_transparent_rgba(image_rgb, alpha_mask, shadow_config)
 
         if bg_type == "color":
             rgb_tuple = hex_to_rgb(bg_color)

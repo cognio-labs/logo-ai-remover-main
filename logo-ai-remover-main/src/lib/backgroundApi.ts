@@ -52,6 +52,7 @@ export interface BackgroundJobResponse {
     | "compositing"
     | "verifying"
     | "completed"
+    | "no_clear_subject"
     | "failed";
   progress: number;
   stage: string;
@@ -187,6 +188,9 @@ export async function pollBackgroundJob(
     }
 
     if (job.status === "completed") {
+      return job;
+    }
+    if (job.status === "no_clear_subject") {
       return job;
     }
 

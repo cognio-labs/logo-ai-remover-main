@@ -21,6 +21,53 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+def remove_uniform_color_overlay(bgr_image: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Reverse a uniform translucent colored overlay over neutral document ink.
+
+    The estimate changes only colored mask pixels. It does not invent letters
+    that are fully hidden by opaque marks.
+    """
+    if not np.any(mask):
+        return bgr_image.copy()
+
+    pixels = bgr_image[mask > 0]
+    sample = pixels[::max(1, len(pixels) // 200_000)]
+    colors, counts = np.unique(sample, axis=0, return_counts=True)
+    dominant = colors[np.argmax(counts)].astype(np.float32)
+    if counts.max() < len(sample) * 0.08:
+        return inpaint_raster_watermark(bgr_image, mask)
+
+    base = float(dominant.min())
+    source_delta = dominant - base
+    coverage = 1.0 - base / 255.0
+    if coverage < 0.08 or source_delta.max() < 14:
+        return inpaint_raster_watermark(bgr_image, mask)
+
+    source_chroma = float(source_delta.max() / coverage)
+    selected = pixels.astype(np.float32)
+    minimum = selected.min(axis=1)
+    delta = selected - minimum[:, None]
+    chroma = delta.max(axis=1)
+    cosine = (delta @ source_delta) / (
+        np.maximum(np.linalg.norm(delta, axis=1) * np.linalg.norm(source_delta), 1e-6)
+    )
+    matched = cosine >= 0.94
+    alpha = np.clip(chroma / source_chroma, 0, 0.88)
+    recovered = np.clip(minimum / np.maximum(1.0 - alpha, 0.12), 0, 255)
+    recovered[recovered > 242] = 255
+
+    result = bgr_image.copy()
+    output_pixels = pixels.copy()
+    output_pixels[matched] = recovered[matched, None].astype(np.uint8)
+    result[mask > 0] = output_pixels
+
+    if np.any(~matched):
+        other_mask = np.zeros(mask.shape, dtype=np.uint8)
+        other_mask[mask > 0] = (~matched).astype(np.uint8) * 255
+        result = inpaint_raster_watermark(result, other_mask)
+    return result
+
+
 def inpaint_raster_watermark(
     bgr_image: np.ndarray,
     precise_mask: np.ndarray,

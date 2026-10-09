@@ -28,6 +28,27 @@ logger = logging.getLogger(__name__)
 MAX_ALLOWED_MASK_COVERAGE = 0.55
 
 
+def build_chromatic_image_mask(bgr_image: np.ndarray) -> np.ndarray:
+    """Select colored overlay pixels without including neutral document text.
+
+    A raster image has no text layer, so achromatic ink is always protected.
+    The caller must treat an empty mask as an unresolved document, not a clean one.
+    """
+    channels = bgr_image.astype(np.int16)
+    blue, green, red = channels[:, :, 0], channels[:, :, 1], channels[:, :, 2]
+    chroma = channels.max(axis=2) - channels.min(axis=2)
+    gray = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
+
+    # Detect blue, purple and red marks, including antialiased pale edges.
+    colored = (
+        ((blue > red + 12) & (blue > green + 5))
+        | ((red > green + 14) & (red > blue + 8))
+        | ((red > green + 8) & (blue > green + 8))
+    ) & (chroma >= 14) & (gray < 250)
+    neutral_ink = (gray < 165) & (chroma < 14)
+    return (colored & ~neutral_ink).astype(np.uint8) * 255
+
+
 def build_precise_raster_mask(
     bgr_image: np.ndarray,
     candidate: "WatermarkCandidate",

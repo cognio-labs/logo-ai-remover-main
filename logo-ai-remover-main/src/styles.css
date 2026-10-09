@@ -3453,8 +3453,45 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-sparkle,
-  .animate-scan-beam {
+  .animate-scan-beam,
+  .animate-laser-sweep-line,
+  .animate-bg-eraser-wipe {
     animation: none !important;
   }
+}
+
+/* Background Remover Real-time Laser Scan & Background Eraser Wipe */
+@keyframes laser-sweep-line {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes bg-eraser-wipe {
+  0% {
+    clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0 100%);
+  }
+  95%, 100% {
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  }
+}
+
+.animate-laser-sweep-line {
+  animation: laser-sweep-line 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-bg-eraser-wipe {
+  animation: bg-eraser-wipe 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 

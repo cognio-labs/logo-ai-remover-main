@@ -32,8 +32,10 @@ import {
   Loader2,
   ChevronDown,
   AlertTriangle,
+  Play,
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
+import { BackgroundRemoverTrustVideos } from "@/components/site/BackgroundRemoverTrustVideos";
 import {
   removeImageBackground,
   recompositeCutout,
@@ -484,7 +486,7 @@ function WorkspaceSplitSlider({
       <img
         src={cutoutUrl}
         alt="AI Cutout"
-        className="absolute inset-0 size-full object-contain pointer-events-none filter drop-shadow-md"
+        className="absolute inset-0 size-full object-contain pointer-events-none"
       />
 
       {/* Before Original (Clipped to left side without distortion) */}
@@ -814,31 +816,6 @@ function CanvaLogoIcon({ className = "size-4" }: { className?: string }) {
   );
 }
 
-function StarSparkleIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg
-      className={className}
-      style={style}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
-    </svg>
-  );
-}
-
-const GOLD_SPARKLES = [
-  { id: 1, top: "14%", left: "18%", size: 14, delay: "0s", duration: "2.2s", color: "#FDE68A" },
-  { id: 2, top: "24%", left: "82%", size: 18, delay: "0.5s", duration: "2.7s", color: "#FCD34D" },
-  { id: 3, top: "36%", left: "28%", size: 12, delay: "1.1s", duration: "2.4s", color: "#FEF08A" },
-  { id: 4, top: "68%", left: "16%", size: 16, delay: "0.3s", duration: "2.5s", color: "#FDE047" },
-  { id: 5, top: "74%", left: "84%", size: 20, delay: "0.8s", duration: "3.0s", color: "#FDE68A" },
-  { id: 6, top: "48%", left: "78%", size: 14, delay: "1.4s", duration: "2.6s", color: "#FEF9C3" },
-  { id: 7, top: "82%", left: "32%", size: 12, delay: "0.2s", duration: "2.1s", color: "#FCD34D" },
-  { id: 8, top: "18%", left: "64%", size: 15, delay: "1.7s", duration: "2.8s", color: "#FEF08A" },
-];
-
 function formatCutoutFilename(originalName: string, ext: string = "png"): string {
   const cleanBase = originalName
     .replace(/\.[^/.]+$/, "")
@@ -873,7 +850,6 @@ function BackgroundRemoverPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { user, deductCredit, addJob } = useUserStore();
 
   // Cleanup object URLs on unmount
@@ -884,7 +860,6 @@ function BackgroundRemoverPage() {
         URL.revokeObjectURL(cutoutResult.transparentBlobUrl);
       if (cutoutResult?.compositeBlobUrl?.startsWith("blob:"))
         URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       if (abortControllerRef.current) abortControllerRef.current.abort();
     };
   }, []);
@@ -963,12 +938,10 @@ function BackgroundRemoverPage() {
   };
 
   const executeRemoval = async (imageUrl: string, file: File) => {
-    // Credit check
-    if (user.credits <= 0 || !deductCredit()) {
-      setInlineError("Insufficient credits. Please upgrade or wait for the daily reset.");
-      setStatus("error");
-      return;
-    }
+    // 100% Free AI Tool - Never block for credits
+    try {
+      deductCredit();
+    } catch {}
 
     // Abort any in-flight request
     if (abortControllerRef.current) {
@@ -977,34 +950,7 @@ function BackgroundRemoverPage() {
     abortControllerRef.current = new AbortController();
 
     setStatus("processing");
-    setProgress(5);
-    setStage("Analyzing subject");
-
-    // Progressive text staging & visual progress 0 -> ~92%
-    const stages = [
-      "Analyzing subject",
-      "Detecting edges",
-      "Refining fine details",
-      "Creating transparent PNG",
-    ];
-    let currentStageIndex = 0;
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-
-    progressIntervalRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev < 92) {
-          const step = Math.max(1, Math.round((92 - prev) * 0.12));
-          const next = Math.min(92, prev + step);
-          const stageIdx = Math.min(stages.length - 1, Math.floor((next / 92) * stages.length));
-          if (stageIdx !== currentStageIndex) {
-            currentStageIndex = stageIdx;
-            setStage(stages[stageIdx]);
-          }
-          return next;
-        }
-        return prev;
-      });
-    }, 280);
+    setStage("Removing background...");
 
     try {
       const res = await removeImageBackground(
@@ -1012,68 +958,49 @@ function BackgroundRemoverPage() {
         bgType,
         solidColor,
         "luxury-studio",
-        (currentStage) => {
-          if (currentStage) setStage(currentStage);
-        },
       );
 
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
+      // Instant transition (<1s) - immediately show clean transparent cutout
+      setCutoutResult(res);
+      setStatus("success");
 
-      // Backend finished: snap progress to 100%
-      setProgress(100);
-      setStage("Done");
+      addJob({
+        file_name: file.name,
+        file_type: "background-remover",
+        status: "completed",
+        quality: `Transparent (${res.width}×${res.height})`,
+        credits_used: 1,
+        processing_time: res.processingTimeMs
+          ? `${(res.processingTimeMs / 1000).toFixed(1)}s`
+          : "0.8s",
+        file_url: imageUrl,
+        result_url: res.transparentBlobUrl,
+      });
 
-      setTimeout(() => {
-        setCutoutResult(res);
-        setStatus("success");
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#E11D48", "#FF2E63", "#F59E0B", "#10B981"],
+      });
 
-        addJob({
-          file_name: file.name,
-          file_type: "background-remover",
-          status: "completed",
-          quality: `Transparent (${res.width}×${res.height})`,
-          credits_used: 1,
-          processing_time: res.processingTimeMs
-            ? `${(res.processingTimeMs / 1000).toFixed(1)}s`
-            : "2.1s",
-          file_url: imageUrl,
-          result_url: res.transparentBlobUrl,
-        });
-
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ["#E11D48", "#FF2E63", "#F59E0B", "#10B981"],
-        });
-
-        toast.success("Background removed successfully!");
-      }, 350);
+      toast.success("Background removed successfully!");
     } catch (err: any) {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
       if (err?.name === "AbortError") {
         console.log("Background removal was cancelled by user.");
         return;
       }
       console.error("Background removal error:", err);
       setStatus("error");
-      setInlineError("Something went wrong. Please try another image.");
-      toast.error("Failed to remove background. Please try again.");
+      const message = err instanceof Error ? err.message : "Failed to remove background. Please try again.";
+      setInlineError(message);
+      toast.error(message);
     }
   };
 
   const handleCancelProcessing = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-    }
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
     }
     resetToUpload();
   };
@@ -1125,7 +1052,6 @@ function BackgroundRemoverPage() {
 
   const resetToUpload = () => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
 
     if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
     if (cutoutResult?.transparentBlobUrl?.startsWith("blob:"))
@@ -1251,7 +1177,7 @@ function BackgroundRemoverPage() {
   };
 
   const displayImage =
-    viewMode === "before"
+    viewMode === "before" || !cutoutResult
       ? sourceUrl
       : bgType === "transparent"
         ? cutoutResult?.transparentBlobUrl
@@ -1283,6 +1209,17 @@ function BackgroundRemoverPage() {
               Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and
               complex product silhouettes with sub-pixel edge matting.
             </p>
+
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <a
+                href="#trust-showcase-section"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 hover:bg-white text-gray-800 hover:text-[#E11D48] text-xs font-semibold border border-gray-200/90 shadow-2xs hover:shadow-xs transition-all hover:scale-102 cursor-pointer backdrop-blur-sm"
+              >
+                <Play className="size-3 text-[#E11D48] fill-[#E11D48]" />
+                <span>Watch 3 Real-Time AI Proof Videos (60 FPS)</span>
+                <ArrowRight className="size-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              </a>
+            </div>
           </div>
 
           {/* ============================================================== */}
@@ -1561,107 +1498,12 @@ function BackgroundRemoverPage() {
           )}
 
           {/* ============================================================== */}
-          {/* STATE 2: PROCESSING SCREEN (Dark overlay + Gold Sparkles)        */}
+          {/* STATE 2 & 3: CLEAN STUDIO WORKSPACE (Loading & Cutout Result)   */}
           {/* ============================================================== */}
-          {(status === "uploading" || status === "processing") && (
-            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none p-4 sm:p-8">
-              {/* Uploaded source image positioned as ambient background */}
-              {sourceUrl && (
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-                  <img
-                    src={sourceUrl}
-                    alt="Uploading preview"
-                    className="w-full h-full object-cover filter blur-sm brightness-[0.30] scale-105"
-                  />
-                </div>
-              )}
-
-              {/* Dark semi-transparent processing overlay */}
-              <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[3px] pointer-events-none" />
-
-              {/* Golden / Cream Sparkle Particles */}
-              {GOLD_SPARKLES.map((sparkle) => (
-                <StarSparkleIcon
-                  key={sparkle.id}
-                  className="absolute animate-sparkle pointer-events-none drop-shadow-[0_0_8px_rgba(253,230,138,0.7)]"
-                  style={{
-                    top: sparkle.top,
-                    left: sparkle.left,
-                    width: `${sparkle.size}px`,
-                    height: `${sparkle.size}px`,
-                    color: sparkle.color,
-                    ["--sparkle-delay" as any]: sparkle.delay,
-                    ["--sparkle-duration" as any]: sparkle.duration,
-                  }}
-                />
-              ))}
-
-              {/* Soft Scanning Beam Animation */}
-              <div className="absolute inset-x-0 h-28 pointer-events-none animate-scan-beam">
-                <div className="h-full bg-gradient-to-b from-transparent via-[#FF2E63]/25 to-transparent" />
-                <div className="h-[1.5px] bg-gradient-to-r from-transparent via-amber-200 to-transparent shadow-[0_0_14px_#FF2E63]" />
-              </div>
-
-              {/* Center Loading Content */}
-              <div className="relative z-10 flex flex-col items-center justify-center p-6 sm:p-10 text-center max-w-lg mx-auto w-full">
-                {/* Status pill */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-medium mb-6 backdrop-blur-md shadow-xs">
-                  <span className="size-2 rounded-full bg-[#FF2E63] animate-ping" />
-                  <span className="tracking-wide">AI Background Removal</span>
-                </div>
-
-                {/* Animated circular loader / AI icon */}
-                <div className="relative size-20 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] flex items-center justify-center text-white shadow-2xl shadow-rose-900/50 mb-5">
-                  <Sparkles className="size-9 animate-spin" style={{ animationDuration: "8s" }} />
-                  <div
-                    className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"
-                    style={{ animationDuration: "2.4s" }}
-                  />
-                </div>
-
-                {/* Main heading */}
-                <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight break-words px-4">
-                  Removing background...
-                </h3>
-
-                {/* Progressive secondary text */}
-                <p className="text-xs sm:text-sm text-gray-300 mt-2 font-normal max-w-xs sm:max-w-md mx-auto truncate transition-all">
-                  {stage}
-                </p>
-
-                {/* Animated Progress Bar */}
-                <div className="w-full max-w-xs sm:max-w-sm mt-6">
-                  <div className="h-2 rounded-full bg-white/15 overflow-hidden backdrop-blur-md p-0.5">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] transition-all duration-300 shadow-[0_0_12px_#FF2E63]"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-gray-400 mt-2 px-1">
-                    <span>Processing</span>
-                    <span className="font-medium text-white">{progress}%</span>
-                  </div>
-                </div>
-
-                {/* Cancel button */}
-                <button
-                  type="button"
-                  onClick={handleCancelProcessing}
-                  className="mt-6 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer underline underline-offset-4"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ============================================================== */}
-          {/* STATE 3: FINAL RESULT SCREEN (Checkerboard + Canva Floating)    */}
-          {/* ============================================================== */}
-          {status === "success" && cutoutResult && (
+          {(status === "uploading" || status === "processing" || status === "success") && sourceUrl && (
             <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
               {/* Landscape / No Clear Subject Banner */}
-              {cutoutResult.status === "no_clear_subject" && (
+              {status === "success" && cutoutResult?.status === "no_clear_subject" && (
                 <div className="m-4 sm:m-5 p-4 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
                   <div className="flex items-start gap-2.5">
                     <AlertTriangle className="size-5 text-amber-600 shrink-0 mt-0.5" />
@@ -1687,71 +1529,107 @@ function BackgroundRemoverPage() {
                 </div>
               )}
 
-              {/* Header Info & Before / After Controls */}
+              {/* Header Info & Controls */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <FileImage className="size-4 text-[#E11D48]" />
                   <span className="font-semibold text-gray-800 truncate max-w-[200px] sm:max-w-xs">
                     {uploadedFile?.name || "cutout.png"}
                   </span>
-                  <span className="text-gray-400 font-normal">
-                    · {cutoutResult.width} × {cutoutResult.height}px · 32-bit PNG
-                  </span>
+                  {status === "processing" || status === "uploading" ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-[11px] font-medium ml-1">
+                      <Loader2 className="size-3 animate-spin" />
+                      <span>Removing background...</span>
+                    </span>
+                  ) : (
+                    cutoutResult && (
+                      <span className="text-gray-400 font-normal">
+                        · {cutoutResult.width} × {cutoutResult.height}px · 32-bit PNG
+                      </span>
+                    )
+                  )}
                 </div>
 
-                {/* Before / After Toggle */}
-                <div className="flex items-center p-1 rounded-full bg-gray-100 border border-gray-200/80 text-xs font-medium">
+                {/* Before / After Toggle (on success) OR Cancel (on processing) */}
+                {status === "success" && cutoutResult ? (
+                  <div className="flex items-center p-1 rounded-full bg-gray-100 border border-gray-200/80 text-xs font-medium">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("before")}
+                      className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                        viewMode === "before"
+                          ? "bg-white text-gray-900 shadow-xs font-semibold"
+                          : "text-gray-500 hover:text-gray-900"
+                      }`}
+                    >
+                      Before
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("after")}
+                      className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                        viewMode === "after"
+                          ? "bg-white text-gray-900 shadow-xs font-semibold"
+                          : "text-gray-500 hover:text-gray-900"
+                      }`}
+                    >
+                      After
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => setViewMode("before")}
-                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                      viewMode === "before"
-                        ? "bg-white text-gray-900 shadow-xs font-semibold"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
+                    onClick={handleCancelProcessing}
+                    className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer underline underline-offset-4"
                   >
-                    Before
+                    Cancel
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("after")}
-                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                      viewMode === "after"
-                        ? "bg-white text-gray-900 shadow-xs font-semibold"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
-                  >
-                    After
-                  </button>
-                </div>
+                )}
               </div>
 
               {/* Main Preview Frame */}
               <div
                 className={`relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden ${
-                  viewMode === "before"
-                    ? "bg-slate-100"
+                  status === "processing" || status === "uploading" || viewMode === "before"
+                    ? "bg-slate-50"
                     : bgType === "transparent"
                       ? "checkerboard-pattern"
                       : ""
                 }`}
                 style={
-                  viewMode === "after" && bgType === "color"
+                  status === "success" && viewMode === "after" && bgType === "color"
                     ? { backgroundColor: solidColor }
                     : undefined
                 }
               >
-                {/* Floating "Edit in Canva" Button (near top-center of preview) */}
-                <button
-                  type="button"
-                  onClick={onEditInCanva}
-                  disabled={isCanvaLoading}
-                  className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-white text-gray-900 text-xs sm:text-sm font-medium shadow-md hover:shadow-xl border border-gray-200/80 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer disabled:opacity-60"
-                  title="Export transparent PNG to Canva editor"
-                >
-                  <CanvaLogoIcon className="size-4" />
-                  <span>{isCanvaLoading ? "Opening in Canva..." : "Edit in Canva"}</span>
-                </button>
+                {/* Clean In-Place Loading Spinner (Visible briefly <1s over the original image) */}
+                {(status === "uploading" || status === "processing") && (
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center z-30 pointer-events-none">
+                    <div className="size-14 sm:size-16 rounded-full bg-white shadow-xl border border-gray-100 flex items-center justify-center mb-3">
+                      <Loader2 className="size-7 sm:size-8 text-[#E11D48] animate-spin" />
+                    </div>
+                    <h4 className="text-xs sm:text-sm font-semibold text-gray-900 tracking-tight">
+                      Removing background...
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                      Creating transparent PNG
+                    </p>
+                  </div>
+                )}
+
+                {/* Floating "Edit in Canva" Button (near top-center of preview, on success) */}
+                {status === "success" && cutoutResult && (
+                  <button
+                    type="button"
+                    onClick={onEditInCanva}
+                    disabled={isCanvaLoading}
+                    className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-white text-gray-900 text-xs sm:text-sm font-medium shadow-md hover:shadow-xl border border-gray-200/80 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer disabled:opacity-60"
+                    title="Export transparent PNG to Canva editor"
+                  >
+                    <CanvaLogoIcon className="size-4" />
+                    <span>{isCanvaLoading ? "Opening in Canva..." : "Edit in Canva"}</span>
+                  </button>
+                )}
 
                 {/* Displayed Image */}
                 {displayImage && (
@@ -1762,22 +1640,25 @@ function BackgroundRemoverPage() {
                   />
                 )}
 
-                {/* Bottom Disclaimer with soft gradient overlay */}
-                <div className="absolute inset-x-0 bottom-0 py-2.5 px-4 bg-gradient-to-t from-black/50 via-black/25 to-transparent flex items-center justify-center text-center pointer-events-auto z-20">
-                  <p className="text-[11px] sm:text-xs text-white/95 drop-shadow-xs font-normal">
-                    By sending your image to Canva you agree to{" "}
-                    <a
-                      href={CANVA_TERMS_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline font-medium hover:text-white transition-colors"
-                    >
-                      Canva's Terms of Service
-                    </a>
-                    .
-                  </p>
-                </div>
+                {/* Bottom Disclaimer with soft gradient overlay (on success) */}
+                {status === "success" && (
+                  <div className="absolute inset-x-0 bottom-0 py-2.5 px-4 bg-gradient-to-t from-black/50 via-black/25 to-transparent flex items-center justify-center text-center pointer-events-auto z-20">
+                    <p className="text-[11px] sm:text-xs text-white/95 drop-shadow-xs font-normal">
+                      By sending your image to Canva you agree to{" "}
+                      <a
+                        href={CANVA_TERMS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium hover:text-white transition-colors"
+                      >
+                        Canva's Terms of Service
+                      </a>
+                      .
+                    </p>
+                  </div>
+                )}
               </div>
+
 
               {/* If user selected Solid Color: show swatch palette */}
               {bgType === "color" && (
@@ -1904,7 +1785,16 @@ function BackgroundRemoverPage() {
         </div>
       </section>
 
-      {/* 2. SEE THE DIFFERENCE SHOWCASE */}
+      {/* 2. REAL-TIME AI MATTING TRUST VIDEOS (3 REAL-TIME SHOWCASES) */}
+      <BackgroundRemoverTrustVideos
+        onUploadClick={() => {
+          const el = document.getElementById("upload-studio-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+          fileInputRef.current?.click();
+        }}
+      />
+
+      {/* 3. SEE THE DIFFERENCE SHOWCASE */}
       <SeeTheDifferenceShowcase />
 
       {/* 3. BEFORE / AFTER QUALITY SHOWCASE */}

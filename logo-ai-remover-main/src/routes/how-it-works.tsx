@@ -333,7 +333,7 @@ function HowItWorksPage() {
               </Link>
             </PinkButton>
             <PinkButton variant="outline" size="lg" className="font-bold" asChild>
-              <Link to="/pricing">Explore Pricing</Link>
+              <Link to="/background-remover">Background Remover</Link>
             </PinkButton>
           </div>
         </div>

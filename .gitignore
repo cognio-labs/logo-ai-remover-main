@@ -35,7 +35,17 @@ logo-ai-remover-main/backend/models/weights/*
 .vercel/
 logo-ai-remover-main/.vercel/
 
-# Test artifacts
+# Test artifacts & scratch
 test_*.png
 logo-ai-remover-main/test_*.png
+artifacts/
+logo-ai-remover-main/artifacts/
+*.tmp
+*.mkv
+.temp/
+logo-ai-remover-main/.temp/
+public/creative-suite/logo_subtext_crop.png
+public/creative-suite/ring_thumb.png
+logo-ai-remover-main/public/creative-suite/logo_subtext_crop.png
+logo-ai-remover-main/public/creative-suite/ring_thumb.png
 

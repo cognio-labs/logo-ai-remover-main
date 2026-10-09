@@ -9,15 +9,6 @@ export const Route = createFileRoute("/tools")({
 
 const DEFAULT_TOOLS = [
   {
-    id: "upscaler",
-    title: "4K / 8K Upscaler",
-    desc: "Super-resolution for images, designs and photos. Recover texture and export sharp high-resolution outputs.",
-    to: "/upscale",
-    image: "/creative-suite/upscaler_macro_8k.jpg",
-    enabled: true,
-    creditCost: 1,
-  },
-  {
     id: "bg-remover",
     title: "AI Background Remover",
     desc: "Remove image backgrounds online in one click with clean edges and export a transparent PNG cutout.",
@@ -25,15 +16,6 @@ const DEFAULT_TOOLS = [
     image: "/creative-suite/background_remover_studio.jpg",
     enabled: true,
     creditCost: 1,
-  },
-  {
-    id: "video-enhancer",
-    title: "Video Enhancer",
-    desc: "Enhance, upscale and restore video quality with AI motion smoothing and frame detail reconstruction.",
-    to: "/video-enhancer",
-    image: "/creative-suite/video_enhancer_cyberpunk.jpg",
-    enabled: true,
-    creditCost: 3,
   },
   {
     id: "pdf-cleaner",

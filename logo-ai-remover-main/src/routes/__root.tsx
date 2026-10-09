@@ -156,7 +156,7 @@ function RootComponent() {
           style={{ backgroundImage: "url('/warm-gradient-bg.png')" }}
         />
         <Navbar />
-        <main className="flex-1">
+        <main className="flex-1 w-full overflow-x-hidden">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>

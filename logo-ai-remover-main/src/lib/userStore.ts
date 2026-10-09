@@ -57,7 +57,7 @@ const DEFAULT_USER: UserProfile = {
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
   plan: "free",
   role: "admin", // set to admin by default so user can test both regular & admin features
-  credits: 5,
+  credits: 999,
   last_credit_reset: new Date().toISOString(),
 };
 
@@ -127,7 +127,13 @@ const loadState = () => {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed?.user) {
+      // Auto-replenish credits to ensure free unlimited usage
+      parsed.user.credits = Math.max(parsed.user.credits || 0, 999);
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -183,8 +189,8 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   deductCredit: () => {
     const current = get().user.credits;
-    if (current <= 0) return false;
-    const updated = { ...get().user, credits: current - 1 };
+    const nextCredits = current > 1 ? current - 1 : 999;
+    const updated = { ...get().user, credits: nextCredits };
     set({ user: updated });
     saveState(updated, get().isLoggedIn, get().jobs);
     return true;

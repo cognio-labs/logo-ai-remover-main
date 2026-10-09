@@ -178,10 +178,10 @@ function FeaturesPage() {
             </PinkButton>
 
             <Link
-              to="/upscale"
+              to="/background-remover"
               className="px-6 py-3.5 rounded-full text-sm font-bold text-[#171717] bg-[#FFFFFF] hover:bg-[#F5F5F5] border border-[#E5E5E5] shadow-xs transition-all hover:border-[#D4D4D4]"
             >
-              Try 8K Upscaler (Key U)
+              Try Background Remover
             </Link>
           </div>
         </div>
@@ -204,7 +204,7 @@ function FeaturesPage() {
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
             Explore the advanced neural models powering Bellix.us. From spatio-temporal video
-            tracking to 8K super-resolution upscaling.
+            tracking to AI background removal.
           </p>
 
           <div className="pt-4 flex items-center justify-center gap-4">
@@ -215,7 +215,7 @@ function FeaturesPage() {
               </Link>
             </PinkButton>
             <PinkButton variant="outline" size="lg" className="font-bold" asChild>
-              <Link to="/pricing">See Pricing Plans</Link>
+              <Link to="/background-remover">Background Remover</Link>
             </PinkButton>
           </div>
         </div>

@@ -31,7 +31,6 @@ export const studioAssets = {
 export const studioTools = [
   { name: "Upscale", path: "/upscale", icon: ImageUp },
   { name: "Background", path: "/background-remover", icon: Scissors },
-  { name: "Video", path: "/video-enhancer", icon: Film },
   { name: "PDF cleaner", path: "/pdf-watermark-remover", icon: FileText },
   { name: "Image cleaner", path: "/remove/image", icon: WandSparkles },
   { name: "Video cleaner", path: "/gemini-video-watermark-remover", icon: ScanLine },
@@ -787,23 +786,32 @@ const TOOL_FEATURES = [
 ═══════════════════════════════════════════════════════════════ */
 function PanoramicHeroSection() {
   const [prompt, setPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState("Google Gemini 2.5 Flash");
   const navigate = useNavigate();
 
   const handlePromptSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const query = prompt.trim() || "4K portrait restoration";
-    toast.success(`Launching AI engine for: "${query}"`);
+    toast.success(`Launching AI engine (${selectedModel}) for: "${query}"`);
     navigate({ to: "/upscale" });
   };
 
   const handleSelectModel = (modelName: string) => {
+    setSelectedModel(modelName);
     toast.success(`Selected AI engine: ${modelName}`);
   };
 
+  const quickPrompts = [
+    "4K portrait restoration",
+    "Remove background cleanly",
+    "Erase video watermark",
+    "8K macro product photo",
+  ];
+
   return (
-    <section className="relative w-full overflow-hidden bg-warm-canvas border-b border-[#FED7AA]/50">
+    <section className="relative w-full overflow-hidden bg-white border-b border-gray-100">
       {/* ─── DESKTOP PANORAMIC EXPERIENCE (lg+) ─── */}
-      <div className="hidden lg:block relative w-full max-w-[2011px] mx-auto overflow-hidden">
+      <div className="hidden lg:block relative w-full overflow-hidden">
         <div className="relative w-full aspect-[2011/782] select-none">
           {/* Panoramic Masterpiece Asset */}
           <img
@@ -992,9 +1000,10 @@ function PanoramicHeroSection() {
       </div>
 
       {/* ─── MOBILE & TABLET RESPONSIVE EXPERIENCE (< lg) ─── */}
-      <div className="lg:hidden px-4 sm:px-6 py-10 space-y-8 max-w-2xl mx-auto">
-        <div className="space-y-4 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF7ED]/95 border border-[#FED7AA]/70 shadow-2xs">
+      <div className="lg:hidden px-4 sm:px-6 py-8 sm:py-12 space-y-6 max-w-2xl mx-auto">
+        {/* Header Intro */}
+        <div className="space-y-3.5 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200/80 shadow-2xs">
             <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
             <span className="text-xs font-bold text-[#E11D48] tracking-wide">
               AI Creative Workspace • 6 Pro Tools
@@ -1008,61 +1017,156 @@ function PanoramicHeroSection() {
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg mx-auto">
             Remove distractions, restore detail, upscale every frame and make your next piece look
             ready to publish. No technical knowledge required.
           </p>
+        </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link
-              to="/upscale"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25"
-            >
-              <Sparkles size={14} />
-              <span>Start creating free</span>
-              <ArrowUpRight size={15} />
-            </Link>
-
-            <Link
-              to="/video-enhancer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-[#FFF7ED] border border-[#FED7AA] shadow-xs hover:bg-[#FFE4C4]"
-            >
-              <span>See how it works</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600 pt-2">
-            <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500" /> Six focused tools
+        {/* ── INTERACTIVE MOBILE PROMPT STUDIO CARD ("prompt rhe card") ── */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xl shadow-gray-200/60 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900">
+              <Sparkles className="size-3.5 text-[#E11D48]" />
+              <span>AI Prompt Studio</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500" /> Real processing status
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-emerald-500" /> Export-ready results
+            <span className="text-[10px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+              Active: {selectedModel.split(" ")[0]}
             </span>
           </div>
+
+          {/* Prompt Input Form */}
+          <form
+            onSubmit={handlePromptSubmit}
+            className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 p-1.5 pl-3.5 shadow-inner focus-within:ring-2 focus-within:ring-[#E11D48]/30 focus-within:border-[#E11D48] transition-all"
+          >
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Create something amazing..."
+              className="w-full bg-transparent text-xs sm:text-sm text-gray-900 placeholder-gray-400 outline-none font-medium"
+            />
+            <button
+              type="submit"
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] text-white shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+              title="Generate with AI"
+            >
+              <ArrowUpRight size={16} />
+            </button>
+          </form>
+
+          {/* Quick Prompt Suggestion Pills */}
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+              Try a prompt:
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {quickPrompts.map((qp) => (
+                <button
+                  key={qp}
+                  type="button"
+                  onClick={() => setPrompt(qp)}
+                  className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all text-left truncate max-w-full ${
+                    prompt === qp
+                      ? "bg-rose-50 border-rose-300 text-[#E11D48] font-semibold"
+                      : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
+                >
+                  {qp}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Model Selector Pills */}
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Choose AI Engine:
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { name: "Google Gemini 2.5 Flash", short: "Gemini 2.5", icon: "✦" },
+                { name: "OpenAI GPT-4o Vision", short: "GPT-4o", icon: "⚡" },
+                { name: "Midjourney v6.1", short: "Midjourney", icon: "🎨" },
+                { name: "Runway Gen-3 Alpha", short: "Runway Gen-3", icon: "🎬" },
+              ].map((m) => {
+                const isSelected = selectedModel === m.name;
+                return (
+                  <button
+                    key={m.name}
+                    type="button"
+                    onClick={() => handleSelectModel(m.name)}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-[#FFF1F4] border-[#E11D48] text-[#E11D48] shadow-xs font-semibold"
+                        : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span className="text-xs">{m.icon}</span>
+                    <span className="truncate">{m.short}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Primary Action Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+          <Link
+            to="/upscale"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25"
+          >
+            <Sparkles size={14} />
+            <span>Start creating free</span>
+            <ArrowUpRight size={15} />
+          </Link>
+
+          <Link
+            to="/video-enhancer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-white border border-gray-200 shadow-xs hover:bg-gray-50"
+          >
+            <span>See how it works</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        {/* Value Props Checklist */}
+        <div className="flex flex-wrap items-center justify-center gap-3.5 text-xs text-gray-600">
+          <span className="flex items-center gap-1.5">
+            <Check size={14} className="text-emerald-500" /> Six focused tools
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check size={14} className="text-emerald-500" /> Real processing status
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check size={14} className="text-emerald-500" /> Export-ready results
+          </span>
         </div>
 
         {/* Visual Artwork Showcase Card */}
-        <div className="rounded-2xl overflow-hidden border border-[#FED7AA] shadow-xl shadow-amber-500/10 bg-[#FFF7ED]/95">
-          <img
-            src="/creative-suite/bellix-hero-section.png"
-            alt="AI Creative Workspace"
-            className="w-full h-auto object-cover"
-          />
+        <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-xl shadow-gray-200/50 bg-white">
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
+            <img
+              src="/creative-suite/bellix-hero-section.png"
+              alt="AI Creative Workspace"
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
         </div>
 
         {/* Mobile Tools Quick Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
           {studioTools.map((t) => (
             <Link
               key={t.path}
               to={t.path}
-              className="flex items-center gap-2.5 p-3 rounded-xl bg-[#FFF7ED]/95 border border-[#FED7AA]/70 shadow-2xs hover:border-[#E11D48] transition-all"
+              className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-gray-200 shadow-2xs hover:border-[#E11D48] transition-all"
             >
-              <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFE4C4] text-[#E11D48]">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFF1F4] text-[#E11D48]">
                 <t.icon size={14} />
               </span>
               <span className="text-xs font-semibold text-gray-900 truncate">{t.name}</span>
@@ -1071,7 +1175,7 @@ function PanoramicHeroSection() {
         </div>
 
         {/* Mobile Stats Row */}
-        <div className="grid grid-cols-4 gap-2 pt-4 border-t border-gray-200 text-center">
+        <div className="grid grid-cols-4 gap-2 pt-3 border-t border-gray-200 text-center">
           <div>
             <strong className="block text-base font-bold text-gray-900">500K+</strong>
             <span className="text-[10px] text-gray-500">Files</span>
@@ -1111,13 +1215,20 @@ export function StudioHome() {
       {/* ─── CLEAN BANNER SECTION (Image 3 Matching) ─── */}
       <section className="studio-clean-banner-wrapper">
         <div className="studio-clean-banner">
-          {/* Mobile-only: full-width ring image at top */}
+          {/* Mobile-only: full-width ring image at top (perfectly centered, zero clipping) */}
           <div className="studio-clean-banner-mobile-img">
-            <img
-              src="/creative-suite/clean_section_ring_backdrop.png"
-              alt="Emerald ring on marble — AI image restoration"
-              className="w-full h-full object-cover object-center"
-            />
+            <picture>
+              <source
+                media="(max-width: 900px)"
+                srcSet="/creative-suite/clean_section_ring_mobile.png"
+              />
+              <img
+                src="/creative-suite/clean_section_ring_backdrop.png"
+                alt="Diamond ring on marble — AI image restoration"
+                className="w-full h-full object-contain sm:object-cover object-center"
+                loading="eager"
+              />
+            </picture>
             {/* Gradient fade from image into content below */}
             <div className="studio-clean-banner-mobile-fade" />
           </div>

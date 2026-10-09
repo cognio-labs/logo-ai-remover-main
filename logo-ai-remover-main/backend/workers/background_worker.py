@@ -2,6 +2,8 @@ import logging
 import time
 from pathlib import Path
 from typing import Optional
+
+import cv2
 import numpy as np
 
 from backend.models.background_job import (
@@ -66,6 +68,19 @@ def process_background_removal(job_id: str) -> None:
         # Subject Detection & Landscape Protection
         from backend.engines.subject_detector import subject_detector
         confidence_report = subject_detector.analyze_mask(raw_mask.astype(np.float32) / 255.0, img_rgb)
+        if confidence_report.status == "NO_SUBJECT":
+            # A second architecture can recover small products that the first model misses.
+            alternate = model_manager.get_engine("balanced" if fast_mode else "fast")
+            alternate_mask = alternate.remove_background(
+                cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR),
+                quality_mode="balanced" if fast_mode else "fast",
+            )
+            alternate_report = subject_detector.analyze_mask(
+                alternate_mask.astype(np.float32) / 255.0, img_rgb
+            )
+            if alternate_report.status != "NO_SUBJECT":
+                raw_mask = alternate_mask
+                confidence_report = alternate_report
         logger.info(
             "Job %s subject confidence: status=%s score=%.2f area=%.3f",
             job_id, confidence_report.status, confidence_report.confidence_score, confidence_report.mask_area_ratio

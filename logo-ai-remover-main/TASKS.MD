@@ -35,6 +35,9 @@ Baseline: 2026-09-25. Unchecked items are proposed work, not implemented fixes. 
 - [ ] **OPS-03: Observability.** Measure per-tool failures, queue wait, processing time, storage growth and cost without logging secrets/media. Acceptance: operators can trace failures and receive actionable alerts.
 - [ ] **UX-02: Accessibility/performance review.** Test keyboard, touch, reduced motion, status announcements and media loading. Acceptance: reproducible findings and prioritized fixes.
 
+- [ ] **BG-QUALITY: Complex-subject cutouts.** Validate person hair, fur, glass, reflective products, cars and the faucet scene against source images and reviewed target masks. Measure missed subjects, edge halos and false scene protection before promising artifact-free output for every image.
+- [ ] **PDF-QUALITY: Opaque and neutral marks.** Validate black pen marks, gray stamps and fully opaque overlays against source documents with known ground truth. The current color inversion cannot recover letters absent from a flattened raster image.
+
 ## Delivery flow
 
 Choose task → inspect source → define acceptance → implement → verify → update docs/memory → review diff → commit/deploy only within authorized scope.

@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from backend.models.background_job import BackgroundJobStatus
+from backend.services.compositing_service import CompositingService
 
 
 def create_synthetic_subject_image(width=120, height=100) -> bytes:
@@ -26,6 +27,21 @@ def create_synthetic_subject_image(width=120, height=100) -> bytes:
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()
+
+
+def test_transparent_contact_shadow_is_subtle_and_keeps_foreground():
+    image = np.full((120, 120, 3), (180, 120, 50), dtype=np.uint8)
+    mask = np.zeros((120, 120), dtype=np.uint8)
+    mask[20:75, 40:80] = 255
+
+    rgba = CompositingService.create_transparent_rgba(
+        image, mask, {"enabled": True, "opacity": 0.08}
+    )
+
+    assert np.array_equal(rgba[40, 60, :3], image[40, 60])
+    assert rgba[40, 60, 3] == 255
+    assert 0 < rgba[80, 60, 3] <= 26
+    assert rgba[0, 0, 3] == 0
 
 
 def test_capabilities_and_health(client):

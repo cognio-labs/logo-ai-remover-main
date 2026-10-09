@@ -261,12 +261,6 @@ export function InteractiveKeyboard({
       route: "/gemini-video-watermark-remover",
       desc: "Specialized Gemini logo remover",
     },
-    {
-      label: "Pricing Plans",
-      shortcut: "$",
-      route: "/pricing",
-      desc: "View flexible credit tiers",
-    },
   ].filter(
     (c) =>
       c.label.toLowerCase().includes(searchQuery.toLowerCase()) ||

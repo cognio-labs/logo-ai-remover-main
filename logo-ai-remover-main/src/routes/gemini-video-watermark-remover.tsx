@@ -655,30 +655,48 @@ function GeminiVideoRemoverPage() {
             ))}
           </div>
 
-          {/* Grid of 21 User Inspiration Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Grid of 21 User Inspiration Cards with Visible Prompts */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {filteredInspirations.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setActiveModalItem(item)}
-                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-gray-200/90 shadow-sm hover:shadow-xl hover:border-rose-300 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
               >
-                <div className="aspect-[3/4] overflow-hidden bg-gray-200">
+                {/* Visual Card Image */}
+                <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-gray-100">
                   <img
                     src={item.img}
                     alt={item.title}
                     loading="lazy"
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-wider border border-white/10 shadow-xs">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Hover overlay with title & tag */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#FF8CC6]">
-                    {item.category}
-                  </span>
-                  <h4 className="text-sm font-bold leading-tight mt-0.5">{item.title}</h4>
-                  <p className="text-[11px] text-gray-300 line-clamp-2 mt-1">{item.prompt}</p>
+                {/* Card Details: Title & Prompt (Always Visible on Mobile & Laptop) */}
+                <div className="p-3.5 sm:p-4 bg-white flex flex-col justify-between flex-1 border-t border-gray-100 space-y-2">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-950 truncate leading-snug">
+                      {item.title}
+                    </h4>
+                    <span className="shrink-0 text-[9px] font-mono font-medium text-[#E11D48] bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">
+                      Prompt
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-gray-600 line-clamp-2 leading-relaxed bg-[#FFF8FA] p-2 rounded-xl border border-[#FCE7EC] font-sans">
+                    "{item.prompt}"
+                  </p>
+
+                  <div className="pt-1 flex items-center justify-between text-[10px] text-gray-400 font-medium">
+                    <span className="text-[#E11D48] group-hover:underline">Tap to inspect</span>
+                    <ArrowRight className="size-3 text-[#E11D48] group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </div>
             ))}

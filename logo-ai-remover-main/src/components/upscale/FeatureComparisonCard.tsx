@@ -1,14 +1,15 @@
-import React, { useState, useRef, useCallback } from "react";
+import React from "react";
 import type { LucideIcon } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 export interface FeatureCardData {
   id: string;
   icon: LucideIcon;
-  centerIcon: LucideIcon;
+  centerIcon?: LucideIcon;
   title: string;
   description: string;
-  lowImage: string;
-  highImage: string;
+  image: string;
+  tag: string;
 }
 
 export interface FeatureComparisonCardProps {
@@ -17,116 +18,72 @@ export interface FeatureComparisonCardProps {
 }
 
 export function FeatureComparisonCard({ card, className = "" }: FeatureComparisonCardProps) {
-  const [split, setSplit] = useState(50);
-  const [isHovered, setIsHovered] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
-
-  const updateSplit = useCallback((clientX: number) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = clientX - rect.left;
-    const pct = Math.max(6, Math.min(94, (x / rect.width) * 100));
-    setSplit(pct);
-  }, []);
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    isDraggingRef.current = true;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    updateSplit(e.clientX);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDraggingRef.current || isHovered) {
-      updateSplit(e.clientX);
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    isDraggingRef.current = false;
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
-  };
-
   const Icon = card.icon;
-  const CenterIcon = card.centerIcon;
+
+  const scrollToUploader = () => {
+    const el =
+      document.getElementById("upscale-hero-uploader") ||
+      document.querySelector(".up-hero");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
-    <div
-      className={`group relative flex flex-col sm:flex-row items-stretch sm:items-center gap-4 p-3.5 sm:p-4 rounded-2xl bg-white border border-[#F3DFE7] shadow-[0_4px_24px_rgba(247,37,104,0.04)] hover:border-pink-300 hover:shadow-[0_12px_32px_rgba(247,37,104,0.12)] transition-all duration-300 ${className}`}
+    <article
+      onClick={scrollToUploader}
+      className={`group relative flex flex-col rounded-2xl bg-white border border-[#F3DFE7] shadow-[0_4px_24px_rgba(247,37,104,0.05)] hover:border-pink-300 hover:shadow-[0_12px_36px_rgba(247,37,104,0.12)] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer select-none ${className}`}
     >
-      {/* Left: Interactive Low vs High Comparison Thumbnail */}
-      <div
-        ref={containerRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          isDraggingRef.current = false;
-        }}
-        className="relative w-full sm:w-[130px] md:w-[138px] aspect-square shrink-0 rounded-xl overflow-hidden select-none cursor-ew-resize border border-gray-100/80 bg-gray-100 shadow-sm touch-none"
-        title="Slide or hover to compare Low Resolution vs AI 4K Upscale"
-      >
-        {/* High Resolution Image (After - Base layer) */}
+      {/* 1. SINGLE HIGH-RESOLUTION PRISTINE 4K IMAGE PREVIEW */}
+      <div className="relative w-full aspect-[16/10] sm:aspect-[4/3] bg-neutral-900 overflow-hidden">
         <img
-          src={card.highImage}
-          alt={`${card.title} High Resolution`}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          src={card.image}
+          alt={card.title}
+          className="size-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           loading="lazy"
         />
 
-        {/* Low Resolution Image (Before - Clipped layer on left) */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}
-        >
-          <img
-            src={card.lowImage}
-            alt={`${card.title} Low Resolution`}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            loading="lazy"
-          />
-        </div>
+        {/* Ambient Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
 
-        {/* Before Badge */}
-        <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-xs text-white text-[9px] font-medium tracking-wide shadow-sm pointer-events-none">
-          Before
+        {/* Top-Right AI Quality Tag */}
+        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold tracking-wide border border-white/15 flex items-center gap-1 shadow-sm">
+          <Sparkles className="size-2.5 text-pink-400" />
+          <span>{card.tag}</span>
         </span>
 
-        {/* After Badge */}
-        <span className="absolute bottom-2 right-2 z-10 px-2 py-0.5 rounded-md bg-[#4F46E5]/90 backdrop-blur-xs text-white text-[9px] font-medium tracking-wide shadow-sm pointer-events-none">
-          After
+        {/* Bottom-Left 4K UHD Badge */}
+        <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md bg-[#f72568]/90 backdrop-blur-md text-white text-[9.5px] font-bold tracking-wider uppercase shadow-xs">
+          4K UHD Master
         </span>
+      </div>
 
-        {/* Draggable Divider Line & Circular Center Handle */}
-        <div
-          className="absolute top-0 bottom-0 w-[2px] bg-white pointer-events-none shadow-[0_0_8px_rgba(0,0,0,0.45)] z-20"
-          style={{ left: `${split}%`, transform: "translateX(-50%)" }}
-        >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-6 sm:size-7 rounded-full bg-white shadow-md border border-gray-200/90 flex items-center justify-center text-gray-700 transition-transform group-hover:scale-105">
-            <CenterIcon className="size-3 sm:size-3.5 text-gray-800 shrink-0" />
+      {/* 2. CARD CONTENT & METADATA */}
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 bg-gradient-to-b from-white to-[#FFF9FB]">
+        <div>
+          <div className="flex items-center gap-2.5 mb-2.5">
+            <div className="size-8 rounded-xl bg-[#FFF0F5] text-[#F72568] flex items-center justify-center border border-pink-100 group-hover:scale-110 group-hover:bg-[#FFE2EC] transition-all">
+              <Icon className="size-4 shrink-0" />
+            </div>
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900 tracking-tight leading-snug group-hover:text-[#F72568] transition-colors">
+              {card.title}
+            </h3>
           </div>
-        </div>
-      </div>
 
-      {/* Right: Icon, Title & Copy */}
-      <div className="flex flex-col justify-center min-w-0 flex-1 py-1">
-        <div className="size-8 rounded-xl bg-[#FFF0F5] text-[#F72568] flex items-center justify-center border border-pink-100/90 mb-2 shrink-0 group-hover:scale-105 group-hover:bg-[#FFE5EE] transition-all">
-          <Icon className="size-4 shrink-0" />
+          <p className="text-xs text-gray-600 leading-relaxed font-normal">
+            {card.description}
+          </p>
         </div>
-        <h3 className="text-[13px] sm:text-[14px] font-semibold text-[#071126] tracking-tight leading-snug group-hover:text-[#F72568] transition-colors">
-          {card.title}
-        </h3>
-        <p className="text-[11px] sm:text-[11.5px] text-[#556176] leading-relaxed mt-1 font-normal line-clamp-3">
-          {card.description}
-        </p>
+
+        {/* 3. CLEAN SINGLE CONNECTED ACTION */}
+        <div className="mt-4 pt-3 border-t border-pink-100/70 flex items-center justify-between text-xs font-semibold text-[#f72568]">
+          <span className="group-hover:translate-x-0.5 transition-transform">
+            Try on your photo
+          </span>
+          <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 

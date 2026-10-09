@@ -18,7 +18,6 @@ import { studioTools } from "@/components/studio/Studio";
 const TOOL_DESCRIPTIONS: Record<string, string> = {
   "/upscale": "2×, 4×, 8× upscaling",
   "/background-remover": "One-click PNG cutout",
-  "/video-enhancer": "4K 60FPS restoration",
   "/pdf-watermark-remover": "Clean any PDF stamp",
   "/remove/image": "Brush & erase marks",
   "/gemini-video-watermark-remover": "Remove Gemini & Veo marks",
@@ -38,53 +37,68 @@ export function Navbar() {
   return (
     <header className="studio-nav">
       <nav className="studio-nav-inner" aria-label="Main navigation">
-        {/* Logo */}
-        <Link to="/" aria-label="Bellix home">
-          <img src={navbarLogo} alt="Bellix.us" className="studio-nav-logo" />
+        {/* Logo with enlarged mark and crisp vector subtitle */}
+        <Link
+          to="/"
+          className="group flex items-center gap-2.5 sm:gap-3 py-1 select-none cursor-pointer"
+          aria-label="Bellix.us home"
+        >
+          <img
+            src="/creative-suite/bellix_mark.png"
+            alt="Bellix.us mark"
+            className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105 drop-shadow-xs"
+          />
+          <div className="flex flex-col justify-center">
+            <div className="flex items-baseline leading-none">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-gray-950 font-sans">
+                Bellix
+              </span>
+              <span className="text-xl sm:text-2xl font-black text-[#E11D48] tracking-tight ml-0.5">
+                .us
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="h-[1px] w-2.5 sm:w-3.5 bg-[#E11D48]/70" />
+              <span className="text-[9.5px] sm:text-[10.5px] font-extrabold tracking-[0.22em] text-[#E11D48] uppercase leading-none font-sans">
+                LUXURY AI STUDIO
+              </span>
+              <span className="h-[1px] w-2.5 sm:w-3.5 bg-[#E11D48]/70" />
+            </div>
+          </div>
         </Link>
 
-        {/* Desktop Links: All tool buttons shown directly in the navbar section */}
-        <div className="hidden md:flex flex-1 items-center justify-center gap-1 lg:gap-1.5 xl:gap-2">
+        {/* Desktop Links: Enlarged tool buttons with stylish typography & icons */}
+        <div className="hidden lg:flex flex-1 items-center justify-center gap-1.5 xl:gap-2.5">
           {studioTools.map((t) => (
             <Link
               key={t.path}
               to={t.path}
-              className="group inline-flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-full text-xs font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-[#FFE4C4]/50 transition-all cursor-pointer whitespace-nowrap"
+              className="group inline-flex items-center gap-2 px-3.5 xl:px-4 py-2 rounded-full text-[13px] xl:text-[13.5px] font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-white/90 hover:shadow-xs transition-all duration-180 cursor-pointer whitespace-nowrap"
               activeProps={{
                 className:
-                  "bg-[#FFE4C4] text-[#E11D48] border border-[#FED7AA] shadow-2xs font-bold",
+                  "bg-white text-[#E11D48] border border-rose-200/70 shadow-xs font-bold",
               }}
             >
               <t.icon
-                size={13}
-                className="shrink-0 text-gray-500 group-hover:text-[#E11D48] group-[.bg-\[\#FFE4C4\]]:text-[#E11D48] transition-colors"
+                size={15}
+                className="shrink-0 text-gray-500 group-hover:text-[#E11D48] group-[.bg-white]:text-[#E11D48] transition-colors"
               />
               <span>{t.name}</span>
             </Link>
           ))}
-
-          <Link
-            to="/pricing"
-            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-[#FFE4C4]/50 transition-all cursor-pointer whitespace-nowrap"
-            activeProps={{
-              className: "bg-[#FFE4C4] text-[#E11D48] border border-[#FED7AA] shadow-2xs font-bold",
-            }}
-          >
-            Pricing
-          </Link>
         </div>
 
-        {/* Premium CTA Button */}
+        {/* Premium CTA Button: Larger & more prominent */}
         <div className="hidden sm:flex items-center gap-3">
           <Link
-            to="/video-enhancer"
-            className="relative group inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs tracking-tight text-white bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_4px_18px_rgba(225,29,72,0.38)] hover:shadow-[0_6px_26px_rgba(225,29,72,0.52)] hover:scale-[1.02] active:scale-[0.98] transition-all overflow-hidden"
+            to="/background-remover"
+            className="relative group inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold text-xs sm:text-sm tracking-tight text-white bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_4px_20px_rgba(225,29,72,0.36)] hover:shadow-[0_6px_28px_rgba(225,29,72,0.52)] hover:scale-[1.03] active:scale-[0.98] transition-all overflow-hidden cursor-pointer whitespace-nowrap"
           >
-            <span className="relative z-10 flex items-center gap-1.5">
-              <span>Try Video Enhancer</span>
-              <Sparkles className="size-3.5 text-white/95 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="relative z-10 flex items-center gap-2">
+              <span>Try Background Remover</span>
+              <Sparkles className="size-4 text-white/95 group-hover:rotate-12 transition-transform duration-300" />
             </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
           </Link>
         </div>
 
@@ -121,9 +135,6 @@ export function Navbar() {
               </Link>
             ))}
           </div>
-          <Link to="/pricing" onClick={() => setOpen(false)} className="studio-nav-mobile-link">
-            Pricing
-          </Link>
           <Link to="/tools" onClick={() => setOpen(false)} className="studio-nav-mobile-cta">
             Open studio <ArrowUpRight size={15} />
           </Link>

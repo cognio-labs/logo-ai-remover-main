@@ -140,15 +140,22 @@ export async function removeImageBackground(
         bg_type: bgType,
         bg_color: customColor,
         backdrop_id: backdropId,
-        quality_mode: "fast",
+        quality_mode: "standard",
         export_format: bgType === "transparent" ? "png" : "jpg",
         edge_refinement: true,
         color_decontamination: true,
+        shadow: { enabled: bgType === "transparent", opacity: 0.08 },
       });
 
       if (direct && direct.result_url) {
+        if (direct.status === "no_clear_subject") {
+          throw new Error("No clear subject was isolated. Try an image with a more distinct subject.");
+        }
         if (onProgress) onProgress("Ready", 100);
-        const downloadRes = await fetch(direct.result_url);
+        const downloadRes = await fetch(getDownloadUrl(direct.job_id));
+        if (!downloadRes.ok || !downloadRes.headers.get("content-type")?.includes("image/")) {
+          throw new Error("Processed image could not be downloaded.");
+        }
         const resultBlob = await downloadRes.blob();
         const resultBlobUrl = URL.createObjectURL(resultBlob);
 
@@ -171,6 +178,9 @@ export async function removeImageBackground(
         };
       }
     } catch (directErr) {
+      if (directErr instanceof Error && directErr.message.startsWith("No clear subject")) {
+        throw directErr;
+      }
       console.warn("Direct fast removal failed or timed out, falling back to background job:", directErr);
     }
 
@@ -184,6 +194,7 @@ export async function removeImageBackground(
       export_format: bgType === "transparent" ? "png" : "jpg",
       edge_refinement: true,
       color_decontamination: true,
+      shadow: { enabled: bgType === "transparent", opacity: 0.08 },
     });
 
     const completedJob = await pollBackgroundJob(job.id, (statusUpdate) => {
@@ -192,7 +203,13 @@ export async function removeImageBackground(
       }
     });
 
+    if (completedJob.status === "no_clear_subject") {
+      throw new Error("No clear subject was isolated. Try an image with a more distinct subject.");
+    }
     const downloadRes = await fetch(getDownloadUrl(completedJob.id));
+    if (!downloadRes.ok || !downloadRes.headers.get("content-type")?.includes("image/")) {
+      throw new Error("Processed image could not be downloaded.");
+    }
     const resultBlob = await downloadRes.blob();
     const resultBlobUrl = URL.createObjectURL(resultBlob);
 
@@ -233,8 +250,8 @@ export async function removeImageBackground(
       actions: completedJob.actions,
     };
   } catch (error) {
-    console.warn("Backend AI removal failed, utilizing client-side fallback:", error);
-    return clientSideFallbackRemoval(imageUrl, bgType, customColor, backdropId);
+    console.error("Background removal failed:", error);
+    throw error;
   }
 }
 

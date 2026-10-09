@@ -32,8 +32,8 @@ import pymupdf
 
 from backend.models.pdf_job import PdfJobRecord, PdfJobStatus
 from backend.services.pdf.detector import PageWatermarkAnalysis, analyze_page
-from backend.services.pdf.inpaint import inpaint_raster_watermark
-from backend.services.pdf.mask import build_precise_raster_mask
+from backend.services.pdf.inpaint import inpaint_raster_watermark, remove_uniform_color_overlay
+from backend.services.pdf.mask import build_chromatic_image_mask, build_precise_raster_mask
 from backend.services.pdf.native_remover import remove_native_watermarks
 from backend.services.pdf.verifier import IntegrityError, verify_cleaned_pdf, verify_cleaned_image
 from backend.services.pdf_job_service import pdf_job_service
@@ -314,19 +314,7 @@ def _run_image(job: PdfJobRecord, job_root: Path, orig_path: Path) -> None:
         raise ValueError("Uploaded image cannot be decoded")
 
     h, w = img.shape[:2]
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Use the same conservative raster detection as the PDF detector:
-    # semi-transparent overlay pixels in [175, 230] (below 175 = real ink)
-    wm_mask_raw = cv2.inRange(gray, 175, 230)
-    kern = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    wm_mask_raw = cv2.morphologyEx(wm_mask_raw, cv2.MORPH_CLOSE, kern)
-
-    # Protect dark ink
-    dark_ink = (gray < 160).astype(np.uint8) * 255
-    kern_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    protected = cv2.dilate(dark_ink, kern_d, iterations=1)
-    wm_mask = cv2.bitwise_and(wm_mask_raw, cv2.bitwise_not(protected))
+    wm_mask = build_chromatic_image_mask(img) if job.options.remove_blue_marker else np.zeros((h, w), dtype=np.uint8)
 
     coverage = float(np.count_nonzero(wm_mask)) / (h * w)
     if coverage > 0.55:
@@ -341,10 +329,9 @@ def _run_image(job: PdfJobRecord, job_root: Path, orig_path: Path) -> None:
         message="Applying localized watermark removal",
     )
 
-    if np.count_nonzero(wm_mask) > 0:
-        cleaned_img = inpaint_raster_watermark(img, wm_mask)
-    else:
-        cleaned_img = img.copy()
+    if np.count_nonzero(wm_mask) == 0:
+        raise ValueError("No safely removable colored mark was detected in this image")
+    cleaned_img = remove_uniform_color_overlay(img, wm_mask)
 
     ext = orig_path.suffix.lower() or ".png"
     output_path = job_root / "output" / f"cleaned{ext}"
