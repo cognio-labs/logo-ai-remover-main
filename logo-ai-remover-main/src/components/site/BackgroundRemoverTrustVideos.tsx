@@ -6,13 +6,10 @@ import {
   Check,
   Play,
   Pause,
-  Download,
   ShoppingBag,
-  Car,
   UserCheck,
   Sparkles,
 } from "lucide-react";
-import { toast } from "sonner";
 
 export interface PortraitTrustVideo {
   id: string;
@@ -117,16 +114,7 @@ export function BackgroundRemoverTrustVideos({
     }
   };
 
-  const handleDownloadSample = (e: React.MouseEvent, item: PortraitTrustVideo) => {
-    e.stopPropagation();
-    const a = document.createElement("a");
-    a.href = item.sampleCutout;
-    a.download = `bellix-sample-${item.id}-cutout.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    toast.success(`Downloaded transparent sample for ${item.title}!`);
-  };
+
 
   const handleCtaClick = () => {
     if (onUploadClick) {
@@ -235,17 +223,17 @@ export function BackgroundRemoverTrustVideos({
                   </div>
 
                   {/* CARD DETAILS BELOW VIDEO */}
-                  <div className="mt-5 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="p-1 rounded-lg bg-[#FFF1F4] text-[#E11D48]">
-                        <Icon className="size-4" />
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="p-1 rounded-md bg-[#FFF1F4] text-[#E11D48]">
+                        <Icon className="size-3.5" />
                       </span>
-                      <span className="text-xs font-semibold text-[#E11D48] tracking-wide uppercase">
+                      <span className="text-[11px] font-semibold text-[#E11D48] tracking-wider uppercase">
                         {item.badge}
                       </span>
                     </div>
 
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-950 tracking-tight">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-950 tracking-tight">
                       {item.title}
                     </h3>
 
@@ -253,56 +241,28 @@ export function BackgroundRemoverTrustVideos({
                       {item.description}
                     </p>
 
-                    {/* The Ultimate Prompt Formula & Goal Box */}
-                    <div className="p-3 rounded-2xl bg-gray-50/90 border border-gray-200/70 text-[11px] text-gray-700 space-y-1.5">
-                      <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-wider text-gray-400 font-semibold">
-                        <span className="flex items-center gap-1 text-[#E11D48]">
-                          <Sparkles className="size-3" />
-                          <span>Goal:</span>
-                        </span>
-                        <span className="bg-rose-50 text-[#E11D48] px-1.5 py-0.5 rounded font-mono">
-                          Prompt Formula
-                        </span>
-                      </div>
-                      <p className="text-[11px] font-medium text-gray-900 leading-snug">
-                        {item.goal}
-                      </p>
-                      <p className="text-[10px] text-gray-500 font-mono bg-white p-2 rounded-xl border border-gray-100 leading-relaxed italic line-clamp-3">
-                        "{item.prompt}"
-                      </p>
-                    </div>
-
                     {/* Key Highlights Bullets */}
-                    <ul className="pt-2 border-t border-gray-100 space-y-1.5 text-xs text-gray-700">
+                    <ul className="pt-2 border-t border-gray-100 space-y-1.5 text-xs text-gray-600">
                       {item.highlights.map((h) => (
                         <li key={h} className="flex items-start gap-2">
                           <Check className="size-3.5 text-[#E11D48] shrink-0 mt-0.5" />
-                          <span className="font-normal leading-tight">{h}</span>
+                          <span className="font-normal leading-snug">{h}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
 
-                {/* BOTTOM CTA & SAMPLE BUTTONS */}
-                <div className="mt-5 pt-4 border-t border-gray-100 space-y-2">
+                {/* BOTTOM CTA BUTTON - ONLY UPLOAD */}
+                <div className="mt-4 pt-3 border-t border-gray-100">
                   <button
                     type="button"
                     onClick={handleCtaClick}
-                    className="w-full py-3 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-semibold shadow-md shadow-rose-500/25 hover:shadow-lg hover:shadow-rose-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
+                    className="w-full py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-semibold shadow-md shadow-rose-500/25 hover:shadow-lg hover:shadow-rose-500/35 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-101 active:scale-99"
                   >
                     <Upload className="size-4" />
                     <span>Upload Your Image</span>
                     <ArrowRight className="size-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => handleDownloadSample(e, item)}
-                    className="w-full py-2 rounded-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 text-xs font-medium border border-gray-200/80 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Download className="size-3.5 text-gray-500" />
-                    <span>Download Cutout PNG</span>
                   </button>
                 </div>
               </div>
