@@ -1,0 +1,153 @@
+import type { BackgroundItem, ColorItem, FilterPreset } from "./types";
+
+// Helper to generate Unsplash CDN URL with thumbnail & high-res versions
+const unsplash = (id: string, name: string, category = "Magic"): BackgroundItem => ({
+  id,
+  name,
+  category,
+  thumbnail: `https://images.unsplash.com/${id}?w=160&auto=format&fit=crop&q=60`,
+  url: `https://images.unsplash.com/${id}?w=1600&auto=format&fit=crop&q=85`,
+});
+
+/* -------------------------------------------------------------------------- */
+/* 50+ MAGIC AI & CREATIVE BACKGROUNDS                                        */
+/* -------------------------------------------------------------------------- */
+export const MAGIC_BACKGROUNDS: BackgroundItem[] = [
+  unsplash("photo-1618005182384-a83a8bd57fbe", "Neon Silk Gradient", "Abstract"),
+  unsplash("photo-1579783900882-c0d3dad7b119", "Ethereal Pastel Waves", "Abstract"),
+  unsplash("photo-1550684848-fac1c5b4e853", "Dark Obsidian Glass", "Studio"),
+  unsplash("photo-1507525428034-b723cf961d3e", "Tropical Turquoise Coast", "Nature"),
+  unsplash("photo-1518709268805-4e9042af9f23", "Cyberpunk Neon City", "Creative"),
+  unsplash("photo-1600585154340-be6161a56a0c", "Luxury Minimal Villa", "Architecture"),
+  unsplash("photo-1618221195710-dd6b41faaea6", "Warm Nordic Living Room", "Studio"),
+  unsplash("photo-1519681393784-d120267933ba", "Starry Alpine Peak", "Nature"),
+  unsplash("photo-1513694203232-719a280e022f", "Cozy Coffee Loft", "Studio"),
+  unsplash("photo-1509198397868-475647b2a1e5", "Geometric Cyber Glow", "Creative"),
+  unsplash("photo-1506744038136-46273834b3fb", "Misty Yosemite Valley", "Nature"),
+  unsplash("photo-1512917774080-9991f1c4c750", "Modern Penthouse Terrace", "Architecture"),
+  unsplash("photo-1492691527719-9d1e07e534b4", "Golden Hour Forest", "Nature"),
+  unsplash("photo-1534447677768-be436bb09401", "Cosmic Violet Aurora", "Creative"),
+  unsplash("photo-1578632767115-351597cf2477", "Abstract Fluid Resin", "Abstract"),
+  unsplash("photo-1501785888041-af3ef285b470", "Calm Lake Sunrise", "Nature"),
+  unsplash("photo-1517245386807-bb43f82c33c4", "High-Tech Innovation Lab", "Studio"),
+  unsplash("photo-1497366216548-37526070297c", "Executive Glass Office", "Studio"),
+  unsplash("photo-1513542789411-b6a5d4f31634", "Golden Bokeh Blur", "Abstract"),
+  unsplash("photo-1528459801416-a9e53bbf4e17", "Pastel Cloud Dreamscape", "Creative"),
+  unsplash("photo-1493246507139-91e8fad9978e", "Turquoise Alpine Lake", "Nature"),
+  unsplash("photo-1511447333015-45b65e60f6d5", "Neon Vaporwave Grid", "Creative"),
+  unsplash("photo-1507652313519-d4e9174996dd", "Minimalist Marble Pedestal", "Studio"),
+  unsplash("photo-1519710164239-da123dc03ef4", "Scandinavian Sunlit Loft", "Studio"),
+  unsplash("photo-1470071459604-3b5ec3a7fe05", "Foggy Pine Ridge", "Nature"),
+  unsplash("photo-1524758631624-e2822e304c36", "Modernist Armchair Studio", "Studio"),
+  unsplash("photo-1533158307587-828f0a76ef46", "Liquid Bronze Fluid", "Abstract"),
+  unsplash("photo-1464822759023-fed622ff2c3b", "Dolomite Mountain Ridge", "Nature"),
+  unsplash("photo-1513519245088-0e12902e5a38", "Blush Pink Interior", "Studio"),
+  unsplash("photo-1508739773434-c26b3d09e071", "Sunset Savannah Horizon", "Nature"),
+  unsplash("photo-1518770660439-4636190af475", "Silicon Microchip Blue", "Creative"),
+  unsplash("photo-1486406146926-c627a92ad1ab", "Monolithic Corporate Tower", "Architecture"),
+  unsplash("photo-1500530855697-b586d89ba3ee", "Icelandic Black Beach", "Nature"),
+  unsplash("photo-1497215728101-856f4ea42174", "Open Creative Studio", "Studio"),
+  unsplash("photo-1550745165-9bc0b252726f", "Retro Arcade Neon", "Creative"),
+  unsplash("photo-1513836279014-a89f7a76ae86", "Bamboo Canopy Sunburst", "Nature"),
+  unsplash("photo-1499951360447-b19be8fe80f5", "Creative Designer Desk", "Studio"),
+  unsplash("photo-1534796636912-3b95b3ab5986", "Vibrant Nebula Dust", "Creative"),
+  unsplash("photo-1490730141103-6cac27aaab94", "Golden Hour Sand Dunes", "Nature"),
+  unsplash("photo-1517816743773-6e0fd518b4a6", "Minimal Clean White Wall", "Studio"),
+  unsplash("photo-1506905925346-21bda4d32df4", "Snowcapped Himalayan Peak", "Nature"),
+  unsplash("photo-1558655146-d09347e92766", "Modern Graphic Shapes", "Abstract"),
+  unsplash("photo-1516450360452-9312f5e86fc7", "Concert Stage Lights", "Creative"),
+  unsplash("photo-1473448912268-2022ce9509d8", "Autumn Maple Forest", "Nature"),
+  unsplash("photo-1484154218962-a197022b5858", "Architectural Kitchen Studio", "Studio"),
+  unsplash("photo-1531306728370-e2ebd9d7bb99", "Deep Space Galaxy", "Creative"),
+  unsplash("photo-1501854140801-50d01698950b", "Green Rolling Hills", "Nature"),
+  unsplash("photo-1497366811353-6870744d04b2", "Modern Glass Meeting Room", "Studio"),
+  unsplash("photo-1557683316-973673baf926", "Velvet Plum Gradient", "Abstract"),
+  unsplash("photo-1519501025264-65ba15a82390", "Tokyo Night Rain", "Creative"),
+  unsplash("photo-1448375240586-882707db888b", "Deep Redwood Forest", "Nature"),
+  unsplash("photo-1507525428034-b723cf961d3e", "Sunlit White Sand Beach", "Nature"),
+];
+
+/* -------------------------------------------------------------------------- */
+/* 30+ REAL PHOTOGRAPHIC BACKGROUNDS                                          */
+/* -------------------------------------------------------------------------- */
+export const PHOTO_BACKGROUNDS: BackgroundItem[] = [
+  unsplash("photo-1497366754035-f200968a6e72", "Corporate Bright Office", "Office"),
+  unsplash("photo-1441974231531-c6227db76b6e", "Dense Green Sunlight Forest", "Nature"),
+  unsplash("photo-1507525428034-b723cf961d3e", "Turquoise Coral Lagoon", "Beach"),
+  unsplash("photo-1486406146926-c627a92ad1ab", "Financial District Skyline", "City"),
+  unsplash("photo-1513694203232-719a280e022f", "Warm Artisan Cafe", "Interior"),
+  unsplash("photo-1464822759023-fed622ff2c3b", "Dolomite Mountain Crest", "Nature"),
+  unsplash("photo-1518780664697-55e3ad937233", "Scandinavian Country Home", "Interior"),
+  unsplash("photo-1506744038136-46273834b3fb", "Yosemite Waterfall Valley", "Nature"),
+  unsplash("photo-1519710164239-da123dc03ef4", "Modernist White Living Room", "Interior"),
+  unsplash("photo-1477959858617-67f30bc75b82", "Chicago City Lights", "City"),
+  unsplash("photo-1512917774080-9991f1c4c750", "Infinity Pool Over Ocean", "Travel"),
+  unsplash("photo-1501785888041-af3ef285b470", "Quiet Lake Mist", "Nature"),
+  unsplash("photo-1497215728101-856f4ea42174", "Modern Co-Working Space", "Office"),
+  unsplash("photo-1492691527719-9d1e07e534b4", "Wildflower Meadow", "Nature"),
+  unsplash("photo-1519681393784-d120267933ba", "Snowy Mountain Peak", "Nature"),
+  unsplash("photo-1484154218962-a197022b5858", "Marble Countertop Kitchen", "Interior"),
+  unsplash("photo-1507652313519-d4e9174996dd", "Minimalist White Studio Plinth", "Studio"),
+  unsplash("photo-1470071459604-3b5ec3a7fe05", "Sunrise Fog Over Mountains", "Nature"),
+  unsplash("photo-1517245386807-bb43f82c33c4", "Contemporary Boardroom", "Office"),
+  unsplash("photo-1490730141103-6cac27aaab94", "Sahara Desert Sunset", "Travel"),
+  unsplash("photo-1513519245088-0e12902e5a38", "Cozy Plant Bookshelf Studio", "Interior"),
+  unsplash("photo-1500530855697-b586d89ba3ee", "Iceland Glacial Beach", "Nature"),
+  unsplash("photo-1499951360447-b19be8fe80f5", "Workspace with MacBook & Lamp", "Office"),
+  unsplash("photo-1473448912268-2022ce9509d8", "Autumn Golden Forest Path", "Nature"),
+  unsplash("photo-1517816743773-6e0fd518b4a6", "Soft White Textured Wall", "Studio"),
+  unsplash("photo-1448375240586-882707db888b", "Deep Redwood Trail", "Nature"),
+  unsplash("photo-1518709268805-4e9042af9f23", "Shinjuku Night Alley", "City"),
+  unsplash("photo-1493246507139-91e8fad9978e", "Turquoise Glacier Bay", "Nature"),
+  unsplash("photo-1524758631624-e2822e304c36", "Eames Chair Reading Nook", "Interior"),
+  unsplash("photo-1506905925346-21bda4d32df4", "Misty Mountain Vista", "Nature"),
+  unsplash("photo-1519501025264-65ba15a82390", "Modern City Highrise", "City"),
+  unsplash("photo-1508739773434-c26b3d09e071", "Sunset Acacia Plains", "Nature"),
+];
+
+/* -------------------------------------------------------------------------- */
+/* 25+ COLOR PALETTES & SWATCHES                                              */
+/* -------------------------------------------------------------------------- */
+export const COLOR_SWATCHES: ColorItem[] = [
+  { id: "white", name: "Pure White", hex: "#FFFFFF", badge: "E-Commerce" },
+  { id: "black", name: "Absolute Black", hex: "#000000", badge: "Pro Dark" },
+  { id: "charcoal", name: "Studio Charcoal", hex: "#1F2937", badge: "Studio" },
+  { id: "slate", name: "Cool Slate", hex: "#64748B" },
+  { id: "light-gray", name: "Soft Fog Gray", hex: "#F3F4F6", badge: "Shopify" },
+  { id: "warm-cream", name: "Warm Cream", hex: "#FEFCE8", badge: "Aesthetic" },
+  { id: "blush-pink", name: "Blush Rose", hex: "#FDF2F8" },
+  { id: "cherry-rose", name: "Bellix Crimson", hex: "#E11D48", badge: "Brand" },
+  { id: "coral", name: "Vibrant Coral", hex: "#FF5E57" },
+  { id: "amber", name: "Warm Amber", hex: "#F59E0B" },
+  { id: "gold", name: "Luxury Champagne", hex: "#FCD34D" },
+  { id: "emerald", name: "Deep Emerald", hex: "#059669" },
+  { id: "mint", name: "Mint Fresh", hex: "#ECFDF5" },
+  { id: "cyan", name: "Neon Cyan", hex: "#06B6D4" },
+  { id: "sky", name: "Sky Azure", hex: "#38BDF8" },
+  { id: "royal-blue", name: "Electric Indigo", hex: "#4F46E5", badge: "Modern" },
+  { id: "navy", name: "Midnight Navy", hex: "#0F172A" },
+  { id: "violet", name: "Deep Violet", hex: "#7C3AED" },
+  { id: "magenta", name: "Neon Magenta", hex: "#D946EF" },
+  { id: "pastel-peach", name: "Soft Peach", hex: "#FFEDD5" },
+  { id: "lavender", name: "Soft Lavender", hex: "#EDE9FE" },
+  { id: "sage", name: "Sage Green", hex: "#D1FAE5" },
+  { id: "terracotta", name: "Terracotta Clay", hex: "#C2410C" },
+  { id: "silver", name: "Studio Silver", hex: "#E2E8F0" },
+  { id: "graphite", name: "Deep Graphite", hex: "#334155" },
+];
+
+/* -------------------------------------------------------------------------- */
+/* INSTAGRAM-STYLE PHOTO FILTERS                                              */
+/* -------------------------------------------------------------------------- */
+export const PHOTO_FILTERS: FilterPreset[] = [
+  { id: "none", name: "Normal", cssFilter: "none" },
+  { id: "vintage", name: "Vintage", cssFilter: "sepia(0.35) contrast(1.15) brightness(1.05) saturate(1.1)" },
+  { id: "sepia", name: "Sepia", cssFilter: "sepia(0.85) contrast(0.95)" },
+  { id: "bw", name: "B & W", cssFilter: "grayscale(1) contrast(1.2) brightness(1.05)" },
+  { id: "warm", name: "Warm Glow", cssFilter: "sepia(0.2) saturate(1.3) hue-rotate(-10deg) brightness(1.05)" },
+  { id: "cool", name: "Nordic Cool", cssFilter: "hue-rotate(180deg) saturate(0.85) brightness(1.05) contrast(1.1)" },
+  { id: "vivid", name: "Vivid Pop", cssFilter: "contrast(1.25) saturate(1.5) brightness(1.02)" },
+  { id: "dramatic", name: "Dramatic", cssFilter: "contrast(1.4) saturate(0.9) brightness(0.95)" },
+  { id: "cyberpunk", name: "Cyberpunk", cssFilter: "contrast(1.3) hue-rotate(290deg) saturate(1.6)" },
+  { id: "matte", name: "Film Matte", cssFilter: "contrast(0.9) brightness(1.1) saturate(0.85)" },
+];

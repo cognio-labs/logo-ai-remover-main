@@ -49,6 +49,7 @@ import { handleEditInCanva, CANVA_TERMS_URL } from "@/lib/canvaIntegration";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { RemoveBgStudioEditor } from "@/components/studio/editor/RemoveBgStudioEditor";
 
 export const Route = createFileRoute("/background-remover")({
   head: () => ({
@@ -1498,239 +1499,64 @@ function BackgroundRemoverPage() {
           )}
 
           {/* ============================================================== */}
-          {/* STATE 2 & 3: CLEAN STUDIO WORKSPACE (Loading & Cutout Result)   */}
+          {/* STATE 2: LOADING IN-PLACE SPINNER (NO GHOST MASK, < 1s)        */}
           {/* ============================================================== */}
-          {(status === "uploading" || status === "processing" || status === "success") && sourceUrl && (
+          {(status === "uploading" || status === "processing") && sourceUrl && (
             <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
-              {/* Landscape / No Clear Subject Banner */}
-              {status === "success" && cutoutResult?.status === "no_clear_subject" && (
-                <div className="m-4 sm:m-5 p-4 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-start gap-2.5">
-                    <AlertTriangle className="size-5 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-semibold text-amber-950">
-                        Landscape / Panoramic Scene Detected
-                      </h4>
-                      <p className="text-[11px] sm:text-xs text-amber-800 mt-0.5">
-                        No isolated foreground subject found. Your original image is kept 100% intact so nothing is damaged.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={handleRemoveSkyOnly}
-                      className="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      <Zap className="size-3.5" />
-                      <span>Remove Sky Only</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Header Info & Controls */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <FileImage className="size-4 text-[#E11D48]" />
                   <span className="font-semibold text-gray-800 truncate max-w-[200px] sm:max-w-xs">
                     {uploadedFile?.name || "cutout.png"}
                   </span>
-                  {status === "processing" || status === "uploading" ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-[11px] font-medium ml-1">
-                      <Loader2 className="size-3 animate-spin" />
-                      <span>Removing background...</span>
-                    </span>
-                  ) : (
-                    cutoutResult && (
-                      <span className="text-gray-400 font-normal">
-                        · {cutoutResult.width} × {cutoutResult.height}px · 32-bit PNG
-                      </span>
-                    )
-                  )}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-[11px] font-medium ml-1">
+                    <Loader2 className="size-3 animate-spin" />
+                    <span>Removing background...</span>
+                  </span>
                 </div>
-
-                {/* Before / After Toggle (on success) OR Cancel (on processing) */}
-                {status === "success" && cutoutResult ? (
-                  <div className="flex items-center p-1 rounded-full bg-gray-100 border border-gray-200/80 text-xs font-medium">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("before")}
-                      className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                        viewMode === "before"
-                          ? "bg-white text-gray-900 shadow-xs font-semibold"
-                          : "text-gray-500 hover:text-gray-900"
-                      }`}
-                    >
-                      Before
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("after")}
-                      className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
-                        viewMode === "after"
-                          ? "bg-white text-gray-900 shadow-xs font-semibold"
-                          : "text-gray-500 hover:text-gray-900"
-                      }`}
-                    >
-                      After
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleCancelProcessing}
-                    className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer underline underline-offset-4"
-                  >
-                    Cancel
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleCancelProcessing}
+                  className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer underline underline-offset-4"
+                >
+                  Cancel
+                </button>
               </div>
 
-              {/* Main Preview Frame */}
-              <div
-                className={`relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden ${
-                  status === "processing" || status === "uploading" || viewMode === "before"
-                    ? "bg-slate-50"
-                    : bgType === "transparent"
-                      ? "checkerboard-pattern"
-                      : ""
-                }`}
-                style={
-                  status === "success" && viewMode === "after" && bgType === "color"
-                    ? { backgroundColor: solidColor }
-                    : undefined
-                }
-              >
-                {/* Clean In-Place Loading Spinner (Visible briefly <1s over the original image) */}
-                {(status === "uploading" || status === "processing") && (
-                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center z-30 pointer-events-none">
-                    <div className="size-14 sm:size-16 rounded-full bg-white shadow-xl border border-gray-100 flex items-center justify-center mb-3">
-                      <Loader2 className="size-7 sm:size-8 text-[#E11D48] animate-spin" />
-                    </div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-gray-900 tracking-tight">
-                      Removing background...
-                    </h4>
-                    <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
-                      Creating transparent PNG
-                    </p>
+              <div className="relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden bg-slate-50">
+                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center z-30 pointer-events-none">
+                  <div className="size-14 sm:size-16 rounded-full bg-white shadow-xl border border-gray-100 flex items-center justify-center mb-3">
+                    <Loader2 className="size-7 sm:size-8 text-[#E11D48] animate-spin" />
                   </div>
-                )}
-
-                {/* Floating "Edit in Canva" Button (near top-center of preview, on success) */}
-                {status === "success" && cutoutResult && (
-                  <button
-                    type="button"
-                    onClick={onEditInCanva}
-                    disabled={isCanvaLoading}
-                    className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-white text-gray-900 text-xs sm:text-sm font-medium shadow-md hover:shadow-xl border border-gray-200/80 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer disabled:opacity-60"
-                    title="Export transparent PNG to Canva editor"
-                  >
-                    <CanvaLogoIcon className="size-4" />
-                    <span>{isCanvaLoading ? "Opening in Canva..." : "Edit in Canva"}</span>
-                  </button>
-                )}
-
-                {/* Displayed Image */}
-                {displayImage && (
+                  <h4 className="text-xs sm:text-sm font-semibold text-gray-900 tracking-tight">
+                    Removing background...
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                    Creating transparent PNG
+                  </p>
+                </div>
+                {sourceUrl && (
                   <img
-                    src={displayImage}
-                    alt={viewMode === "before" ? "Original upload" : "Cutout result"}
-                    className="max-h-[420px] max-w-full object-contain filter drop-shadow-md transition-all duration-300"
+                    src={sourceUrl}
+                    alt="Original upload"
+                    className="max-h-[420px] max-w-full object-contain filter drop-shadow-md"
                   />
                 )}
-
-                {/* Bottom Disclaimer with soft gradient overlay (on success) */}
-                {status === "success" && (
-                  <div className="absolute inset-x-0 bottom-0 py-2.5 px-4 bg-gradient-to-t from-black/50 via-black/25 to-transparent flex items-center justify-center text-center pointer-events-auto z-20">
-                    <p className="text-[11px] sm:text-xs text-white/95 drop-shadow-xs font-normal">
-                      By sending your image to Canva you agree to{" "}
-                      <a
-                        href={CANVA_TERMS_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline font-medium hover:text-white transition-colors"
-                      >
-                        Canva's Terms of Service
-                      </a>
-                      .
-                    </p>
-                  </div>
-                )}
-              </div>
-
-
-              {/* If user selected Solid Color: show swatch palette */}
-              {bgType === "color" && (
-                <div className="px-5 py-3 border-t border-gray-100 bg-gray-50 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <span className="font-semibold text-gray-700">Background Color:</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setBgType("transparent")}
-                      className="px-2.5 py-1 rounded-full border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 text-xs font-medium cursor-pointer"
-                    >
-                      Transparent
-                    </button>
-                    {SOLID_COLOR_PRESETS.slice(0, 5).map((c) => (
-                      <button
-                        key={c.hex}
-                        type="button"
-                        onClick={() => handleColorChange(c.hex)}
-                        className={`size-6 rounded-full border shadow-2xs transition-transform cursor-pointer ${
-                          solidColor.toLowerCase() === c.hex.toLowerCase()
-                            ? "scale-115 ring-2 ring-[#E11D48]"
-                            : "border-black/10 hover:scale-105"
-                        }`}
-                        style={{ backgroundColor: c.hex }}
-                        title={c.name}
-                      />
-                    ))}
-                    <input
-                      type="color"
-                      value={solidColor}
-                      onChange={(e) => handleColorChange(e.target.value)}
-                      className="size-6 rounded-full cursor-pointer border border-gray-300 p-0"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom Actions Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-t border-gray-100 bg-gray-50/50 rounded-b-3xl">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={resetToUpload}
-                    className="px-5 py-2.5 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <RefreshCw className="size-3.5" />
-                    <span>Upload Another Image</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={copyCutoutToClipboard}
-                    className="px-4 py-2.5 rounded-full border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                    title="Copy 32-bit PNG to clipboard"
-                  >
-                    <Copy className="size-3.5" />
-                    <span>Copy Image</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={downloadTransparentPng}
-                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-medium shadow-lg shadow-rose-500/25 transition-all flex items-center gap-2 cursor-pointer hover:scale-102 active:scale-98"
-                  >
-                    <Download className="size-4" />
-                    <span>Download PNG</span>
-                  </button>
-                </div>
               </div>
             </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* STATE 3: FULL-FEATURED REMOVE.BG / CANVA STUDIO IMAGE EDITOR  */}
+          {/* ============================================================== */}
+          {status === "success" && cutoutResult && sourceUrl && (
+            <RemoveBgStudioEditor
+              originalImageUrl={sourceUrl}
+              cutoutImageUrl={cutoutResult.transparentBlobUrl}
+              onReset={resetToUpload}
+              onEditInCanva={onEditInCanva}
+              isCanvaLoading={isCanvaLoading}
+            />
           )}
 
           {/* ============================================================== */}
