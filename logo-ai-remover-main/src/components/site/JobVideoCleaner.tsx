@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
+  Copy,
   Download,
   LoaderCircle,
   RefreshCw,
@@ -281,7 +282,34 @@ export function JobVideoCleaner() {
   );
 
   const selectFile = async (file: File) => {
-    if (!/\.(mp4|mov|webm|avi|mpg|mpeg|mkv)$/iu.test(file.name)) {
+    // Check if user accidentally selected/pasted an image
+    const isImage =
+      file.type.startsWith("image/") ||
+      /\.(png|jpe?g|webp|heic|heif|avif|bmp|tiff?|gif|svg)$/iu.test(file.name);
+
+    if (isImage) {
+      setError(
+        "Image file detected. This tool removes watermarks from videos. For images, open our Image Background Remover or Image Cleaner.",
+      );
+      toast.error(
+        "Image file detected. Please upload an MP4, MOV, or WebM video, or switch to Image Background Remover.",
+        {
+          action: {
+            label: "Open Image Remover",
+            onClick: () => {
+              window.location.href = "/background-remover";
+            },
+          },
+          duration: 8000,
+        },
+      );
+      return;
+    }
+
+    if (
+      !/\.(mp4|mov|webm|avi|mpg|mpeg|mkv|m4v|3gp|flv)$/iu.test(file.name) &&
+      !file.type.startsWith("video/")
+    ) {
       toast.error("Please upload MP4, MOV, WebM, AVI, or MKV.");
       return;
     }
@@ -341,6 +369,80 @@ export function JobVideoCleaner() {
       }
     }
   };
+
+  // Global Ctrl+V / Cmd+V paste listener & drop guard for Video Cleaner
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // 1. Files from clipboard (Ctrl+C from File Explorer)
+      const clipFiles = Array.from(e.clipboardData?.files || []);
+      if (clipFiles.length > 0) {
+        e.preventDefault();
+        void selectFile(clipFiles[0]);
+        return;
+      }
+
+      // 2. Video items from clipboard
+      const items = Array.from(e.clipboardData?.items || []);
+      const videoItem = items.find((item) => item.type.startsWith("video/"));
+      if (videoItem) {
+        const file = videoItem.getAsFile();
+        if (file) {
+          e.preventDefault();
+          void selectFile(file);
+          return;
+        }
+      }
+
+      // Also check image items to guide user
+      const imgItem = items.find((item) => item.type.startsWith("image/"));
+      if (imgItem) {
+        const file = imgItem.getAsFile();
+        if (file) {
+          e.preventDefault();
+          void selectFile(file);
+          return;
+        }
+      }
+
+      // 3. Pasted video URLs
+      const pastedText = e.clipboardData?.getData("text/plain")?.trim();
+      if (pastedText && /^https?:\/\/.*\.(mp4|mov|webm|mkv|avi|m4v)(\?.*)?$/i.test(pastedText)) {
+        e.preventDefault();
+        toast.info("Downloading video from URL...");
+        try {
+          const res = await fetch(pastedText);
+          const blob = await res.blob();
+          const cleanName = pastedText.split("?")[0].split("/").pop() || "pasted-video.mp4";
+          const file = new File([blob], cleanName, { type: blob.type || "video/mp4" });
+          void selectFile(file);
+        } catch {
+          toast.error("Could not fetch video from link due to web CORS security.");
+        }
+      }
+    };
+
+    const preventWindowDrop = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("paste", handlePaste);
+    window.addEventListener("dragover", preventWindowDrop);
+    window.addEventListener("drop", preventWindowDrop);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+      window.removeEventListener("dragover", preventWindowDrop);
+      window.removeEventListener("drop", preventWindowDrop);
+    };
+  }, []);
 
   const startCleaning = async () => {
     if (!originalVideo || processingJob?.status === "uploading") return;
@@ -449,7 +551,23 @@ export function JobVideoCleaner() {
           event.preventDefault();
           setDragOver(false);
           const file = event.dataTransfer.files[0];
-          if (file) void selectFile(file);
+          if (file) {
+            void selectFile(file);
+            return;
+          }
+          const uri =
+            event.dataTransfer.getData("text/uri-list") ||
+            event.dataTransfer.getData("text/plain");
+          if (uri && /^https?:\/\/.*\.(mp4|mov|webm|mkv|avi)(\?.*)?$/i.test(uri.trim())) {
+            toast.info("Downloading video from URL...");
+            fetch(uri.trim())
+              .then((res) => res.blob())
+              .then((blob) => {
+                const cleanName = uri.trim().split("?")[0].split("/").pop() || "video.mp4";
+                void selectFile(new File([blob], cleanName, { type: blob.type || "video/mp4" }));
+              })
+              .catch(() => toast.error("Could not fetch video from web link."));
+          }
         }}
       >
         <span className="flex size-18 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)]">
@@ -459,7 +577,11 @@ export function JobVideoCleaner() {
           Drop your video here
         </h3>
         <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-gray-500">
-          Upload MP4, MOV, WebM, AVI, or MKV • Drag &amp; drop
+          Upload MP4, MOV, WebM, AVI, or MKV • Paste (
+          <kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-600 font-medium">
+            Ctrl+V
+          </kbd>
+          ) • Drag &amp; drop
         </p>
         <PinkButton
           type="button"
@@ -471,7 +593,38 @@ export function JobVideoCleaner() {
         >
           <UploadCloud className="size-4" /> Upload Video
         </PinkButton>
-        <p className="mt-6 inline-flex items-center gap-2 text-xs text-gray-400">
+
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={async (event) => {
+              event.stopPropagation();
+              try {
+                if (navigator.clipboard?.read) {
+                  const clipItems = await navigator.clipboard.read();
+                  for (const item of clipItems) {
+                    const vidType = item.types.find((t) => t.startsWith("video/"));
+                    if (vidType) {
+                      const blob = await item.getType(vidType);
+                      const file = new File([blob], "pasted-video.mp4", { type: vidType });
+                      void selectFile(file);
+                      return;
+                    }
+                  }
+                }
+                toast.info("Press Ctrl+V to paste your video from clipboard.");
+              } catch {
+                toast.info("Press Ctrl+V to paste your video from clipboard.");
+              }
+            }}
+            className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#E11D48] transition-colors underline underline-offset-4 cursor-pointer"
+          >
+            <Copy className="size-3 text-[#E11D48]" />
+            <span>Paste from Clipboard (Ctrl+V)</span>
+          </button>
+        </div>
+
+        <p className="mt-5 inline-flex items-center gap-2 text-xs text-gray-400">
           <ShieldCheck className="size-3.5 text-[#E11D48]" />
           Every upload is stored in its own isolated processing job
         </p>

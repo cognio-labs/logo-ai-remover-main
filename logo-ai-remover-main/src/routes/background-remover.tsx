@@ -861,6 +861,72 @@ function formatCutoutFilename(originalName: string, ext: string = "png"): string
   return `bellix-background-removed-${cleanBase || "cutout"}.${ext}`;
 }
 
+type InlineErrorState =
+  | {
+      message: string;
+      action?: {
+        label: string;
+        to: string;
+      };
+    }
+  | string
+  | null;
+
+// Helper to safely fetch an image from a URL, Base64 data URL, or Blob URL
+async function fetchImageFromUrl(url: string): Promise<File | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Network response was not ok");
+    const blob = await res.blob();
+    if (!blob.type.startsWith("image/") && blob.type !== "application/octet-stream") {
+      return null;
+    }
+    const cleanUrl = url.split("?")[0].split("#")[0];
+    let filename = cleanUrl.split("/").pop() || "pasted-image.png";
+    if (!filename.includes(".")) {
+      filename += ".png";
+    }
+    return new File([blob], filename, {
+      type: blob.type.startsWith("image/") ? blob.type : "image/png",
+    });
+  } catch (err) {
+    console.warn("Failed to fetch image directly from URL:", err);
+    return null;
+  }
+}
+
+// Convert unusual image types (BMP, TIFF, AVIF, JFIF, SVG, ICO) to clean PNG for the AI engine
+async function normalizeImageFile(file: File): Promise<File> {
+  const isSpecialFormat =
+    /\.(bmp|tiff?|jfif|svg|avif|ico)$/i.test(file.name) ||
+    ["image/bmp", "image/tiff", "image/svg+xml", "image/x-icon", "image/avif"].includes(file.type);
+
+  if (!isSpecialFormat) {
+    return file;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(bitmap, 0, 0);
+      const convertedBlob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/png")
+      );
+      if (convertedBlob) {
+        const newName = file.name.replace(/\.[^/.]+$/, "") + ".png";
+        return new File([convertedBlob], newName, { type: "image/png" });
+      }
+    }
+  } catch (err) {
+    console.warn("Image canvas normalization fallback:", err);
+  }
+  return file;
+}
+
 function BackgroundRemoverPage() {
   const [status, setStatus] = useState<BackgroundRemovalStatus>("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -868,7 +934,7 @@ function BackgroundRemoverPage() {
   const [cutoutResult, setCutoutResult] = useState<CutoutResult | null>(null);
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("Analyzing subject");
-  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [inlineError, setInlineError] = useState<InlineErrorState>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   // Background customization state
@@ -898,51 +964,41 @@ function BackgroundRemoverPage() {
     };
   }, []);
 
-  // Global Ctrl+V / Cmd+V paste support
-  useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
-      ) {
-        return;
-      }
-
-      const items = Array.from(e.clipboardData?.items || []);
-      const imgItem = items.find((item) => item.type.startsWith("image/"));
-      if (imgItem) {
-        const file = imgItem.getAsFile();
-        if (file) {
-          e.preventDefault();
-          handleIncomingFile(file);
-          toast.success("Pasted image from clipboard!");
-        }
-      }
-    };
-
-    window.addEventListener("paste", handlePaste);
-    return () => window.removeEventListener("paste", handlePaste);
-  }, [bgType, solidColor, qualityMode]);
-
-  // Smoothly center the studio editor in viewport on success
-  useEffect(() => {
-    if (status === "success") {
-      const timer = setTimeout(() => {
-        const el = document.getElementById("studio-editor-viewport");
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 60);
-      return () => clearTimeout(timer);
-    }
-  }, [status]);
-
   // Validation & initialization
-  const handleIncomingFile = (file: File) => {
+  const handleIncomingFile = async (rawFile: File) => {
     setInlineError(null);
 
-    // MIME type check
+    // 1. Check if user accidentally uploaded/pasted a video
+    const isVideo =
+      rawFile.type.startsWith("video/") ||
+      /\.(mp4|mov|webm|avi|mpg|mpeg|mkv|m4v|3gp|flv)$/i.test(rawFile.name);
+
+    if (isVideo) {
+      setInlineError({
+        message: `Video file detected ("${rawFile.name || "video"}"). Background Remover is for photos & images.`,
+        action: {
+          label: "Open Video Remover",
+          to: "/gemini-video-watermark-remover",
+        },
+      });
+      return;
+    }
+
+    // 2. Check if user accidentally uploaded/pasted a PDF
+    const isPdf = rawFile.type.includes("pdf") || /\.pdf$/i.test(rawFile.name);
+
+    if (isPdf) {
+      setInlineError({
+        message: `PDF document detected ("${rawFile.name || "document"}"). Remove watermarks from PDFs with our document tool.`,
+        action: {
+          label: "Open PDF Remover",
+          to: "/pdf-watermark-remover",
+        },
+      });
+      return;
+    }
+
+    // 3. MIME type & extension check
     const validMimes = [
       "image/jpeg",
       "image/jpg",
@@ -950,23 +1006,37 @@ function BackgroundRemoverPage() {
       "image/webp",
       "image/heic",
       "image/heif",
+      "image/avif",
+      "image/bmp",
+      "image/tiff",
+      "image/gif",
+      "image/svg+xml",
+      "image/x-icon",
+      "image/jfif",
     ];
     const isImage =
-      file.type.startsWith("image/") ||
-      validMimes.includes(file.type.toLowerCase()) ||
-      /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+      rawFile.type.startsWith("image/") ||
+      validMimes.includes(rawFile.type.toLowerCase()) ||
+      /\.(jpe?g|png|webp|heic|heif|avif|bmp|tiff?|gif|svg|jfif|ico)$/i.test(rawFile.name);
 
     if (!isImage) {
-      setInlineError("Unsupported file format.");
+      setInlineError({
+        message: "Unsupported file format. Please upload PNG, JPG, WebP, AVIF, HEIC, or BMP.",
+      });
       return;
     }
 
     // Size limit check (35MB)
     const MAX_SIZE_BYTES = 35 * 1024 * 1024;
-    if (file.size > MAX_SIZE_BYTES) {
-      setInlineError("Image exceeds the 35MB limit.");
+    if (rawFile.size > MAX_SIZE_BYTES) {
+      setInlineError({
+        message: "Image exceeds the 35MB limit. Please upload a smaller photo.",
+      });
       return;
     }
+
+    // Normalize image format (converts BMP/TIFF/AVIF to PNG for universal engine compatibility)
+    const file = await normalizeImageFile(rawFile);
 
     // Cleanup previous object URLs
     if (sourceUrl && sourceUrl.startsWith("blob:")) URL.revokeObjectURL(sourceUrl);
@@ -983,6 +1053,126 @@ function BackgroundRemoverPage() {
 
     executeRemoval(objectUrl, file);
   };
+
+  // Global Ctrl+V / Cmd+V paste support & global drag-and-drop window guard
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // 1. Check clipboard files (Ctrl+C from Windows Explorer or Mac Finder)
+      const clipFiles = Array.from(e.clipboardData?.files || []);
+      if (clipFiles.length > 0) {
+        const targetFile = clipFiles[0];
+        e.preventDefault();
+        await handleIncomingFile(targetFile);
+        toast.success("Pasted file from clipboard!");
+        return;
+      }
+
+      // 2. Check clipboard items (Right-click "Copy Image", screenshots, Snipping tool)
+      const items = Array.from(e.clipboardData?.items || []);
+      const imgItem = items.find((item) => item.type.startsWith("image/"));
+      if (imgItem) {
+        const file = imgItem.getAsFile();
+        if (file) {
+          e.preventDefault();
+          await handleIncomingFile(file);
+          toast.success("Pasted image from clipboard!");
+          return;
+        }
+      }
+
+      // 3. Check for video item in clipboard items
+      const videoItem = items.find((item) => item.type.startsWith("video/"));
+      if (videoItem) {
+        const file = videoItem.getAsFile();
+        if (file) {
+          e.preventDefault();
+          await handleIncomingFile(file);
+          return;
+        }
+      }
+
+      // 4. Check for Image URL or plain text in clipboard (Copy Image Address, direct image links)
+      const pastedText = e.clipboardData?.getData("text/plain")?.trim();
+      if (pastedText) {
+        if (
+          pastedText.startsWith("data:image/") ||
+          /^https?:\/\/.*\.(png|jpe?g|webp|avif|gif|svg|bmp)(\?.*)?$/i.test(pastedText) ||
+          (pastedText.startsWith("http") &&
+            (pastedText.includes("unsplash.com") ||
+              pastedText.includes("cloudinary") ||
+              pastedText.includes("images") ||
+              pastedText.includes("cdn")))
+        ) {
+          e.preventDefault();
+          toast.info("Loading image from URL...");
+          const fileFromUrl = await fetchImageFromUrl(pastedText);
+          if (fileFromUrl) {
+            await handleIncomingFile(fileFromUrl);
+            toast.success("Loaded image from link!");
+            return;
+          } else {
+            setInlineError({
+              message:
+                "Could not load image directly from that link due to web security. Try right-clicking the image > 'Copy Image' > Ctrl+V here.",
+            });
+            return;
+          }
+        }
+      }
+
+      // 5. Check for HTML containing <img> (when copying images or rich web selections)
+      const pastedHtml = e.clipboardData?.getData("text/html");
+      if (pastedHtml) {
+        const match = pastedHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (match && match[1]) {
+          const src = match[1];
+          e.preventDefault();
+          toast.info("Extracting image from clipboard...");
+          const fileFromUrl = await fetchImageFromUrl(src);
+          if (fileFromUrl) {
+            await handleIncomingFile(fileFromUrl);
+            toast.success("Loaded image from clipboard!");
+            return;
+          }
+        }
+      }
+    };
+
+    const preventWindowDrop = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("paste", handlePaste);
+    window.addEventListener("dragover", preventWindowDrop);
+    window.addEventListener("drop", preventWindowDrop);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+      window.removeEventListener("dragover", preventWindowDrop);
+      window.removeEventListener("drop", preventWindowDrop);
+    };
+  }, [bgType, solidColor, qualityMode, sourceUrl, cutoutResult]);
+
+  // Smoothly center the studio editor in viewport on success
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => {
+        const el = document.getElementById("studio-editor-viewport");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
   const executeRemoval = async (imageUrl: string, file: File) => {
     // 100% Free AI Tool - Never block for credits
@@ -1218,6 +1408,76 @@ function BackgroundRemoverPage() {
     }
   };
 
+  const handleDropArea = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    // 1. Direct file drop from desktop / local filesystem
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await handleIncomingFile(file);
+      return;
+    }
+
+    // 2. Dragged from web page / browser tab (Google Images, Pinterest, another tab)
+    const uri = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
+    const html = e.dataTransfer.getData("text/html");
+    let targetUrl = uri?.trim();
+
+    if (!targetUrl && html) {
+      const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (match && match[1]) targetUrl = match[1];
+    }
+
+    if (targetUrl && (targetUrl.startsWith("http") || targetUrl.startsWith("data:image/"))) {
+      toast.info("Loading dragged image from web...");
+      const fileFromUrl = await fetchImageFromUrl(targetUrl);
+      if (fileFromUrl) {
+        await handleIncomingFile(fileFromUrl);
+        toast.success("Loaded image successfully!");
+      } else {
+        setInlineError({
+          message:
+            "Could not load image directly from that link due to web security. Try right-clicking the image > 'Copy Image' > Ctrl+V here.",
+        });
+      }
+    }
+  };
+
+  const handleClipboardButtonClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      if (navigator.clipboard?.read) {
+        const clipItems = await navigator.clipboard.read();
+        for (const item of clipItems) {
+          const imageType = item.types.find((t) => t.startsWith("image/"));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            const file = new File([blob], "pasted-image.png", { type: imageType });
+            await handleIncomingFile(file);
+            toast.success("Loaded image from clipboard!");
+            return;
+          }
+        }
+      }
+      if (navigator.clipboard?.readText) {
+        const text = (await navigator.clipboard.readText()).trim();
+        if (text.startsWith("http") || text.startsWith("data:image/")) {
+          toast.info("Loading image from URL...");
+          const fileFromUrl = await fetchImageFromUrl(text);
+          if (fileFromUrl) {
+            await handleIncomingFile(fileFromUrl);
+            toast.success("Loaded image from link!");
+            return;
+          }
+        }
+      }
+      toast.info("Press Ctrl+V to paste your image directly.");
+    } catch {
+      toast.info("Press Ctrl+V to paste your image directly.");
+    }
+  };
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     toast.success("API snippet copied to clipboard!");
@@ -1290,14 +1550,9 @@ function BackgroundRemoverPage() {
                       e.preventDefault();
                       if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
                     }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      setIsDragging(false);
-                      const file = e.dataTransfer.files?.[0];
-                      if (file) handleIncomingFile(file);
-                    }}
+                    onDrop={handleDropArea}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`h-[390px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer relative group ${
+                    className={`h-[400px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer relative group ${
                       isDragging
                         ? "border-[#E11D48] bg-[#FFF5F7] ring-2 ring-[#E11D48]/20 scale-[1.01]"
                         : "border-gray-300/90 hover:border-[#E11D48] hover:bg-[#FFF9FA]/80 bg-[#FAFAFC]/60"
@@ -1306,11 +1561,12 @@ function BackgroundRemoverPage() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+                      accept="image/png,image/jpeg,image/webp,image/heic,image/heif,image/avif,image/bmp,image/tiff,image/gif,image/svg+xml,image/*"
                       className="hidden"
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         const file = e.target.files?.[0];
                         if (file) handleIncomingFile(file);
+                        e.target.value = "";
                       }}
                     />
 
@@ -1318,25 +1574,39 @@ function BackgroundRemoverPage() {
                     {inlineError && (
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="absolute top-4 inset-x-4 mx-auto max-w-sm p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center justify-between gap-2 shadow-xs z-10"
+                        className="absolute top-3 inset-x-3 mx-auto max-w-md p-3.5 rounded-2xl bg-rose-50 border border-rose-200/90 text-rose-800 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg shadow-rose-500/10 z-20 animate-in fade-in slide-in-from-top-2"
                       >
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="size-4 shrink-0 text-[#E11D48]" />
-                          <span className="font-medium">{inlineError}</span>
+                          <span className="font-medium text-left leading-relaxed">
+                            {typeof inlineError === "string" ? inlineError : inlineError.message}
+                          </span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setInlineError(null)}
-                          className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
-                        >
-                          ✕
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                          {typeof inlineError !== "string" && inlineError.action && (
+                            <Link
+                              to={inlineError.action.to}
+                              className="px-3 py-1 rounded-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-semibold text-[11px] shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              <span>{inlineError.action.label}</span>
+                              <ArrowRight className="size-3" />
+                            </Link>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setInlineError(null)}
+                            className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
+                            aria-label="Dismiss alert"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     )}
 
                     {/* Pink/Red Circular Upload Icon Button */}
                     <span
-                      className={`size-16 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-4 transition-transform group-hover:scale-110 ${
+                      className={`size-16 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-3.5 transition-transform group-hover:scale-110 ${
                         isDragging ? "scale-110 animate-bounce" : ""
                       }`}
                     >
@@ -1348,7 +1618,7 @@ function BackgroundRemoverPage() {
                     </h3>
 
                     <p className="text-xs text-gray-500 mt-1.5 max-w-xs leading-relaxed font-normal">
-                      PNG, JPG, WebP or HEIC · Up to 35MB · Paste (
+                      PNG, JPG, WebP, AVIF or HEIC · Up to 35MB · Paste (
                       <kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-600 font-medium">
                         Ctrl+V
                       </kbd>
@@ -1361,15 +1631,24 @@ function BackgroundRemoverPage() {
                         e.stopPropagation();
                         fileInputRef.current?.click();
                       }}
-                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-semibold shadow-md shadow-[#E11D48]/25 transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
+                      className="mt-4 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-semibold shadow-md shadow-[#E11D48]/25 transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
                     >
                       <Upload className="size-4" />
                       <span>Upload Image</span>
                     </button>
 
-                    <span className="text-[11.5px] text-gray-400 mt-2 font-normal">
-                      or click anywhere to browse
-                    </span>
+                    <div className="mt-2.5 flex flex-col sm:flex-row items-center gap-2 text-xs text-gray-400">
+                      <span>or click anywhere to browse</span>
+                      <span className="hidden sm:inline text-gray-300">•</span>
+                      <button
+                        type="button"
+                        onClick={handleClipboardButtonClick}
+                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-gray-600 hover:text-[#E11D48] transition-colors underline underline-offset-2 cursor-pointer"
+                      >
+                        <Copy className="size-3 text-[#E11D48]" />
+                        <span>Paste from Clipboard</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 

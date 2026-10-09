@@ -100,6 +100,26 @@ export function UploadZone({
           }
         }
       }
+      // 3. Check clipboard URL
+      const text = e.clipboardData?.getData("text/plain")?.trim();
+      if (text && (text.startsWith("http") || text.startsWith("data:image/"))) {
+        if (
+          type === "image" &&
+          (text.startsWith("data:image/") ||
+            /\.(png|jpe?g|webp|avif|gif|bmp)(\?.*)?$/i.test(text))
+        ) {
+          e.preventDefault();
+          fetch(text)
+            .then((r) => r.blob())
+            .then((b) => {
+              const file = new File([b], "pasted-image.png", { type: b.type || "image/png" });
+              handle(file);
+              toast.success("Pasted image from link!");
+            })
+            .catch(() => toast.error("Could not load image from link."));
+          return;
+        }
+      }
     };
 
     const preventWindowDrop = (e: DragEvent) => {
@@ -124,13 +144,29 @@ export function UploadZone({
         setOver(true);
       }}
       onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
+      onDrop={async (e) => {
         e.preventDefault();
         setOver(false);
         const file =
           e.dataTransfer.files?.[0] ||
           (e.dataTransfer.items?.[0]?.kind === "file" ? e.dataTransfer.items[0].getAsFile() : null);
-        handle(file);
+        if (file) {
+          handle(file);
+          return;
+        }
+        // Web drag-and-drop from another tab
+        const uri =
+          e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
+        if (uri && (uri.startsWith("http") || uri.startsWith("data:image/"))) {
+          try {
+            const res = await fetch(uri.trim());
+            const blob = await res.blob();
+            const cleanName = uri.trim().split("?")[0].split("/").pop() || "web-upload.png";
+            handle(new File([blob], cleanName, { type: blob.type || "image/png" }));
+          } catch {
+            toast.error("Could not load image from external link.");
+          }
+        }
       }}
       onClick={() => inputRef.current?.click()}
       className={`relative flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 ${compact ? "min-h-[250px] py-7 sm:min-h-[270px] sm:py-8" : "py-14 sm:py-16"} text-center transition-all duration-300 bg-white shadow-[0_12px_40px_-15px_rgba(225,29,72,0.08)] ${

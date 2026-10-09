@@ -7,7 +7,22 @@ from backend.config import settings
 
 
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".webm", ".avi", ".mpg", ".mpeg", ".mkv"}
-ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
+ALLOWED_IMAGE_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+    ".gif",
+    ".avif",
+    ".bmp",
+    ".tiff",
+    ".tif",
+    ".heic",
+    ".heif",
+    ".jfif",
+    ".svg",
+    ".ico",
+}
 
 
 def validate_job_id(job_id: str) -> str:

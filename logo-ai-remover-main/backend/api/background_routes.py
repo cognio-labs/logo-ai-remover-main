@@ -125,7 +125,7 @@ async def process_image_background(
     if suffix not in ALLOWED_IMAGE_EXTENSIONS:
         raise HTTPException(
             status_code=415,
-            detail=f"Unsupported image extension '{suffix}'. Supported: PNG, JPG, WebP, GIF, AVIF",
+            detail=f"Unsupported image extension '{suffix}'. Supported: PNG, JPG, WebP, GIF, AVIF, BMP, TIFF, HEIC, HEIF",
         )
 
     root = background_job_dir(job_id)
