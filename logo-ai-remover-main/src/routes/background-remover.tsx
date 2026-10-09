@@ -68,14 +68,20 @@ export const Route = createFileRoute("/background-remover")({
         content:
           "Remove image backgrounds automatically with AI. Get clean transparent PNGs for portraits, products, and more. Free to use.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/background_remover_studio.jpg" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — AI Background Remover" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "AI Background Remover — Remove Image Background Online Free" },
       {
         name: "twitter:description",
         content:
           "Remove image backgrounds automatically with AI. Get clean transparent PNGs for portraits, products, and more.",
       },
-      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/background_remover_studio.jpg" },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
     ],
     scripts: [
       {

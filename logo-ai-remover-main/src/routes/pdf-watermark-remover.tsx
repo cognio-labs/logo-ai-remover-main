@@ -55,14 +55,20 @@ export const Route = createFileRoute("/pdf-watermark-remover")({
         content:
           "Remove watermarks, stamps, and logos from PDFs online. Preserves fonts, layout, and clarity.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/pdf_cleaner_blueprint.jpg" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — PDF Watermark Remover" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "PDF Watermark Remover — Clean PDFs Online Free" },
       {
         name: "twitter:description",
         content:
           "Remove watermarks, stamps, and logos from PDFs online. Preserves fonts, layout, and clarity.",
       },
-      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/pdf_cleaner_blueprint.jpg" },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
     ],
     scripts: [
       {

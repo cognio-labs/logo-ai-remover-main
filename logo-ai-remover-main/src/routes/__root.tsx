@@ -96,11 +96,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — Luxury AI Creative Studio" },
       // Twitter Card
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@bellix_us" },
-      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      { name: "twitter:title", content: "Bellix.us — AI Creative Studio" },
+      {
+        name: "twitter:description",
+        content:
+          "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
+      },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
       // Google Search Console
       { name: "google-site-verification", content: "bikuobkAr5CwX5mR65nkqvX7yUyQLeI6j2MBY58NHJ8" },
     ],
@@ -112,7 +123,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
     ],
   }),

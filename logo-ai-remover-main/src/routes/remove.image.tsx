@@ -39,13 +39,19 @@ export const Route = createFileRoute("/remove/image")({
         content:
           "Paint over any watermark, logo, or text in your photo and let AI fill it in seamlessly.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — AI Image Watermark Remover" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "AI Image Watermark Remover — Remove Logos & Text from Photos" },
       {
         name: "twitter:description",
         content: "Paint over any watermark, logo, or text in your photo and let AI fill it in seamlessly.",
       },
-      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
     ],
     scripts: [
       {

@@ -42,14 +42,20 @@ export const Route = createFileRoute("/gemini-video-watermark-remover")({
         content:
           "Remove Google Gemini stars and Veo video watermarks with AI. Supports MP4 and MOV. Clean, flicker-free results.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — AI Video Watermark Remover" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "AI Video Watermark Remover — Remove Gemini & Veo Watermarks" },
       {
         name: "twitter:description",
         content:
           "Remove Google Gemini stars and Veo video watermarks with AI. Supports MP4 and MOV. Clean, flicker-free results.",
       },
-      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
     ],
     scripts: [
       {

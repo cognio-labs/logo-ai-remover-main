@@ -43,13 +43,20 @@ export const Route = createFileRoute("/")({
         content:
           "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
       },
-      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
       {
         name: "twitter:description",
         content:
           "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
       },
+      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
     ],
     scripts: [
       {
