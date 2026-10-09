@@ -801,13 +801,6 @@ function PanoramicHeroSection() {
     toast.success(`Selected AI engine: ${modelName}`);
   };
 
-  const quickPrompts = [
-    "4K portrait restoration",
-    "Remove background cleanly",
-    "Erase video watermark",
-    "8K macro product photo",
-  ];
-
   return (
     <section className="relative w-full overflow-hidden bg-white border-b border-gray-100">
       {/* ─── DESKTOP PANORAMIC EXPERIENCE (lg+) ─── */}
@@ -1010,7 +1003,7 @@ function PanoramicHeroSection() {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-bold text-gray-950 tracking-tight leading-[1.08]">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-950 tracking-tight leading-[1.15] break-words">
             Turn rough ideas into{" "}
             <span className="bg-gradient-to-r from-[#6366F1] via-[#D946EF] to-[#E11D48] bg-clip-text text-transparent font-serif italic">
               finished work.
@@ -1023,102 +1016,11 @@ function PanoramicHeroSection() {
           </p>
         </div>
 
-        {/* ── INTERACTIVE MOBILE PROMPT STUDIO CARD ("prompt rhe card") ── */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xl shadow-gray-200/60 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900">
-              <Sparkles className="size-3.5 text-[#E11D48]" />
-              <span>AI Prompt Studio</span>
-            </span>
-            <span className="text-[10px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
-              Active: {selectedModel.split(" ")[0]}
-            </span>
-          </div>
-
-          {/* Prompt Input Form */}
-          <form
-            onSubmit={handlePromptSubmit}
-            className="flex items-center gap-2 rounded-2xl bg-gray-50 border border-gray-200 p-1.5 pl-3.5 shadow-inner focus-within:ring-2 focus-within:ring-[#E11D48]/30 focus-within:border-[#E11D48] transition-all"
-          >
-            <input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Create something amazing..."
-              className="w-full bg-transparent text-xs sm:text-sm text-gray-900 placeholder-gray-400 outline-none font-medium"
-            />
-            <button
-              type="submit"
-              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] text-white shadow-md hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-              title="Generate with AI"
-            >
-              <ArrowUpRight size={16} />
-            </button>
-          </form>
-
-          {/* Quick Prompt Suggestion Pills */}
-          <div className="space-y-1.5">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              Try a prompt:
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {quickPrompts.map((qp) => (
-                <button
-                  key={qp}
-                  type="button"
-                  onClick={() => setPrompt(qp)}
-                  className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all text-left truncate max-w-full ${
-                    prompt === qp
-                      ? "bg-rose-50 border-rose-300 text-[#E11D48] font-semibold"
-                      : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  {qp}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* AI Model Selector Pills */}
-          <div className="pt-2 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                Choose AI Engine:
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { name: "Google Gemini 2.5 Flash", short: "Gemini 2.5", icon: "✦" },
-                { name: "OpenAI GPT-4o Vision", short: "GPT-4o", icon: "⚡" },
-                { name: "Midjourney v6.1", short: "Midjourney", icon: "🎨" },
-                { name: "Runway Gen-3 Alpha", short: "Runway Gen-3", icon: "🎬" },
-              ].map((m) => {
-                const isSelected = selectedModel === m.name;
-                return (
-                  <button
-                    key={m.name}
-                    type="button"
-                    onClick={() => handleSelectModel(m.name)}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-[#FFF1F4] border-[#E11D48] text-[#E11D48] shadow-xs font-semibold"
-                        : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    <span className="text-xs">{m.icon}</span>
-                    <span className="truncate">{m.short}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
         {/* Primary Action Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
           <Link
             to="/upscale"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25 hover:opacity-95 transition-opacity"
           >
             <Sparkles size={14} />
             <span>Start creating free</span>
@@ -1127,7 +1029,7 @@ function PanoramicHeroSection() {
 
           <Link
             to="/video-enhancer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-white border border-gray-200 shadow-xs hover:bg-gray-50"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-white border border-gray-200 shadow-xs hover:bg-gray-50 transition-colors"
           >
             <span>See how it works</span>
             <ArrowRight size={14} />
@@ -1147,13 +1049,14 @@ function PanoramicHeroSection() {
           </span>
         </div>
 
-        {/* Visual Artwork Showcase Card */}
+        {/* Visual Artwork Showcase Card (Fully responsive, no cropped text) */}
         <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-xl shadow-gray-200/50 bg-white">
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
+          <div className="relative w-full overflow-hidden bg-slate-950">
             <img
               src="/creative-suite/bellix-hero-section.png"
-              alt="AI Creative Workspace"
-              className="w-full h-full object-cover object-center"
+              alt="Turn rough ideas into finished work — AI Creative Workspace"
+              className="w-full h-auto block select-none"
+              loading="eager"
             />
           </div>
         </div>
@@ -1223,9 +1126,9 @@ export function StudioHome() {
                 srcSet="/creative-suite/clean_section_ring_mobile.png"
               />
               <img
-                src="/creative-suite/clean_section_ring_backdrop.png"
+                src="/creative-suite/clean_section_ring_mobile.png"
                 alt="Diamond ring on marble — AI image restoration"
-                className="w-full h-full object-contain sm:object-cover object-center"
+                className="w-full h-full object-cover object-center mx-auto"
                 loading="eager"
               />
             </picture>

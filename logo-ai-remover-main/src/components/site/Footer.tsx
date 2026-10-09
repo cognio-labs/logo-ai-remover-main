@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Heart,
   ArrowRight,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -146,6 +147,23 @@ export function Footer() {
                 <Linkedin className="size-4" />
               </a>
             </div>
+
+            <div className="pt-2 flex items-center gap-2.5">
+              <span className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] shrink-0">
+                <Mail className="size-4" />
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                  Email Support
+                </span>
+                <a
+                  href="mailto:bellixus062@gmail.com"
+                  className="text-xs sm:text-sm font-semibold text-gray-900 hover:text-[#E11D48] transition-colors"
+                >
+                  bellixus062@gmail.com
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Product Links */}
@@ -219,6 +237,15 @@ export function Footer() {
                   Affiliate Program
                 </Link>
               </li>
+              <li>
+                <a
+                  href="mailto:bellixus062@gmail.com"
+                  className="hover:text-[#E11D48] transition-colors flex items-center gap-1.5 font-medium"
+                >
+                  <Mail className="size-3 text-[#E11D48]" />
+                  <span>bellixus062@gmail.com</span>
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -252,10 +279,15 @@ export function Footer() {
             <span>Bank-Grade 256-Bit SSL Encrypted. Zero training on user media.</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <span className="hover:text-gray-900 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-gray-900 cursor-pointer">Terms of Service</span>
-            <span className="hover:text-gray-900 cursor-pointer">Security</span>
+            <a
+              href="mailto:bellixus062@gmail.com"
+              className="hover:text-[#E11D48] text-gray-600 font-medium transition-colors"
+            >
+              bellixus062@gmail.com
+            </a>
             <Link
               to="/admin"
               className="hover:text-[#E11D48] text-gray-500 font-semibold transition-colors"

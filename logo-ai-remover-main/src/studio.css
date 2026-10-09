@@ -773,22 +773,32 @@
     display: none;
   }
 
-  /* Show the dedicated mobile image block */
+  /* Show the dedicated mobile image block (Perfect centering for the ring) */
   .studio-clean-banner-mobile-img {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
     width: 100%;
-    height: 320px;
+    height: 300px;
     background: #0f1115;
     overflow: hidden;
     flex-shrink: 0;
   }
-  .studio-clean-banner-mobile-img picture,
+  .studio-clean-banner-mobile-img picture {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
   .studio-clean-banner-mobile-img img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center center;
+    display: block;
+    margin: 0 auto;
   }
 
   /* Fade the bottom edge of the image into the white text area */
