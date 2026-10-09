@@ -83,7 +83,7 @@ export function DocumentCaseStudySlider({
       aria-valuenow={position}
       aria-valuemin={0}
       aria-valuemax={100}
-      className={`relative aspect-[16/10] w-full rounded-2xl overflow-hidden select-none bg-slate-900 border border-gray-200/90 shadow-md transition-shadow group touch-none cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-[#E11D48] ${
+      className={`relative aspect-[1601/2264] w-full rounded-2xl overflow-hidden select-none bg-white border border-gray-200/90 shadow-md transition-shadow group touch-none cursor-ew-resize focus:outline-none focus:ring-2 focus:ring-[#E11D48] ${
         isDragging ? "ring-2 ring-[#E11D48]" : "hover:shadow-lg"
       }`}
     >
@@ -95,8 +95,8 @@ export function DocumentCaseStudySlider({
           alt={`Restored ${title} - 100% clean`}
           loading="lazy"
           decoding="async"
-          width={1600}
-          height={1000}
+          width={1601}
+          height={2264}
           className="absolute inset-0 size-full object-cover object-top select-none pointer-events-none"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = fallbackAfterJpg;
@@ -105,7 +105,7 @@ export function DocumentCaseStudySlider({
       </picture>
 
       {/* After Badge (Top Right) */}
-      <div className="absolute top-3 right-3 z-10 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/95 text-white text-[10px] sm:text-xs font-bold tracking-wide shadow-md backdrop-blur-xs border border-white/20">
+      <div className="absolute top-3 right-3 z-10 pointer-events-none flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-emerald-600/95 text-white text-[10px] sm:text-xs font-bold tracking-wide shadow-md backdrop-blur-xs border border-white/20">
         <CheckCircle2 className="size-3 sm:size-3.5 text-emerald-200 shrink-0" />
         <span>AFTER (100% CLEAN)</span>
       </div>
@@ -125,8 +125,8 @@ export function DocumentCaseStudySlider({
             alt={`Original ${title} with watermark`}
             loading="lazy"
             decoding="async"
-            width={1600}
-            height={1000}
+            width={1601}
+            height={2264}
             className="absolute inset-0 size-full object-cover object-top select-none pointer-events-none"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = fallbackBeforeJpg;
@@ -135,11 +135,9 @@ export function DocumentCaseStudySlider({
         </picture>
 
         {/* Before Badge (Top Left) */}
-        <div className="absolute top-3 left-3 z-10 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-600/95 text-white text-[10px] sm:text-xs font-bold tracking-wide shadow-md backdrop-blur-xs border border-white/20">
+        <div className="absolute top-3 left-3 z-10 pointer-events-none flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-rose-600/95 text-white text-[10px] sm:text-xs font-bold tracking-wide shadow-md backdrop-blur-xs border border-white/20">
           <AlertCircle className="size-3 sm:size-3.5 text-rose-200 shrink-0" />
-          <span className="truncate max-w-[150px] sm:max-w-[200px]">
-            BEFORE ({watermarkText})
-          </span>
+          <span>BEFORE ({watermarkText})</span>
         </div>
       </div>
 

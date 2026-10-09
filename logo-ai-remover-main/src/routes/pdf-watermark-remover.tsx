@@ -857,7 +857,7 @@ export default function PdfWatermarkRemoverPage() {
                               {currentPage}/{totalPages}
                             </span>
                           </div>
-                          <div className="relative aspect-[16/11] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-1.5">
+                          <div className="relative aspect-[1601/2264] max-h-[420px] bg-white rounded-xl border border-gray-200 overflow-auto flex items-center justify-center p-1.5">
                             <img
                               src={originalPreviewUrl || previewUrl || ""}
                               alt="Original"
@@ -880,7 +880,7 @@ export default function PdfWatermarkRemoverPage() {
                               {currentPage}/{totalPages}
                             </span>
                           </div>
-                          <div className="relative aspect-[16/11] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-1.5">
+                          <div className="relative aspect-[1601/2264] max-h-[420px] bg-white rounded-xl border border-emerald-200/60 overflow-auto flex items-center justify-center p-1.5">
                             <img
                               src={cleanedPreviewUrl || ""}
                               alt="Cleaned"
