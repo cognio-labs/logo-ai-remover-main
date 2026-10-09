@@ -1012,9 +1012,9 @@
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(255, 247, 237, 0.92);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(255, 214, 165, 0.5);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
 }
 .studio-nav-inner {
   max-width: 1390px;

@@ -11,6 +11,7 @@ import {
   WandSparkles,
   ScanLine,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import navbarLogo from "@/assets/navbar-logo.png";
 import { studioTools } from "@/components/studio/Studio";
@@ -66,25 +67,35 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop Links: Enlarged tool buttons with stylish typography & icons */}
-        <div className="hidden lg:flex flex-1 items-center justify-center gap-1.5 xl:gap-2.5">
+        {/* Desktop / Tablet Links */}
+        <div className="hidden md:flex flex-1 items-center justify-center gap-1 sm:gap-1.5 xl:gap-2.5 min-w-0">
           {studioTools.map((t) => (
             <Link
               key={t.path}
               to={t.path}
-              className="group inline-flex items-center gap-2 px-3.5 xl:px-4 py-2 rounded-full text-[13px] xl:text-[13.5px] font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-white/90 hover:shadow-xs transition-all duration-180 cursor-pointer whitespace-nowrap"
+              className="group inline-flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs xl:text-[13.5px] font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-white/90 hover:shadow-xs transition-all duration-180 cursor-pointer whitespace-nowrap shrink-0"
               activeProps={{
                 className:
                   "bg-white text-[#E11D48] border border-rose-200/70 shadow-xs font-bold",
               }}
             >
               <t.icon
-                size={15}
+                size={14}
                 className="shrink-0 text-gray-500 group-hover:text-[#E11D48] group-[.bg-white]:text-[#E11D48] transition-colors"
               />
               <span>{t.name}</span>
             </Link>
           ))}
+          <Link
+            to="/contact"
+            className="group inline-flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs xl:text-[13.5px] font-semibold text-gray-700 hover:text-[#E11D48] hover:bg-white/90 hover:shadow-xs transition-all duration-180 cursor-pointer whitespace-nowrap shrink-0"
+            activeProps={{
+              className:
+                "bg-white text-[#E11D48] border border-rose-200/70 shadow-xs font-bold",
+            }}
+          >
+            <span>Contact</span>
+          </Link>
         </div>
 
         {/* Premium CTA Button: Larger & more prominent */}
@@ -133,6 +144,18 @@ export function Navbar() {
                 <ArrowUpRight size={13} />
               </Link>
             ))}
+            <Link
+              to="/contact"
+              onClick={() => setOpen(false)}
+              className="studio-nav-mobile-tool"
+            >
+              <Mail size={16} />
+              <span>
+                <strong>Contact Us</strong>
+                <small>24/7 Support & Inquiries</small>
+              </span>
+              <ArrowUpRight size={13} />
+            </Link>
           </div>
           <Link to="/tools" onClick={() => setOpen(false)} className="studio-nav-mobile-cta">
             Open studio <ArrowUpRight size={15} />

@@ -241,6 +241,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/contact" className="hover:text-[#E11D48] transition-colors">
+                  Contact Us (24/7)
+                </Link>
+              </li>
+              <li>
                 <a
                   href="mailto:bellixus062@gmail.com"
                   className="hover:text-[#E11D48] transition-colors flex items-center gap-1.5 font-medium"
