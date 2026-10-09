@@ -54,11 +54,44 @@ import { RemoveBgStudioEditor } from "@/components/studio/editor/RemoveBgStudioE
 export const Route = createFileRoute("/background-remover")({
   head: () => ({
     meta: [
-      { title: "Free AI Background Remover — 100% Automatically in 5 Seconds | Bellix.us" },
+      { title: "AI Background Remover — Remove Image Background Online Free | Bellix.us" },
       {
         name: "description",
         content:
-          "Remove image backgrounds online 100% automatically with AI. Isolate flyaway hair, pet fur, and e-commerce products with sub-pixel edge matting. Download transparent 4K PNGs or replace backgrounds instantly.",
+          "Remove image backgrounds online in seconds with AI. Get clean, transparent PNG cutouts for portraits, products, pets, and more. No signup required — upload and download instantly.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/background-remover" },
+      { property: "og:url", content: "https://www.bellix.us/background-remover" },
+      { property: "og:title", content: "AI Background Remover — Remove Image Background Online Free" },
+      {
+        property: "og:description",
+        content:
+          "Remove image backgrounds automatically with AI. Get clean transparent PNGs for portraits, products, and more. Free to use.",
+      },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/background_remover_studio.jpg" },
+      { name: "twitter:title", content: "AI Background Remover — Remove Image Background Online Free" },
+      {
+        name: "twitter:description",
+        content:
+          "Remove image backgrounds automatically with AI. Get clean transparent PNGs for portraits, products, and more.",
+      },
+      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/background_remover_studio.jpg" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "AI Background Remover",
+          url: "https://www.bellix.us/background-remover",
+          applicationCategory: "ImageEditor",
+          operatingSystem: "Web",
+          description:
+            "Remove image backgrounds automatically with AI. Supports portraits, products, pets, and complex edges. Download transparent PNG cutouts.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          provider: { "@type": "Organization", name: "Bellix.us", url: "https://www.bellix.us/" },
+        }),
       },
     ],
   }),

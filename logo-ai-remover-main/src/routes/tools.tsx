@@ -3,7 +3,21 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/tools")({
-  head: () => ({ meta: [{ title: "AI Tools Directory | Bellix.us" }] }),
+  head: () => ({
+    meta: [
+      { title: "All AI Tools — Background Remover, PDF Cleaner & More | Bellix.us" },
+      {
+        name: "description",
+        content:
+          "Browse all Bellix.us AI tools: background remover, image watermark remover, PDF cleaner, and video watermark remover. All free to try.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/tools" },
+      { property: "og:url", content: "https://www.bellix.us/tools" },
+      { property: "og:title", content: "All AI Tools — Background Remover, PDF Cleaner & More" },
+      { property: "og:description", content: "Browse all Bellix.us AI creative tools, free to try." },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+    ],
+  }),
   component: Tools,
 });
 

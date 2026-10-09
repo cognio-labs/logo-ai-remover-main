@@ -25,11 +25,43 @@ import confetti from "canvas-confetti";
 export const Route = createFileRoute("/remove/image")({
   head: () => ({
     meta: [
-      { title: "AI Image Cleaner — Bellix.us" },
+      { title: "AI Image Watermark Remover — Remove Logos & Text from Photos | Bellix.us" },
       {
         name: "description",
         content:
-          "Remove watermarks, logos, text overlays, and AI blemishes with interactive brush tools and generative inpainting.",
+          "Remove watermarks, logos, text overlays, and unwanted objects from photos using an AI brush tool. Paint over any area to erase it and fill with realistic background texture.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/remove/image" },
+      { property: "og:url", content: "https://www.bellix.us/remove/image" },
+      { property: "og:title", content: "AI Image Watermark Remover — Remove Logos & Text from Photos" },
+      {
+        property: "og:description",
+        content:
+          "Paint over any watermark, logo, or text in your photo and let AI fill it in seamlessly.",
+      },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { name: "twitter:title", content: "AI Image Watermark Remover — Remove Logos & Text from Photos" },
+      {
+        name: "twitter:description",
+        content: "Paint over any watermark, logo, or text in your photo and let AI fill it in seamlessly.",
+      },
+      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "AI Image Watermark Remover",
+          url: "https://www.bellix.us/remove/image",
+          applicationCategory: "ImageEditor",
+          operatingSystem: "Web",
+          description:
+            "Remove watermarks, logos, text overlays, and unwanted objects from photos using an AI brush tool.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          provider: { "@type": "Organization", name: "Bellix.us", url: "https://www.bellix.us/" },
+        }),
       },
     ],
   }),

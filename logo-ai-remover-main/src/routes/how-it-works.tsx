@@ -23,12 +23,17 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works — Bellix.us Neural Architecture" },
+      { title: "How It Works — AI Background Removal & Watermark Cleaning | Bellix.us" },
       {
         name: "description",
         content:
-          "Discover how Bellix.us reconstructs marked video frames and images using 4-stage spatio-temporal neural inpainting without blur or flicker.",
+          "Learn how Bellix.us AI tools work: background removal with edge matting, watermark detection and inpainting, and video frame reconstruction — step by step.",
       },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/how-it-works" },
+      { property: "og:url", content: "https://www.bellix.us/how-it-works" },
+      { property: "og:title", content: "How It Works — AI Background Removal & Watermark Cleaning" },
+      { property: "og:description", content: "See how Bellix.us AI processes images, videos, and PDFs step by step." },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
     ],
   }),
   component: HowItWorksPage,

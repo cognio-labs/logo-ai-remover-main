@@ -41,11 +41,44 @@ import { DocumentCaseStudyGallery } from "@/components/documents/DocumentCaseStu
 export const Route = createFileRoute("/pdf-watermark-remover")({
   head: () => ({
     meta: [
-      { title: "AI PDF & Document Watermark Remover — Bellix.us" },
+      { title: "PDF Watermark Remover — Clean PDFs Online Free | Bellix.us" },
       {
         name: "description",
         content:
-          "Erase watermarks, logos, confidential stamps, and signature marks from PDF documents and scans without losing formatting, typography, or vector clarity.",
+          "Remove watermarks, stamps, and logos from PDF documents online. Works on invoices, contracts, blueprints, and scanned files. Preserves original fonts, layout, and vector clarity.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/pdf-watermark-remover" },
+      { property: "og:url", content: "https://www.bellix.us/pdf-watermark-remover" },
+      { property: "og:title", content: "PDF Watermark Remover — Clean PDFs Online Free" },
+      {
+        property: "og:description",
+        content:
+          "Remove watermarks, stamps, and logos from PDFs online. Preserves fonts, layout, and clarity.",
+      },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/pdf_cleaner_blueprint.jpg" },
+      { name: "twitter:title", content: "PDF Watermark Remover — Clean PDFs Online Free" },
+      {
+        name: "twitter:description",
+        content:
+          "Remove watermarks, stamps, and logos from PDFs online. Preserves fonts, layout, and clarity.",
+      },
+      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/pdf_cleaner_blueprint.jpg" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "PDF Watermark Remover",
+          url: "https://www.bellix.us/pdf-watermark-remover",
+          applicationCategory: "DocumentEditor",
+          operatingSystem: "Web",
+          description:
+            "Remove watermarks, stamps, and logos from PDF documents online while preserving fonts, layout, and vector quality.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          provider: { "@type": "Organization", name: "Bellix.us", url: "https://www.bellix.us/" },
+        }),
       },
     ],
   }),

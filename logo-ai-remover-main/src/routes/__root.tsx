@@ -79,27 +79,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Bellix.us" },
+      { title: "Bellix.us — AI Creative Studio" },
       {
         name: "description",
-        content: "Transform AI-generated content into professional-quality media.",
+        content:
+          "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
       },
       { name: "author", content: "Bellix.us" },
-      { property: "og:title", content: "Bellix.us" },
+      // Open Graph — per-page routes will override these defaults
+      { property: "og:site_name", content: "Bellix.us" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://www.bellix.us/" },
+      { property: "og:title", content: "Bellix.us — AI Creative Studio" },
       {
         property: "og:description",
-        content: "Transform AI-generated content into professional-quality media.",
+        content:
+          "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
       },
-      { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      // Twitter Card
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@bellix_us" },
+      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      // Google Search Console
       { name: "google-site-verification", content: "bikuobkAr5CwX5mR65nkqvX7yUyQLeI6j2MBY58NHJ8" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -107,6 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
     ],
   }),
   shellComponent: RootShell,

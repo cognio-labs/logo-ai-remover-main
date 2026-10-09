@@ -23,12 +23,17 @@ import { Keyboard } from "@/components/ui/keyboard";
 export const Route = createFileRoute("/features")({
   head: () => ({
     meta: [
-      { title: "Neural Features & Capabilities — Bellix.us" },
+      { title: "AI Tool Features — Background Remover, Image & Video Cleaner | Bellix.us" },
       {
         name: "description",
         content:
-          "Explore Bellix.us's neural inpainting, 4K/8K super resolution, optical flow temporal tracking, and ultra-fast cloud GPU cluster.",
+          "Explore all Bellix.us AI tool features: smart edge matting for background removal, brush-based watermark inpainting, PDF layer cleaning, and video frame reconstruction.",
       },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/features" },
+      { property: "og:url", content: "https://www.bellix.us/features" },
+      { property: "og:title", content: "AI Tool Features — Background Remover, Image & Video Cleaner" },
+      { property: "og:description", content: "See all features of Bellix.us AI tools for image, video, and PDF editing." },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
     ],
   }),
   component: FeaturesPage,

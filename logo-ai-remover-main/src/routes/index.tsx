@@ -29,11 +29,39 @@ import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Erase Gemini, Veo & AI Watermarks in Seconds — Bellix.us" },
+      { title: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
       {
         name: "description",
         content:
-          "Remove visible Google Gemini stars, Veo timestamps, stock stamps & logos in seconds. Powered by temporal neural inpainting that reconstructs covered textures with 100% original 4K fidelity.",
+          "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/" },
+      { property: "og:url", content: "https://www.bellix.us/" },
+      { property: "og:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
+      {
+        property: "og:description",
+        content:
+          "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
+      },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
+      { name: "twitter:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
+      {
+        name: "twitter:description",
+        content:
+          "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Bellix.us",
+          url: "https://www.bellix.us/",
+          description:
+            "AI creative studio with tools for background removal, watermark cleaning, image upscaling, and video enhancement.",
+        }),
       },
     ],
   }),

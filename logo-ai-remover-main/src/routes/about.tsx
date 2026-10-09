@@ -15,12 +15,17 @@ import { PinkButton } from "@/components/site/PinkButton";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Us — Bellix.us" },
+      { title: "About Bellix.us — AI Creative Studio for Creators" },
       {
         name: "description",
         content:
-          "Learn about Bellix.us, our mission to empower creators with next-generation neural inpainting, and our visual fidelity technology.",
+          "Bellix.us is an AI creative studio built to help creators, developers, and businesses clean, restore, and enhance their media. Learn about our tools and values.",
       },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/about" },
+      { property: "og:url", content: "https://www.bellix.us/about" },
+      { property: "og:title", content: "About Bellix.us — AI Creative Studio for Creators" },
+      { property: "og:description", content: "Learn about Bellix.us and the AI tools we build for creators and developers." },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
     ],
   }),
   component: AboutPage,

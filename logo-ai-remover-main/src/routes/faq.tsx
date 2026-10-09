@@ -18,12 +18,17 @@ import { supabase } from "@/lib/supabase";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ & Documentation — Bellix.us" },
+      { title: "FAQ — Background Removal, Watermark & PDF Tool Help | Bellix.us" },
       {
         name: "description",
         content:
-          "Frequently asked questions and guides for Bellix.us video watermark removal, image cleaning, credit plans, and API integration.",
+          "Find answers to common questions about Bellix.us tools — how background removal works, supported file formats, credit usage, and step-by-step guides for each AI tool.",
       },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/faq" },
+      { property: "og:url", content: "https://www.bellix.us/faq" },
+      { property: "og:title", content: "FAQ — Background Removal, Watermark & PDF Tool Help" },
+      { property: "og:description", content: "Common questions about Bellix.us AI tools, file formats, credits, and more." },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/bellix-hero-section.png" },
     ],
   }),
   component: FaqPage,

@@ -27,11 +27,44 @@ import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
     meta: [
-      { title: "Remove Gemini and Veo Video Watermarks Online — Bellix.us" },
+      { title: "AI Video Watermark Remover — Remove Gemini & Veo Watermarks | Bellix.us" },
       {
         name: "description",
         content:
-          "Easily remove visible Google Gemini and Veo video watermarks online. Reconstruct frames with 100% full-frame clarity, temporal consistency, and smooth motion.",
+          "Remove Google Gemini stars and Veo video watermarks frame by frame with AI. Restore clean video with consistent motion and no blur — supports MP4 and MOV.",
+      },
+      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/gemini-video-watermark-remover" },
+      { property: "og:url", content: "https://www.bellix.us/gemini-video-watermark-remover" },
+      { property: "og:title", content: "AI Video Watermark Remover — Remove Gemini & Veo Watermarks" },
+      {
+        property: "og:description",
+        content:
+          "Remove Google Gemini stars and Veo video watermarks with AI. Supports MP4 and MOV. Clean, flicker-free results.",
+      },
+      { property: "og:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+      { name: "twitter:title", content: "AI Video Watermark Remover — Remove Gemini & Veo Watermarks" },
+      {
+        name: "twitter:description",
+        content:
+          "Remove Google Gemini stars and Veo video watermarks with AI. Supports MP4 and MOV. Clean, flicker-free results.",
+      },
+      { name: "twitter:image", content: "https://www.bellix.us/creative-suite/watermark_remover_city.jpg" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "AI Video Watermark Remover",
+          url: "https://www.bellix.us/gemini-video-watermark-remover",
+          applicationCategory: "VideoEditor",
+          operatingSystem: "Web",
+          description:
+            "Remove Google Gemini and Veo video watermarks online using AI frame reconstruction. Supports MP4 and MOV formats.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          provider: { "@type": "Organization", name: "Bellix.us", url: "https://www.bellix.us/" },
+        }),
       },
     ],
   }),
