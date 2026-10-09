@@ -19,7 +19,6 @@ const TOOL_DESCRIPTIONS: Record<string, string> = {
   "/upscale": "2×, 4×, 8× upscaling",
   "/background-remover": "One-click PNG cutout",
   "/pdf-watermark-remover": "Clean any PDF stamp",
-  "/remove/image": "Brush & erase marks",
   "/gemini-video-watermark-remover": "Remove Gemini & Veo marks",
 };
 

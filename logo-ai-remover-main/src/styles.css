@@ -176,6 +176,10 @@
     background: rgba(225, 29, 72, 0.2);
     color: #9f1239;
   }
+
+  img {
+    image-rendering: -webkit-optimize-contrast;
+  }
 }
 
 @utility glass {

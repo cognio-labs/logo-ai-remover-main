@@ -51,7 +51,7 @@ export function ProductRail({
           <button
             type="button"
             onClick={() => handleScroll(-320)}
-            className="flex size-7 items-center justify-center rounded-full border border-[#FED7AA] bg-[#FFF7ED]/90 hover:bg-[#FFE4C4] hover:border-[#E11D48] hover:text-[#E11D48] text-gray-700 transition-colors shadow-2xs cursor-pointer active:scale-95"
+            className="flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 hover:text-[#E11D48] text-gray-700 transition-colors shadow-2xs cursor-pointer active:scale-95"
             aria-label="Previous cards"
           >
             <ChevronLeft className="size-3.5" />
@@ -59,7 +59,7 @@ export function ProductRail({
           <button
             type="button"
             onClick={() => handleScroll(320)}
-            className="flex size-7 items-center justify-center rounded-full border border-[#FED7AA] bg-[#FFF7ED]/90 hover:bg-[#FFE4C4] hover:border-[#E11D48] hover:text-[#E11D48] text-gray-700 transition-colors shadow-2xs cursor-pointer active:scale-95"
+            className="flex size-7 items-center justify-center rounded-full border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 hover:text-[#E11D48] text-gray-700 transition-colors shadow-2xs cursor-pointer active:scale-95"
             aria-label="Next cards"
           >
             <ChevronRight className="size-3.5" />
@@ -103,7 +103,7 @@ export function ProductRail({
       {/* Optional pink indicator line from Screenshot 3 */}
       {showProgressBar && (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-1">
-          <div className="h-0.5 w-full bg-rose-100 rounded-full overflow-hidden">
+          <div className="h-0.5 w-full bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full w-1/4 bg-gradient-to-r from-[#E11D48] to-[#FF4FA3] rounded-full animate-pulse" />
           </div>
         </div>
@@ -124,9 +124,9 @@ export const HeroParallax = ({
   const cardList = products.length ? products : CREATIVE_SUITE_ASSETS;
   const splitAt = Math.ceil(cardList.length / 2);
   return (
-    <section className="relative overflow-hidden border-b border-[#FED7AA]/50 bg-warm-canvas pb-14 pt-6 text-gray-950 sm:pb-20">
-      <div className="pointer-events-none absolute -left-28 top-12 size-[32rem] rounded-full bg-rose-100/55 blur-3xl" />
-      <div className="pointer-events-none absolute -right-32 top-56 size-[28rem] rounded-full bg-fuchsia-100/35 blur-3xl" />
+    <section className="relative overflow-hidden border-b border-gray-100 bg-white pb-14 pt-6 text-gray-950 sm:pb-20">
+      <div className="pointer-events-none absolute -left-28 top-12 size-[32rem] rounded-full bg-rose-50/50 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 top-56 size-[28rem] rounded-full bg-fuchsia-50/30 blur-3xl" />
       <Header title={title} subtitle={subtitle} />
       <div className="relative z-10 mt-8 space-y-7 sm:mt-12 sm:space-y-8">
         <ProductRail
@@ -154,7 +154,7 @@ export const CreativeSuiteSection = ({
   const splitAt = Math.ceil(cardList.length / 2);
 
   return (
-    <section className="relative overflow-hidden py-10 sm:py-14 bg-warm-canvas border-b border-[#FED7AA]/50">
+    <section className="relative overflow-hidden py-10 sm:py-14 bg-white border-b border-gray-100">
       <div className="relative z-10 space-y-8">
         <ProductRail
           products={cardList.slice(0, splitAt)}

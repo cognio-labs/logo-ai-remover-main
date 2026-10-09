@@ -32,7 +32,6 @@ export const studioTools = [
   { name: "Upscale", path: "/upscale", icon: ImageUp },
   { name: "Background", path: "/background-remover", icon: Scissors },
   { name: "PDF cleaner", path: "/pdf-watermark-remover", icon: FileText },
-  { name: "Image cleaner", path: "/remove/image", icon: WandSparkles },
   { name: "Video cleaner", path: "/gemini-video-watermark-remover", icon: ScanLine },
 ] as const;
 
@@ -69,9 +68,9 @@ function StudioAiMarquee() {
   );
 
   return (
-    <div className="relative w-full py-4 sm:py-5 bg-gradient-to-r from-[#FFF7ED] via-[#FFE4C4]/45 to-[#FFF7ED] border-y border-[#FED7AA]/60 overflow-hidden whitespace-nowrap select-none shadow-2xs">
-      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
+    <div className="relative w-full py-4 sm:py-5 bg-white border-y border-gray-100 overflow-hidden whitespace-nowrap select-none shadow-2xs">
+      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none" />
       <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0 pr-4 sm:pr-6">
           {AI_MODELS.map((m) => renderCard(m, "track1"))}
@@ -766,13 +765,6 @@ const TOOL_FEATURES = [
     accent: "from-sky-500 to-blue-600",
   },
   {
-    icon: WandSparkles,
-    name: "Image Cleaner",
-    desc: "Brush-select and erase watermarks, logos & AI artifacts.",
-    path: "/remove/image",
-    accent: "from-emerald-500 to-teal-600",
-  },
-  {
     icon: ScanLine,
     name: "Video Watermark",
     desc: "Frame-by-frame Gemini & Veo watermark removal at 4K/60FPS.",
@@ -1130,6 +1122,8 @@ export function StudioHome() {
                 alt="Diamond ring on marble — AI image restoration"
                 className="w-full h-full object-cover object-center mx-auto"
                 loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </picture>
             {/* Gradient fade from image into content below */}

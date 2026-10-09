@@ -191,8 +191,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/remove/image" className="hover:text-[#E11D48] transition-colors">
-                  Image Watermark Remover
+                <Link
+                  to="/video-enhancer"
+                  className="hover:text-[#E11D48] transition-colors"
+                >
+                  AI Video Enhancer
                 </Link>
               </li>
               <li>

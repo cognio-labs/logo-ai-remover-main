@@ -625,12 +625,16 @@
   overflow: hidden;
   background-color: #fff7ed;
   background-image: url("/creative-suite/clean_section_ring_backdrop.png");
+  background-image: image-set(
+    url("/creative-suite/clean_section_ring_backdrop.webp") type("image/webp"),
+    url("/creative-suite/clean_section_ring_backdrop.png") type("image/png")
+  );
   background-size: cover;
   background-position: left center;
   background-repeat: no-repeat;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 480px;
+  grid-template-columns: 1.15fr 0.85fr;
+  min-height: 500px;
   align-items: center;
   border-radius: 0;
   border: none;
@@ -639,8 +643,12 @@
 
 .studio-clean-banner-content {
   grid-column: 2;
-  padding: 56px 64px 56px 24px;
-  max-width: 660px;
+  justify-self: end;
+  margin-left: auto;
+  margin-right: 0;
+  padding: 56px 48px 56px 16px;
+  max-width: 540px;
+  width: 100%;
   position: relative;
   z-index: 2;
 }
