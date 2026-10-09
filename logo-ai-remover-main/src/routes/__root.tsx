@@ -93,6 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@bellix_us" },
+      { name: "google-site-verification", content: "bikuobkAr5CwX5mR65nkqvX7yUyQLeI6j2MBY58NHJ8" },
     ],
     links: [
       {
