@@ -83,14 +83,14 @@ function InnerEditor({
   };
 
   return (
-    <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-[#F8FAFC] flex flex-col max-w-6xl mx-auto w-full transition-all">
+    <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200/90 shadow-xl bg-[#F8FAFC] flex flex-col max-w-4xl mx-auto w-full transition-all">
       {/* 1. TOP TOOLBAR (remove.bg style tabs & download dropdown) */}
       <EditorToolbar onDownload={handleDownload} />
 
       {/* 2. MAIN WORKSPACE WITH CANVAS & DYNAMIC SIDEBAR */}
-      <div className="relative flex flex-col lg:flex-row min-h-[520px] sm:min-h-[600px] overflow-hidden">
+      <div className="relative flex flex-col lg:flex-row min-h-[360px] sm:min-h-[420px] overflow-hidden">
         {/* CENTER: Main Canvas Area */}
-        <div className="flex-1 relative flex items-center justify-center bg-slate-100/60 overflow-hidden min-h-[420px]">
+        <div className="flex-1 relative flex items-center justify-center bg-slate-100/60 overflow-hidden min-h-[300px] sm:min-h-[380px]">
           <EditorCanvas />
 
           {/* Floating Action: Edit in Canva (Optional) */}
@@ -99,9 +99,9 @@ function InnerEditor({
               type="button"
               onClick={onEditInCanva}
               disabled={isCanvaLoading}
-              className="absolute top-4 left-4 z-20 px-3.5 py-1.5 rounded-full bg-white text-gray-900 text-xs font-semibold shadow-md border border-gray-200/80 flex items-center gap-1.5 hover:shadow-lg transition-all cursor-pointer"
+              className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-semibold shadow-sm border border-gray-200/80 flex items-center gap-1.5 hover:shadow-md transition-all cursor-pointer backdrop-blur-xs"
             >
-              <ExternalLink className="size-3.5 text-blue-600" />
+              <ExternalLink className="size-3 text-blue-600" />
               <span>{isCanvaLoading ? "Opening..." : "Edit in Canva"}</span>
             </button>
           )}
@@ -109,9 +109,9 @@ function InnerEditor({
 
         {/* SIDEBAR: Opens smoothly when an active tab is selected */}
         {activeTab && (
-          <aside className="w-full lg:w-[380px] bg-white border-t lg:border-t-0 lg:border-l border-gray-200/80 flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20 shadow-lg">
+          <aside className="w-full lg:w-[320px] bg-white border-t lg:border-t-0 lg:border-l border-gray-200/80 flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20 shadow-lg">
             {/* Header of Sidebar */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
               <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">
                 {activeTab === "cutout"
                   ? "Cutout & Erase Tools"
@@ -126,25 +126,25 @@ function InnerEditor({
               <button
                 type="button"
                 onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: null })}
-                className="size-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                className="size-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                 title="Close panel"
               >
-                <X className="size-4" />
+                <X className="size-3.5" />
               </button>
             </div>
 
             {/* Sidebar Tab Content */}
-            <div className="flex-1 overflow-y-auto max-h-[500px] lg:max-h-[540px]">
+            <div className="flex-1 overflow-y-auto max-h-[340px] sm:max-h-[380px]">
               {activeTab === "cutout" && <CutoutTab />}
               {activeTab === "background" && <BackgroundTab />}
               {activeTab === "effects" && <EffectsTab />}
               {activeTab === "adjust" && <AdjustTab />}
               {activeTab === "design" && (
-                <div className="p-6 text-center space-y-4">
-                  <div className="size-14 rounded-2xl bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] text-white flex items-center justify-center mx-auto shadow-md">
-                    <Sparkles className="size-7" />
+                <div className="p-5 text-center space-y-3">
+                  <div className="size-12 rounded-xl bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] text-white flex items-center justify-center mx-auto shadow-md">
+                    <Sparkles className="size-6" />
                   </div>
-                  <h4 className="text-base font-bold text-gray-900">
+                  <h4 className="text-sm font-bold text-gray-900">
                     Export directly to Canva
                   </h4>
                   <p className="text-xs text-gray-500 leading-relaxed font-normal">
@@ -154,9 +154,9 @@ function InnerEditor({
                     <button
                       type="button"
                       onClick={onEditInCanva}
-                      className="w-full py-3 px-4 rounded-full bg-gradient-to-r from-[#00C4CC] to-[#7D2AE8] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#00C4CC] to-[#7D2AE8] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <ExternalLink className="size-4" />
+                      <ExternalLink className="size-3.5" />
                       <span>Launch Canva Editor</span>
                     </button>
                   )}
@@ -165,20 +165,20 @@ function InnerEditor({
             </div>
 
             {/* Bottom Actions inside Sidebar */}
-            <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between gap-2">
+            <div className="p-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: null })}
-                className="py-2 px-3.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium cursor-pointer"
+                className="py-1.5 px-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium cursor-pointer"
               >
                 Done
               </button>
               <button
                 type="button"
                 onClick={() => handleDownload("max")}
-                className="py-2 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                className="py-1.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
               >
-                <Download className="size-3.5" />
+                <Download className="size-3" />
                 <span>Save Image</span>
               </button>
             </div>
@@ -187,11 +187,11 @@ function InnerEditor({
       </div>
 
       {/* 3. BOTTOM FOOTER CONTROLS */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-t border-gray-200/80 bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 border-t border-gray-200/80 bg-white">
         <button
           type="button"
           onClick={onReset}
-          className="px-4 py-2.5 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+          className="px-3.5 py-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
         >
           <RefreshCw className="size-3.5" />
           <span>Upload Another Image</span>

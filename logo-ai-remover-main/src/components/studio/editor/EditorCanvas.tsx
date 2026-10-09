@@ -271,7 +271,7 @@ export function EditorCanvas() {
   return (
     <div
       ref={containerRef}
-      className="relative size-full flex items-center justify-center p-4 sm:p-8 select-none overflow-hidden"
+      className="relative size-full flex items-center justify-center p-2.5 sm:p-4 select-none overflow-hidden"
       onPointerLeave={() => {
         setCursorPos(null);
         setIsDrawing(false);
@@ -279,7 +279,7 @@ export function EditorCanvas() {
     >
       {/* Aspect Ratio Box */}
       <div
-        className={`relative max-w-full max-h-[580px] rounded-2xl overflow-hidden shadow-2xl transition-all duration-200 ${
+        className={`relative max-w-full max-h-[340px] sm:max-h-[380px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg transition-all duration-200 ${
           background.type === "transparent" ? "checkerboard-pattern" : ""
         } ${aspectClass}`}
       >
@@ -288,7 +288,7 @@ export function EditorCanvas() {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className={`max-h-[580px] max-w-full object-contain block touch-none ${
+          className={`max-h-[340px] sm:max-h-[380px] max-w-full object-contain block touch-none ${
             activeTab === "cutout" ? "cursor-crosshair" : "cursor-default"
           }`}
           style={{ filter: filterStyle || undefined }}

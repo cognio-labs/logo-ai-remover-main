@@ -892,6 +892,19 @@ function BackgroundRemoverPage() {
     return () => window.removeEventListener("paste", handlePaste);
   }, [bgType, solidColor, qualityMode]);
 
+  // Smoothly center the studio editor in viewport on success
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => {
+        const el = document.getElementById("studio-editor-viewport");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
   // Validation & initialization
   const handleIncomingFile = (file: File) => {
     setInlineError(null);
@@ -1550,13 +1563,15 @@ function BackgroundRemoverPage() {
           {/* STATE 3: FULL-FEATURED REMOVE.BG / CANVA STUDIO IMAGE EDITOR  */}
           {/* ============================================================== */}
           {status === "success" && cutoutResult && sourceUrl && (
-            <RemoveBgStudioEditor
-              originalImageUrl={sourceUrl}
-              cutoutImageUrl={cutoutResult.transparentBlobUrl}
-              onReset={resetToUpload}
-              onEditInCanva={onEditInCanva}
-              isCanvaLoading={isCanvaLoading}
-            />
+            <div id="studio-editor-viewport" className="w-full scroll-mt-24 sm:scroll-mt-28 py-1">
+              <RemoveBgStudioEditor
+                originalImageUrl={sourceUrl}
+                cutoutImageUrl={cutoutResult.transparentBlobUrl}
+                onReset={resetToUpload}
+                onEditInCanva={onEditInCanva}
+                isCanvaLoading={isCanvaLoading}
+              />
+            </div>
           )}
 
           {/* ============================================================== */}
