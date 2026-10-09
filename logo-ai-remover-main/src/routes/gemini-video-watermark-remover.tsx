@@ -23,6 +23,7 @@ import { PinkButton } from "@/components/site/PinkButton";
 import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
+import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
 
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
@@ -279,31 +280,11 @@ const CATEGORIES = [
 ];
 
 function GeminiVideoRemoverPage() {
-  // Sync Video comparison state
-  const videoBeforeRef = useRef<HTMLVideoElement>(null);
-  const videoAfterRef = useRef<HTMLVideoElement>(null);
-
   // Inspiration category filter & modal
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeModalItem, setActiveModalItem] = useState<(typeof INSPIRATION_ITEMS)[0] | null>(
     null,
   );
-
-  // Synchronize the Before & After video players
-  useEffect(() => {
-    const v1 = videoBeforeRef.current;
-    const v2 = videoAfterRef.current;
-    if (!v1 || !v2) return;
-
-    const handleSync = () => {
-      if (Math.abs(v2.currentTime - v1.currentTime) > 0.08) {
-        v2.currentTime = v1.currentTime;
-      }
-    };
-
-    v1.addEventListener("timeupdate", handleSync);
-    return () => v1.removeEventListener("timeupdate", handleSync);
-  }, []);
 
   const filteredInspirations =
     selectedCategory === "All"
@@ -368,43 +349,18 @@ function GeminiVideoRemoverPage() {
             </Link>
           </div>
 
-          {/* Sync Video Card: BEFORE & AFTER Side by Side */}
-          <div className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden border border-[#FCE7EC] bg-black shadow-[0_20px_60px_-15px_rgba(225,29,72,0.18)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
-              {/* Left: BEFORE */}
-              <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
-                <span className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-black/60 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
-                  Before
-                </span>
-
-                <video
-                  ref={videoBeforeRef}
-                  src="/gemini-example-before.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="size-full object-cover pointer-events-none"
-                />
-              </div>
-
-              {/* Right: AFTER */}
-              <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
-                <span className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full bg-black/60 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
-                  After
-                </span>
-
-                <video
-                  ref={videoAfterRef}
-                  src="/gemini-example-after.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="size-full object-cover pointer-events-none"
-                />
-              </div>
-            </div>
+          {/* Seamless Overlaid Before/After Video Comparison Slider */}
+          <div className="relative mx-auto max-w-4xl shadow-[0_20px_60px_-15px_rgba(225,29,72,0.18)]">
+            <VideoCompareSlider
+              beforeSrc="/gemini-example-before.mp4"
+              afterSrc="/gemini-example-after.mp4"
+              beforeLabel="BEFORE (WATERMARKED)"
+              afterLabel="AFTER (CLEAN)"
+              aspectRatio="aspect-video"
+              defaultFit="cover"
+              autoPlay={true}
+              loop={true}
+            />
           </div>
         </div>
       </section>

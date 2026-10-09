@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 
 import { PinkButton } from "@/components/site/PinkButton";
+import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
 import {
   apiUrl,
   cancelVideoJob,
@@ -857,118 +858,42 @@ export function JobVideoCleaner() {
         </div>
       )}
 
-      {/* Two-Card Side-by-Side Video Layout (Left: Original, Right: Cleaned/Preview) */}
-      <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Left Card: Original Video */}
-        <section className="flex flex-col">
-          <div className="mb-2 flex h-6 items-center justify-between shrink-0">
-            <p className="flex items-center gap-2 text-xs font-bold text-gray-900">
-              <span className="size-2 rounded-full bg-rose-500" /> 1. Original (With Watermark)
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">
-                ORIGINAL
-              </span>
-              {metadata && (
-                <span className="text-[11px] font-mono text-gray-400">
-                  {metadata.width}×{metadata.height}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="relative flex flex-1 w-full min-h-[380px] sm:min-h-[460px] md:min-h-[500px] lg:min-h-[540px] items-center justify-center overflow-hidden rounded-2xl bg-black shadow-lg border border-gray-900">
-            {showBoxOverlay && selectedPreset !== "auto" && !cleanedVideo && (
-              <div
-                className="pointer-events-none absolute z-10 rounded-xl border-2 border-dashed border-rose-500 bg-rose-500/25 shadow-[0_0_20px_rgba(244,63,94,0.45)] transition-all duration-150"
-                style={{
-                  left: `${manualRegion.x * 100}%`,
-                  top: `${manualRegion.y * 100}%`,
-                  width: `${manualRegion.width * 100}%`,
-                  height: `${manualRegion.height * 100}%`,
-                }}
-              >
-                <div className="absolute -top-7 right-0 rounded-md bg-rose-600 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase shadow-md flex items-center gap-1 whitespace-nowrap">
-                  <Sparkles className="size-2.5" />
-                  <span>
-                    Removal Area ({Math.round(manualRegion.width * 100)}% ×{" "}
-                    {Math.round(manualRegion.height * 100)}%)
-                  </span>
-                </div>
-              </div>
-            )}
-            <video
-              ref={originalVideoRef}
-              src={originalVideo.url}
-              controls
-              autoPlay={false}
-              muted={false}
-              loop
-              playsInline
-              preload="metadata"
-              onTimeUpdate={handleLeftTimeUpdate}
-              onPlay={handleLeftPlay}
-              onPause={handleLeftPause}
-              onSeeking={handleLeftTimeUpdate}
-              onSeeked={handleLeftTimeUpdate}
-              className="h-full w-full max-h-[640px] object-contain"
-            />
-          </div>
-        </section>
-
-        {/* Right Card: Cleaned Output (Starts with SAME original video, then updates to real preview/clean) */}
-        <section className="flex flex-col">
-          <div className="mb-2 flex h-6 items-center justify-between shrink-0">
-            <p className="flex items-center gap-2 text-xs font-bold text-gray-900">
-              <span className="size-2 rounded-full bg-emerald-500" /> 2. AI Cleaned (Result)
-            </p>
-            <div className="flex items-center gap-2">
-              {renderRightCardBadge()}
-              {metadata && (
-                <span className="text-[11px] font-mono text-gray-400">
-                  {metadata.width}×{metadata.height}
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="relative flex flex-1 w-full min-h-[380px] sm:min-h-[460px] md:min-h-[500px] lg:min-h-[540px] items-center justify-center overflow-hidden rounded-2xl bg-black shadow-lg border border-gray-900">
-            {/* Status Overlay Badge - live processing & error alerts */}
-            {isRightShowingPreview ? (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-blue-500/40 bg-blue-950/85 px-3 py-1.5 text-xs font-semibold text-blue-300 shadow-lg backdrop-blur-md">
-                <Sparkles className="size-3.5 text-blue-400" />
-                <span>Cleaned Preview (Live Processing)</span>
+      {/* Single Seamless Overlaid Before/After Video Comparison Slider */}
+      <div className="mt-5">
+        <VideoCompareSlider
+          beforeSrc={originalVideo.url}
+          afterSrc={rightVideoSource}
+          beforeLabel="BEFORE (WATERMARKED)"
+          afterLabel={
+            cleanedVideo
+              ? "AFTER (CLEAN)"
+              : isRightShowingPreview
+                ? "AFTER (CLEANED PREVIEW)"
+                : "AFTER (RESULT)"
+          }
+          aspectRatio="aspect-video"
+          defaultFit="cover"
+          watermarkRegion={manualRegion}
+          showWatermarkBox={showBoxOverlay && selectedPreset !== "auto" && !cleanedVideo}
+          statusBadge={
+            isRightShowingPreview ? (
+              <div className="flex items-center gap-1.5 rounded-full border border-blue-500/40 bg-blue-950/85 px-3 py-1 text-xs font-semibold text-blue-300 shadow-lg backdrop-blur-md">
+                <Sparkles className="size-3 text-blue-400" />
+                <span>Cleaned Preview</span>
               </div>
             ) : busy ? (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-gray-700 bg-black/80 px-3 py-1.5 text-xs font-medium text-gray-200 shadow-lg backdrop-blur-md">
-                <LoaderCircle className="size-3.5 animate-spin text-white" />
-                <span>Preparing cleaned preview…</span>
+              <div className="flex items-center gap-1.5 rounded-full border border-gray-700 bg-black/80 px-3 py-1 text-xs font-medium text-gray-200 shadow-lg backdrop-blur-md">
+                <LoaderCircle className="size-3 animate-spin text-white" />
+                <span>Preparing preview…</span>
               </div>
             ) : processingJob?.status === "failed" ? (
-              <div className="absolute top-3 left-3 z-20 flex items-center gap-2 rounded-full border border-red-500/40 bg-red-950/85 px-3 py-1.5 text-xs font-medium text-red-300 shadow-lg backdrop-blur-md">
-                <XCircle className="size-3.5 text-red-400" />
+              <div className="flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-950/85 px-3 py-1 text-xs font-medium text-red-300 shadow-lg backdrop-blur-md">
+                <XCircle className="size-3 text-red-400" />
                 <span>Processing failed. Original unmodified.</span>
               </div>
-            ) : null}
-
-            {/* Video Player: Shows same original video until preview or cleaned output is generated */}
-            <video
-              ref={rightVideoRef}
-              key={rightVideoSource}
-              src={rightVideoSource}
-              controls
-              autoPlay={false}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              onTimeUpdate={handleRightTimeUpdate}
-              onPlay={handleRightPlay}
-              onPause={handleRightPause}
-              onSeeking={handleRightTimeUpdate}
-              onSeeked={handleRightTimeUpdate}
-              className="h-full w-full max-h-[640px] object-contain"
-            />
-          </div>
-        </section>
+            ) : null
+          }
+        />
       </div>
 
       {/* Progress Bar & Status - moved BELOW videos */}
