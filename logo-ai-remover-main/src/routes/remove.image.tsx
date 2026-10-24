@@ -31,7 +31,7 @@ export const Route = createFileRoute("/remove/image")({
         content:
           "Remove watermarks, logos, text overlays, and unwanted objects from photos using an AI brush tool. Paint over any area to erase it and fill with realistic background texture.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/remove/image" },
+      { rel: "canonical", href: "https://www.bellix.us/remove/image" },
       { property: "og:url", content: "https://www.bellix.us/remove/image" },
       { property: "og:title", content: "AI Image Watermark Remover — Remove Logos & Text from Photos" },
       {

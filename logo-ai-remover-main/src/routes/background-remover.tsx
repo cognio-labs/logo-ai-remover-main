@@ -60,7 +60,7 @@ export const Route = createFileRoute("/background-remover")({
         content:
           "Remove image backgrounds online in seconds with AI. Get clean, transparent PNG cutouts for portraits, products, pets, and more. No signup required — upload and download instantly.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/background-remover" },
+      { rel: "canonical", href: "https://www.bellix.us/background-remover" },
       { property: "og:url", content: "https://www.bellix.us/background-remover" },
       { property: "og:title", content: "AI Background Remover — Remove Image Background Online Free" },
       {
@@ -1916,7 +1916,9 @@ function BackgroundRemoverPage() {
                   </h3>
 
                   <p className="text-xs sm:text-sm text-gray-600 mt-2 leading-relaxed">
-                    {inlineError || "Please try again or upload another image."}
+                    {typeof inlineError === "string"
+                      ? inlineError
+                      : inlineError?.message || "Please try again or upload another image."}
                   </p>
 
                   <div className="flex items-center justify-center gap-3 mt-6">

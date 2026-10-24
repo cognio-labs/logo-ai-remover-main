@@ -11,7 +11,7 @@ export const Route = createFileRoute("/tools")({
         content:
           "Browse all Bellix.us AI tools: background remover, image watermark remover, PDF cleaner, and video watermark remover. All free to try.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/tools" },
+      { rel: "canonical", href: "https://www.bellix.us/tools" },
       { property: "og:url", content: "https://www.bellix.us/tools" },
       { property: "og:title", content: "All AI Tools — Background Remover, PDF Cleaner & More" },
       { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },

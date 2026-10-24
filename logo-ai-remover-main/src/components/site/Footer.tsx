@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { PinkButton } from "./PinkButton";
 import { SparklesCore } from "@/components/ui/sparkles";
 import navbarLogo from "@/assets/navbar-logo.png";
-import logoData from "@/assets/logo.json";
 
 export function Footer() {
   const [email, setEmail] = useState("");

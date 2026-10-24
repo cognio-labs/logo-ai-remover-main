@@ -21,7 +21,7 @@ export const Route = createFileRoute("/about")({
         content:
           "Bellix.us is an AI creative studio built to help creators, developers, and businesses clean, restore, and enhance their media. Learn about our tools and values.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/about" },
+      { rel: "canonical", href: "https://www.bellix.us/about" },
       { property: "og:url", content: "https://www.bellix.us/about" },
       { property: "og:title", content: "About Bellix.us — AI Creative Studio for Creators" },
       { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },

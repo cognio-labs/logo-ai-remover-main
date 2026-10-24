@@ -29,7 +29,7 @@ export const Route = createFileRoute("/features")({
         content:
           "Explore all Bellix.us AI tool features: smart edge matting for background removal, brush-based watermark inpainting, PDF layer cleaning, and video frame reconstruction.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/features" },
+      { rel: "canonical", href: "https://www.bellix.us/features" },
       { property: "og:url", content: "https://www.bellix.us/features" },
       { property: "og:title", content: "AI Tool Features — Background Remover, Image & Video Cleaner" },
       { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },

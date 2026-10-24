@@ -24,7 +24,7 @@ export const Route = createFileRoute("/faq")({
         content:
           "Find answers to common questions about Bellix.us tools — how background removal works, supported file formats, credit usage, and step-by-step guides for each AI tool.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/faq" },
+      { rel: "canonical", href: "https://www.bellix.us/faq" },
       { property: "og:url", content: "https://www.bellix.us/faq" },
       { property: "og:title", content: "FAQ — Background Removal, Watermark & PDF Tool Help" },
       { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },

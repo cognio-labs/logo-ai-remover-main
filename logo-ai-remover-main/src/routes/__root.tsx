@@ -11,8 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import GlowCursor from "@/components/ui/GlowCursor";
 
 function NotFoundComponent() {
   return (
@@ -116,13 +116,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "google-site-verification", content: "bikuobkAr5CwX5mR65nkqvX7yUyQLeI6j2MBY58NHJ8" },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://fonts.googleapis.com" },
+      { rel: "dns-prefetch", href: "https://fonts.gstatic.com" },
+      {
+        rel: "preload",
+        as: "image",
+        href: "/hero-section-banner.webp",
+        type: "image/webp",
+        fetchPriority: "high",
+      },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
       },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "any" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
       { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
@@ -153,40 +162,68 @@ function RootShell({ children }: { children: ReactNode }) {
 
 import { Toaster } from "@/components/ui/sonner";
 import { useRouterState } from "@tanstack/react-router";
+import {
+  AppSidebar,
+  TopHeader,
+  SidebarProvider,
+  useSidebar,
+} from "@/components/site/AppSidebar";
+
+function MainAppLayout() {
+  const { isCollapsed } = useSidebar();
+
+  return (
+    <div className="flex min-h-screen bg-white text-gray-900 relative">
+      {/* Modern Sleek Dark Sidebar (Exact match to user's Image 2 reference) */}
+      <AppSidebar />
+
+      {/* Main Content Area with fluid padding matching sidebar state */}
+      <div
+        className={`flex-1 min-w-0 flex flex-col min-h-screen bg-white transition-all duration-300 ease-in-out ${
+          isCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
+        }`}
+      >
+        <TopHeader />
+        <main className="flex-1 w-full overflow-x-hidden bg-white">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+
+      <Toaster richColors position="top-right" />
+    </div>
+  );
+}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
 
-  if (isAdmin) {
-    return (
-      <QueryClientProvider client={queryClient}>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <GlowCursor
+        color="#5f8bff"
+        secondaryColor="#ec4899"
+        intensity={1.4}
+        trailWidth={3.5}
+        linger={1.4}
+        glow={1.2}
+        clickBurst={true}
+        theme="light"
+        className="fixed inset-0 pointer-events-none z-[99999]"
+      />
+      {isAdmin ? (
         <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
           <Outlet />
           <Toaster richColors position="top-right" />
         </div>
-      </QueryClientProvider>
-    );
-  }
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col bg-[#FFF7ED] text-gray-900 relative">
-        {/* Global Warm Background Canvas (Cream: #FFF7ED, Soft Peach: #FFE4C4, Light Coral: #FFD6A5, Pink: #FCA5A5) */}
-        <div
-          className="fixed inset-0 pointer-events-none -z-10 bg-[#FFF7ED] bg-cover bg-center bg-no-repeat opacity-95"
-          style={{ backgroundImage: "url('/warm-gradient-bg.png')" }}
-        />
-        <Navbar />
-        <main className="flex-1 w-full overflow-x-hidden">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </main>
-        <Footer />
-
-        <Toaster richColors position="top-right" />
-      </div>
+      ) : (
+        <SidebarProvider>
+          <MainAppLayout />
+        </SidebarProvider>
+      )}
     </QueryClientProvider>
   );
 }

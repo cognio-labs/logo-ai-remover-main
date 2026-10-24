@@ -18,10 +18,17 @@ import {
   Zap,
   ShieldCheck,
   Star,
+  Clock,
+  Mail,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
 } from "lucide-react";
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 import { CreativeSuiteSection } from "@/components/ui/hero-parallax";
+import { VideoTemplatesSection } from "./VideoTemplatesSection";
+import { BelixMasterHeroSection } from "./BelixMasterHeroSection";
 
 export const studioAssets = {
   coast: "/creative-suite/hero_creator_masterpiece.webp",
@@ -29,7 +36,6 @@ export const studioAssets = {
   portrait: "/creative-suite/portrait_restorer.jpg",
 };
 export const studioTools = [
-  { name: "Upscale", path: "/upscale", icon: ImageUp },
   { name: "Background", path: "/background-remover", icon: Scissors },
   { name: "PDF cleaner", path: "/pdf-watermark-remover", icon: FileText },
   { name: "Video cleaner", path: "/gemini-video-watermark-remover", icon: ScanLine },
@@ -774,332 +780,124 @@ const TOOL_FEATURES = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════
-   1. PANORAMIC CINEMATIC HERO (INTERACTIVE WORKSPACE BANNER)
+   1. GENIFY 3D ARC HERO (WHITE + BLUE + PINK MIXED BACKGROUND)
 ═══════════════════════════════════════════════════════════════ */
-function PanoramicHeroSection() {
-  const [prompt, setPrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState("Google Gemini 2.5 Flash");
-  const navigate = useNavigate();
 
-  const handlePromptSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = prompt.trim() || "4K portrait restoration";
-    toast.success(`Launching AI engine (${selectedModel}) for: "${query}"`);
-    navigate({ to: "/upscale" });
-  };
-
-  const handleSelectModel = (modelName: string) => {
-    setSelectedModel(modelName);
-    toast.success(`Selected AI engine: ${modelName}`);
-  };
-
-  return (
-    <section className="relative w-full overflow-hidden bg-white border-b border-gray-100">
-      {/* ─── DESKTOP PANORAMIC EXPERIENCE (lg+) ─── */}
-      <div className="hidden lg:block relative w-full overflow-hidden">
-        <div className="relative w-full aspect-[2011/782] select-none">
-          {/* Panoramic Masterpiece Asset */}
-          <img
-            src="/creative-suite/bellix-hero-section.png"
-            alt="Turn rough ideas into finished work — Bellix.us"
-            className="w-full h-full object-cover pointer-events-none"
-            fetchPriority="high"
-          />
-
-          {/* 1. TOP EYEBROW BADGE HOTSPOT */}
-          <Link
-            to="/tools"
-            title="Explore all 6 AI creative workspace tools"
-            className="absolute rounded-full transition-all cursor-pointer group"
-            style={{ left: "13.13%", top: "17.5%", width: "13.5%", height: "4.2%" }}
-          >
-            <span className="absolute inset-0 rounded-full bg-indigo-500/0 group-hover:bg-indigo-500/10 group-hover:ring-2 group-hover:ring-indigo-400/40 transition-all" />
-          </Link>
-
-          {/* 2. PRIMARY CTA: START CREATING FREE */}
-          <Link
-            to="/upscale"
-            title="Start creating free with next-gen AI"
-            className="absolute rounded-full transition-all cursor-pointer group flex items-center justify-center overflow-hidden"
-            style={{ left: "13.13%", top: "53.45%", width: "11.39%", height: "6.91%" }}
-          >
-            <span className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500/0 via-pink-500/20 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="absolute inset-0 rounded-full ring-2 ring-transparent group-hover:ring-pink-400 group-hover:shadow-[0_0_28px_rgba(236,72,153,0.65)] transition-all" />
-          </Link>
-
-          {/* 3. SECONDARY CTA: SEE HOW IT WORKS */}
-          <Link
-            to="/video-enhancer"
-            title="See video & image restoration in action"
-            className="absolute rounded-full transition-all cursor-pointer group flex items-center justify-center overflow-hidden"
-            style={{ left: "25.86%", top: "53.45%", width: "9.8%", height: "6.91%" }}
-          >
-            <span className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/5 group-hover:ring-2 group-hover:ring-gray-300 transition-all shadow-none group-hover:shadow-md" />
-          </Link>
-
-          {/* 4. AI CANVAS WINDOW TOOLS (LEFT SUB-MENU) */}
-          <Link
-            to="/gemini-video-watermark-remover"
-            title="Remove Visible Watermarks & Logos"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "31.3%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/upscale"
-            title="Upscale Image up to 8K Resolution"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "37.7%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/video-enhancer"
-            title="Enhance Quality & Deblock Video"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "44.1%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/background-remover"
-            title="One-Click Background Removal"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "50.5%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/video-enhancer"
-            title="Image to Video Generative Motion"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "56.9%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/tools"
-            title="View All Creative Tools"
-            className="absolute rounded-lg transition-all cursor-pointer group"
-            style={{ left: "49.7%", top: "63.3%", width: "9.0%", height: "4.8%" }}
-          >
-            <span className="absolute inset-0 rounded-lg bg-indigo-500/0 group-hover:bg-indigo-500/15 group-hover:ring-1 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          {/* 5. INTERACTIVE PROMPT BAR */}
-          <form
-            onSubmit={handlePromptSubmit}
-            className="absolute z-20 flex items-center justify-between rounded-full bg-white/92 backdrop-blur-md px-3 border border-indigo-100 shadow-[0_4px_16px_rgba(99,102,241,0.22)] focus-within:ring-2 focus-within:ring-indigo-400"
-            style={{ left: "53.45%", top: "55.9%", width: "12.18%", height: "6.65%" }}
-          >
-            <input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Create something amazing..."
-              className="w-full bg-transparent text-[11px] font-medium text-gray-800 placeholder-gray-400 outline-none pr-1 truncate"
-            />
-            <button
-              type="submit"
-              title="Generate with AI"
-              className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#6366F1] to-[#D946EF] text-white shadow-xs hover:scale-110 active:scale-95 transition-transform cursor-pointer"
-            >
-              <ArrowUpRight size={13} />
-            </button>
-          </form>
-
-          {/* 6. RIGHT FLOATING TOOLS */}
-          <Link
-            to="/remove/image"
-            title="AI Image Generation & Watermark Remover"
-            className="absolute rounded-2xl transition-all cursor-pointer group"
-            style={{ left: "87.02%", top: "23.02%", width: "9.45%", height: "6.14%" }}
-          >
-            <span className="absolute inset-0 rounded-2xl bg-indigo-500/0 group-hover:bg-indigo-500/10 group-hover:ring-2 group-hover:ring-indigo-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/video-enhancer"
-            title="AI Video Generation & Restoration"
-            className="absolute rounded-2xl transition-all cursor-pointer group"
-            style={{ left: "87.02%", top: "31.33%", width: "9.45%", height: "6.14%" }}
-          >
-            <span className="absolute inset-0 rounded-2xl bg-rose-500/0 group-hover:bg-rose-500/10 group-hover:ring-2 group-hover:ring-rose-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/upscale"
-            title="AI Enhancer (8K Super-Resolution)"
-            className="absolute rounded-2xl transition-all cursor-pointer group"
-            style={{ left: "87.02%", top: "39.64%", width: "9.45%", height: "6.14%" }}
-          >
-            <span className="absolute inset-0 rounded-2xl bg-cyan-500/0 group-hover:bg-cyan-500/10 group-hover:ring-2 group-hover:ring-cyan-400/50 transition-all" />
-          </Link>
-
-          <Link
-            to="/background-remover"
-            title="AI Background Remover"
-            className="absolute rounded-2xl transition-all cursor-pointer group"
-            style={{ left: "87.02%", top: "47.95%", width: "9.45%", height: "6.14%" }}
-          >
-            <span className="absolute inset-0 rounded-2xl bg-purple-500/0 group-hover:bg-purple-500/10 group-hover:ring-2 group-hover:ring-purple-400/50 transition-all" />
-          </Link>
-
-          {/* 7. CHOOSE AI MODEL SELECTOR HOTSPOTS */}
-          <div
-            className="absolute z-20 flex items-center justify-around"
-            style={{ left: "83.6%", top: "67.0%", width: "11.6%", height: "4.8%" }}
-          >
-            <button
-              type="button"
-              onClick={() => handleSelectModel("Google Gemini 2.5 Flash")}
-              title="Google Gemini 2.5 Flash"
-              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
-            />
-            <button
-              type="button"
-              onClick={() => handleSelectModel("OpenAI GPT-4o Vision")}
-              title="OpenAI GPT-4o Vision"
-              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
-            />
-            <button
-              type="button"
-              onClick={() => handleSelectModel("Midjourney v6.1")}
-              title="Midjourney v6.1 Photo Engine"
-              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
-            />
-            <button
-              type="button"
-              onClick={() => handleSelectModel("Runway Gen-3 Alpha")}
-              title="Runway Gen-3 Alpha Video Engine"
-              className="size-7 rounded-full transition-transform hover:scale-125 cursor-pointer"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ─── MOBILE & TABLET RESPONSIVE EXPERIENCE (< lg) ─── */}
-      <div className="lg:hidden px-4 sm:px-6 py-8 sm:py-12 space-y-6 max-w-2xl mx-auto">
-        {/* Header Intro */}
-        <div className="space-y-3.5 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200/80 shadow-2xs">
-            <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
-            <span className="text-xs font-bold text-[#E11D48] tracking-wide">
-              AI Creative Workspace • 6 Pro Tools
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-950 tracking-tight leading-[1.15] break-words">
-            Turn rough ideas into{" "}
-            <span className="bg-gradient-to-r from-[#6366F1] via-[#D946EF] to-[#E11D48] bg-clip-text text-transparent font-serif italic">
-              finished work.
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg mx-auto">
-            Remove distractions, restore detail, upscale every frame and make your next piece look
-            ready to publish. No technical knowledge required.
-          </p>
-        </div>
-
-        {/* Primary Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-          <Link
-            to="/upscale"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white text-xs font-bold bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] shadow-lg shadow-pink-500/25 hover:opacity-95 transition-opacity"
-          >
-            <Sparkles size={14} />
-            <span>Start creating free</span>
-            <ArrowUpRight size={15} />
-          </Link>
-
-          <Link
-            to="/video-enhancer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-gray-800 text-xs font-semibold bg-white border border-gray-200 shadow-xs hover:bg-gray-50 transition-colors"
-          >
-            <span>See how it works</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-
-        {/* Value Props Checklist */}
-        <div className="flex flex-wrap items-center justify-center gap-3.5 text-xs text-gray-600">
-          <span className="flex items-center gap-1.5">
-            <Check size={14} className="text-emerald-500" /> Six focused tools
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Check size={14} className="text-emerald-500" /> Real processing status
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Check size={14} className="text-emerald-500" /> Export-ready results
-          </span>
-        </div>
-
-        {/* Visual Artwork Showcase Card (Fully responsive, no cropped text) */}
-        <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-xl shadow-gray-200/50 bg-white">
-          <div className="relative w-full overflow-hidden bg-slate-950">
-            <img
-              src="/creative-suite/bellix-hero-section.png"
-              alt="Turn rough ideas into finished work — AI Creative Workspace"
-              className="w-full h-auto block select-none"
-              loading="eager"
-            />
-          </div>
-        </div>
-
-        {/* Mobile Tools Quick Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-          {studioTools.map((t) => (
-            <Link
-              key={t.path}
-              to={t.path}
-              className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-gray-200 shadow-2xs hover:border-[#E11D48] transition-all"
-            >
-              <span className="flex size-7 items-center justify-center rounded-lg bg-[#FFF1F4] text-[#E11D48]">
-                <t.icon size={14} />
-              </span>
-              <span className="text-xs font-semibold text-gray-900 truncate">{t.name}</span>
-            </Link>
-          ))}
-        </div>
-
-        {/* Mobile Stats Row */}
-        <div className="grid grid-cols-4 gap-2 pt-3 border-t border-gray-200 text-center">
-          <div>
-            <strong className="block text-base font-bold text-gray-900">500K+</strong>
-            <span className="text-[10px] text-gray-500">Files</span>
-          </div>
-          <div>
-            <strong className="block text-base font-bold text-gray-900">4K</strong>
-            <span className="text-[10px] text-gray-500">Max Res</span>
-          </div>
-          <div>
-            <strong className="block text-base font-bold text-gray-900">99.9%</strong>
-            <span className="text-[10px] text-gray-500">Accuracy</span>
-          </div>
-          <div>
-            <strong className="block text-base font-bold text-gray-900">&lt; 30s</strong>
-            <span className="text-[10px] text-gray-500">Speed</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+interface HeroFanCard {
+  id: string;
+  title: string;
+  tag: string;
+  path: string;
+  image: string;
+  zIndex: number;
+  yOffset: string;
+  rotate: string;
+  width: string;
+  margin: string;
+  isCenter?: boolean;
 }
+
+const HERO_FAN_CARDS: HeroFanCard[] = [
+  {
+    id: "fan-1",
+    title: "Floral Still Life",
+    tag: "All Tools",
+    path: "/tools",
+    image: "/creative-suite/genify_hero/card_1_floral.jpg",
+    zIndex: 10,
+    yOffset: "translate-y-4 sm:translate-y-5 md:translate-y-6",
+    rotate: "-rotate-2",
+    width: "w-[115px] sm:w-[135px] md:w-[155px] lg:w-[175px] xl:w-[185px]",
+    margin: "-mr-4 sm:-mr-6 md:-mr-8 lg:-mr-10",
+  },
+  {
+    id: "fan-2",
+    title: "Cosmic Nebula",
+    tag: "Video Cleaner",
+    path: "/gemini-video-watermark-remover",
+    image: "/creative-suite/genify_hero/card_2_nebula.jpg",
+    zIndex: 20,
+    yOffset: "translate-y-2 sm:translate-y-2.5 md:translate-y-3",
+    rotate: "-rotate-1",
+    width: "w-[125px] sm:w-[145px] md:w-[165px] lg:w-[185px] xl:w-[200px]",
+    margin: "-mr-4 sm:-mr-6 md:-mr-8 lg:-mr-10",
+  },
+  {
+    id: "fan-3",
+    title: "Golden Hour Glow",
+    tag: "Background Remover",
+    path: "/background-remover",
+    image: "/creative-suite/genify_hero/card_3_auburn.jpg",
+    zIndex: 30,
+    yOffset: "translate-y-1 sm:translate-y-1 md:translate-y-1.5",
+    rotate: "rotate-0",
+    width: "w-[135px] sm:w-[155px] md:w-[180px] lg:w-[200px] xl:w-[215px]",
+    margin: "-mr-4 sm:-mr-6 md:-mr-8 lg:-mr-10",
+  },
+  {
+    id: "fan-4",
+    title: "Iridescent Starlight",
+    tag: "AI Creative Studio",
+    path: "/background-remover",
+    image: "/creative-suite/genify_hero/card_4_glitter.jpg",
+    zIndex: 40,
+    yOffset: "translate-y-0",
+    rotate: "rotate-0",
+    width: "w-[145px] sm:w-[170px] md:w-[195px] lg:w-[220px] xl:w-[235px]",
+    margin: "",
+    isCenter: true,
+  },
+  {
+    id: "fan-5",
+    title: "Cybernetic Android",
+    tag: "AI Enhancer",
+    path: "/tools",
+    image: "/creative-suite/genify_hero/card_5_cyborg.jpg",
+    zIndex: 30,
+    yOffset: "translate-y-1 sm:translate-y-1 md:translate-y-1.5",
+    rotate: "rotate-0",
+    width: "w-[135px] sm:w-[155px] md:w-[180px] lg:w-[200px] xl:w-[215px]",
+    margin: "-ml-4 sm:-ml-6 md:-ml-8 lg:-ml-10",
+  },
+  {
+    id: "fan-6",
+    title: "Dark Fantasy Knight",
+    tag: "PDF Cleaner",
+    path: "/pdf-watermark-remover",
+    image: "/creative-suite/genify_hero/card_6_knight.jpg",
+    zIndex: 20,
+    yOffset: "translate-y-2 sm:translate-y-2.5 md:translate-y-3",
+    rotate: "rotate-1",
+    width: "w-[125px] sm:w-[145px] md:w-[165px] lg:w-[185px] xl:w-[200px]",
+    margin: "-ml-4 sm:-ml-6 md:-ml-8 lg:-ml-10",
+  },
+  {
+    id: "fan-7",
+    title: "Celestial Moon Owl",
+    tag: "All AI Tools",
+    path: "/tools",
+    image: "/creative-suite/genify_hero/card_7_owl.jpg",
+    zIndex: 10,
+    yOffset: "translate-y-4 sm:translate-y-5 md:translate-y-6",
+    rotate: "rotate-2",
+    width: "w-[115px] sm:w-[135px] md:w-[155px] lg:w-[175px] xl:w-[185px]",
+    margin: "-ml-4 sm:-ml-6 md:-ml-8 lg:-ml-10",
+  },
+];
+
+
 
 export function StudioHome() {
   const [active, setActive] = useState<keyof typeof studioAssets>("coast");
 
   return (
     <main className="studio-page">
-      {/* ─── 1. NEW PANORAMIC CINEMATIC HERO (INTERACTIVE WORKSPACE) ─── */}
-      <PanoramicHeroSection />
+      {/* ─── 0. BRAND NEW MASTER HERO SECTION FROM D:\HERO SECTION.jpeg ─── */}
+      <BelixMasterHeroSection />
+
+
+      {/* ─── 1.5 VIDEO SHOWCASE & TEMPLATES SECTION (WITH LIVE HOVER, MODAL & UPLOAD) ─── */}
+      <VideoTemplatesSection />
 
       {/* ─── 2. RUNNING ELEMENTS: AI PLATFORMS TICKER ─── */}
       <StudioAiMarquee />

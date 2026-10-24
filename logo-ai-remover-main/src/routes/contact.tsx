@@ -33,7 +33,7 @@ export const Route = createFileRoute("/contact")({
           "Let's create something amazing together. Reach out to Bellix.us 24/7 support for custom enterprise solutions, technical help, or feedback.",
       },
       { property: "og:url", content: "https://www.bellix.us/contact" },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/contact" },
+      { rel: "canonical", href: "https://www.bellix.us/contact" },
     ],
   }),
   component: ContactPage,

@@ -12,9 +12,6 @@ import {
   Zap,
   SlidersHorizontal,
   FileCheck,
-  Building,
-  Scale,
-  Receipt,
   ChevronDown,
   Printer,
   Sparkle,
@@ -47,7 +44,7 @@ export const Route = createFileRoute("/pdf-watermark-remover")({
         content:
           "Remove watermarks, stamps, and logos from PDF documents online. Works on invoices, contracts, blueprints, and scanned files. Preserves original fonts, layout, and vector clarity.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/pdf-watermark-remover" },
+      { rel: "canonical", href: "https://www.bellix.us/pdf-watermark-remover" },
       { property: "og:url", content: "https://www.bellix.us/pdf-watermark-remover" },
       { property: "og:title", content: "PDF Watermark Remover — Clean PDFs Online Free" },
       {
@@ -940,109 +937,8 @@ export default function PdfWatermarkRemoverPage() {
               {/* RIGHT COLUMN: DOCUMENT OPTIONS & CLEANUP SETTINGS (lg:col-span-5) */}
               <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
                 <div>
-                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-3">
-                    DOCUMENT SETTINGS
-                  </h4>
-
-                  {/* Mode Selector */}
-                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
-                    <button
-                      type="button"
-                      onClick={() => setCleanMode("auto")}
-                      className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "auto"
-                          ? "bg-white text-gray-950 shadow-xs font-semibold"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      Auto Inpaint
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCleanMode("vector")}
-                      className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "vector"
-                          ? "bg-white text-gray-950 shadow-xs font-semibold"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      Vector Lossless
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCleanMode("text")}
-                      className={`py-2 rounded-lg transition-all cursor-pointer ${
-                        cleanMode === "text"
-                          ? "bg-white text-gray-950 shadow-xs font-semibold"
-                          : "hover:text-gray-900"
-                      }`}
-                    >
-                      OCR Preserved
-                    </button>
-                  </div>
-
-                  {/* Quick Preset Document Samples */}
-                  <div className="space-y-2 mb-5">
-                    <label className="text-xs font-medium text-gray-500 flex items-center justify-between">
-                      <span>TRY DOCUMENT SAMPLES:</span>
-                      <span className="text-[10px] text-gray-400">Click to preview</span>
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        id="pdf-sample-invoice-btn"
-                        onClick={() => handlePresetSelect("invoice")}
-                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                          activeDocPreset === "invoice"
-                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                            : "border-gray-200 hover:border-gray-300 bg-white"
-                        }`}
-                      >
-                        <Receipt className="size-4 text-[#E11D48]" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
-                          Tax Invoice
-                        </span>
-                        <span className="text-[9px] text-gray-400">Paid stamp</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        id="pdf-sample-nda-btn"
-                        onClick={() => handlePresetSelect("contract")}
-                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                          activeDocPreset === "contract"
-                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                            : "border-gray-200 hover:border-gray-300 bg-white"
-                        }`}
-                      >
-                        <Scale className="size-4 text-purple-600" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
-                          Legal NDA
-                        </span>
-                        <span className="text-[9px] text-gray-400">Confidential</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        id="pdf-sample-blueprint-btn"
-                        onClick={() => handlePresetSelect("blueprint")}
-                        className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                          activeDocPreset === "blueprint"
-                            ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                            : "border-gray-200 hover:border-gray-300 bg-white"
-                        }`}
-                      >
-                        <Building className="size-4 text-sky-600" />
-                        <span className="text-[11px] font-semibold text-gray-900 leading-tight">
-                          Blueprint
-                        </span>
-                        <span className="text-[9px] text-gray-400">CAD mark</span>
-                      </button>
-                    </div>
-                  </div>
-
                   {/* AI Quality Engine Selection */}
-                  <div className="pt-3 border-t border-gray-100">
+                  <div>
                     <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                       <span className="font-medium flex items-center gap-1.5">
                         <Sparkles className="size-3.5 text-[#E11D48]" />

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/how-it-works")({
         content:
           "Learn how Bellix.us AI tools work: background removal with edge matting, watermark detection and inpainting, and video frame reconstruction — step by step.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/how-it-works" },
+      { rel: "canonical", href: "https://www.bellix.us/how-it-works" },
       { property: "og:url", content: "https://www.bellix.us/how-it-works" },
       { property: "og:title", content: "How It Works — AI Background Removal & Watermark Cleaning" },
       { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },

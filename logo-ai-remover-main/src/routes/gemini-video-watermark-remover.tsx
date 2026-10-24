@@ -34,7 +34,7 @@ export const Route = createFileRoute("/gemini-video-watermark-remover")({
         content:
           "Remove Google Gemini stars and Veo video watermarks frame by frame with AI. Restore clean video with consistent motion and no blur — supports MP4 and MOV.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/gemini-video-watermark-remover" },
+      { rel: "canonical", href: "https://www.bellix.us/gemini-video-watermark-remover" },
       { property: "og:url", content: "https://www.bellix.us/gemini-video-watermark-remover" },
       { property: "og:title", content: "AI Video Watermark Remover — Remove Gemini & Veo Watermarks" },
       {

@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
         content:
           "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
       },
-      { tagName: "link", rel: "canonical", href: "https://www.bellix.us/" },
+      { rel: "canonical", href: "https://www.bellix.us/" },
       { property: "og:url", content: "https://www.bellix.us/" },
       { property: "og:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
       {
@@ -264,14 +264,19 @@ function SlideRunMarquee() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const renderCard = (m: AIModelData, keyPrefix: string) => {
+    const isHiddenTrack = keyPrefix === "track2";
     return (
       <div
         key={`${keyPrefix}-${m.id}`}
-        role="button"
-        tabIndex={0}
+        {...(!isHiddenTrack ? {
+          role: "button",
+          tabIndex: 0,
+        } : {
+          tabIndex: -1,
+        })}
         onClick={() => setSelectedId(m.id)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
+          if (!isHiddenTrack && (e.key === "Enter" || e.key === " ")) {
             e.preventDefault();
             setSelectedId(m.id);
           }
@@ -336,6 +341,30 @@ function SlideRunMarquee() {
 function VideoCleanupResultSection() {
   const vBeforeRef = useRef<HTMLVideoElement>(null);
   const vAfterRef = useRef<HTMLVideoElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          vBeforeRef.current?.play().catch(() => {});
+          vAfterRef.current?.play().catch(() => {});
+        } else {
+          vBeforeRef.current?.pause();
+          vAfterRef.current?.pause();
+        }
+      },
+      { rootMargin: "300px 0px", threshold: 0.05 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Synchronize playback between both video players
   useEffect(() => {
@@ -354,7 +383,7 @@ function VideoCleanupResultSection() {
   }, []);
 
   return (
-    <section className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
+    <section ref={sectionRef} className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
       <div className="mx-auto max-w-5xl text-center space-y-4">
         {/* Exact Heading from User's Screenshot */}
         <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
@@ -387,21 +416,28 @@ function VideoCleanupResultSection() {
                 BEFORE
               </span>
 
-              <video
-                ref={vBeforeRef}
-                src="/gemini-example-before.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="size-full object-cover pointer-events-none"
-              />
+              {isVisible ? (
+                <video
+                  ref={vBeforeRef}
+                  src="/gemini-example-before.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="size-full object-cover pointer-events-none"
+                />
+              ) : (
+                <div className="size-full bg-black/60" />
+              )}
 
               {/* Gemini watermark only on BEFORE video */}
               <div className="absolute bottom-4 right-4 z-20 flex size-9 items-center justify-center rounded-full border border-white/20 bg-black/60 p-2 shadow-lg backdrop-blur-md">
                 <img
                   src="/gemini-logo.png"
                   alt="Gemini Mark"
+                  width={36}
+                  height={36}
                   className="size-full object-contain"
                 />
               </div>
@@ -413,15 +449,20 @@ function VideoCleanupResultSection() {
                 AFTER
               </span>
 
-              <video
-                ref={vAfterRef}
-                src="/gemini-example-after.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="size-full object-cover pointer-events-none"
-              />
+              {isVisible ? (
+                <video
+                  ref={vAfterRef}
+                  src="/gemini-example-after.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="size-full object-cover pointer-events-none"
+                />
+              ) : (
+                <div className="size-full bg-black/60" />
+              )}
             </div>
           </div>
         </div>
