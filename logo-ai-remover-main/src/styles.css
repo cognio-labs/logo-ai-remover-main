@@ -41,15 +41,15 @@
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
-  --font-weight-thin: 400;
-  --font-weight-extralight: 400;
-  --font-weight-light: 400;
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
   --font-weight-normal: 400;
-  --font-weight-medium: 400;
-  --font-weight-semibold: 400;
-  --font-weight-bold: 400;
-  --font-weight-extrabold: 400;
-  --font-weight-black: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
   --font-display:
     "Söhne", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
@@ -61,32 +61,32 @@
 :root {
   --radius: 1rem;
 
-  /* Warm Design Palette (Cream #FFF7ED, Soft Peach #FFE4C4, Light Coral #FFD6A5, Pink #FCA5A5) */
-  --bg-cream: #fff7ed;
-  --bg-soft-peach: #ffe4c4;
-  --bg-light-coral: #ffd6a5;
-  --bg-pink: #fca5a5;
+  /* Bellix red and white palette */
+  --bg-cream: #ffffff;
+  --bg-soft-peach: #fff1f2;
+  --bg-light-coral: #ffe4e6;
+  --bg-pink: #fecdd3;
 
-  --background: #fff7ed;
-  --foreground: #111827;
+  --background: #ffffff;
+  --foreground: #18181b;
 
-  --card: #fff7ed;
-  --card-foreground: #111827;
-  --popover: #fff7ed;
-  --popover-foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
 
   /* Vibrant Luxury Red / Crimson-Rose */
   --primary: #e11d48;
   --primary-foreground: #ffffff;
   --primary-glow: #fb7185;
 
-  --secondary: #ffe4c4;
+  --secondary: #fff1f2;
   --secondary-foreground: #9f1239;
 
-  --muted: #fff7ed;
+  --muted: #fff1f2;
   --muted-foreground: #6b7280;
 
-  --accent: #ffd6a5;
+  --accent: #ffe4e6;
   --accent-foreground: #be123c;
 
   --destructive: #dc2626;
@@ -94,8 +94,8 @@
   --success: #059669;
   --success-foreground: #ffffff;
 
-  --border: #fed7aa;
-  --input: #ffd6a5;
+  --border: #fecdd3;
+  --input: #ffe4e6;
   --ring: #e11d48;
 
   --chart-1: #e11d48;
@@ -105,7 +105,7 @@
   --chart-5: #9f1239;
 
   --gradient-primary: linear-gradient(135deg, #e11d48 0%, #ff2e63 50%, #ff4fa3 100%);
-  --gradient-warm: linear-gradient(135deg, #fff7ed 0%, #ffe4c4 35%, #ffd6a5 70%, #fca5a5 100%);
+  --gradient-warm: linear-gradient(135deg, #ffffff 0%, #fff1f2 45%, #ffe4e6 100%);
   --gradient-red-soft: linear-gradient(135deg, #fff1f4 0%, #ffe4e9 100%);
   --gradient-text: linear-gradient(135deg, #111827 0%, #be123c 60%, #e11d48 100%);
   --gradient-heading: linear-gradient(135deg, #111827 0%, #4b5563 100%);
@@ -129,15 +129,13 @@
   ::after {
     border-color: var(--color-border);
     font-family: var(--font-sans);
-    font-weight: 400 !important;
   }
 
   html,
   body {
-    background-color: #fff7ed;
+    background-color: #ffffff;
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-weight: 400 !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -150,15 +148,14 @@
   h5,
   h6 {
     font-family: var(--font-sans) !important;
-    font-weight: 400 !important;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    color: #111827;
+    color: #18181b;
   }
 
   b,
   strong,
   th {
-    font-weight: 400 !important;
   }
 
   p,
@@ -169,7 +166,6 @@
   select,
   textarea {
     font-family: var(--font-sans);
-    font-weight: 400 !important;
   }
 
   ::selection {
@@ -216,30 +212,27 @@
 /* ── User's Warm Background Design System ──
    Cream: #FFF7ED | Soft Peach: #FFE4C4 | Light Coral: #FFD6A5 | Pink: #FCA5A5 */
 .bg-warm-canvas {
-  background-color: #fff7ed;
-  background-image: url("/warm-gradient-bg.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: #ffffff;
+  background-image: radial-gradient(circle at 50% 0%, #fff1f2 0%, #ffffff 55%);
 }
 
 .bg-warm-gradient {
-  background: linear-gradient(135deg, #fff7ed 0%, #ffe4c4 35%, #ffd6a5 70%, #fca5a5 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 50%, #ffe4e6 100%);
 }
 
 .bg-warm-mesh {
-  background-color: #fff7ed;
+  background-color: #ffffff;
   background-image:
-    radial-gradient(ellipse 70% 60% at 15% 95%, #ffe4c4 0%, transparent 65%),
-    radial-gradient(ellipse 65% 55% at 35% 85%, #ffd6a5 0%, transparent 60%),
-    radial-gradient(ellipse 75% 65% at 85% 90%, #fca5a5 0%, transparent 65%),
-    radial-gradient(ellipse 90% 70% at 50% 15%, #fff7ed 0%, transparent 75%);
+    radial-gradient(ellipse 70% 60% at 15% 95%, #fff1f2 0%, transparent 65%),
+    radial-gradient(ellipse 65% 55% at 35% 85%, #ffe4e6 0%, transparent 60%),
+    radial-gradient(ellipse 75% 65% at 85% 90%, #fecdd3 0%, transparent 65%),
+    radial-gradient(ellipse 90% 70% at 50% 15%, #ffffff 0%, transparent 75%);
 }
 
 .bg-warm-card {
-  background: rgba(255, 247, 237, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 214, 165, 0.55);
+  border: 1px solid rgba(254, 205, 211, 0.75);
 }
 
 @utility grid-lines {
@@ -269,6 +262,23 @@
   50% {
     transform: translateY(-12px) rotate(1deg);
   }
+}
+
+/* Keep legacy utility surfaces inside the shared red-and-white brand system. */
+[class*="bg-[#FFF7ED"] {
+  background-color: #ffffff !important;
+}
+
+[class*="bg-[#FFE4C4"] {
+  background-color: #fff1f2 !important;
+}
+
+[class*="bg-[#FFD6A5"] {
+  background-color: #ffe4e6 !important;
+}
+
+[class*="border-[#FED7AA"] {
+  border-color: #fecdd3 !important;
 }
 
 @keyframes pulse-soft {
@@ -3413,7 +3423,8 @@ body {
 
 /* Background Remover Processing Animations */
 @keyframes sparkle-twinkle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.2;
     transform: scale(0.65) rotate(0deg);
   }
@@ -3486,7 +3497,8 @@ body {
   0% {
     clip-path: polygon(0 0%, 100% 0%, 100% 100%, 0 100%);
   }
-  95%, 100% {
+  95%,
+  100% {
     clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
   }
 }
@@ -3533,7 +3545,8 @@ body {
 }
 
 @keyframes badge-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -3546,7 +3559,8 @@ body {
 }
 
 @keyframes live-pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -3575,5 +3589,3 @@ body {
 .animate-modal-in {
   animation: modal-scale-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
-

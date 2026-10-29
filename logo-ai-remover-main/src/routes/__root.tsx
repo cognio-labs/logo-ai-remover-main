@@ -162,34 +162,17 @@ function RootShell({ children }: { children: ReactNode }) {
 
 import { Toaster } from "@/components/ui/sonner";
 import { useRouterState } from "@tanstack/react-router";
-import {
-  AppSidebar,
-  TopHeader,
-  SidebarProvider,
-  useSidebar,
-} from "@/components/site/AppSidebar";
+import { Navbar } from "@/components/site/Navbar";
 
 function MainAppLayout() {
-  const { isCollapsed } = useSidebar();
-
   return (
-    <div className="flex min-h-screen bg-white text-gray-900 relative">
-      {/* Modern Sleek Dark Sidebar (Exact match to user's Image 2 reference) */}
-      <AppSidebar />
-
-      {/* Main Content Area with fluid padding matching sidebar state */}
-      <div
-        className={`flex-1 min-w-0 flex flex-col min-h-screen bg-white transition-all duration-300 ease-in-out ${
-          isCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
-        }`}
-      >
-        <TopHeader />
-        <main className="flex-1 w-full overflow-x-hidden bg-white">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+    <div className="flex min-h-screen flex-col bg-white text-gray-900 relative">
+      <Navbar />
+      <main className="flex-1 w-full overflow-x-hidden bg-white">
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </main>
+      <Footer />
 
       <Toaster richColors position="top-right" />
     </div>
@@ -220,9 +203,7 @@ function RootComponent() {
           <Toaster richColors position="top-right" />
         </div>
       ) : (
-        <SidebarProvider>
-          <MainAppLayout />
-        </SidebarProvider>
+        <MainAppLayout />
       )}
     </QueryClientProvider>
   );

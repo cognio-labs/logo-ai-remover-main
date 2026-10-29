@@ -1,267 +1,354 @@
-import React, { useState, useRef } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
-  Play,
   ArrowRight,
-  Upload,
-  CheckCircle2,
+  Play,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Scissors,
   Zap,
+  Layers,
+  WandSparkles,
   ShieldCheck,
   Star,
-  Users,
+  Image as ImageIcon,
 } from "lucide-react";
-import { VideoPlayerModal } from "./VideoPlayerModal";
-import { CardItem } from "./VideoTemplatesSection";
+
+interface ShowcaseSlide {
+  id: string;
+  toolName: string;
+  headline: string;
+  tagline: string;
+  image: string;
+  targetLink: string;
+  buttonText: string;
+  accentColor: string;
+  gradient: string;
+}
+
+const SHOWCASE_SLIDES: ShowcaseSlide[] = [
+  {
+    id: "bg-remover",
+    toolName: "AI Background Remover",
+    headline: "Pixel-Perfect Cutouts in Seconds",
+    tagline: "Instant sub-pixel subject isolation with automatic edge feathering and hair refinement.",
+    image: "/showcase/shoes_transparent.png",
+    targetLink: "/background-remover",
+    buttonText: "Remove Background Free",
+    accentColor: "from-rose-500 to-pink-500",
+    gradient: "from-rose-500/15 via-pink-500/10 to-transparent",
+  },
+  {
+    id: "upscaler",
+    toolName: "8K AI Image Upscaler",
+    headline: "Ultra-Clarity Sub-Pixel Restoration",
+    tagline: "Enlarge photos up to 800% while reviving micro-textures, reflections, and fine details.",
+    image: "/upscale/jewelry.png",
+    targetLink: "/upscale",
+    buttonText: "Upscale Image to 8K",
+    accentColor: "from-violet-500 to-purple-500",
+    gradient: "from-violet-500/15 via-purple-500/10 to-transparent",
+  },
+  {
+    id: "fashion-studio",
+    toolName: "AI Creative Studio",
+    headline: "High-Fashion Editorial Lighting",
+    tagline: "Commercial-grade scene generation with realistic studio shadows and environmental lighting.",
+    image: "/creative-suite/fashion_ecommerce_model.webp",
+    targetLink: "/tools",
+    buttonText: "Open AI Studio",
+    accentColor: "from-amber-500 to-rose-500",
+    gradient: "from-amber-500/15 via-rose-500/10 to-transparent",
+  },
+  {
+    id: "landscape-restore",
+    toolName: "Landscape & Scene AI",
+    headline: "Breathtaking Dynamic Range",
+    tagline: "AI reconstruction that unmasks cinematic colors, depth gradients, and atmospheric lighting.",
+    image: "/upscale/mountain_lake.webp",
+    targetLink: "/upscale",
+    buttonText: "Enhance Scenic Photos",
+    accentColor: "from-sky-500 to-blue-600",
+    gradient: "from-sky-500/15 via-blue-500/10 to-transparent",
+  },
+  {
+    id: "automotive",
+    toolName: "Commercial Vehicle Cutout",
+    headline: "Precision Multi-Object Masking",
+    tagline: "Flawless transparent isolation with curved metallic reflection and ground shadow preservation.",
+    image: "/showcase/cars_transparent.png",
+    targetLink: "/background-remover",
+    buttonText: "Try Precision Cutout",
+    accentColor: "from-emerald-500 to-teal-500",
+    gradient: "from-emerald-500/15 via-teal-500/10 to-transparent",
+  },
+  {
+    id: "digital-art",
+    toolName: "Generative Art Enhancer",
+    headline: "Flawless 4K Texture Upscaling",
+    tagline: "Deep neural filtering that eliminates compression noise while amplifying vibrant brush strokes.",
+    image: "/upscale/artwork.png",
+    targetLink: "/upscale",
+    buttonText: "Enhance Artwork",
+    accentColor: "from-fuchsia-500 to-indigo-500",
+    gradient: "from-fuchsia-500/15 via-indigo-500/10 to-transparent",
+  },
+];
+
+const STATS = [
+  { value: "50M+", label: "Visuals Processed", desc: "Trusted worldwide" },
+  { value: "< 3s", label: "Average Inference", desc: "Instant HD output" },
+  { value: "99.9%", label: "Edge Precision", desc: "Sub-pixel accuracy" },
+  { value: "4.9 ★", label: "Creator Rating", desc: "150K+ verified reviews" },
+];
 
 export function BelixMasterHeroSection() {
-  const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDemoVideoOpen, setIsDemoVideoOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Demo card for the video modal player
-  const demoVideoCard: CardItem = {
-    id: "belix-hero-demo",
-    title: "Belix AI Creative Suite — Complete Platform Overview",
-    image: "/hero-after-clean.png",
-    video: "/hero-demo-video.mp4",
-    views: "2.8M",
-    ratio: "16:9",
-    badge: "OFFICIAL DEMO",
-    badgeType: "pink",
-  };
+  // Auto-slide every 4.5 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setActiveIdx((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isPaused]);
 
-  const handleStartCreatingClick = () => {
-    // Trigger direct image upload dialog if desired, or navigate to background remover
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    } else {
-      navigate({ to: "/background-remover" });
-    }
-  };
+  const nextSlide = useCallback(() => {
+    setActiveIdx((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
+  }, []);
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Store object URL or flag in sessionStorage for immediate processing
-      const url = URL.createObjectURL(file);
-      try {
-        sessionStorage.setItem("pending_upload_image", url);
-        sessionStorage.setItem("pending_upload_name", file.name);
-      } catch {}
-      navigate({ to: "/background-remover" });
-    }
-  };
+  const prevSlide = useCallback(() => {
+    setActiveIdx((prev) => (prev - 1 + SHOWCASE_SLIDES.length) % SHOWCASE_SLIDES.length);
+  }, []);
 
-  const scrollToTemplates = () => {
-    const target = document.getElementById("box-featured") || document.getElementById("box-ugc-style");
-    if (target) {
-      const topOffset = target.getBoundingClientRect().top + window.pageYOffset - 140;
-      window.scrollTo({ top: topOffset, behavior: "smooth" });
-    } else {
-      navigate({ to: "/background-remover" });
-    }
-  };
+  const active = SHOWCASE_SLIDES[activeIdx];
 
   return (
-    <section className="relative w-full bg-white text-gray-900 overflow-hidden select-none border-b border-gray-100">
-      {/* Hidden file input for "Start creating free" button */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleImageFileChange}
-        className="hidden"
-      />
+    <section
+      className="relative isolate overflow-hidden bg-white text-slate-900 border-b border-slate-100"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* ─── VIBRANT GLOWING COLOR BACKGROUND DESIGN ─── */}
+      <div className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+        {/* Subtle mesh grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(225,29,72,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(225,29,72,0.035)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_35%,#000_70%,transparent_100%)]" />
 
-      {/* ─── DESKTOP & TABLET HIGH-DEF MASTER HERO CANVAS (1600 × 900) ─── */}
-      <div className="relative w-full max-w-[1720px] mx-auto">
-        <div className="relative w-full aspect-[16/9] max-h-[880px] bg-sky-50 overflow-hidden">
-          {/* Main Visual Image Banner (Optimized WebP, Zero CLS) */}
-          <picture>
-            <source srcSet="/hero-section-banner.webp" type="image/webp" />
-            <img
-              src="/hero-section-banner.jpg"
-              alt="Belix AI Creative Workspace — Turn your ideas into finished work"
-              width={1600}
-              height={900}
-              className="w-full h-full object-cover object-top select-none pointer-events-none"
-              loading="eager"
-              fetchPriority="high"
-              decoding="sync"
-            />
-          </picture>
-
-          {/* ─── INTERACTIVE CLICKABLE HOTSPOTS WITH HOVER RIPPLES ─── */}
-
-          {/* 1. TOP NAVBAR HOTSPOTS */}
-          {/* Logo link */}
-          <Link
-            to="/"
-            className="absolute top-[2.2%] left-[3.2%] w-[8.5%] h-[5.2%] rounded-xl z-20 cursor-pointer hover:bg-black/5 active:scale-95 transition-all"
-            title="Belix Home"
-          />
-
-          {/* Nav: Home */}
-          <Link
-            to="/"
-            className="absolute top-[2.4%] left-[21.5%] w-[4.5%] h-[4.8%] rounded-full z-20 cursor-pointer hover:bg-black/5 transition-all"
-            title="Home"
-          />
-
-          {/* Nav: Tools */}
-          <Link
-            to="/tools"
-            className="absolute top-[2.4%] left-[27.2%] w-[4.2%] h-[4.8%] rounded-full z-20 cursor-pointer hover:bg-black/5 transition-all"
-            title="AI Tools"
-          />
-
-          {/* Nav: Templates */}
-          <button
-            onClick={scrollToTemplates}
-            className="absolute top-[2.4%] left-[32.6%] w-[6.2%] h-[4.8%] rounded-full z-20 cursor-pointer hover:bg-black/5 transition-all"
-            title="Explore Templates"
-          />
-
-          {/* Nav: Resources */}
-          <Link
-            to="/how-it-works"
-            className="absolute top-[2.4%] left-[40.0%] w-[6.2%] h-[4.8%] rounded-full z-20 cursor-pointer hover:bg-black/5 transition-all"
-            title="Resources & Guides"
-          />
-
-          {/* Nav: Pricing */}
-          <Link
-            to="/pricing"
-            className="absolute top-[2.4%] left-[47.4%] w-[4.8%] h-[4.8%] rounded-full z-20 cursor-pointer hover:bg-black/5 transition-all"
-            title="Pricing Plans"
-          />
-
-          {/* Nav Right: Try Belix Pro Button */}
-          <Link
-            to="/pricing"
-            className="group absolute top-[2.0%] right-[3.2%] w-[10.5%] h-[5.4%] rounded-full z-20 cursor-pointer hover:shadow-lg hover:shadow-pink-500/30 hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center overflow-hidden"
-            title="Try Belix Pro"
-          >
-            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors rounded-full" />
-          </Link>
-
-          {/* 2. PRIMARY ACTION BUTTON: "✦ Start creating free ->" */}
-          <div
-            onClick={handleStartCreatingClick}
-            className="group absolute top-[51.8%] left-[4.8%] w-[17.2%] h-[6.8%] rounded-full z-20 cursor-pointer hover:shadow-xl hover:shadow-purple-500/40 hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center overflow-hidden"
-            title="Start Creating Free — Click to upload photo or open editor"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") handleStartCreatingClick();
-            }}
-          >
-            {/* Subtle interactive hover highlight */}
-            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors rounded-full" />
-            <span className="sr-only">Start creating free</span>
-          </div>
-
-          {/* 3. SECONDARY ACTION BUTTON: "▷ Watch video" */}
-          <div
-            onClick={() => setIsDemoVideoOpen(true)}
-            className="group absolute top-[51.8%] left-[22.8%] w-[12.0%] h-[6.8%] rounded-full z-20 cursor-pointer hover:shadow-xl hover:shadow-black/20 hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center overflow-hidden"
-            title="Watch Video Demo"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") setIsDemoVideoOpen(true);
-            }}
-          >
-            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-full" />
-            <span className="sr-only">Watch video demo</span>
-          </div>
-
-          {/* 4. FLOATING INTERACTIVE FEATURE CARDS HOTSPOTS */}
-          {/* Card: AI Image Generator */}
-          <div
-            onClick={() => navigate({ to: "/background-remover" })}
-            className="group absolute top-[16.5%] left-[44.2%] w-[13.5%] h-[26.5%] rounded-2xl z-20 cursor-pointer hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 transition-all"
-            title="Open AI Image Generator"
-          >
-            <span className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-rose-400/50 transition-all pointer-events-none" />
-          </div>
-
-          {/* Card: Video Generation */}
-          <div
-            onClick={scrollToTemplates}
-            className="group absolute top-[13.8%] left-[63.0%] w-[15.2%] h-[23.0%] rounded-2xl z-20 cursor-pointer hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 transition-all"
-            title="Explore AI Video Generation"
-          >
-            <span className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-blue-400/50 transition-all pointer-events-none" />
-          </div>
-
-          {/* Card: AI Writer */}
-          <div
-            onClick={() => navigate({ to: "/about" })}
-            className="group absolute top-[21.5%] left-[80.8%] w-[15.0%] h-[18.5%] rounded-2xl z-20 cursor-pointer hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 transition-all"
-            title="AI Writer"
-          >
-            <span className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-purple-400/50 transition-all pointer-events-none" />
-          </div>
-
-          {/* Card: Design Studio */}
-          <div
-            onClick={() => navigate({ to: "/tools" })}
-            className="group absolute top-[41.2%] left-[78.8%] w-[15.8%] h-[18.2%] rounded-2xl z-20 cursor-pointer hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 transition-all"
-            title="Open Design Studio"
-          >
-            <span className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-pink-400/50 transition-all pointer-events-none" />
-          </div>
-        </div>
-
-        {/* ─── MOBILE COMPANION ACTION DOCK (Visible on smaller mobile screens) ─── */}
-        <div className="md:hidden px-4 py-4 bg-white border-t border-gray-100 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleStartCreatingClick}
-              className="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 text-white font-bold text-sm shadow-md shadow-pink-500/30 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform"
-            >
-              <Sparkles className="size-4" />
-              <span>Start creating free</span>
-              <ArrowRight className="size-4" />
-            </button>
-
-            <button
-              onClick={() => setIsDemoVideoOpen(true)}
-              className="py-3 px-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold text-sm border border-gray-200 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-transform"
-            >
-              <Play className="size-4 fill-gray-800" />
-              <span>Watch</span>
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium px-1">
-            <span className="inline-flex items-center gap-1">
-              <CheckCircle2 className="size-3 text-emerald-600" />
-              AI-powered tools
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <CheckCircle2 className="size-3 text-emerald-600" />
-              Export-ready HD
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <CheckCircle2 className="size-3 text-emerald-600" />
-              No card required
-            </span>
-          </div>
-        </div>
+        {/* Multi-color ambient glows */}
+        <div className="absolute -top-36 left-1/2 -translate-x-1/2 h-[520px] w-[980px] rounded-full bg-gradient-to-tr from-rose-200/55 via-purple-100/60 to-amber-100/50 blur-[110px]" />
+        <div className="absolute top-[28%] -left-32 h-[450px] w-[500px] rounded-full bg-gradient-to-br from-pink-200/40 via-rose-100/35 to-transparent blur-[95px]" />
+        <div className="absolute top-[22%] -right-32 h-[500px] w-[540px] rounded-full bg-gradient-to-bl from-purple-200/45 via-indigo-100/35 to-rose-100/30 blur-[100px]" />
+        <div className="absolute -bottom-24 left-1/3 h-[320px] w-[480px] rounded-full bg-rose-100/40 blur-[85px]" />
       </div>
 
-      {/* ─── DEMO VIDEO MODAL (Rendered only on demand) ─── */}
-      {isDemoVideoOpen && (
-        <VideoPlayerModal
-          isOpen={isDemoVideoOpen}
-          onClose={() => setIsDemoVideoOpen(false)}
-          card={demoVideoCard}
-          categoryName="Official Platform Demo"
-        />
-      )}
+      <div className="mx-auto max-w-7xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:px-8 lg:pt-20 lg:pb-24">
+        {/* ─── HEADER / BADGE / TITLE / CTAS ─── */}
+        <div className="flex flex-col items-center text-center">
+          {/* Eyebrow badge */}
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-rose-200/80 bg-white/90 px-4 py-1.5 shadow-xs backdrop-blur-md transition-all hover:border-rose-300">
+            <span className="flex size-5 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs">
+              <Sparkles className="size-3" />
+            </span>
+            <span className="text-xs font-semibold text-slate-800 tracking-wide">
+              Bellix AI Creative Suite <span className="text-rose-500 font-bold">•</span> Next-Gen Visual Studio
+            </span>
+            <span className="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">
+              PRO
+            </span>
+          </div>
+
+          {/* Main Hero Headline */}
+          <h1 className="mt-6 max-w-4xl text-balance text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl sm:leading-[1.1] lg:text-[4.25rem]">
+            Create Visuals That Stand Out With{" "}
+            <span className="bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Studio-Grade AI
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-5 max-w-2xl text-balance text-base text-slate-600 sm:text-lg sm:leading-relaxed">
+            One unified creative suite to remove backgrounds, upscale images to 8K, and clean video watermarks with instantaneous precision.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
+            <Link
+              to="/background-remover"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-rose-500/35 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+            >
+              <WandSparkles className="size-4" />
+              <span>Start Creating Free</span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+
+            <Link
+              to="/tools"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-xs backdrop-blur-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300"
+            >
+              <Play className="size-3.5 fill-current text-rose-500" />
+              <span>Explore All Tools</span>
+            </Link>
+          </div>
+
+          {/* Trust elements */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-500">
+            <span className="inline-flex items-center gap-1.5">
+              <Check className="size-3.5 text-emerald-500 stroke-[3]" />
+              Free to start, no card required
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="size-3.5 text-rose-500 stroke-[2.5]" />
+              Private & secure processing
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="size-3.5 text-amber-500 fill-amber-500" />
+              Full 4K / 8K resolution exports
+            </span>
+          </div>
+        </div>
+
+        {/* ─── REAL HERO SHOWCASE IMAGE SLIDER (NO FAKE WINDOW, PURE CINEMATIC VISUALS) ─── */}
+        <div className="relative mt-12 sm:mt-14">
+          {/* Main Visual Slide Stage */}
+          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-b from-slate-50 to-white shadow-2xl shadow-rose-950/5">
+            {/* Slide Image Background and Display */}
+            <div className="relative aspect-[16/9] sm:aspect-[2.1/1] w-full overflow-hidden bg-slate-900/5">
+              {/* Subtle Checkerboard for transparency indication */}
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,#f3f4f6_25%,transparent_25%),linear-gradient(-45deg,#f3f4f6_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f3f4f6_75%),linear-gradient(-45deg,transparent_75%,#f3f4f6_75%)] bg-[size:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0px]" />
+
+              {/* Ambient Glow behind image */}
+              <div
+                className={`absolute inset-0 bg-gradient-to-r ${active.gradient} transition-colors duration-700 pointer-events-none`}
+              />
+
+              {/* Active Image with smooth crossfade */}
+              <img
+                key={active.id}
+                src={active.image}
+                alt={active.headline}
+                className="absolute inset-0 h-full w-full object-contain p-4 sm:p-8 transition-all duration-700 ease-out animate-fadeIn"
+                loading="eager"
+              />
+
+              {/* Top floating pill: Tool Name */}
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-md backdrop-blur-md">
+                  <span className={`size-2 rounded-full bg-gradient-to-r ${active.accentColor}`} />
+                  {active.toolName}
+                </span>
+              </div>
+
+              {/* Slide Navigation Buttons (Glass Arrows) */}
+              <button
+                type="button"
+                onClick={prevSlide}
+                aria-label="Previous slide"
+                className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-11 items-center justify-center rounded-full border border-white/90 bg-white/90 text-slate-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-950 active:scale-95 cursor-pointer"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next slide"
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 flex size-10 sm:size-11 items-center justify-center rounded-full border border-white/90 bg-white/90 text-slate-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-950 active:scale-95 cursor-pointer"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+
+              {/* Bottom Info Overlay inside Slide */}
+              <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-5 sm:p-8 text-white backdrop-blur-[2px]">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <div className="max-w-xl">
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-sm">
+                      {active.headline}
+                    </h3>
+                    <p className="mt-1 text-xs sm:text-sm text-slate-200 line-clamp-2 drop-shadow-sm">
+                      {active.tagline}
+                    </p>
+                  </div>
+
+                  <Link
+                    to={active.targetLink}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-slate-900 shadow-lg transition-all hover:scale-105 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                  >
+                    <span>{active.buttonText}</span>
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Slider Bottom Thumbnail Navigation Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-white/95 px-5 py-3 sm:px-6">
+              <div className="flex items-center gap-2 overflow-x-auto py-1">
+                {SHOWCASE_SLIDES.map((slide, idx) => {
+                  const isSelected = idx === activeIdx;
+                  return (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => setActiveIdx(idx)}
+                      className={`group relative flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      <span
+                        className={`size-1.5 rounded-full transition-transform ${
+                          isSelected ? "bg-rose-400 scale-125" : "bg-slate-300 group-hover:bg-slate-400"
+                        }`}
+                      />
+                      <span>{slide.toolName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Dot Indicators */}
+              <div className="flex items-center gap-1.5">
+                {SHOWCASE_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`Jump to slide ${i + 1}`}
+                    onClick={() => setActiveIdx(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      i === activeIdx ? "w-6 bg-rose-500" : "w-1.5 bg-slate-200 hover:bg-slate-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── BOTTOM TRUST METRICS BAR ─── */}
+        <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
+          {STATS.map((item) => (
+            <div
+              key={item.label}
+              className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white/70 p-4 text-center shadow-xs backdrop-blur-sm transition-all hover:border-rose-100 hover:shadow-md"
+            >
+              <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                {item.value}
+              </div>
+              <div className="mt-0.5 text-xs font-semibold text-slate-700">
+                {item.label}
+              </div>
+              <div className="text-[11px] text-slate-400">
+                {item.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

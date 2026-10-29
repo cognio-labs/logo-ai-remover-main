@@ -27,7 +27,6 @@ import {
 import { ModelIcon } from "@/components/ModelIcon";
 import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 import { CreativeSuiteSection } from "@/components/ui/hero-parallax";
-import { VideoTemplatesSection } from "./VideoTemplatesSection";
 import { BelixMasterHeroSection } from "./BelixMasterHeroSection";
 
 export const studioAssets = {
@@ -734,6 +733,109 @@ export function WorkflowCards() {
   );
 }
 
+function CreativeWorkflowCards() {
+  const cards = [
+    {
+      number: "01",
+      eyebrow: "Start with your file",
+      title: "Drop it in. We handle the setup.",
+      text: "Upload an image or video and Bellix automatically prepares the right workspace for your file.",
+      image: "/creative-suite/background_remover_studio.webp",
+      alt: "Headphones product image ready for background removal",
+      to: "/background-remover" as const,
+      cta: "Upload an image",
+      icon: Upload,
+    },
+    {
+      number: "02",
+      eyebrow: "Choose your finish",
+      title: "Make every detail feel intentional.",
+      text: "Remove distractions, restore clarity, and refine the result with controls that stay easy to understand.",
+      image: "/creative-suite/hero_portrait_luxury.webp",
+      alt: "Portrait enhanced with Bellix creative tools",
+      to: "/tools" as const,
+      cta: "Explore AI tools",
+      icon: WandSparkles,
+    },
+    {
+      number: "03",
+      eyebrow: "Export with confidence",
+      title: "Ready for the place it needs to go.",
+      text: "Preview the finished result and download a clean, high-quality file for your next post, store, or campaign.",
+      image: "/upscale/showcase/travel_after.jpg",
+      alt: "High-resolution mountain landscape ready to export",
+      to: "/upscale" as const,
+      cta: "Create an export",
+      icon: Download,
+    },
+  ];
+
+  return (
+    <section className="relative overflow-hidden border-y border-rose-100 bg-white px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#fff1f2_0%,transparent_45%)]" />
+      <div className="relative mx-auto max-w-[1420px]">
+        <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-[#E11D48]">
+            <Sparkles size={13} />A simpler creative workflow
+          </div>
+          <h2 className="text-balance text-4xl font-bold tracking-[-0.045em] text-zinc-950 sm:text-5xl lg:text-6xl">
+            From first upload to
+            <span className="text-[#E11D48]"> finished work.</span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg">
+            Three clear steps, one focused workspace, and no complicated editing timeline to learn.
+          </p>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {cards.map((card) => (
+            <article
+              key={card.number}
+              className="group relative flex min-h-full flex-col overflow-hidden rounded-[2rem] border border-rose-100 bg-white shadow-[0_22px_60px_-38px_rgba(159,18,57,.35)] transition duration-300 hover:-translate-y-1.5 hover:border-rose-200 hover:shadow-[0_30px_70px_-34px_rgba(159,18,57,.42)]"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-rose-50">
+                <img
+                  src={card.image}
+                  alt={card.alt}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/35 via-transparent to-transparent" />
+                <span className="absolute left-5 top-5 grid size-11 place-items-center rounded-2xl border border-white/70 bg-white/90 text-sm font-bold text-[#E11D48] shadow-lg backdrop-blur-md">
+                  {card.number}
+                </span>
+                <span className="absolute bottom-4 right-4 grid size-10 place-items-center rounded-full bg-[#E11D48] text-white shadow-lg shadow-rose-950/20 transition-transform group-hover:rotate-6 group-hover:scale-105">
+                  <card.icon size={17} />
+                </span>
+              </div>
+
+              <div className="flex flex-1 flex-col p-6 sm:p-7">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#E11D48]">
+                  {card.eyebrow}
+                </p>
+                <h3 className="mt-3 text-2xl font-bold leading-tight tracking-[-0.025em] text-zinc-950">
+                  {card.title}
+                </h3>
+                <p className="mt-3 flex-1 text-sm leading-6 text-zinc-600">{card.text}</p>
+                <Link
+                  to={card.to}
+                  className="mt-7 inline-flex items-center justify-between rounded-full border border-rose-200 bg-rose-50/70 px-5 py-3 text-sm font-semibold text-[#E11D48] transition hover:border-[#E11D48] hover:bg-[#E11D48] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+                >
+                  {card.cta}
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const STATS = [
   { value: "500K+", label: "Files processed" },
   { value: "4K", label: "Max resolution" },
@@ -885,8 +987,6 @@ const HERO_FAN_CARDS: HeroFanCard[] = [
   },
 ];
 
-
-
 export function StudioHome() {
   const [active, setActive] = useState<keyof typeof studioAssets>("coast");
 
@@ -894,10 +994,6 @@ export function StudioHome() {
     <main className="studio-page">
       {/* ─── 0. BRAND NEW MASTER HERO SECTION FROM D:\HERO SECTION.jpeg ─── */}
       <BelixMasterHeroSection />
-
-
-      {/* ─── 1.5 VIDEO SHOWCASE & TEMPLATES SECTION (WITH LIVE HOVER, MODAL & UPLOAD) ─── */}
-      <VideoTemplatesSection />
 
       {/* ─── 2. RUNNING ELEMENTS: AI PLATFORMS TICKER ─── */}
       <StudioAiMarquee />
@@ -975,7 +1071,7 @@ export function StudioHome() {
       </section>
 
       <SampleGallery />
-      <WorkflowCards />
+      <CreativeWorkflowCards />
 
       {/* ─── TRUST BADGES ─── */}
       <section className="studio-trust-section">
