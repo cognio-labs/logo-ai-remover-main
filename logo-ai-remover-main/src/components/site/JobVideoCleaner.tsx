@@ -17,15 +17,18 @@ import {
   VolumeX,
   Sliders,
   Sparkles,
-  Eye,
   CheckCircle2,
-  Layers,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   applyGeminiFrameUnblend,
-  getGeminiCoordinates,
-  processGeminiVideoWithMask,
+  getHardenedCornerGeometry,
+  getRecentFfmpegLogs,
+  processGeminiVideoCanvasFallback,
+  processGeminiVideoFfmpeg,
 } from "@/lib/clearCornerEngine";
 
 const ACCEPT = "video/mp4,video/quicktime,video/webm,video/*,.mp4,.mov,.webm,.avi,.mkv";
@@ -42,6 +45,7 @@ export function JobVideoCleaner() {
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [outputExt, setOutputExt] = useState<string>("mp4");
 
   const [dragOver, setDragOver] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -50,10 +54,10 @@ export function JobVideoCleaner() {
   const [seekValue, setSeekValue] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Calibration Settings
-  const [alpha, setAlpha] = useState(0.55); // 0.40 to 0.70
-  const [sizePct, setSizePct] = useState(7.2); // 3% to 15%
-  const [distancePct, setDistancePct] = useState(4.2); // 1% to 12%
+  // Calibration Settings: alpha range 0.10 to 0.90, step 0.01, default 0.30
+  const [alpha, setAlpha] = useState(0.30);
+  const [sizePct, setSizePct] = useState(7.2);
+  const [distancePct, setDistancePct] = useState(4.2);
   const [enableEdgeBlur, setEnableEdgeBlur] = useState(true);
   const [showTargetBox, setShowTargetBox] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -67,6 +71,8 @@ export function JobVideoCleaner() {
   const [statusMsg, setStatusMsg] = useState("Ready to process. Calibrate alpha & export.");
   const [progress, setProgress] = useState(0);
   const [isError, setIsError] = useState(false);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [showLogExpand, setShowLogExpand] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const origVideoRef = useRef<HTMLVideoElement>(null);
@@ -98,8 +104,8 @@ export function JobVideoCleaner() {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    const coords = getGeminiCoordinates(w, h, sizePct, distancePct);
-    applyGeminiFrameUnblend(ctx, video, coords.cx, coords.cy, coords.size, alpha);
+    const { box, x, y } = getHardenedCornerGeometry(w, h, sizePct, distancePct);
+    applyGeminiFrameUnblend(ctx, video, x, y, box, alpha);
   }, [alpha, sizePct, distancePct, dimensions]);
 
   // Trigger preview update on calibration change
@@ -125,9 +131,11 @@ export function JobVideoCleaner() {
     setOrigUrl(url);
     setCleanUrl(null);
     setDownloadUrl(null);
+    setOutputExt("mp4");
     setIsDone(false);
     setIsProcessing(false);
     setIsError(false);
+    setErrorDetails(null);
     setProgress(0);
     setCurrentTime(0);
     setSeekValue(0);
@@ -223,6 +231,7 @@ export function JobVideoCleaner() {
     setOrigUrl(null);
     setCleanUrl(null);
     setDownloadUrl(null);
+    setOutputExt("mp4");
     setIsDone(false);
     setIsProcessing(false);
     setProgress(0);
@@ -231,24 +240,29 @@ export function JobVideoCleaner() {
     setSeekValue(0);
     setStatusMsg("Ready to process.");
     setIsError(false);
+    setErrorDetails(null);
   };
 
-  // In-Browser Watermark Removal via FFmpeg.wasm (No Server / No Failed to Fetch)
+  // Hardened Video Processing with Automatic Canvas Fallback
   const handleProcess = async () => {
-    if (!file) return;
+    if (!file || !origUrl) return;
     setIsProcessing(true);
     setIsError(false);
-    setStatusMsg("Loading in-browser neural engine...");
+    setErrorDetails(null);
+    setStatusMsg("Initializing in-browser video processing...");
     setProgress(2);
 
+    const v = origVideoRef.current;
+    const w = v?.videoWidth || dimensions.width;
+    const h = v?.videoHeight || dimensions.height;
+
+    let cleanResult: { blob: Blob; url: string; ext: string } | null = null;
+    let ffmpegFailureError: any = null;
+
+    // 1. Attempt hardened FFmpeg WASM processing
     try {
-      const v = origVideoRef.current;
-      const w = v?.videoWidth || dimensions.width;
-      const h = v?.videoHeight || dimensions.height;
-
-      setStatusMsg("Processing video frames with mathematical unblending...");
-
-      const result = await processGeminiVideoWithMask(
+      setStatusMsg("Running high-speed FFmpeg WASM engine...");
+      cleanResult = await processGeminiVideoFfmpeg(
         file,
         w,
         h,
@@ -260,17 +274,61 @@ export function JobVideoCleaner() {
         },
         (pct) => {
           setProgress(Math.round(pct * 100));
-          setStatusMsg(`Rendering clean frames... ${Math.round(pct * 100)}%`);
+          setStatusMsg(`FFmpeg processing frames... ${Math.round(pct * 100)}%`);
         }
       );
+    } catch (ffmpegErr: any) {
+      ffmpegFailureError = ffmpegErr;
+      console.warn("FFmpeg WASM error, switching to real-time Canvas fallback:", ffmpegErr);
+      setStatusMsg("Switching to real-time Canvas processing fallback...");
+      toast.info("Using real-time canvas fallback engine...");
 
-      setCleanUrl(result.url);
-      setDownloadUrl(result.url);
+      // 2. Fallback that needs no ffmpeg filters
+      try {
+        cleanResult = await processGeminiVideoCanvasFallback(
+          origUrl,
+          w,
+          h,
+          {
+            alpha,
+            sizePct,
+            distancePct,
+          },
+          (pct, msg) => {
+            setProgress(Math.round(pct * 100));
+            setStatusMsg(msg);
+          }
+        );
+      } catch (canvasErr: any) {
+        console.error("Both FFmpeg and Canvas fallback failed:", { ffmpegErr, canvasErr });
+
+        const logs = getRecentFfmpegLogs().slice(-10).join("\n");
+        const detailedDiag = [
+          `FFmpeg Engine Error:\n${ffmpegErr?.message || ffmpegErr}`,
+          `Canvas Fallback Error:\n${canvasErr?.message || canvasErr}`,
+          logs ? `Recent FFmpeg Logs:\n${logs}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n--------------------\n\n");
+
+        setIsProcessing(false);
+        setIsError(true);
+        setStatusMsg("In-browser video processing failed");
+        setErrorDetails(detailedDiag);
+        toast.error("In-browser video processing failed");
+        return;
+      }
+    }
+
+    if (cleanResult) {
+      setOutputExt(cleanResult.ext);
+      setCleanUrl(cleanResult.url);
+      setDownloadUrl(cleanResult.url);
       setIsDone(true);
       setIsProcessing(false);
       setProgress(100);
       setStatusMsg("Watermark removed successfully with zero quality loss!");
-      toast.success("Done! Clean HD MP4 is ready.");
+      toast.success("Done! Clean video is ready.");
 
       try {
         useUserStore.getState().addJob({
@@ -280,7 +338,7 @@ export function JobVideoCleaner() {
           quality: "Original HD",
           credits_used: 1,
           file_url: origUrl || undefined,
-          result_url: result.url,
+          result_url: cleanResult.url,
         });
       } catch (jobErr) {
         console.error("Failed to add video job to history:", jobErr);
@@ -292,22 +350,16 @@ export function JobVideoCleaner() {
         if (procVideoRef.current) procVideoRef.current.currentTime = 0;
         playBoth();
       }, 300);
-    } catch (err: any) {
-      setIsProcessing(false);
-      setIsError(true);
-      const msg = err.message || "In-browser video processing failed";
-      setStatusMsg(`Error: ${msg}`);
-      toast.error(msg);
     }
   };
 
   // Calculate coordinates for visual target overlay box
-  const targetCoords = getGeminiCoordinates(dimensions.width, dimensions.height, sizePct, distancePct);
+  const targetCoords = getHardenedCornerGeometry(dimensions.width, dimensions.height, sizePct, distancePct);
   const targetStyle = {
-    width: `${(targetCoords.size / dimensions.width) * 100}%`,
-    height: `${(targetCoords.size / dimensions.height) * 100}%`,
-    left: `${((targetCoords.cx - targetCoords.size / 2) / dimensions.width) * 100}%`,
-    top: `${((targetCoords.cy - targetCoords.size / 2) / dimensions.height) * 100}%`,
+    width: `${(targetCoords.box / dimensions.width) * 100}%`,
+    height: `${(targetCoords.box / dimensions.height) * 100}%`,
+    left: `${(targetCoords.x / dimensions.width) * 100}%`,
+    top: `${(targetCoords.y / dimensions.height) * 100}%`,
   };
 
   /* -------------------------------------------------------------------------- */
@@ -335,7 +387,6 @@ export function JobVideoCleaner() {
             if (dropped) loadFile(dropped);
           }}
         >
-          {/* Animated Glowing Cloud Icon */}
           <div className="relative mb-2">
             <span className="flex size-24 items-center justify-center rounded-3xl bg-[#10241e] text-[#d0f471] shadow-[0_12px_32px_rgba(16,36,30,0.2)] transition-transform duration-300 hover:scale-105">
               <UploadCloud className="size-11 animate-pulse" />
@@ -396,7 +447,7 @@ export function JobVideoCleaner() {
 
           <div className="mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#637069]">
             <ShieldCheck className="size-4 text-[#10241e]" />
-            <span>Mathematical Alpha Unblending • Zero Quality Loss • 100% In-Browser</span>
+            <span>Mathematical Reverse Alpha Unblending • Zero Quality Loss • 100% In-Browser</span>
           </div>
 
           <input
@@ -540,7 +591,7 @@ export function JobVideoCleaner() {
         </button>
       </div>
 
-      {/* Calibration Controls Bar: original = (watermarked − α·255) / (1 − α) */}
+      {/* Calibration Controls Bar: range 0.10 to 0.90, default 0.30 */}
       {!isDone && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#10241e]/10 pb-3">
@@ -552,27 +603,27 @@ export function JobVideoCleaner() {
               </span>
             </div>
             <div className="text-xs text-[#52645d] font-medium">
-              Formula: <code className="bg-white px-1.5 py-0.5 rounded border border-[#10241e]/10 text-[11px] font-mono text-[#10241e]">original = (watermark - α·255) / (1 - α)</code>
+              Formula: <code className="bg-white px-1.5 py-0.5 rounded border border-[#10241e]/10 text-[11px] font-mono text-[#10241e]">original = (pixel - a·255) / (1 - a)</code>
             </div>
           </div>
 
-          {/* Alpha Calibration Slider */}
+          {/* Alpha Calibration Slider: 0.10 to 0.90, step 0.01 */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs text-[#37433d]">
-              <span className="font-medium">Alpha Blending Strength (0.40 – 0.70)</span>
+              <span className="font-medium">Alpha Blending Strength (0.10 – 0.90)</span>
               <span className="font-mono text-[#10241e] font-bold">{alpha.toFixed(2)}</span>
             </div>
             <input
               type="range"
-              min={0.40}
-              max={0.70}
+              min={0.10}
+              max={0.90}
               step={0.01}
               value={alpha}
               disabled={isProcessing}
               onChange={(e) => setAlpha(Number(e.target.value))}
               className="w-full accent-[#10241e] cursor-pointer h-2.5 bg-gray-300 rounded-lg"
             />
-            {/* Real-time calibration tips */}
+            {/* Real-time calibration guidance */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
               <div className="bg-white/80 p-2 rounded-xl border border-[#10241e]/10 text-[#37433d]">
                 <b className="text-[#10241e]">White star visible?</b> Slide right (increase α)
@@ -673,6 +724,30 @@ export function JobVideoCleaner() {
         </div>
       </div>
 
+      {/* Real Error Diagnostic Box (Shows actual error + last log lines) */}
+      {isError && errorDetails && (
+        <div className="rounded-2xl border border-rose-300 bg-rose-50 p-4 sm:p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
+              <AlertTriangle className="size-4 text-rose-600" />
+              <span>Real Error Diagnostic Log</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowLogExpand(!showLogExpand)}
+              className="text-xs text-rose-700 hover:text-rose-900 font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>{showLogExpand ? "Hide Logs" : "Show Full Logs"}</span>
+              {showLogExpand ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+            </button>
+          </div>
+
+          <pre className="text-xs font-mono text-rose-950 bg-white/90 p-3 rounded-xl border border-rose-200 overflow-x-auto whitespace-pre-wrap break-all max-h-56 leading-relaxed">
+            {showLogExpand ? errorDetails : errorDetails.split("\n").slice(0, 8).join("\n") + (errorDetails.split("\n").length > 8 ? "\n... (click Show Full Logs above)" : "")}
+          </pre>
+        </div>
+      )}
+
       {/* Action Buttons Row */}
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
         <button
@@ -717,11 +792,11 @@ export function JobVideoCleaner() {
         ) : (
           <a
             href={downloadUrl || "#"}
-            download={`cleaned-${file.name}`}
+            download={`cleaned-${file.name.replace(/\.[^/.]+$/, "")}.${outputExt}`}
             className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer"
           >
             <Download className="size-4" />
-            Download Clean MP4 (Original HD)
+            Download Clean {outputExt.toUpperCase()} (Original HD)
           </a>
         )}
       </div>
