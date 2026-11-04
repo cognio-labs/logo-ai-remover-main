@@ -148,14 +148,14 @@ export function VideoBeforeAfterSlider({
           </div>
         </div>
 
-        {/* VERTICAL RED SLIDER LINE & CIRCULAR DRAG HANDLE */}
+        {/* VERTICAL SLIDER LINE & CIRCULAR DRAG HANDLE */}
         <div
-          className="absolute inset-y-0 w-1 bg-gradient-to-b from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_0_12px_rgba(225,29,72,0.8)] z-30"
+          className="absolute inset-y-0 w-1 bg-[#d0f471] shadow-[0_0_12px_rgba(208,244,113,0.8)] z-30"
           style={{ left: `${pos}%` }}
         >
           {/* Round handle in the middle */}
-          <div className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white shadow-[0_4px_20px_rgba(225,29,72,0.6)] group-hover:scale-110 active:scale-95 transition-transform cursor-ew-resize">
-            <span className="text-sm font-semibold select-none tracking-tighter">⇄</span>
+          <div className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#d0f471] bg-[#10241E] text-[#d0f471] shadow-[0_4px_20px_rgba(208,244,113,0.6)] group-hover:scale-110 active:scale-95 transition-transform cursor-ew-resize">
+            <span className="text-sm font-semibold select-none tracking-tighter text-[#d0f471]">⇄</span>
           </div>
         </div>
 
@@ -168,8 +168,8 @@ export function VideoBeforeAfterSlider({
         </div>
 
         <div className="absolute top-4 right-4 z-20 pointer-events-none">
-          <span className="rounded-full border border-[#FCE7EC] bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-[#E11D48] backdrop-blur-md shadow-xs flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-[#E11D48]" />
+          <span className="rounded-full border border-emerald-200 bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-[#10241E] backdrop-blur-md shadow-xs flex items-center gap-1.5">
+            <Sparkles className="size-3.5 text-emerald-600" />
             <span>Cleaned (Logo Erased)</span>
           </span>
         </div>

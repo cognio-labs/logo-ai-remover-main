@@ -548,8 +548,8 @@ export const INITIAL_GALLERY_SAMPLES: GallerySample[] = REAL_SAMPLES.map((s) => 
 
 
 export default function GeminiImageWatermarkRemoverPage() {
-  const [sizePct, setSizePct] = useState<number>(10);
-  const [marginPct, setMarginPct] = useState<number>(15.6);
+  const [sizePct, setSizePct] = useState<number>(7);
+  const [marginPct, setMarginPct] = useState<number>(4);
   const [showTargetBox, setShowTargetBox] = useState<boolean>(true);
   const [showCleanOnly, setShowCleanOnly] = useState<boolean>(false);
   const [sliderPos, setSliderPos] = useState<number>(46);
@@ -666,7 +666,7 @@ export default function GeminiImageWatermarkRemoverPage() {
           width: cvs.width,
           height: cvs.height,
         };
-        processItem(item, 10, 15.6).then((processed) => {
+        processItem(item, 7, 4).then((processed) => {
           setItems([processed]);
           setCurrentIndex(0);
         });

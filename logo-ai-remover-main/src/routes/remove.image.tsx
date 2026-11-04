@@ -229,7 +229,7 @@ export default function ImageCleaner() {
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#FFE4E9"],
+        colors: ["#d0f471", "#10241e", "#10B981"],
       });
 
       toast.success("Watermark removed successfully!");
@@ -285,36 +285,7 @@ export default function ImageCleaner() {
 
   return (
     <div className="relative min-h-screen bg-[#f3f4ee] text-[#10241e] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
-      {/* Ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#E11D48]/15 via-rose-950/10 to-transparent blur-3xl pointer-events-none" />
-
-      <div className="relative mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-bold text-[#10241e] mb-3 px-4 py-1.5 shadow-sm">
-            <Sparkles className="size-3.5" />
-            <span>AI Watermark & Logo Remover</span>
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-bold text-[#10241e] tracking-tight">
-            Image Cleaner
-          </h1>
-          <p className="mt-4 text-base sm:text-xl text-[#37433d] font-normal max-w-2xl mx-auto leading-relaxed">
-            Paint over watermarks, logos, or timestamps. Our AI inpaints the background seamlessly — no signup, no API key.
-          </p>
-
-          {/* Backend status badge */}
-          <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-[#10241e]/15 bg-white text-[#10241e] shadow-xs px-4 py-1.5">
-            {backendOk === null ? (
-              <><Loader2 className="size-3 animate-spin text-gray-400" /><span className="text-gray-400">Checking server…</span></>
-            ) : backendOk ? (
-              <><CheckCircle2 className="size-3 text-green-400" /><span className="text-green-400">Server ready</span></>
-            ) : (
-              <><ServerCrash className="size-3 text-orange-400" /><span className="text-orange-400">Server offline — start Flask backend</span></>
-            )}
-          </div>
-        </div>
-
-        {/* ── UPLOAD STATE ── */}
+      {/* ── UPLOAD STATE ── */}
         {phase === "upload" && (
           <div className="max-w-3xl mx-auto">
             <UploadZone
@@ -400,7 +371,7 @@ export default function ImageCleaner() {
                     max={120}
                     step={2}
                     onValueChange={([v]) => v && setBrush(v)}
-                    className="w-28 accent-[#E11D48]"
+                    className="w-28 accent-[#10241e]"
                   />
                 </div>
 
@@ -573,7 +544,7 @@ export default function ImageCleaner() {
             { icon: Zap, title: "Full resolution output", desc: "Original pixel dimensions preserved. Download as lossless PNG." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="flex gap-3 p-4 rounded-2xl bg-white border border-[#10241e]/15 shadow-md p-6 rounded-3xl">
-              <Icon className="size-5 text-[#E11D48] shrink-0 mt-0.5" />
+              <Icon className="size-5 text-[#10241e] shrink-0 mt-0.5" />
               <div>
                 <p className="text-base font-bold text-[#10241e]">{title}</p>
                 <p className="text-sm text-[#37433d] mt-1 leading-relaxed">{desc}</p>

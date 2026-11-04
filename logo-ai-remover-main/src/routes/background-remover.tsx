@@ -1645,9 +1645,9 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         onClick={handleClipboardButtonClick}
-                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#C7C7C7] hover:text-[#FF4FA3] transition-colors underline underline-offset-2 cursor-pointer"
+                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#52645D] hover:text-[#10241e] transition-colors underline underline-offset-2 cursor-pointer"
                       >
-                        <Copy className="size-3 text-[#E11D48]" />
+                        <Copy className="size-3 text-[#10241e]" />
                         <span>Paste from Clipboard</span>
                       </button>
                     </div>
@@ -1989,7 +1989,7 @@ export default function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
               BUILT FOR EVERY WORKFLOW
             </p>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
@@ -2042,7 +2042,7 @@ export default function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-[#f3f4ee] border-b border-[#10241e]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
               EFFORTLESS 3-STEP PIPELINE
             </p>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
@@ -2164,7 +2164,7 @@ export default function BackgroundRemoverPage() {
       <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
               FREQUENTLY ASKED QUESTIONS
             </p>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">

@@ -40,12 +40,12 @@ export function BackgroundTab() {
   };
 
   return (
-    <div className="p-5 space-y-5 text-gray-800">
+    <div className="p-5 space-y-5 text-gray-800" style={{ color: "#10241E" }}>
       <div>
-        <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wider mb-1">
+        <h3 className="text-sm font-bold text-gray-950 uppercase tracking-wider mb-1" style={{ color: "#10241E" }}>
           Backdrop & Environments
         </h3>
-        <p className="text-xs text-gray-500 font-normal">
+        <p className="text-xs text-gray-500 font-normal" style={{ color: "#52645D" }}>
           Pick an AI creative scene, authentic photography, or solid studio backdrop.
         </p>
       </div>
@@ -57,12 +57,19 @@ export function BackgroundTab() {
           onClick={() => setSubTab("magic")}
           className={`flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all cursor-pointer ${
             subTab === "magic"
-              ? "bg-white text-gray-950 shadow-xs border border-gray-200/80"
-              : "text-gray-500 hover:text-gray-900"
+              ? "shadow-sm border border-[#2B4B3F]"
+              : "hover:bg-gray-200/60"
           }`}
+          style={
+            subTab === "magic"
+              ? { backgroundColor: "#10241E", color: "#d0f471" }
+              : { backgroundColor: "transparent", color: "#37433D" }
+          }
         >
-          <Sparkles className="size-3.5 text-rose-500" />
-          <span>Magic ({MAGIC_BACKGROUNDS.length})</span>
+          <Sparkles className="size-3.5" style={{ color: subTab === "magic" ? "#d0f471" : "#52645D" }} />
+          <span style={{ color: subTab === "magic" ? "#d0f471" : "#37433D" }} className="font-semibold">
+            Magic ({MAGIC_BACKGROUNDS.length})
+          </span>
         </button>
 
         <button
@@ -70,12 +77,19 @@ export function BackgroundTab() {
           onClick={() => setSubTab("photo")}
           className={`flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all cursor-pointer ${
             subTab === "photo"
-              ? "bg-white text-gray-950 shadow-xs border border-gray-200/80"
-              : "text-gray-500 hover:text-gray-900"
+              ? "shadow-sm border border-[#2B4B3F]"
+              : "hover:bg-gray-200/60"
           }`}
+          style={
+            subTab === "photo"
+              ? { backgroundColor: "#10241E", color: "#d0f471" }
+              : { backgroundColor: "transparent", color: "#37433D" }
+          }
         >
-          <Camera className="size-3.5 text-blue-500" />
-          <span>Photo ({PHOTO_BACKGROUNDS.length})</span>
+          <Camera className="size-3.5" style={{ color: subTab === "photo" ? "#d0f471" : "#52645D" }} />
+          <span style={{ color: subTab === "photo" ? "#d0f471" : "#37433D" }} className="font-semibold">
+            Photo ({PHOTO_BACKGROUNDS.length})
+          </span>
         </button>
 
         <button
@@ -83,12 +97,19 @@ export function BackgroundTab() {
           onClick={() => setSubTab("color")}
           className={`flex items-center justify-center gap-1.5 py-2 rounded-xl transition-all cursor-pointer ${
             subTab === "color"
-              ? "bg-white text-gray-950 shadow-xs border border-gray-200/80"
-              : "text-gray-500 hover:text-gray-900"
+              ? "shadow-sm border border-[#2B4B3F]"
+              : "hover:bg-gray-200/60"
           }`}
+          style={
+            subTab === "color"
+              ? { backgroundColor: "#10241E", color: "#d0f471" }
+              : { backgroundColor: "transparent", color: "#37433D" }
+          }
         >
-          <Palette className="size-3.5 text-emerald-500" />
-          <span>Color ({COLOR_SWATCHES.length})</span>
+          <Palette className="size-3.5" style={{ color: subTab === "color" ? "#d0f471" : "#52645D" }} />
+          <span style={{ color: subTab === "color" ? "#d0f471" : "#37433D" }} className="font-semibold">
+            Solid Color
+          </span>
         </button>
       </div>
 
@@ -99,20 +120,26 @@ export function BackgroundTab() {
           onClick={setTransparent}
           className={`flex-1 py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             background.type === "transparent"
-              ? "bg-rose-50 border-rose-300 text-rose-700 shadow-xs"
-              : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              ? "border-[#2B4B3F] shadow-xs"
+              : "border-gray-200 hover:bg-gray-50"
           }`}
+          style={
+            background.type === "transparent"
+              ? { backgroundColor: "#10241E", color: "#d0f471", borderColor: "#2B4B3F" }
+              : { backgroundColor: "#FFFFFF", color: "#37433D" }
+          }
         >
-          <Ban className="size-3.5" />
-          <span>Transparent PNG</span>
+          <Ban className="size-3.5" style={{ color: background.type === "transparent" ? "#d0f471" : "#52645D" }} />
+          <span style={{ color: background.type === "transparent" ? "#d0f471" : "#37433D" }}>Transparent PNG</span>
         </button>
 
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex-1 py-2 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+          className="flex-1 py-2 px-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#10241E] text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+          style={{ backgroundColor: "#FFFFFF", color: "#10241E" }}
         >
-          <Upload className="size-3.5 text-[#E11D48]" />
+          <Upload className="size-3.5 text-[#10241E]" />
           <span>Upload Image</span>
         </button>
         <input
@@ -127,45 +154,43 @@ export function BackgroundTab() {
       {/* SUB-TAB 1: MAGIC BACKGROUNDS GRID (50+) */}
       {subTab === "magic" && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>50+ AI & Studio Aesthetics</span>
-            <span className="text-[11px] text-gray-400 font-mono">1600px UHD</span>
+          <div className="flex items-center justify-between text-xs text-gray-500" style={{ color: "#52645D" }}>
+            <span>50+ High-Definition AI Backgrounds</span>
+            <span className="font-mono text-[11px]">8K Photoreal</span>
           </div>
-          <div className="grid grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1 select-none">
-            {MAGIC_BACKGROUNDS.map((item) => {
+          <div className="grid grid-cols-3 gap-2 max-h-[360px] overflow-y-auto pr-1">
+            {MAGIC_BACKGROUNDS.map((bg) => {
               const isSelected =
-                background.type === "image" && background.value === item.url;
+                background.type === "image" && background.value === bg.url;
               return (
                 <button
-                  key={item.id}
+                  key={bg.id}
                   type="button"
                   onClick={() =>
                     dispatch({
                       type: "SET_BACKGROUND",
-                      payload: { type: "image", value: item.url },
+                      payload: { type: "image", value: bg.url },
                     })
                   }
-                  className={`group relative aspect-4/3 rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer ${
                     isSelected
-                      ? "ring-2 ring-[#E11D48] border-[#E11D48] scale-98 shadow-md"
-                      : "border-gray-200 hover:border-gray-400 hover:scale-102"
+                      ? "ring-2 ring-[#10241E] border-[#10241E] shadow-md"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
-                  title={item.name}
                 >
                   <img
-                    src={item.thumbnail}
-                    alt={item.name}
-                    loading="lazy"
-                    className="size-full object-cover transition-transform group-hover:scale-110"
+                    src={bg.thumb}
+                    alt={bg.name}
+                    className="size-full object-cover group-hover:scale-105 transition-transform duration-200"
                   />
                   {isSelected && (
-                    <span className="absolute top-1 right-1 size-5 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-xs">
-                      <Check className="size-3" strokeWidth={3} />
-                    </span>
+                    <div className="absolute top-1.5 right-1.5 size-5 rounded-full bg-[#10241E] text-[#d0f471] flex items-center justify-center shadow-xs">
+                      <Check className="size-3 text-[#d0f471]" strokeWidth={3} />
+                    </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 py-1 px-1.5 bg-black/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-[9px] text-white truncate font-medium">
-                      {item.name}
+                  <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
+                    <p className="text-[10px] text-white font-medium truncate text-left" style={{ color: "#FFFFFF" }}>
+                      {bg.name}
                     </p>
                   </div>
                 </button>
@@ -175,48 +200,46 @@ export function BackgroundTab() {
         </div>
       )}
 
-      {/* SUB-TAB 2: PHOTOGRAPHIC BACKGROUNDS GRID (30+) */}
+      {/* SUB-TAB 2: PHOTO STUDIO SCENES (50+) */}
       {subTab === "photo" && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>30+ Commercial Photography Scenes</span>
-            <span className="text-[11px] text-gray-400 font-mono">Natural Light</span>
+          <div className="flex items-center justify-between text-xs text-gray-500" style={{ color: "#52645D" }}>
+            <span>50+ Real Photography Backdrops</span>
+            <span className="font-mono text-[11px]">Unsplash Pro</span>
           </div>
-          <div className="grid grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1 select-none">
-            {PHOTO_BACKGROUNDS.map((item) => {
+          <div className="grid grid-cols-3 gap-2 max-h-[360px] overflow-y-auto pr-1">
+            {PHOTO_BACKGROUNDS.map((bg) => {
               const isSelected =
-                background.type === "image" && background.value === item.url;
+                background.type === "image" && background.value === bg.url;
               return (
                 <button
-                  key={item.id}
+                  key={bg.id}
                   type="button"
                   onClick={() =>
                     dispatch({
                       type: "SET_BACKGROUND",
-                      payload: { type: "image", value: item.url },
+                      payload: { type: "image", value: bg.url },
                     })
                   }
-                  className={`group relative aspect-4/3 rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer ${
                     isSelected
-                      ? "ring-2 ring-[#E11D48] border-[#E11D48] scale-98 shadow-md"
-                      : "border-gray-200 hover:border-gray-400 hover:scale-102"
+                      ? "ring-2 ring-[#10241E] border-[#10241E] shadow-md"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
-                  title={item.name}
                 >
                   <img
-                    src={item.thumbnail}
-                    alt={item.name}
-                    loading="lazy"
-                    className="size-full object-cover transition-transform group-hover:scale-110"
+                    src={bg.thumb}
+                    alt={bg.name}
+                    className="size-full object-cover group-hover:scale-105 transition-transform duration-200"
                   />
                   {isSelected && (
-                    <span className="absolute top-1 right-1 size-5 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-xs">
-                      <Check className="size-3" strokeWidth={3} />
-                    </span>
+                    <div className="absolute top-1.5 right-1.5 size-5 rounded-full bg-[#10241E] text-[#d0f471] flex items-center justify-center shadow-xs">
+                      <Check className="size-3 text-[#d0f471]" strokeWidth={3} />
+                    </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 py-1 px-1.5 bg-black/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-[9px] text-white truncate font-medium">
-                      {item.name}
+                  <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-black/70 to-transparent">
+                    <p className="text-[10px] text-white font-medium truncate text-left" style={{ color: "#FFFFFF" }}>
+                      {bg.name}
                     </p>
                   </div>
                 </button>
@@ -229,9 +252,9 @@ export function BackgroundTab() {
       {/* SUB-TAB 3: SOLID COLOR SWATCHES (25+) */}
       {subTab === "color" && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-xs text-gray-500" style={{ color: "#52645D" }}>
             <span>25+ Studio Color Swatches</span>
-            <label className="flex items-center gap-1.5 text-gray-700 font-medium cursor-pointer">
+            <label className="flex items-center gap-1.5 text-gray-700 font-medium cursor-pointer" style={{ color: "#10241E" }}>
               <span>Custom</span>
               <input
                 type="color"
@@ -263,7 +286,7 @@ export function BackgroundTab() {
                   }
                   className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? "ring-2 ring-[#E11D48] border-[#E11D48] bg-rose-50/40 shadow-xs"
+                      ? "ring-2 ring-[#10241E] border-[#10241E] bg-emerald-50/50 shadow-xs"
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                   }`}
                   title={color.name}
@@ -283,7 +306,7 @@ export function BackgroundTab() {
                       />
                     )}
                   </span>
-                  <span className="text-[10px] text-gray-700 font-medium truncate max-w-[55px]">
+                  <span className="text-[10px] font-medium truncate max-w-[55px]" style={{ color: "#10241E" }}>
                     {color.name}
                   </span>
                 </button>
@@ -297,11 +320,11 @@ export function BackgroundTab() {
       {background.type !== "transparent" && (
         <div className="pt-3 border-t border-gray-100 space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-gray-700 flex items-center gap-1.5">
+            <span className="font-semibold text-gray-700 flex items-center gap-1.5" style={{ color: "#10241E" }}>
               <Sliders className="size-3.5 text-gray-500" />
               <span>Depth of Field (Blur)</span>
             </span>
-            <span className="font-mono text-gray-500">{background.blur}px</span>
+            <span className="font-mono text-gray-500" style={{ color: "#52645D" }}>{background.blur}px</span>
           </div>
           <input
             type="range"
@@ -317,7 +340,7 @@ export function BackgroundTab() {
                 },
               })
             }
-            className="w-full accent-[#E11D48] cursor-pointer h-2 bg-gray-200 rounded-lg"
+            className="w-full accent-[#10241E] cursor-pointer h-2 bg-gray-200 rounded-lg"
           />
         </div>
       )}

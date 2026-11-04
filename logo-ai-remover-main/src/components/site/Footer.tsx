@@ -237,7 +237,7 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="creator@studio.com"
-                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#d7f3af]/15 bg-[#142e25] text-white placeholder-[#8E8E8E] focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#d7f3af]/15 bg-[#142e25] text-white placeholder-[#8E8E8E] focus:outline-none focus:ring-2 focus:ring-[#d0f471]"
               />
               <PinkButton type="submit" size="sm" className="w-full text-xs">
                 Subscribe
@@ -266,7 +266,7 @@ export function Footer() {
 
           <div className="flex items-center gap-1 text-[#8E8E8E]">
             <span>Crafted with</span>
-            <Heart className="size-3 text-[#d0f471] fill-[#E11D48]" />
+            <Heart className="size-3 text-[#d0f471] fill-[#d0f471]" />
             <span>for creative artists & studios</span>
           </div>
         </div>

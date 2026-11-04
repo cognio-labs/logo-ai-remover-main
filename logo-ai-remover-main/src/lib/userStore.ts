@@ -63,7 +63,7 @@ const DEFAULT_USER: UserProfile = {
 
 const INITIAL_JOBS: JobItem[] = [];
 
-const LOCAL_STORAGE_KEY = "bellix_user_store_v3";
+const LOCAL_STORAGE_KEY = "bellix_user_store_v4";
 
 const loadState = () => {
   if (typeof window === "undefined") return null;

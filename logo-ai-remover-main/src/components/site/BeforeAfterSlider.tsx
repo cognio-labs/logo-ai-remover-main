@@ -88,11 +88,11 @@ export function BeforeAfterSlider({
 
       {/* Slider Line & Handle */}
       <div
-        className="absolute inset-y-0 w-0.5 bg-gradient-to-b from-[#E11D48] via-[#FF2E63] to-[#FF4FA3]"
+        className="absolute inset-y-0 w-0.5 bg-[#d0f471]"
         style={{ left: `${pos}%` }}
       >
-        <div className="absolute top-1/2 left-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white shadow-[0_4px_16px_rgba(225,29,72,0.4)] group-hover:scale-110 transition-transform">
-          <span className="text-xs font-bold select-none">⇄</span>
+        <div className="absolute top-1/2 left-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#d0f471] bg-[#10241E] text-[#d0f471] shadow-[0_4px_16px_rgba(208,244,113,0.4)] group-hover:scale-110 transition-transform">
+          <span className="text-xs font-bold select-none text-[#d0f471]">⇄</span>
         </div>
       </div>
 
@@ -104,8 +104,8 @@ export function BeforeAfterSlider({
       </div>
 
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-        <span className="flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-black/90 px-3.5 py-1.5 text-xs font-semibold text-[#FF4FA3] backdrop-blur-md shadow-xs">
-          <Sparkles className="size-3.5" />
+        <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-black/90 px-3.5 py-1.5 text-xs font-semibold text-[#d0f471] backdrop-blur-md shadow-xs">
+          <Sparkles className="size-3.5 text-[#d0f471]" />
           {labelAfter}
         </span>
       </div>

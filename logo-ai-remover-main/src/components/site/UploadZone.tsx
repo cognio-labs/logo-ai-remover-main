@@ -186,9 +186,6 @@ export function UploadZone({
       >
         Drop your {type} here
       </h3>
-      <p className={`${compact ? "mt-1 text-sm" : "mt-2 text-base sm:text-lg"} max-w-md text-[#37433d] font-normal leading-relaxed`}>
-        {hint} • Up to {maxLabel} • Drag &amp; drop or Paste (<kbd className="bg-[#e9ece4] border border-[#10241e]/15 px-1.5 py-0.5 rounded text-xs font-mono font-bold text-[#10241e]">Ctrl+V</kbd>)
-      </p>
 
       {/* Buttons */}
       <div

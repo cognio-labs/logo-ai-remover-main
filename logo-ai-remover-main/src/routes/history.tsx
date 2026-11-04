@@ -16,7 +16,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { PinkButton } from "@/components/site/PinkButton";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 
@@ -125,26 +124,29 @@ export default function HistoryPage() {
             </p>
           </div>
 
-          <PinkButton size="md" asChild>
-            <Link to="/background-remover">
-              <Sparkles className="size-4" />
-              <span>Clean New File</span>
-            </Link>
-          </PinkButton>
+          <Link
+            to="/background-remover"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all hover:scale-105 cursor-pointer w-fit"
+            style={{ backgroundColor: "#d0f471", color: "#071A13" }}
+          >
+            <Sparkles className="size-4 text-[#071A13]" style={{ color: "#071A13" }} />
+            <span style={{ color: "#071A13" }} className="font-bold text-[#071A13]">Clean New File</span>
+          </Link>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-white border border-[#10241e]/15 shadow-md p-4 rounded-2xl">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#10241e]/15 shadow-md">
           {/* Tabs */}
           <div className="flex items-center gap-1 bg-[#f3f4ee] p-1.5 rounded-xl border border-[#10241e]/10 w-full sm:w-auto">
             {TABS.map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${tab === t
-                  ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
-                  : "text-[#37433d] hover:text-[#10241e] font-medium"
-                  }`}
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  tab === t
+                    ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
+                    : "text-[#37433d] hover:text-[#10241e] font-medium"
+                }`}
               >
                 {t}
               </button>
@@ -158,7 +160,7 @@ export default function HistoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by filename..."
-              className="pl-10 h-10 rounded-xl border-[#303030] text-xs focus:ring-[#E11D48]"
+              className="pl-10 h-10 rounded-xl border-gray-300 text-xs bg-white text-[#10241e] focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e]"
             />
           </div>
         </div>
@@ -170,12 +172,16 @@ export default function HistoryPage() {
               <Clock className="size-8" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">No project files found</h3>
-            <p className="text-sm text-[#8E8E8E] max-w-sm mx-auto">
+            <p className="text-sm text-[#52645D] max-w-sm mx-auto">
               Try adjusting your search terms or upload your first file to start creating.
             </p>
-            <PinkButton size="md" asChild>
-              <Link to="/background-remover">Start AI Cleanup</Link>
-            </PinkButton>
+            <Link
+              to="/background-remover"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold shadow-md transition-all hover:scale-105 cursor-pointer"
+              style={{ backgroundColor: "#d0f471", color: "#071A13" }}
+            >
+              <span style={{ color: "#071A13" }} className="font-bold text-[#071A13]">Start AI Cleanup</span>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -205,7 +211,7 @@ export default function HistoryPage() {
 
                     {/* Quality badge top right */}
                     <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-semibold text-[#10241e] border border-[#303030]">
+                      <span className="px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md text-[10px] font-bold text-[#10241e] border border-gray-200 shadow-xs">
                         {item.quality}
                       </span>
                     </div>
@@ -213,12 +219,13 @@ export default function HistoryPage() {
                     {/* Status badge top left */}
                     <div className="absolute top-3 left-3">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${item.status === "completed"
-                          ? "bg-green-500 text-white"
-                          : item.status === "processing"
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
+                          item.status === "completed"
+                            ? "bg-green-600 text-white"
+                            : item.status === "processing"
                             ? "bg-yellow-500 text-white"
                             : "bg-red-500 text-white"
-                          }`}
+                        }`}
                       >
                         {item.status === "completed" && <CheckCircle2 className="size-3" />}
                         {item.status === "failed" && <AlertCircle className="size-3" />}
@@ -229,10 +236,14 @@ export default function HistoryPage() {
 
                   {/* Metadata */}
                   <div className="p-4 space-y-1">
-                    <h4 className="font-bold text-sm text-white truncate" title={item.file_name}>
+                    <h4
+                      className="font-bold text-sm text-[#10241e] truncate"
+                      style={{ color: "#10241e" }}
+                      title={item.file_name}
+                    >
                       {item.file_name}
                     </h4>
-                    <div className="flex items-center justify-between text-xs text-[#8E8E8E]">
+                    <div className="flex items-center justify-between text-xs text-[#52645D]">
                       <span>{new Date(item.created_at).toLocaleDateString()}</span>
                       <span>{item.processing_time || "4.5s"}</span>
                     </div>
@@ -247,16 +258,21 @@ export default function HistoryPage() {
                 {/* Actions */}
                 <div className="p-4 pt-0 flex items-center gap-2">
                   <button
+                    type="button"
                     onClick={() => handleDownload(item)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FFF1F4] text-[#10241e] hover:bg-[#FFE4E9] font-bold text-xs transition-all shadow-xs hover:scale-101"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs transition-all shadow-xs hover:scale-101 cursor-pointer"
+                    style={{ backgroundColor: "#d0f471", color: "#071A13" }}
                   >
-                    <Download className="size-4" />
-                    <span>Download Clean Media</span>
+                    <Download className="size-4 text-[#071A13]" style={{ color: "#071A13", stroke: "#071A13" }} />
+                    <span style={{ color: "#071A13" }} className="font-bold text-[#071A13]">
+                      Download Clean Media
+                    </span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => handleDelete(item.id, item.file_name)}
-                    className="p-2 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-2 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                     title="Delete file"
                   >
                     <Trash2 className="size-4" />

@@ -4020,20 +4020,45 @@ a[class*="bg-[#E11D48]"],
   border-color: rgba(215, 243, 175, 0.4) !important;
 }
 
-button[class*="bg-rose-"] *:not(.text-white),
-a[class*="bg-rose-"] *:not(.text-white),
+button[class*="bg-rose-"] *,
+a[class*="bg-rose-"] *,
 button[class*="bg-pink-"] *,
 a[class*="bg-pink-"] *,
 button[class*="bg-[#E11D48]"] *,
-a[class*="bg-[#E11D48]"] * {
+a[class*="bg-[#E11D48]"] *,
+button[class*="bg-[#d0f471]"] *,
+a[class*="bg-[#d0f471]"] *,
+[class*="bg-[#d0f471]"] *,
+[class*="bg-[#d0f471]"] span,
+[class*="bg-[#d0f471]"] svg,
+[class*="bg-[#d0f471]"] .text-white,
+button[class*="bg-[#d0f471]"] span,
+button[class*="bg-[#d0f471]"] .text-white {
   color: #071A13 !important;
   stroke: #071A13 !important;
 }
 
-/* Guard against invisible white text on white/gray button tabs */
-.bg-white button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
-.bg-gray-100 button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
-[class*="bg-[#f3f4ee]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
-[class*="bg-[#e9ece4]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]) {
+/* Dark Green and Charcoal Buttons: Always Pure White Text & Icons */
+button[class*="bg-[#10241E]"] span,
+button[class*="bg-[#10241e]"] span,
+button[class*="bg-[#091712]"] span,
+button[class*="bg-[#1C1C1C]"] span,
+button[class*="bg-[#151515]"] span,
+button[class*="bg-[#10241E]"] .text-white,
+button[class*="bg-[#10241e]"] .text-white {
+  color: #FFFFFF !important;
+}
+
+/* Guard against invisible white text on white/gray button tabs and cards */
+.bg-white button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]),
+.bg-gray-100 button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]),
+[class*="bg-[#f3f4ee]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]),
+[class*="bg-[#e9ece4]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]),
+.bg-white span.text-white:not([class*="bg-[#10241e] *"]):not([class*="bg-[#091712] *"]),
+.bg-white h4.text-white,
+.bg-white p.text-white,
+[class*="bg-[#f3f4ee]"] span.text-white:not([class*="bg-[#10241e] *"]):not([class*="bg-[#091712] *"]),
+[class*="bg-[#f3f4ee]"] h4.text-white,
+[class*="bg-[#f3f4ee]"] p.text-white {
   color: #10241e !important;
 }

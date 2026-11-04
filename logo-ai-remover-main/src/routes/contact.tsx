@@ -111,7 +111,7 @@ export default function ContactPage() {
           particleCount: 60,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ["#E11D48", "#FF4FA3", "#10B981"],
+          colors: ["#d0f471", "#10241e", "#10B981"],
         });
       } catch {
         // optional confetti
@@ -272,7 +272,7 @@ export default function ContactPage() {
                   <button
                     type="button"
                     onClick={() => setIsSubmitted(false)}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold text-[#18362d] bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold text-[#10241e] bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors cursor-pointer"
                   >
                     <span>Send Another Message</span>
                   </button>
@@ -310,7 +310,7 @@ export default function ContactPage() {
                         value={formData.firstName}
                         onChange={handleChange}
                         
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
                       />
                     </div>
 
@@ -325,7 +325,7 @@ export default function ContactPage() {
                         value={formData.lastName}
                         onChange={handleChange}
                         
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
                       />
                     </div>
                   </div>
@@ -343,7 +343,7 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleChange}
                         
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
                       />
                     </div>
 
@@ -357,7 +357,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
                       />
                     </div>
                   </div>
@@ -369,7 +369,7 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
                     >
                       <option value="General Inquiry">General Inquiry</option>
                                             <option value="Video Watermark Remover">Video Watermark Remover</option>
@@ -390,7 +390,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       
-                      className="w-full px-4 py-3 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 focus:border-[#E11D48] transition-all resize-y"
+                      className="w-full px-4 py-3 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all resize-y"
                     />
                   </div>
 

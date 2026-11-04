@@ -507,7 +507,7 @@ export default function PdfWatermarkRemoverPage() {
           particleCount: 90,
           spread: 75,
           origin: { y: 0.6 },
-          colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
+          colors: ["#d0f471", "#10241E", "#10B981"],
         });
         toast.success("Watermark successfully eliminated! Clean document ready.");
       }, 1300);
@@ -559,7 +559,7 @@ export default function PdfWatermarkRemoverPage() {
               particleCount: 90,
               spread: 75,
               origin: { y: 0.6 },
-              colors: ["#E11D48", "#FF2E63", "#FF6B8B", "#FFE4E9"],
+              colors: ["#d0f471", "#10241E", "#10B981"],
             });
 
             toast.success("Document processed. Review text beneath removed marks before downloading.");
@@ -622,7 +622,7 @@ export default function PdfWatermarkRemoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-900 selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-transparent text-gray-900 selection:bg-emerald-500 selection:text-white">
       {/* -------------------------------------------------------------------- */}
       {/* 1. HERO & TOOL SECTION                                               */}
       {/* -------------------------------------------------------------------- */}
@@ -632,9 +632,9 @@ export default function PdfWatermarkRemoverPage() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
           {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-200/80 shadow-sm mb-6 animate-pulse-soft">
-            <Sparkles className="w-4 h-4 text-[#E11D48]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#E11D48]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm mb-6">
+            <Sparkles className="w-4 h-4 text-[#10241E]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#10241E]">
               AI Watermark &amp; Imperfection Inpainter
             </span>
           </div>
@@ -642,7 +642,7 @@ export default function PdfWatermarkRemoverPage() {
           {/* Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-gray-900 mb-4">
             AI PDF &amp; Document{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#10241E] via-[#18362d] to-[#10241E] bg-clip-text text-transparent">
               Watermark Remover
             </span>
           </h1>
@@ -680,8 +680,8 @@ export default function PdfWatermarkRemoverPage() {
                     }}
                     onClick={() => fileInputRef.current?.click()}
                     className={`h-[420px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer ${isDragging
-                      ? "border-[#E11D48] bg-[#FFF5F7] scale-[1.01]"
-                      : "border-gray-300 hover:border-[#E11D48] hover:bg-[#FFF9FA]"
+                      ? "border-[#10241E] bg-[#f9faf7] scale-[1.01]"
+                      : "border-gray-300 hover:border-[#10241E] hover:bg-[#f9faf7]"
                       }`}
                   >
                     <input
@@ -693,7 +693,7 @@ export default function PdfWatermarkRemoverPage() {
                       onChange={handleFileUpload}
                     />
 
-                    <span className="size-16 rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-5 transition-transform hover:scale-110">
+                    <span className="size-16 rounded-3xl bg-gradient-to-tr from-[#10241E] via-[#18362d] to-[#10241E] text-white flex items-center justify-center shadow-lg shadow-emerald-950/20 mb-5 transition-transform hover:scale-110">
                       <Upload className="size-8" />
                     </span>
 
@@ -727,11 +727,11 @@ export default function PdfWatermarkRemoverPage() {
                     <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] text-xs">
                       {/* Document info badge */}
                       <div className="flex items-center gap-2 min-w-0">
-                        <FileText className="size-4 text-[#E11D48] shrink-0" />
+                        <FileText className="size-4 text-[#10241E] shrink-0" />
                         <span className="font-bold text-gray-900 truncate max-w-[160px] sm:max-w-[220px]">
                           {selectedFileName || "Document"}
                         </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-rose-200 text-[#E11D48] shrink-0">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-emerald-200 text-[#10241E] shrink-0">
                           {isPdf ? "PDF 1.7" : "Image"}
                         </span>
                       </div>
@@ -788,7 +788,7 @@ export default function PdfWatermarkRemoverPage() {
                         <button
                           type="button"
                           onClick={resetDocument}
-                          className="px-2.5 py-1 rounded-lg border border-gray-200 bg-white hover:bg-rose-50 text-gray-600 hover:text-[#E11D48] text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 text-gray-600 hover:text-[#10241E] text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
                           title="Upload another document"
                         >
                           <RefreshCw className="size-3" />
@@ -833,7 +833,7 @@ export default function PdfWatermarkRemoverPage() {
                                 setDetectedRegions((prev) => prev.filter((_, i) => i !== idx));
                                 toast.info("Removed target area.");
                               }}
-                              className="absolute rounded-lg bg-rose-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)] cursor-pointer hover:bg-rose-500/35 transition group z-10"
+                              className="absolute rounded-lg bg-emerald-500/20 border-2 border-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)] cursor-pointer hover:bg-gray-1000/35 transition group z-10"
                               style={{
                                 left: `${m.x * 100}%`,
                                 top: `${m.y * 100}%`,
@@ -852,16 +852,16 @@ export default function PdfWatermarkRemoverPage() {
                         {isProcessing && (
                           <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
                             <div className="relative size-14 mb-4">
-                              <div className="absolute inset-0 rounded-full border-4 border-rose-200 animate-ping" />
-                              <div className="absolute inset-0 rounded-full border-4 border-[#E11D48] border-t-transparent animate-spin" />
-                              <Wand2 className="absolute inset-0 m-auto size-6 text-[#E11D48]" />
+                              <div className="absolute inset-0 rounded-full border-4 border-emerald-200 animate-ping" />
+                              <div className="absolute inset-0 rounded-full border-4 border-[#10241E] border-t-transparent animate-spin" />
+                              <Wand2 className="absolute inset-0 m-auto size-6 text-[#10241E]" />
                             </div>
                             <p className="text-sm font-bold text-gray-800 mb-2">
                               {stageText || "Analyzing PDF…"}
                             </p>
                             <div className="w-52 bg-rose-100 rounded-full h-2 overflow-hidden">
                               <div
-                                className="bg-[#E11D48] h-full transition-all duration-300 rounded-full"
+                                className="bg-[#d0f471] h-full transition-all duration-300 rounded-full"
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
@@ -932,7 +932,7 @@ export default function PdfWatermarkRemoverPage() {
                   <div>
                     <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
                       <span className="font-medium flex items-center gap-1.5">
-                        <Sparkles className="size-3.5 text-[#E11D48]" />
+                        <Sparkles className="size-3.5 text-[#10241E]" />
                         <span>AI Quality Engine</span>
                       </span>
                     </div>
@@ -944,7 +944,7 @@ export default function PdfWatermarkRemoverPage() {
                           type="button"
                           onClick={() => setQualityEngine(mode)}
                           className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${qualityEngine === mode
-                            ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
+                            ? "border-[#E11D48] bg-[#FFF5F7] text-[#10241E] font-semibold"
                             : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
                             }`}
                         >
@@ -979,7 +979,7 @@ export default function PdfWatermarkRemoverPage() {
                         type="button"
                         id="pdf-download-pdf-btn"
                         onClick={() => handleDownload("pdf")}
-                        className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        className="flex-1 py-3.5 px-5 rounded-full bg-gradient-to-r from-[#10241E] via-[#18362d] to-[#10241E] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Download className="size-4" />
                         <span>Download Clean PDF</span>
@@ -1011,7 +1011,7 @@ export default function PdfWatermarkRemoverPage() {
                         id="pdf-clean-btn"
                         onClick={handleStartCleanup}
                         disabled={isProcessing}
-                        className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#10241E] via-[#18362d] to-[#10241E] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
                         <Wand2 className="size-4" />
                         <span>{isProcessing ? "Cleaning..." : "Remove Watermark & Clean"}</span>
@@ -1022,7 +1022,7 @@ export default function PdfWatermarkRemoverPage() {
                         id="pdf-autodetect-btn"
                         onClick={handleAutoDetect}
                         disabled={isProcessing}
-                        className="w-full py-2.5 px-4 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-[#E11D48] text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="w-full py-2.5 px-4 rounded-full border border-emerald-200 bg-emerald-50 hover:bg-rose-100 text-[#10241E] text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
                         <Sparkles className="size-3.5" />
                         <span>Auto-Detect Watermarks</span>
@@ -1033,7 +1033,7 @@ export default function PdfWatermarkRemoverPage() {
                       type="button"
                       id="pdf-choose-doc-btn"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-[#E11D48]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#10241E] via-[#18362d] to-[#10241E] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-bold shadow-lg shadow-emerald-950/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Upload className="size-4" />
                       <span>Choose A Document</span>
@@ -1072,7 +1072,7 @@ export default function PdfWatermarkRemoverPage() {
       {/* -------------------------------------------------------------------- */}
       <section className="py-20 bg-[#FFF9FA] border-y border-[#FCE7EC]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-[#E11D48] mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-[#10241E] mb-3">
             <Zap className="w-3.5 h-3.5" />
             FAST 3-STEP PIPELINE
           </div>
@@ -1082,7 +1082,7 @@ export default function PdfWatermarkRemoverPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 border border-rose-100 shadow-sm text-left relative">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#E11D48] flex items-center justify-center font-semibold text-lg mb-6 border border-rose-200">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#10241E] flex items-center justify-center font-semibold text-lg mb-6 border border-emerald-200">
                 01
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Your PDF or Scan</h3>
@@ -1093,7 +1093,7 @@ export default function PdfWatermarkRemoverPage() {
             </div>
 
             <div className="bg-white rounded-2xl p-8 border border-rose-100 shadow-sm text-left relative">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#E11D48] flex items-center justify-center font-semibold text-lg mb-6 border border-rose-200">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#10241E] flex items-center justify-center font-semibold text-lg mb-6 border border-emerald-200">
                 02
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Auto-Detect or Brush Marks</h3>
@@ -1104,7 +1104,7 @@ export default function PdfWatermarkRemoverPage() {
             </div>
 
             <div className="bg-white rounded-2xl p-8 border border-rose-100 shadow-sm text-left relative">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#E11D48] flex items-center justify-center font-semibold text-lg mb-6 border border-rose-200">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#10241E] flex items-center justify-center font-semibold text-lg mb-6 border border-emerald-200">
                 03
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Download Pristine Output</h3>
@@ -1157,7 +1157,7 @@ export default function PdfWatermarkRemoverPage() {
                 <button
                   type="button"
                   onClick={() => setActiveFaq(activeFaq === fIdx ? null : fIdx)}
-                  className="w-full text-left p-5 flex items-center justify-between font-bold text-sm text-gray-900 hover:text-[#E11D48] transition-colors"
+                  className="w-full text-left p-5 flex items-center justify-between font-bold text-sm text-gray-900 hover:text-[#10241E] transition-colors"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown
@@ -1193,7 +1193,7 @@ export default function PdfWatermarkRemoverPage() {
               window.scrollTo({ top: 0, behavior: "smooth" });
               fileInputRef.current?.click();
             }}
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-[#E11D48] font-bold text-sm shadow-xl hover:bg-rose-50 hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-[#10241E] font-bold text-sm shadow-xl hover:bg-gray-100 hover:scale-105 transition-all"
           >
             <Upload className="w-4 h-4" />
             Upload PDF Now — Instant 4K Clean
