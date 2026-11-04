@@ -21,6 +21,50 @@ def get_roi(width, height, roi_w=ROI_W, roi_h=ROI_H):
     return x0, y0, width, height
 
 
+def _known_gemini_sparkle_mask(width: int, height: int) -> np.ndarray:
+    """Return a tight mask for the standard Gemini/Veo corner sparkle.
+
+    The mask is only enabled when the expected location actually contains a
+    bright, low-saturation mark; this avoids painting ordinary video detail.
+    """
+    mask = np.zeros((height, width), dtype=np.uint8)
+    short_side = min(width, height)
+    cx = int(round(width - 0.156 * short_side))
+    cy = int(round(height - 0.156 * short_side))
+    radius = max(4, int(round(0.037 * short_side)))
+    y0, y1 = max(0, cy - radius), min(height, cy + radius + 1)
+    x0, x1 = max(0, cx - radius), min(width, cx + radius + 1)
+    patch = np.zeros((y1 - y0, x1 - x0), dtype=np.uint8)
+    pcx, pcy = cx - x0, cy - y0
+    arm = max(1, int(round(radius * 0.10)))
+    points = np.array([
+        [pcx, pcy - radius], [pcx + arm, pcy - arm],
+        [pcx + radius, pcy], [pcx + arm, pcy + arm],
+        [pcx, pcy + radius], [pcx - arm, pcy + arm],
+        [pcx - radius, pcy], [pcx - arm, pcy - arm],
+    ], dtype=np.int32)
+    cv2.fillPoly(patch, [points], 255)
+    mask[y0:y1, x0:x1] = patch
+    return mask
+
+
+def _validated_known_sparkle(frame: np.ndarray) -> np.ndarray:
+    """Use the known sparkle geometry only when its pixels look like a mark."""
+    height, width = frame.shape[:2]
+    candidate = _known_gemini_sparkle_mask(width, height)
+    ys, xs = np.where(candidate > 0)
+    if not len(xs):
+        return candidate
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    pixels = hsv[ys, xs]
+    # Gemini's sparkle is white/grey: bright and comparatively unsaturated.
+    bright_ratio = float(np.mean(pixels[:, 2] >= 175))
+    neutral_ratio = float(np.mean(pixels[:, 1] <= 135))
+    if bright_ratio >= 0.24 and neutral_ratio >= 0.55:
+        return candidate
+    return np.zeros_like(candidate)
+
+
 def _odd(value: int, minimum: int = 3) -> int:
     value = max(minimum, int(value))
     return value if value % 2 else value + 1
@@ -238,6 +282,22 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None):
     else:
         mask, (x0, y0, x1, y1) = detect_mask(src)
 
+    # The semi-transparent sparkle can survive temporal thresholding. Add a
+    # tight geometry-based mask after validating the first frame's pixels.
+    cap_probe = cv2.VideoCapture(src)
+    ok_probe, probe = cap_probe.read()
+    cap_probe.release()
+    if ok_probe:
+        known = _validated_known_sparkle(probe)
+        if cv2.countNonZero(known):
+            mask_full = np.zeros((h, w), dtype=np.uint8)
+            mask_full[y0:y1, x0:x1] = mask
+            mask_full = cv2.bitwise_or(mask_full, known)
+            mask = mask_full[y0:y1, x0:x1]
+
+    # Cover the antialiased halo, but keep the repair local to the sparkle.
+    mask = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=1)
+
     # Precomputations for fast per-frame execution (avoids allocations inside the loop)
     # 1. Soft feathering for seamless edge blending
     feather = cv2.GaussianBlur(mask, (3, 3), 0).astype(np.float32) / 255.0
@@ -256,8 +316,8 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None):
         "-i", "-",
         "-i", src,
         "-map", "0:v:0", "-map", "1:a?",
-        "-c:v", "libx264", "-crf", "16", "-preset", "veryfast",
-        "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest",
+        "-c:v", "libx264", "-crf", "14", "-preset", "medium",
+        "-pix_fmt", "yuv420p", "-c:a", "copy", "-shortest",
         "-movflags", "+faststart", dst,
     ]
     ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
