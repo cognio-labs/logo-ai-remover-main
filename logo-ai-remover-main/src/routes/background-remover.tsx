@@ -744,11 +744,10 @@ function SeeTheDifferenceShowcase() {
                   key={cat.id}
                   type="button"
                   onClick={() => handleSelectCategory(cat.id)}
-                  className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                    active
+                  className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${active
                       ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
                       : "text-[#37433d] hover:text-[#10241e] hover:bg-[#e9ece4] font-medium"
-                  }`}
+                    }`}
                 >
                   {cat.label}
                 </button>
@@ -759,11 +758,10 @@ function SeeTheDifferenceShowcase() {
 
         {/* 4 CARDS IN ONE HORIZONTAL ROW */}
         <div
-          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 transition-all duration-300 ${
-            isTransitioning
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 transition-all duration-300 ${isTransitioning
               ? "opacity-30 translate-y-2 scale-[0.99]"
               : "opacity-100 translate-y-0 scale-100"
-          }`}
+            }`}
         >
           {cards.map((card) => (
             <div
@@ -787,9 +785,8 @@ function SeeTheDifferenceShowcase() {
                   <img
                     src={card.image}
                     alt={`${card.label} - ${current.subject}`}
-                    className={`size-full transition-transform duration-500 group-hover:scale-104 select-none pointer-events-none ${
-                      card.isTransparent ? "object-contain p-2 sm:p-3" : "object-cover"
-                    }`}
+                    className={`size-full transition-transform duration-500 group-hover:scale-104 select-none pointer-events-none ${card.isTransparent ? "object-contain p-2 sm:p-3" : "object-cover"
+                      }`}
                     loading="lazy"
                     decoding="async"
                   />
@@ -871,12 +868,12 @@ function formatCutoutFilename(originalName: string, ext: string = "png"): string
 
 type InlineErrorState =
   | {
-      message: string;
-      action?: {
-        label: string;
-        to: string;
-      };
-    }
+    message: string;
+    action?: {
+      label: string;
+      to: string;
+    };
+  }
   | string
   | null;
 
@@ -1186,7 +1183,7 @@ export default function BackgroundRemoverPage() {
     // 100% Free AI Tool - Never block for credits
     try {
       deductCredit();
-    } catch {}
+    } catch { }
 
     // Abort any in-flight request
     if (abortControllerRef.current) {
@@ -1275,12 +1272,12 @@ export default function BackgroundRemoverPage() {
         setCutoutResult((prev) =>
           prev
             ? {
-                ...prev,
-                transparentBlobUrl: url,
-                compositeBlobUrl: url,
-                status: "ok",
-                warnings: ["Sky removed successfully."],
-              }
+              ...prev,
+              transparentBlobUrl: url,
+              compositeBlobUrl: url,
+              status: "ok",
+              warnings: ["Sky removed successfully."],
+            }
             : null,
         );
         setStatus("success");
@@ -1405,10 +1402,10 @@ export default function BackgroundRemoverPage() {
       setCutoutResult((prev) =>
         prev
           ? {
-              ...prev,
-              compositeBlobUrl: recomputed.compositeBlobUrl,
-              fileSizeFormatted: recomputed.sizeFormatted,
-            }
+            ...prev,
+            compositeBlobUrl: recomputed.compositeBlobUrl,
+            fileSizeFormatted: recomputed.sizeFormatted,
+          }
           : null,
       );
     } catch (e) {
@@ -1531,7 +1528,7 @@ export default function BackgroundRemoverPage() {
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white hover:bg-[#e9ece4] text-[#10241e] text-sm font-semibold border border-[#10241e]/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer"
               >
                 <Play className="size-3 text-[#E11D48] fill-[#E11D48]" />
-                <span>Watch 3 Real-Time AI Proof Videos (60 FPS)</span>
+                <span>remove gemini logo only 3 sec (60 FPS)</span>
                 <ArrowRight className="size-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
               </a>
             </div>
@@ -1560,11 +1557,10 @@ export default function BackgroundRemoverPage() {
                     }}
                     onDrop={handleDropArea}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`h-[400px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer relative group ${
-                      isDragging
+                    className={`h-[400px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer relative group ${isDragging
                         ? "border-[#E11D48] bg-[#FFF5F7] ring-2 ring-[#E11D48]/20 scale-[1.01]"
                         : "border-[#10241e]/20 hover:border-[#10241e] hover:bg-[#f9faf7] bg-white"
-                    }`}
+                      }`}
                   >
                     <input
                       ref={fileInputRef}
@@ -1614,9 +1610,8 @@ export default function BackgroundRemoverPage() {
 
                     {/* Pink/Red Circular Upload Icon Button */}
                     <span
-                      className={`size-24 rounded-3xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-xl mb-4 transition-transform group-hover:scale-110 ${
-                        isDragging ? "scale-110 animate-bounce" : ""
-                      }`}
+                      className={`size-24 rounded-3xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-xl mb-4 transition-transform group-hover:scale-110 ${isDragging ? "scale-110 animate-bounce" : ""
+                        }`}
                     >
                       <Upload className="size-8" />
                     </span>
@@ -1625,7 +1620,7 @@ export default function BackgroundRemoverPage() {
                       {isDragging ? "Drop image to upload" : "Drop your image here"}
                     </h3>
 
-                    
+
 
                     <button
                       type="button"
@@ -1666,11 +1661,10 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         onClick={() => setBgType("transparent")}
-                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${
-                          bgType === "transparent"
+                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${bgType === "transparent"
                             ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
                             : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
-                        }`}
+                          }`}
                       >
                         Transparent
                       </button>
@@ -1678,11 +1672,10 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         onClick={() => setBgType("color")}
-                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${
-                          bgType === "color"
+                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${bgType === "color"
                             ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
                             : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
-                        }`}
+                          }`}
                       >
                         Solid Color
                       </button>
@@ -1724,11 +1717,10 @@ export default function BackgroundRemoverPage() {
                               key={c.hex}
                               type="button"
                               onClick={() => handleColorChange(c.hex)}
-                              className={`p-2 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${
-                                solidColor.toLowerCase() === c.hex.toLowerCase()
+                              className={`p-2 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${solidColor.toLowerCase() === c.hex.toLowerCase()
                                   ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
                                   : "border-gray-200 hover:border-gray-300"
-                              }`}
+                                }`}
                             >
                               <span
                                 className="size-5 rounded-md border border-black/10 shadow-2xs"
@@ -1772,11 +1764,10 @@ export default function BackgroundRemoverPage() {
                             key={mode}
                             type="button"
                             onClick={() => setQualityMode(mode)}
-                            className={`py-2 px-2 rounded-lg border text-center transition-all cursor-pointer ${
-                              qualityMode === mode
+                            className={`py-2 px-2 rounded-lg border text-center transition-all cursor-pointer ${qualityMode === mode
                                 ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
                                 : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
-                            }`}
+                              }`}
                           >
                             {mode === "standard"
                               ? "Balanced"
@@ -2129,11 +2120,10 @@ export default function BackgroundRemoverPage() {
                         key={lang}
                         type="button"
                         onClick={() => setActiveCodeTab(lang)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium uppercase transition-all ${
-                          activeCodeTab === lang
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium uppercase transition-all ${activeCodeTab === lang
                             ? "bg-[#E11D48] text-white shadow-xs"
                             : "text-gray-400 hover:text-white"
-                        }`}
+                          }`}
                       >
                         {lang}
                       </button>
