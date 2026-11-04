@@ -49,6 +49,7 @@ export type BackgroundItem = {
   id: string;
   name: string;
   thumbnail: string;
+  thumb?: string;
   url: string;
   category?: string;
 };

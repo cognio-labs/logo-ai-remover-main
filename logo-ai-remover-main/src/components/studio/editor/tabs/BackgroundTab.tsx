@@ -172,15 +172,17 @@ export function BackgroundTab() {
                       payload: { type: "image", value: bg.url },
                     })
                   }
-                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer bg-gray-100 ${
                     isSelected
                       ? "ring-2 ring-[#10241E] border-[#10241E] shadow-md"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <img
-                    src={bg.thumb}
+                    src={bg.thumbnail || bg.thumb}
                     alt={bg.name}
+                    loading="lazy"
+                    crossOrigin="anonymous"
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-200"
                   />
                   {isSelected && (
@@ -221,15 +223,17 @@ export function BackgroundTab() {
                       payload: { type: "image", value: bg.url },
                     })
                   }
-                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                  className={`group relative aspect-square rounded-xl overflow-hidden border transition-all cursor-pointer bg-gray-100 ${
                     isSelected
                       ? "ring-2 ring-[#10241E] border-[#10241E] shadow-md"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <img
-                    src={bg.thumb}
+                    src={bg.thumbnail || bg.thumb}
                     alt={bg.name}
+                    loading="lazy"
+                    crossOrigin="anonymous"
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-200"
                   />
                   {isSelected && (

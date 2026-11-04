@@ -1,13 +1,18 @@
 import type { BackgroundItem, ColorItem, FilterPreset } from "./types";
 
 // Helper to generate Unsplash CDN URL with thumbnail & high-res versions
-const unsplash = (id: string, name: string, category = "Magic"): BackgroundItem => ({
-  id,
-  name,
-  category,
-  thumbnail: `https://images.unsplash.com/${id}?w=160&auto=format&fit=crop&q=60`,
-  url: `https://images.unsplash.com/${id}?w=1600&auto=format&fit=crop&q=85`,
-});
+const unsplash = (id: string, name: string, category = "Magic"): BackgroundItem => {
+  const thumbUrl = `https://images.unsplash.com/${id}?w=160&auto=format&fit=crop&q=60`;
+  const fullUrl = `https://images.unsplash.com/${id}?w=1600&auto=format&fit=crop&q=85`;
+  return {
+    id,
+    name,
+    category,
+    thumbnail: thumbUrl,
+    thumb: thumbUrl,
+    url: fullUrl,
+  };
+};
 
 /* -------------------------------------------------------------------------- */
 /* 50+ MAGIC AI & CREATIVE BACKGROUNDS                                        */
