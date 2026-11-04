@@ -57,7 +57,6 @@ export function UploadZone({
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
-      // 1. Check clipboard files (Ctrl+C from file explorer)
       const files = e.clipboardData?.files;
       if (files && files.length > 0) {
         for (let i = 0; i < files.length; i++) {
@@ -76,7 +75,6 @@ export function UploadZone({
         }
       }
 
-      // 2. Check clipboard items (Right-click Copy Image, screenshots, Snipping tool)
       const items = e.clipboardData?.items;
       if (items) {
         for (let i = 0; i < items.length; i++) {
@@ -100,7 +98,7 @@ export function UploadZone({
           }
         }
       }
-      // 3. Check clipboard URL
+
       const text = e.clipboardData?.getData("text/plain")?.trim();
       if (text && (text.startsWith("http") || text.startsWith("data:image/"))) {
         if (
@@ -154,7 +152,6 @@ export function UploadZone({
           handle(file);
           return;
         }
-        // Web drag-and-drop from another tab
         const uri =
           e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
         if (uri && (uri.startsWith("http") || uri.startsWith("data:image/"))) {
@@ -169,41 +166,44 @@ export function UploadZone({
         }
       }}
       onClick={() => inputRef.current?.click()}
-      className={`relative flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 ${compact ? "min-h-[250px] py-7 sm:min-h-[270px] sm:py-8" : "py-14 sm:py-16"} text-center transition-all duration-300 bg-white shadow-[0_12px_40px_-15px_rgba(225,29,72,0.08)] ${
+      className={`relative flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 transition-all duration-300 bg-white border-[#10241e]/20 shadow-xl ${
+        compact ? "min-h-[280px] py-8 sm:min-h-[300px] sm:py-10" : "min-h-[440px] py-16 sm:py-20"
+      } text-center ${
         over
-          ? "border-[#E11D48] bg-[#FFF5F7] shadow-[0_20px_50px_-10px_rgba(225,29,72,0.25)] scale-[1.01]"
-          : "border-[#FCA5A5] hover:border-[#E11D48] hover:bg-[#FFF9FA]"
+          ? "border-[#10241e] bg-[#f9faf7] shadow-2xl scale-[1.01]"
+          : "hover:border-[#10241e] hover:bg-[#f9faf7]"
       }`}
     >
-      {/* Pink upload icon with subtle pulse */}
+      {/* Luxury Forest & Lime Icon */}
       <span
-        className={`flex ${compact ? "size-12 rounded-2xl" : "size-18 rounded-3xl"} items-center justify-center bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)] transition-transform hover:scale-105`}
+        className={`flex ${compact ? "size-16 rounded-2xl" : "size-24 rounded-3xl"} items-center justify-center bg-[#10241e] text-[#d0f471] shadow-xl transition-transform hover:scale-105 mb-4`}
       >
-        <UploadCloud className={`${compact ? "size-6" : "size-8"} text-white`} />
+        <UploadCloud className={`${compact ? "size-8" : "size-11"} text-[#d0f471]`} />
       </span>
 
       <h3
-        className={`${compact ? "mt-3 text-lg sm:text-xl" : "mt-5 text-xl sm:text-2xl"} font-display font-bold text-gray-900 tracking-tight`}
+        className={`${compact ? "mt-2 text-xl sm:text-2xl" : "mt-4 text-2xl sm:text-4xl"} font-bold text-[#10241e] tracking-tight`}
       >
         Drop your {type} here
       </h3>
-      <p className={`${compact ? "mt-1" : "mt-1.5"} max-w-md text-sm text-gray-500 font-medium`}>
-        {hint} • Up to {maxLabel} • Drag &amp; drop or Paste (Ctrl+V)
+      <p className={`${compact ? "mt-1 text-sm" : "mt-2 text-base sm:text-lg"} max-w-md text-[#37433d] font-normal leading-relaxed`}>
+        {hint} • Up to {maxLabel} • Drag &amp; drop or Paste (<kbd className="bg-[#e9ece4] border border-[#10241e]/15 px-1.5 py-0.5 rounded text-xs font-mono font-bold text-[#10241e]">Ctrl+V</kbd>)
       </p>
 
       {/* Buttons */}
       <div
-        className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap items-center justify-center gap-3`}
+        className={`${compact ? "mt-5" : "mt-8"} flex flex-wrap items-center justify-center gap-3.5`}
       >
         <PinkButton
           type="button"
-          size="md"
+          size="lg"
           onClick={(e) => {
             e.stopPropagation();
             inputRef.current?.click();
           }}
+          className="shadow-md"
         >
-          <UploadCloud className="size-4" />
+          <UploadCloud className="size-5" />
           <span>Upload {type === "image" ? "Image" : "Video"}</span>
         </PinkButton>
 
@@ -211,23 +211,23 @@ export function UploadZone({
           <PinkButton
             type="button"
             variant="soft"
-            size="md"
+            size="lg"
             onClick={(e) => {
               e.stopPropagation();
               onAutoDetect();
             }}
           >
-            <Wand2 className="size-4 text-[#E11D48]" />
+            <Wand2 className="size-5 text-[#10241e]" />
             <span>Auto Detect</span>
           </PinkButton>
         )}
       </div>
 
       <div
-        className={`${compact ? "mt-4" : "mt-6"} flex items-center gap-1.5 text-xs text-gray-400 font-medium`}
+        className={`${compact ? "mt-4" : "mt-7"} flex items-center gap-2 text-xs sm:text-sm text-[#637069] font-medium`}
       >
-        <ShieldCheck className="size-3.5 text-[#E11D48]" />
-        <span>Files processed securely in isolated memory • Never used for training</span>
+        <ShieldCheck className="size-4 text-[#10241e]" />
+        <span>Files processed securely in isolated memory • 100% private</span>
       </div>
 
       <input

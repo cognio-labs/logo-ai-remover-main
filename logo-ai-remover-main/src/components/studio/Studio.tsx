@@ -54,15 +54,15 @@ function StudioAiMarquee() {
       <ModelIcon modelId={m.id} name={m.name} size="md" />
       <div className="flex flex-col text-left min-w-0 pr-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm font-semibold text-gray-900 tracking-tight truncate group-hover:text-rose-600 transition-colors">
+          <span className="text-sm font-semibold text-white tracking-tight truncate group-hover:text-rose-600 transition-colors">
             {m.name}
           </span>
           <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-mono text-gray-500 tracking-tight">
-          <span className="truncate text-gray-700 font-semibold">{m.version}</span>
+        <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8E8E8E] tracking-tight">
+          <span className="truncate text-[#C7C7C7] font-semibold">{m.version}</span>
           <span className="text-gray-300 hidden sm:inline">•</span>
-          <span className="text-gray-500 text-[10px] hidden sm:inline truncate max-w-[160px]">
+          <span className="text-[#8E8E8E] text-[10px] hidden sm:inline truncate max-w-[160px]">
             {m.description}
           </span>
         </div>
@@ -75,9 +75,9 @@ function StudioAiMarquee() {
   );
 
   return (
-    <div className="relative w-full py-4 sm:py-5 bg-white border-y border-gray-100 overflow-hidden whitespace-nowrap select-none shadow-2xs">
-      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none" />
+    <div className="relative w-full py-4 sm:py-5 bg-[#0A0A0A] border-y border-[#303030] overflow-hidden whitespace-nowrap select-none shadow-2xs">
+      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent z-10 pointer-events-none" />
       <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0 pr-4 sm:pr-6">
           {AI_MODELS.map((m) => renderCard(m, "track1"))}
@@ -185,17 +185,17 @@ export function SampleGallery({
                 <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E11D48]">
                   {item.category}
                 </span>
-                <h3 className="text-lg font-semibold text-gray-950 mt-1 mb-2 group-hover:text-[#E11D48] transition-colors leading-snug">
+                <h3 className="text-lg font-semibold text-white mt-1 mb-2 group-hover:text-[#E11D48] transition-colors leading-snug">
                   {item.title}
                 </h3>
-                <p className="text-xs text-gray-600 leading-relaxed font-normal">{item.desc}</p>
+                <p className="text-xs text-[#C7C7C7] leading-relaxed font-normal">{item.desc}</p>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <span className="text-xs font-semibold text-gray-500 group-hover:text-[#E11D48] transition-colors">
+              <div className="flex items-center justify-between pt-3 border-t border-[#303030]">
+                <span className="text-xs font-semibold text-[#8E8E8E] group-hover:text-[#E11D48] transition-colors">
                   Explore Result
                 </span>
-                <span className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 group-hover:bg-[#E11D48] group-hover:text-white transition-all shadow-xs">
+                <span className="flex size-8 items-center justify-center rounded-full bg-gray-100 text-[#C7C7C7] group-hover:bg-[#E11D48] group-hover:text-white transition-all shadow-xs">
                   <ArrowUpRight size={15} />
                 </span>
               </div>
@@ -527,14 +527,14 @@ export function WorkflowCards() {
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-xs font-bold tracking-wider uppercase">
               FROM FILE TO FINISHED
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-950 tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
               Less busywork.
               <br />
               <span className="bg-gradient-to-r from-violet-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
                 More creating.
               </span>
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[#C7C7C7]">
               A familiar workflow, with useful controls at every step.
             </p>
           </div>
@@ -584,14 +584,14 @@ export function WorkflowCards() {
                   }`}
                 >
                   <Upload className="size-8 mx-auto text-[#E11D48] mb-2" />
-                  <p className="text-sm font-bold text-gray-900">Drag & drop your files</p>
+                  <p className="text-sm font-bold text-white">Drag & drop your files</p>
                   <p className="text-xs text-rose-600 font-medium mt-1 underline">
                     or browse from device
                   </p>
                 </div>
 
-                <h3 className="text-lg font-bold text-gray-950 mt-5">Bring your original</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                <h3 className="text-lg font-bold text-white mt-5">Bring your original</h3>
+                <p className="text-xs sm:text-sm text-[#C7C7C7] mt-1.5">
                   Choose your image, video or document. Review supported formats before you upload.
                 </p>
               </div>
@@ -609,7 +609,7 @@ export function WorkflowCards() {
                   </span>
                 </div>
 
-                <div className="space-y-2 mb-4 bg-white/70 p-3.5 rounded-2xl border border-[#FED7AA]/50">
+                <div className="space-y-2 mb-4 bg-[#1C1C1C] p-3.5 rounded-2xl border border-[#303030]">
                   <Link
                     to="/upscale"
                     className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#FFF7ED] border border-[#FED7AA]/50 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-2xs"
@@ -651,8 +651,8 @@ export function WorkflowCards() {
                   </Link>
                 </div>
 
-                <h3 className="text-lg font-bold text-gray-950 mt-5">Make it your own</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                <h3 className="text-lg font-bold text-white mt-5">Make it your own</h3>
+                <p className="text-xs sm:text-sm text-[#C7C7C7] mt-1.5">
                   Choose a tool, adjust the settings and follow the actual processing status.
                 </p>
               </div>
@@ -675,7 +675,7 @@ export function WorkflowCards() {
                 </div>
 
                 {/* Preview Image */}
-                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-gray-100 group">
+                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-4 border border-[#303030] group">
                   <img
                     src="/upscale/mountain_lake.jpg"
                     alt="Preview Final Cut"
@@ -722,8 +722,8 @@ export function WorkflowCards() {
                   </button>
                 </div>
 
-                <h3 className="text-lg font-bold text-gray-950 mt-5">Take the final cut</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+                <h3 className="text-lg font-bold text-white mt-5">Take the final cut</h3>
+                <p className="text-xs sm:text-sm text-[#C7C7C7] mt-1.5">
                   Inspect your result, compare the details and download the finished file.
                 </p>
               </div>
@@ -773,8 +773,8 @@ function CreativeWorkflowCards() {
   ];
 
   return (
-    <section className="relative overflow-hidden border-y border-rose-100 bg-white px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#fff1f2_0%,transparent_45%)]" />
+    <section className="relative overflow-hidden border-y border-[#303030] bg-[#080808] px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(225,29,72,0.1)_0%,transparent_45%)]" />
       <div className="relative mx-auto max-w-[1420px]">
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-[#E11D48]">
@@ -793,7 +793,7 @@ function CreativeWorkflowCards() {
           {cards.map((card) => (
             <article
               key={card.number}
-              className="group relative flex min-h-full flex-col overflow-hidden rounded-[2rem] border border-rose-100 bg-white shadow-[0_22px_60px_-38px_rgba(159,18,57,.35)] transition duration-300 hover:-translate-y-1.5 hover:border-rose-200 hover:shadow-[0_30px_70px_-34px_rgba(159,18,57,.42)]"
+              className="group relative flex min-h-full flex-col overflow-hidden rounded-[2rem] border border-[#303030] bg-[#151515] shadow-2xl transition duration-300 hover:-translate-y-1.5 hover:border-[#E11D48]/50"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-rose-50">
                 <img
@@ -803,7 +803,7 @@ function CreativeWorkflowCards() {
                   className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/35 via-transparent to-transparent" />
-                <span className="absolute left-5 top-5 grid size-11 place-items-center rounded-2xl border border-white/70 bg-white/90 text-sm font-bold text-[#E11D48] shadow-lg backdrop-blur-md">
+                <span className="absolute left-5 top-5 grid size-11 place-items-center rounded-2xl border border-[#303030] bg-[#1C1C1C] text-sm font-bold text-[#FF4FA3] shadow-lg backdrop-blur-md">
                   {card.number}
                 </span>
                 <span className="absolute bottom-4 right-4 grid size-10 place-items-center rounded-full bg-[#E11D48] text-white shadow-lg shadow-rose-950/20 transition-transform group-hover:rotate-6 group-hover:scale-105">

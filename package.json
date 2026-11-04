@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npm --prefix logo-ai-remover-main run dev",
+    "backend": "cd watermark-backend && python app.py",
     "build": "npm --prefix logo-ai-remover-main run build",
     "start": "npm --prefix logo-ai-remover-main run start",
     "vercel-build": "cd logo-ai-remover-main && npm install && npm run build"

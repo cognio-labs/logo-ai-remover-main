@@ -702,13 +702,7 @@ export default function PdfWatermarkRemoverPage() {
                         ? "Drop your PDF or document right here"
                         : "Drop your PDF or document here"}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1 max-w-xs leading-relaxed font-normal">
-                      PDF, PNG, JPG or WebP · Up to 50MB · Paste (
-                      <kbd className="font-sans px-1 py-0.5 rounded bg-gray-100 border text-gray-600 font-normal">
-                        Ctrl+V
-                      </kbd>
-                      )
-                    </p>
+                    
 
                     <button
                       type="button"
@@ -716,7 +710,7 @@ export default function PdfWatermarkRemoverPage() {
                         e.stopPropagation();
                         fileInputRef.current?.click();
                       }}
-                      className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-medium shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-2"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-[#d0f471] hover:bg-[#dbff83] !text-[#091712] text-[#091712] text-sm font-bold shadow-md shadow-lime-950/20 transition-all cursor-pointer flex items-center gap-2"
                     >
                       <Upload className="size-4" />
                       <span>Upload PDF / Image</span>

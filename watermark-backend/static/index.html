@@ -5,69 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Video Watermark Remover</title>
 <style>
-:root{--blue:#1f5eff;--ink:#111827;--mut:#6b7280;--line:#e5e7eb;--bg:#f3f5fb}
+:root{--blue:#E11D48;--ink:#ffffff;--mut:#9ca3af;--line:#2a2a2a;--bg:#080808}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif}
 .wrap{max-width:980px;margin:0 auto;padding:40px 16px 60px;text-align:center}
-h1{font-size:34px;margin:0 0 8px}
-.sub{color:var(--mut);max-width:640px;margin:0 auto 28px;line-height:1.5}
-.card{background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(30,60,130,.10);
-  padding:26px}
-.drop{border:2px dashed #cfd8ee;border-radius:20px;padding:56px 20px;cursor:pointer;
-  transition:.2s;background:#fbfcff}
-.drop.over{background:#eef3ff;border-color:var(--blue)}
-.drop h3{margin:22px 0 8px;font-size:16px}
-.drop p{margin:0;color:var(--mut);font-size:12.5px;line-height:1.5}
+h1{font-size:36px;margin:0 0 10px;font-weight:700;letter-spacing:-0.02em}
+h1 span{background:linear-gradient(135deg, #E11D48 0%, #FF2E63 50%, #FF4FA3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--mut);max-width:640px;margin:0 auto 28px;line-height:1.55;font-size:15px}
+.card{background:#111111;border:1px solid #222222;border-radius:28px;box-shadow:0 15px 45px rgba(0,0,0,.5);
+  padding:20px}
+
+/* UPLOAD BOX (MATCHING SCREENSHOT) */
+.drop{border:2px dashed #2f2f2f;border-radius:24px;padding:48px 20px 36px;cursor:pointer;
+  transition:all .25s ease;background:#141414;position:relative}
+.drop:hover{border-color:#E11D48;background:#181315}
+.drop.over{border-color:#FF2E63;background:#201317;transform:scale(1.006)}
+.cloud-icon-wrap{position:relative;display:inline-block;margin-bottom:20px}
+.cloud-icon{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#E11D48 0%,#FF2E63 50%,#FF4FA3 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(225,29,72,.4);transition:transform .25s ease}
+.drop:hover .cloud-icon{transform:scale(1.06)}
+.film-badge{position:absolute;bottom:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:#1c1c1c;border:1.5px solid #FF2E63;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.drop-title{margin:0 0 8px;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:-0.02em}
+.drop-subtitle{margin:0 0 24px;color:#9ca3af;font-size:13.5px;line-height:1.6}
+.drop-subtitle kbd{background:#202020;border:1px solid #333333;color:#f3f4f6;padding:2px 7px;border-radius:5px;font-size:11px;font-family:inherit;font-weight:600}
+.drop-buttons{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin-bottom:22px}
+.btn-browse{background:linear-gradient(135deg,#E11D48 0%,#FF2E63 100%);color:#ffffff;border:0;border-radius:50px;padding:12px 28px;font-size:14.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(225,29,72,.35);transition:all .2s ease}
+.btn-browse:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 24px rgba(225,29,72,.5)}
+.btn-clipboard{background:#1e1e1e;color:#e5e7eb;border:1px solid #333333;border-radius:50px;padding:11px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s ease}
+.btn-clipboard:hover{background:#252525;border-color:#E11D48;color:#ffffff}
+.drop-trust{display:flex;align-items:center;justify-content:center;gap:6px;color:#6b7280;font-size:12px}
+
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;
   border-radius:12px;padding:14px 34px;font-size:17px;font-weight:600;cursor:pointer;
   background:var(--blue);color:#fff;transition:.15s}
 .btn:hover{filter:brightness(1.08)}
 .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
-.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);
+.btn.sec{background:#1e1e1e;color:#fff;border:1px solid #333;
   padding:10px 16px;font-size:14px;font-weight:500}
-.btn.go{padding:11px 22px;font-size:15px}
+.btn.go{padding:11px 22px;font-size:15px;background:linear-gradient(135deg,#E11D48,#FF2E63)}
 .hidden{display:none!important}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:16px;
-  overflow:hidden;background:#eef1f8}
-.pane{position:relative;aspect-ratio:16/9;background:#e9edf7;display:flex;
+  overflow:hidden;background:#0d0d0d;border:1px solid #222}
+.pane{position:relative;aspect-ratio:16/9;background:#141414;display:flex;
   align-items:center;justify-content:center}
-.pane+.pane{border-left:1px solid #fff}
+.pane+.pane{border-left:1px solid #262626}
 .pane video{width:100%;height:100%;object-fit:contain;background:#000}
-.tag{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.85);color:#fff;
-  font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;z-index:2}
-.ph{color:#475569;font-size:14px;padding:16px;line-height:1.5}
+.tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.85);color:#fff;
+  border:1px solid #333;font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;z-index:2}
+.ph{color:#9ca3af;font-size:14px;padding:16px;line-height:1.5}
 .ph small{display:block;color:var(--mut);margin-top:8px;font-size:12px}
-.spin{width:30px;height:30px;border:3px solid #cdd7f5;border-top-color:var(--blue);
+.spin{width:30px;height:30px;border:3px solid #333;border-top-color:var(--blue);
   border-radius:50%;animation:sp 0.9s linear infinite;margin:0 auto 12px}
 @keyframes sp{to{transform:rotate(360deg)}}
 .bar{display:flex;align-items:center;gap:12px;margin-top:14px;padding:6px 4px}
-.bar input[type=range]{flex:1}
-.pl{width:36px;height:36px;border-radius:50%;border:0;background:var(--ink);
+.bar input[type=range]{flex:1;accent-color:#E11D48}
+.pl{width:36px;height:36px;border-radius:50%;border:1px solid #333;background:#1e1e1e;
   color:#fff;cursor:pointer;font-size:13px}
 .time{font-size:12px;color:var(--mut);min-width:84px;text-align:right}
-.stat{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;
-  font-size:13px;color:#475569;text-align:left}
-.prog{height:4px;background:#e5e9f5;border-radius:4px;margin-top:8px;overflow:hidden}
-.prog i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+.stat{margin-top:10px;border:1px solid #2a2a2a;border-radius:12px;padding:10px 14px;
+  font-size:13px;color:#d1d5db;text-align:left;background:#141414}
+.prog{height:4px;background:#262626;border-radius:4px;margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#E11D48,#FF4FA3);transition:width .3s}
 .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
-.err{color:#b91c1c}
+.err{color:#f87171}
 @media(max-width:640px){.grid{grid-template-columns:1fr}
-  .pane+.pane{border-left:0;border-top:1px solid #fff}}
+  .pane+.pane{border-left:0;border-top:1px solid #262626}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Video Watermark Remover</h1>
-  <p class="sub">Upload your AI-generated video. The visible corner logo is removed and
-  you can compare original and cleaned video side by side, then download the MP4.</p>
+  <h1>Remove Gemini and Veo Video <span>Watermarks Online</span></h1>
+  <p class="sub">Detect and erase visible Google Gemini and Veo marks across every frame. Keep 100% full resolution, smooth camera movement, and natural lighting.</p>
 
-  <!-- STEP 1: upload box -->
-  <div class="card" id="uploadCard">
+  <!-- STEP 1: upload box (MATCHING SCREENSHOT) -->
+  <div class="card upload-card" id="uploadCard">
     <div class="drop" id="drop">
-      <button class="btn" id="chooseBtn" type="button">+ Choose video</button>
-      <h3>Upload a Gemini or Veo video</h3>
-      <p>MP4, WebM, MOV, AVI or MKV. Short clips under 100 MB are the safest first test.</p>
+      <div class="cloud-icon-wrap">
+        <div class="cloud-icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+            <path d="M12 12v9"/>
+            <path d="m16 16-4-4-4 4"/>
+          </svg>
+        </div>
+        <div class="film-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF2E63" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="20" x="2" y="2" rx="2.18"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
+          </svg>
+        </div>
+      </div>
+
+      <h3 class="drop-title">Drop your video here</h3>
+      <p class="drop-subtitle">
+        Upload MP4, MOV, WebM, AVI, or MKV &bull; Paste (<kbd>Ctrl+V</kbd>) &bull; Drag &amp; drop
+      </p>
+
+      <div class="drop-buttons">
+        <button class="btn btn-browse" id="chooseBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+            <path d="M12 12v9"/>
+            <path d="m16 16-4-4-4 4"/>
+          </svg>
+          Browse Video
+        </button>
+
+        <button class="btn btn-clipboard" id="pasteBtn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF2E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          Paste from Clipboard
+        </button>
+      </div>
+
+      <div class="drop-trust">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF2E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <span>Real frame-by-frame neural inpainting &bull; 100% Private local processing</span>
+      </div>
     </div>
     <input type="file" id="file" accept="video/*,.mkv" class="hidden">
   </div>
@@ -133,7 +192,51 @@ function setProg(p) { $("progBar").style.width = p + "%"; }
 
 /* ---------- choose / load ---------- */
 $("drop").addEventListener("click", () => $("file").click());
+$("chooseBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  $("file").click();
+});
 $("another").addEventListener("click", () => $("file").click());
+
+$("pasteBtn").addEventListener("click", async (e) => {
+  e.stopPropagation();
+  try {
+    if (navigator.clipboard?.read) {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const vidType = item.types.find((t) => t.startsWith("video/"));
+        if (vidType) {
+          const blob = await item.getType(vidType);
+          const f = new File([blob], "clipboard-video.mp4", { type: vidType });
+          loadFile(f);
+          return;
+        }
+      }
+    }
+    alert("Press Ctrl+V to paste your video file from clipboard.");
+  } catch {
+    alert("Press Ctrl+V to paste your video file from clipboard.");
+  }
+});
+
+window.addEventListener("paste", (e) => {
+  const clipFiles = Array.from(e.clipboardData?.files || []);
+  if (clipFiles.length > 0 && clipFiles[0].type.startsWith("video/")) {
+    e.preventDefault();
+    loadFile(clipFiles[0]);
+    return;
+  }
+  const items = Array.from(e.clipboardData?.items || []);
+  const vidItem = items.find((it) => it.type.startsWith("video/"));
+  if (vidItem) {
+    const f = vidItem.getAsFile();
+    if (f) {
+      e.preventDefault();
+      loadFile(f);
+    }
+  }
+});
+
 $("drop").addEventListener("dragover", (e) => {
   e.preventDefault(); $("drop").classList.add("over");
 });
@@ -159,7 +262,6 @@ function loadFile(f) {
   $("work").classList.remove("hidden");
   setStat("Reading video metadata...");
 }
-
 vO.addEventListener("loadedmetadata", () => {
   setStat("Ready to process. Click Remove Watermark.");
   updateTime();
@@ -227,9 +329,8 @@ function playBoth() {
   if (doneFlag) vP.play().catch(() => {});
 }
 function pauseBoth() { vO.pause(); if (doneFlag) vP.pause(); }
-
 $("play").addEventListener("click", () => { vO.paused ? playBoth() : pauseBoth(); });
-vO.addEventListener("play",  () => { $("play").innerHTML = "&#10074;&#10074;"; });
+vO.addEventListener("play", () => { $("play").innerHTML = "&#10074;&#10074;"; });
 vO.addEventListener("pause", () => { $("play").innerHTML = "&#9654;"; });
 vO.addEventListener("ended", () => { $("play").innerHTML = "&#9654;"; });
 
@@ -276,4 +377,3 @@ $("reset").addEventListener("click", () => resetState(true));
 </script>
 </body>
 </html>
-

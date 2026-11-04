@@ -34,7 +34,7 @@ export const Route = createFileRoute("/history")({
   component: HistoryPage,
 });
 
-const TABS = ["All", "Images", "Videos", "Upscaled"] as const;
+const TABS = ["All", "Images", "Videos", "Background", "PDF"] as const;
 
 export default function HistoryPage() {
   const { jobs, deleteJob } = useUserStore();
@@ -47,7 +47,8 @@ export default function HistoryPage() {
         tab === "All" ||
         (tab === "Images" && item.file_type === "image") ||
         (tab === "Videos" && item.file_type === "video") ||
-        (tab === "Upscaled" && item.file_type === "upscale");
+        (tab === "Background" && item.file_type === "background-remover") ||
+        (tab === "PDF" && item.file_type === "pdf");
 
       const matchSearch = item.file_name.toLowerCase().includes(search.toLowerCase());
       return matchTab && matchSearch;
@@ -107,25 +108,25 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans py-12 sm:py-20 px-4 sm:px-6 lg:px-8 pb-28">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-bold text-[#E11D48] mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-bold text-[#10241e] mb-2 px-4 py-1.5 shadow-sm">
               <Clock className="size-3.5" />
               <span>Cloud Project Archive</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold text-[#10241e] tracking-tight">
               Project History
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-base sm:text-lg text-[#37433d] mt-2">
               Search, view, and re-download all your enhanced photos and videos.
             </p>
           </div>
 
           <PinkButton size="md" asChild>
-            <Link to="/remove/image">
+            <Link to="/background-remover">
               <Sparkles className="size-4" />
               <span>Clean New File</span>
             </Link>
@@ -133,16 +134,16 @@ export default function HistoryPage() {
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-white border border-[#FCE7EC] shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 rounded-2xl bg-white border border-[#10241e]/15 shadow-md p-4 rounded-2xl">
           {/* Tabs */}
-          <div className="flex items-center gap-1 bg-[#FFF5F7] p-1 rounded-xl border border-[#FCE7EC] w-full sm:w-auto">
+          <div className="flex items-center gap-1 bg-[#f3f4ee] p-1.5 rounded-xl border border-[#10241e]/10 w-full sm:w-auto">
             {TABS.map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${tab === t
-                  ? "bg-[#E11D48] text-white shadow-xs"
-                  : "text-gray-600 hover:text-[#E11D48]"
+                  ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
+                  : "text-[#37433d] hover:text-[#10241e] font-medium"
                   }`}
               >
                 {t}
@@ -157,23 +158,23 @@ export default function HistoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by filename..."
-              className="pl-10 h-10 rounded-xl border-gray-200 text-xs focus:ring-[#E11D48]"
+              className="pl-10 h-10 rounded-xl border-[#303030] text-xs focus:ring-[#E11D48]"
             />
           </div>
         </div>
 
         {/* Grid of processed files */}
         {filtered.length === 0 ? (
-          <div className="p-16 text-center rounded-3xl bg-[#FFF8FA] border border-[#FCE7EC] space-y-4">
-            <div className="size-16 rounded-3xl bg-[#FFE4E9] text-[#E11D48] flex items-center justify-center mx-auto">
+          <div className="p-16 text-center rounded-3xl bg-white border border-[#10241e]/15 shadow-xl space-y-4">
+            <div className="size-16 rounded-3xl bg-[#10241e] text-[#d0f471] border border-[#10241e]/20 flex items-center justify-center mx-auto">
               <Clock className="size-8" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">No project files found</h3>
-            <p className="text-sm text-gray-500 max-w-sm mx-auto">
+            <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">No project files found</h3>
+            <p className="text-sm text-[#8E8E8E] max-w-sm mx-auto">
               Try adjusting your search terms or upload your first file to start creating.
             </p>
             <PinkButton size="md" asChild>
-              <Link to="/remove/image">Start AI Cleanup</Link>
+              <Link to="/background-remover">Start AI Cleanup</Link>
             </PinkButton>
           </div>
         ) : (
@@ -181,30 +182,30 @@ export default function HistoryPage() {
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="group rounded-3xl bg-white border border-[#FCE7EC] overflow-hidden shadow-[0_10px_30px_-10px_rgba(225,29,72,0.08)] hover:shadow-[0_15px_40px_-10px_rgba(225,29,72,0.2)] hover:-translate-y-1 transition-all flex flex-col justify-between"
+                className="group rounded-3xl bg-white border border-[#10241e]/15 overflow-hidden shadow-lg hover:shadow-2xl hover:border-[#10241e]/30 hover:-translate-y-1 transition-all flex flex-col justify-between"
               >
                 <div>
                   {/* Thumbnail area */}
-                  <div className="relative aspect-[16/10] bg-[#FFF5F7] overflow-hidden border-b border-[#FCE7EC]">
-                    {item.file_url ? (
+                  <div className="relative aspect-[16/10] bg-[#f3f4ee] overflow-hidden border-b border-[#10241e]/10">
+                    {item.result_url || item.file_url ? (
                       <img
-                        src={item.file_url}
+                        src={item.result_url || item.file_url}
                         alt={item.file_name}
                         className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : item.file_type === "video" ? (
-                      <div className="size-full flex items-center justify-center text-[#E11D48]">
+                      <div className="size-full flex items-center justify-center text-[#10241e]">
                         <Video className="size-10" />
                       </div>
                     ) : (
-                      <div className="size-full flex items-center justify-center text-[#E11D48]">
+                      <div className="size-full flex items-center justify-center text-[#10241e]">
                         <ImageIcon className="size-10" />
                       </div>
                     )}
 
                     {/* Quality badge top right */}
                     <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-semibold text-[#E11D48] border border-[#FCE7EC]">
+                      <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-semibold text-[#10241e] border border-[#303030]">
                         {item.quality}
                       </span>
                     </div>
@@ -228,10 +229,10 @@ export default function HistoryPage() {
 
                   {/* Metadata */}
                   <div className="p-4 space-y-1">
-                    <h4 className="font-bold text-sm text-gray-900 truncate" title={item.file_name}>
+                    <h4 className="font-bold text-sm text-white truncate" title={item.file_name}>
                       {item.file_name}
                     </h4>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-[#8E8E8E]">
                       <span>{new Date(item.created_at).toLocaleDateString()}</span>
                       <span>{item.processing_time || "4.5s"}</span>
                     </div>
@@ -247,7 +248,7 @@ export default function HistoryPage() {
                 <div className="p-4 pt-0 flex items-center gap-2">
                   <button
                     onClick={() => handleDownload(item)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FFF1F4] text-[#E11D48] hover:bg-[#FFE4E9] font-bold text-xs transition-all shadow-xs hover:scale-101"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FFF1F4] text-[#10241e] hover:bg-[#FFE4E9] font-bold text-xs transition-all shadow-xs hover:scale-101"
                   >
                     <Download className="size-4" />
                     <span>Download Clean Media</span>

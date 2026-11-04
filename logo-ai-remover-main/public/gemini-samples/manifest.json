@@ -1,0 +1,186 @@
+[
+  {
+    "id": "sample_1",
+    "title": "Alpine Lake Reflection",
+    "tag": "Landscape \u00b7 16:9",
+    "desc": "Deep twilight mountain range and calm reflective water",
+    "width": 960,
+    "height": 540,
+    "box": [
+      849,
+      429,
+      54,
+      54
+    ],
+    "boxText": "Target box 54 px",
+    "sparkleCenter": [
+      876,
+      456
+    ],
+    "beforeUrl": "/gemini-samples/sample_1_before.webp",
+    "afterUrl": "/gemini-samples/sample_1_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_1_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_1_loupe_after.webp"
+  },
+  {
+    "id": "sample_2",
+    "title": "Editorial Studio Portrait",
+    "tag": "Portrait \u00b7 1:1",
+    "desc": "Natural organic skin pores, fine flyaway hair and directional soft lighting",
+    "width": 720,
+    "height": 720,
+    "box": [
+      572,
+      572,
+      72,
+      72
+    ],
+    "boxText": "Target box 72 px",
+    "sparkleCenter": [
+      608,
+      608
+    ],
+    "beforeUrl": "/gemini-samples/sample_2_before.webp",
+    "afterUrl": "/gemini-samples/sample_2_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_2_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_2_loupe_after.webp"
+  },
+  {
+    "id": "sample_3",
+    "title": "Liquid Emerald Caustic",
+    "tag": "Macro \u00b7 1:1",
+    "desc": "Deep emerald facets, liquid surface ripples and refraction",
+    "width": 720,
+    "height": 720,
+    "box": [
+      572,
+      572,
+      72,
+      72
+    ],
+    "boxText": "Target box 72 px",
+    "sparkleCenter": [
+      608,
+      608
+    ],
+    "beforeUrl": "/gemini-samples/sample_3_before.webp",
+    "afterUrl": "/gemini-samples/sample_3_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_3_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_3_loupe_after.webp"
+  },
+  {
+    "id": "sample_4",
+    "title": "Architectural Twilight Villa",
+    "tag": "Architecture \u00b7 16:9",
+    "desc": "Sharp structural concrete, glass reflection and infinity pool",
+    "width": 960,
+    "height": 540,
+    "box": [
+      849,
+      429,
+      54,
+      54
+    ],
+    "boxText": "Target box 54 px",
+    "sparkleCenter": [
+      876,
+      456
+    ],
+    "beforeUrl": "/gemini-samples/sample_4_before.webp",
+    "afterUrl": "/gemini-samples/sample_4_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_4_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_4_loupe_after.webp"
+  },
+  {
+    "id": "sample_5",
+    "title": "Astronaut Floral Cavern",
+    "tag": "Cinematic \u00b7 1:1",
+    "desc": "Volumetric sunset rays piercing through orange flower petals",
+    "width": 720,
+    "height": 720,
+    "box": [
+      572,
+      572,
+      72,
+      72
+    ],
+    "boxText": "Target box 72 px",
+    "sparkleCenter": [
+      608,
+      608
+    ],
+    "beforeUrl": "/gemini-samples/sample_5_before.webp",
+    "afterUrl": "/gemini-samples/sample_5_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_5_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_5_loupe_after.webp"
+  },
+  {
+    "id": "sample_6",
+    "title": "Cyberpunk Neon Rain",
+    "tag": "Cityscape \u00b7 16:9",
+    "desc": "Wet road asphalt reflections with vibrant pink & cyan signage",
+    "width": 960,
+    "height": 540,
+    "box": [
+      849,
+      429,
+      54,
+      54
+    ],
+    "boxText": "Target box 54 px",
+    "sparkleCenter": [
+      876,
+      456
+    ],
+    "beforeUrl": "/gemini-samples/sample_6_before.webp",
+    "afterUrl": "/gemini-samples/sample_6_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_6_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_6_loupe_after.webp"
+  },
+  {
+    "id": "sample_7",
+    "title": "Desert Dune Crest",
+    "tag": "Landscape \u00b7 4:3",
+    "desc": "Granular wind-sculpted sand ripples during golden hour",
+    "width": 800,
+    "height": 600,
+    "box": [
+      676,
+      476,
+      60,
+      60
+    ],
+    "boxText": "Target box 60 px",
+    "sparkleCenter": [
+      706,
+      506
+    ],
+    "beforeUrl": "/gemini-samples/sample_7_before.webp",
+    "afterUrl": "/gemini-samples/sample_7_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_7_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_7_loupe_after.webp"
+  },
+  {
+    "id": "sample_8",
+    "title": "Pacific Ocean Swells",
+    "tag": "Oceanic \u00b7 3:4",
+    "desc": "Curling ocean break with sunset foam and spray texture",
+    "width": 600,
+    "height": 800,
+    "box": [
+      476,
+      676,
+      60,
+      60
+    ],
+    "boxText": "Target box 60 px",
+    "sparkleCenter": [
+      506,
+      706
+    ],
+    "beforeUrl": "/gemini-samples/sample_8_before.webp",
+    "afterUrl": "/gemini-samples/sample_8_after.webp",
+    "loupeBeforeUrl": "/gemini-samples/sample_8_loupe_before.webp",
+    "loupeAfterUrl": "/gemini-samples/sample_8_loupe_after.webp"
+  }
+]

@@ -78,9 +78,9 @@
 .studio-hero-v2 {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, #fff0f4 0%, #fff6f9 45%, #ffffff 100%);
+  background: #080808;
   padding: 0;
-  border-bottom: 1px solid #fce7ec;
+  border-bottom: 1px solid #303030;
 }
 
 .studio-hero-bg {
@@ -111,8 +111,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  border: 1px solid #fce7ec;
+  background: #151515;
+  border: 1px solid #303030;
   box-shadow: 0 2px 10px rgba(225, 29, 72, 0.08);
   padding: 7px 16px;
   border-radius: 100px;
@@ -165,7 +165,7 @@
 .studio-hero-v2-sub {
   font-size: 16px;
   line-height: 1.65;
-  color: #475569;
+  color: #C7C7C7;
   max-width: 460px;
   margin-bottom: 28px;
   font-weight: 400;
@@ -206,9 +206,9 @@
   gap: 8px;
   padding: 13px 22px;
   border-radius: 9999px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+  background: #1C1C1C;
+  border: 1px solid #303030;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -218,8 +218,8 @@
     transform 0.2s;
 }
 .studio-cta-ghost:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: #252525;
+  border-color: #404040;
   transform: translateY(-1px);
 }
 
@@ -229,7 +229,7 @@
   gap: 20px;
   flex-wrap: wrap;
   font-size: 12px;
-  color: #475569;
+  color: #C7C7C7;
   font-weight: 500;
   margin-bottom: 30px;
 }
@@ -290,7 +290,7 @@
   z-index: 1;
   border-radius: 26px;
   overflow: hidden;
-  background: #ffffff;
+  background: #151515;
   border: 1px solid rgba(252, 231, 236, 0.9);
   box-shadow:
     0 20px 50px -10px rgba(225, 29, 72, 0.15),
@@ -412,7 +412,7 @@
   flex-wrap: wrap;
   gap: 10px;
   padding: 22px 44px;
-  background: #fff;
+  background: #151515;
   border-block: 1px solid #f1e8ec;
   box-shadow: 0 4px 20px rgba(225, 29, 72, 0.06);
 }
@@ -423,7 +423,7 @@
   padding: 10px 18px;
   border-radius: 100px;
   border: 1px solid #f1e0e7;
-  background: #fff;
+  background: #151515;
   font-size: 12px;
   font-weight: 500;
   color: #4b5563;
@@ -461,7 +461,7 @@
   gap: 14px;
   padding: 28px;
   border-radius: 20px;
-  background: #fff;
+  background: #151515;
   border: 1px solid #ede9f0;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
   transition:
@@ -590,7 +590,7 @@
   transform: none;
 }
 .studio-button.secondary {
-  background: white;
+  background: #151515;
   color: #233e48;
   border: 1px solid #d9e1e3;
 }
@@ -626,7 +626,7 @@
 .studio-clean-banner {
   position: relative;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #151515;
   background-image: url("/creative-suite/clean_section_ring_backdrop.png");
   background-image: image-set(
     url("/creative-suite/clean_section_ring_backdrop.webp") type("image/webp"),
@@ -663,7 +663,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.16em;
-  color: #475569;
+  color: #C7C7C7;
   text-transform: uppercase;
   margin-bottom: 14px;
 }
@@ -772,7 +772,7 @@
     display: flex;
     flex-direction: column;
     background-image: none !important; /* image shown via <img> element */
-    background-color: #ffffff;
+    background-color: #151515;
     min-height: unset;
     border-radius: 0;
     border: none;
@@ -792,7 +792,7 @@
     position: relative;
     width: 100%;
     height: 300px;
-    background: #ffffff;
+    background: #151515;
     overflow: hidden;
     flex-shrink: 0;
   }
@@ -827,14 +827,14 @@
     grid-column: 1;
     padding: 28px 24px 44px;
     max-width: 100%;
-    background: #ffffff;
+    background: #151515;
     position: relative;
     z-index: 2;
   }
 
   /* Restore normal dark text colours for readability on warm bg */
   .studio-clean-banner-eyebrow {
-    color: #475569;
+    color: #C7C7C7;
   }
   .studio-clean-banner-eyebrow-line {
     background: #2b7a78;
@@ -1064,7 +1064,7 @@
   display: grid;
   padding: 12px 24px;
   gap: 4px;
-  background: #ffffff;
+  background: #151515;
   border-bottom: 1px solid #fecdd3;
 }
 .studio-nav-mobile a {
@@ -1100,7 +1100,7 @@
   top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff;
+  background: #151515;
   border: 1px solid #fecdd3;
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
@@ -1352,8 +1352,8 @@
 }
 .up-page .up-tool-card {
   grid-template-columns: minmax(0, 1fr) 290px !important;
-  border: 1px solid #cbd9dd !important;
-  background: white !important;
+  border: 1px solid #303030 !important;
+  background: #151515 !important;
   border-radius: 16px !important;
   box-shadow: 0 25px 70px -40px #274c6350 !important;
   padding: 25px !important;
@@ -1418,7 +1418,7 @@
 .studio-editor {
   max-width: 1200px;
   margin: 0 auto 65px;
-  background: white;
+  background: #151515;
   border: 1px solid #d6e0e2;
   border-radius: 16px;
   box-shadow: 0 25px 70px -40px #274c6350;
@@ -1429,9 +1429,9 @@
   gap: 6px;
   flex-wrap: wrap;
   align-items: center;
-  border-bottom: 1px solid #e2e8e9;
+  border-bottom: 1px solid #303030;
   padding: 13px 18px;
-  background: #fff;
+  background: #151515;
 }
 .studio-editor-toolbar button {
   display: flex;
@@ -1478,7 +1478,7 @@
   touch-action: none;
   box-shadow: 0 15px 45px #19293615;
   border-radius: 5px;
-  background-color: white;
+  background-color: #151515;
   background-image:
     linear-gradient(45deg, #e4e8eb 25%, transparent 25%),
     linear-gradient(-45deg, #e4e8eb 25%, transparent 25%),
@@ -1523,9 +1523,9 @@
 .studio-segment button {
   flex: 1;
   padding: 10px 7px;
-  border: 1px solid #d9e2e5;
+  border: 1px solid #303030;
   border-radius: 7px;
-  background: white;
+  background: #151515;
   font-size: 11px;
   cursor: pointer;
 }
@@ -1564,7 +1564,7 @@
 }
 .studio-downloads button {
   padding: 12px 18px;
-  background: white;
+  background: #151515;
   border: 1px solid #d0dfdf;
   border-radius: 7px;
   text-align: left;
@@ -1578,7 +1578,7 @@
   max-width: 1040px;
   margin: 10px auto 50px;
   padding: 32px;
-  background: white;
+  background: #151515;
   border: 1px solid #d7e1e2;
   border-radius: 16px;
 }
@@ -1595,9 +1595,9 @@
 }
 .studio-doc-card {
   padding: 16px;
-  border: 1px solid #d9e3e3;
+  border: 1px solid #303030;
   border-radius: 10px;
-  background: white;
+  background: #151515;
 }
 .studio-doc-card img {
   width: 100%;

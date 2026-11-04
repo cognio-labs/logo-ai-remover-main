@@ -1,824 +1,674 @@
 "use client";
 
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import * as React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
   ArrowUpRight,
+  ArrowDownRight,
+  ChevronDown,
+  Check,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Film,
-  ImageUp,
-  Layers,
-  LockKeyhole,
-  MonitorSmartphone,
-  RefreshCw,
-  ScanSearch,
   ShieldCheck,
   Sparkles,
-  Upload,
-  Video,
+  Mountain,
+  Film,
+  Scissors,
+  Expand,
+  Eraser,
+  FileText,
+  Crop,
+  ScanFace,
+  Clapperboard,
+  Type,
+  AudioLines,
+  FileImage,
+  Layers,
+  Cloud,
+  LockKeyhole,
   WandSparkles,
+  Gem,
   Zap,
+  Image as ImageIcon,
+  Timer,
+  Fingerprint,
+  BadgeCheck,
 } from "lucide-react";
-import { PinkButton } from "@/components/site/PinkButton";
-import { HeroParallax } from "@/components/ui/hero-parallax";
-import { ModelIcon } from "@/components/ModelIcon";
-import { AI_MODELS, type AIModelData } from "@/components/models/modelData";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
-      {
-        name: "description",
-        content:
-          "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
-      },
-      { rel: "canonical", href: "https://www.bellix.us/" },
-      { property: "og:url", content: "https://www.bellix.us/" },
-      { property: "og:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
-      {
-        property: "og:description",
-        content:
-          "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
-      },
-      { property: "og:image", content: "https://www.bellix.us/og-image.jpg" },
-      { property: "og:image:secure_url", content: "https://www.bellix.us/og-image.jpg" },
-      { property: "og:image:type", content: "image/jpeg" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Bellix.us — AI Background Remover, Image & Video Enhancer" },
-      {
-        name: "twitter:description",
-        content:
-          "Free AI tools to remove image backgrounds, clean watermarks, enhance video quality, and upscale photos to 4K.",
-      },
-      { name: "twitter:image", content: "https://www.bellix.us/og-image.jpg" },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Bellix.us",
-          url: "https://www.bellix.us/",
-          description:
-            "AI creative studio with tools for background removal, watermark cleaning, image upscaling, and video enhancement.",
-        }),
-      },
-    ],
-  }),
-  component: HomePage,
-});
+// Brand Star Mark
+function BrandMark() {
+  return (
+    <span className="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 34 34" fill="none">
+        <path
+          d="M17 2.8 21.25 12.75 31.2 17l-9.95 4.25L17 31.2l-4.25-9.95L2.8 17l9.95-4.25L17 2.8Z"
+          fill="currentColor"
+        />
+        <circle cx="17" cy="17" r="3.1" fill="#10221e" />
+      </svg>
+    </span>
+  );
+}
 
-/* -------------------------------------------------------------------------- */
-/* 1. HERO SECTION WITH BEFORE & AFTER SLIDER & AUTO SLIDE-RUN               */
-/* -------------------------------------------------------------------------- */
+// 1. HERO SECTION
 function HeroSection() {
-  const [sliderPos, setSliderPos] = useState(50);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
+  return (
+    <section className="hero" id="top">
+      <div className="hero-orbit hero-orbit-one" aria-hidden="true" />
+      <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
+      <div className="hero-inner">
+        <div className="hero-copy">
+          <p className="eyebrow eyebrow-light">
+            <span className="eyebrow-pip" /> THE CREATIVE FINISHING STUDIO
+          </p>
+          <h1>
+            Create Visuals That Stand Out With <em>Studio-Grade AI</em>
+          </h1>
+          <p className="hero-description">
+            One unified creative suite to remove backgrounds, upscale images to 8K, and clean video watermarks with instantaneous precision.
+          </p>
+          <div className="hero-actions">
+            <a className="button button-lime" href="#final-cta">
+              Start Creating Free <ArrowUpRight size={17} />
+            </a>
+            <a className="button button-outline-light" href="#tools">
+              Explore All Tools <ArrowRight size={17} />
+            </a>
+          </div>
+          <div className="hero-assurances" aria-label="Product assurances from supplied copy">
+            <span>
+              <Check size={14} /> Free to start, no card required
+            </span>
+            <span>
+              <ShieldCheck size={14} /> Private & secure processing
+            </span>
+            <span>
+              <Sparkles size={14} /> Full 4K / 8K exports
+            </span>
+          </div>
+        </div>
+        <div className="hero-art-wrap">
+          <div className="hero-art" role="img" aria-label="Cinematic alpine lake and mountains at blue hour">
+            <img
+              src="/bellix-manus/image-1.webp"
+              alt="Cinematic alpine lake and mountain range at blue hour"
+            />
+            <div className="hero-art-topline">
+              <span>
+                <span className="live-dot" /> BELLIX SCENE STUDY
+              </span>
+              <span>01 / 03</span>
+            </div>
+            <div className="hero-art-caption">
+              <div>
+                <span className="image-kicker">LANDSCAPE & SCENE AI</span>
+                <h2>
+                  Breathtaking<br />
+                  dynamic range.
+                </h2>
+              </div>
+              <span className="image-arrow" aria-hidden="true">
+                <ArrowUpRight size={20} />
+              </span>
+            </div>
+            <div className="hero-art-note">
+              <span className="note-icon">
+                <Sparkles size={15} />
+              </span>
+              <span>
+                <strong>Depth, restored</strong>
+                <small>Cinematic color · atmospheric light</small>
+              </span>
+            </div>
+            <div className="hero-image-grain" aria-hidden="true" />
+          </div>
+          <div className="hero-float-tag">
+            <span className="float-tag-icon">
+              <Mountain size={15} />
+            </span>
+            <span>LANDSCAPE / SCENE AI</span>
+          </div>
+          <div className="hero-side-label">BELLIX CREATIVE SYSTEM — 2026</div>
+        </div>
+      </div>
+      <div className="hero-bottomline">
+        <span>MAKE EVERY DETAIL FEEL INTENTIONAL</span>
+        <a href="#showcase">
+          Scroll to explore <ArrowDownRight size={15} />
+        </a>
+      </div>
+    </section>
+  );
+}
 
-  const handlePointerMove = (clientX: number) => {
-    const el = sliderRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = Math.min(95, Math.max(5, ((clientX - rect.left) / rect.width) * 100));
-    setSliderPos(x);
-  };
+// 2. METRICS / TRUST SECTION
+function MetricsSection() {
+  const metrics = [
+    { value: "50M+", label: "Visuals processed", note: "Trusted worldwide", icon: ImageIcon },
+    { value: "< 3s", label: "Average inference", note: "Instant HD output", icon: Timer },
+    { value: "99.9%", label: "Edge precision", note: "Sub-pixel accuracy", icon: Fingerprint },
+    { value: "4.9 <span>★</span>", label: "Creator rating", note: "150K+ verified reviews", icon: BadgeCheck },
+  ];
 
   return (
-    <section className="relative overflow-hidden bg-warm-canvas pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#FED7AA]/50">
-      {/* Subtle background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#FFE4C4]/50 via-[#FFF7ED]/20 to-transparent blur-3xl pointer-events-none" />
-
-      <div className="relative mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-          {/* Left Column: Heading, Subheading & High-Converting CTAs */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            {/* High-Converting Eyebrow Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF7ED] border border-[#FED7AA] shadow-2xs">
-              <span className="flex size-2 rounded-full bg-[#E11D48] animate-pulse" />
-              <span className="text-xs font-bold text-[#E11D48] tracking-wide">
-                Next-Gen Neural Watermark Removal Engine
-              </span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-semibold text-gray-950 tracking-tight leading-[1.08]">
-              Erase Gemini, Veo & AI Watermarks in{" "}
-              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
-                Seconds
-              </span>
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-base sm:text-lg text-gray-600 font-normal leading-relaxed max-w-xl">
-              Clean visible AI generator marks, Google Gemini stars, and Veo timestamps with
-              frame-by-frame precision. Reconstruct original textures and lighting with zero blur.
-            </p>
-
-            {/* Primary Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
-              <PinkButton size="lg" className="px-7 py-3 text-sm font-bold shadow-lg" asChild>
-                <Link to="/gemini-video-watermark-remover" className="flex items-center gap-2">
-                  <Sparkles className="size-4" />
-                  <span>Gemini Video Watermark Remover</span>
-                  <ArrowRight className="size-4" />
-                </Link>
-              </PinkButton>
-
-              <PinkButton
-                variant="outline"
-                size="lg"
-                className="px-6 py-3 text-sm font-bold"
-                asChild
-              >
-                <Link to="/video-enhancer" className="flex items-center gap-2">
-                  <Video className="size-4" />
-                  <span>Video Enhancer</span>
-                </Link>
-              </PinkButton>
-
-              <PinkButton
-                variant="outline"
-                size="lg"
-                className="px-6 py-3 text-sm font-bold"
-                asChild
-              >
-                <Link to="/remove/image" className="flex items-center gap-2">
-                  <WandSparkles className="size-4" />
-                  <span>Image Cleaner</span>
-                </Link>
-              </PinkButton>
-            </div>
-
-            {/* Micro Stats Grid */}
-            <div className="pt-4 grid grid-cols-3 gap-6 border-t border-gray-100 max-w-md">
-              <div>
-                <h4 className="text-2xl sm:text-3xl font-semibold text-gray-950">100%</h4>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">Texture Retention</p>
+    <section className="metrics-section" aria-label="Supplied Bellix marketing metrics">
+      <div className="metrics-inner">
+        <div className="metrics-intro">
+          <span className="section-index">01 / TRUST</span>
+          <p>
+            Made for the<br />
+            <em>final 5%.</em>
+          </p>
+        </div>
+        <div className="metrics-grid">
+          {metrics.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="metric-card">
+                <Icon size={18} strokeWidth={1.7} className="metric-icon" aria-hidden="true" />
+                <strong className="metric-value" dangerouslySetInnerHTML={{ __html: item.value }} />
+                <span className="metric-label">{item.label}</span>
+                <small>{item.note}</small>
               </div>
-              <div>
-                <h4 className="text-2xl sm:text-3xl font-semibold text-gray-950">60 FPS</h4>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">Motion Smoothness</p>
+            );
+          })}
+        </div>
+      </div>
+      <p className="claim-note">
+        Metrics and capability statements on this page are supplied marketing copy.
+      </p>
+    </section>
+  );
+}
+
+// 3. CURATED NEURAL SHOWCASE SECTION
+const showcaseItems = [
+  {
+    number: "01",
+    label: "SUB-PIXEL MATTING",
+    title: "Portraits with organic texture",
+    description: "Reconstruct delicate flyaways, natural skin pores, and soft fringe lighting with zero plastic blur.",
+    image: "/bellix-manus/image-3.webp",
+    alt: "Natural editorial portrait with delicate hair and skin texture",
+    className: "showcase-portrait",
+    icon: ScanFace,
+  },
+  {
+    number: "02",
+    label: "COMMERCIAL PRODUCT",
+    title: "Crystal caustics & liquid light",
+    description: "Rebuild intricate emerald facets, water ripples, and high-fidelity reflections in true 8K resolution.",
+    image: "/bellix-manus/image-4.webp",
+    alt: "Emerald gemstone with crisp facets and liquid light reflections",
+    className: "showcase-crystal",
+    icon: Gem,
+  },
+  {
+    number: "03",
+    label: "EXPANSIVE HORIZON",
+    title: "Alpine architectural masterpiece",
+    description: "Restore vast twilight skies, reflective infinity pools, and razor-sharp architectural geometry flawlessly.",
+    image: "/bellix-manus/image-5.webp",
+    alt: "Modern alpine architecture and an infinity pool at twilight",
+    className: "showcase-architecture",
+    icon: Mountain,
+  },
+];
+
+function ShowcaseSection() {
+  return (
+    <section className="showcase-section section-wrap" id="showcase">
+      <div className="section-heading showcase-heading">
+        <div>
+          <span className="section-index">02 / CURATED NEURAL SHOWCASE</span>
+          <h2>
+            Flawless execution in<br />
+            <em>every single detail.</em>
+          </h2>
+        </div>
+        <p>
+          Experience what happens when precision AI models touch every frame. Sub-pixel cutouts, crystal caustics, and vast pristine landscapes ready to export.
+        </p>
+      </div>
+      <div className="showcase-grid">
+        {showcaseItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <article key={item.number} className={`showcase-card ${item.className}`}>
+              <div className="showcase-image">
+                <img src={item.image} alt={item.alt} loading="lazy" />
+                <span className="showcase-number">{item.number}</span>
+                <span className="showcase-corner-icon">
+                  <Icon size={16} strokeWidth={1.7} />
+                </span>
+                <span className="showcase-image-label">BELLIX / NEURAL SHOWCASE</span>
               </div>
-              <div>
-                <h4 className="text-2xl sm:text-3xl font-semibold text-gray-950">4K HDR</h4>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">Clean Exports</p>
+              <div className="showcase-card-copy">
+                <span className="image-kicker">{item.label}</span>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <a className="text-link" href="#tools">
+                  Explore the toolkit <ArrowUpRight size={15} />
+                </a>
               </div>
-            </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// 4. THE TOOLKIT SECTION
+interface ToolItem {
+  title: string;
+  descriptor: string;
+  promise: string;
+  icon: LucideIcon;
+  href?: string;
+}
+
+const toolsGroupA: ToolItem[] = [
+  { title: "AI Video Watermark Remover", descriptor: "Gemini & Veo", promise: "Frame-by-frame restoration", icon: Film, href: "/gemini-video-watermark-remover" },
+  { title: "Gemini Sparkle Watermark Remover", descriptor: "Corner Sparkle", promise: "Exact 15.6% AI restoration", icon: Sparkles, href: "/gemini-image-watermark-remover" },
+  { title: "AI Background Remover", descriptor: "Instant Alpha", promise: "BiRefNet neural cutout", icon: Scissors, href: "/background-remover" },
+  { title: "PDF Watermark Remover", descriptor: "Vector Lossless", promise: "Document restoration", icon: FileText, href: "/pdf-watermark-remover" },
+  { title: "4K Neural Frame Interpolator", descriptor: "60 FPS Boost", promise: "RIFE flow synthesis", icon: Clapperboard, href: "/video-enhancer" },
+  { title: "Vector & Typography Reconstruction", descriptor: "Lossless Paths", promise: "Vector synthesis", icon: Type, href: "/tools" },
+  { title: "Cinematic HDR Color Grading", descriptor: "HDR 10-Bit", promise: "Neural colorimetry", icon: Sparkles, href: "/tools" },
+  { title: "Audio Temporal & Stem Cleaner", descriptor: "Studio Grade", promise: "Temporal frequency", icon: AudioLines, href: "/tools" },
+];
+
+const toolsGroupB: ToolItem[] = [
+  { title: "Document Schema & Watermark Purge", descriptor: "100% Vector", promise: "Font & vector intact", icon: FileImage, href: "/pdf-watermark-remover" },
+  { title: "Neural Texture Synthesizer", descriptor: "Sub-Pixel Detail", promise: "Deep neural fill", icon: Layers, href: "/tools" },
+  { title: "Ultra-Fast GPU Cloud Processing", descriptor: "NVIDIA H100", promise: "High-throughput cluster", icon: Cloud, href: "/tools" },
+  { title: "Zero-Retention Privacy Vault", descriptor: "256-Bit SSL", promise: "Transient in-memory", icon: LockKeyhole, href: "/tools" },
+  { title: "8K Neural Drone Stabilizer", descriptor: "Gyroscopic 8K", promise: "Aerial cinematography", icon: Mountain, href: "/tools" },
+  { title: "Haute Couture Model & Luxury Couple Studio", descriptor: "Glamour 8K", promise: "Fashion editorial", icon: Sparkles, href: "/tools" },
+  { title: "Anime Pet & Character Background Remover", descriptor: "Instant Alpha", promise: "AI pet & anime cutout", icon: WandSparkles, href: "/background-remover" },
+  { title: "Macro Jewelry & Diamond Refiner", descriptor: "Prismatic 8K", promise: "Commercial macro", icon: Gem, href: "/tools" },
+  { title: "Zero-Lux Night Vision Denoising", descriptor: "Sub-Lux ISO", promise: "Low-light enhancement", icon: Zap, href: "/tools" },
+  { title: "Cinematic Neural Restoration", descriptor: "Studio Restore", promise: "Film & texture recovery", icon: Film, href: "/video-enhancer" },
+  { title: "Private Media Processing", descriptor: "Zero Retention", promise: "Secure local pipeline", icon: ShieldCheck, href: "/tools" },
+];
+
+function ToolCard({ tool, index }: { tool: ToolItem; index: number; key?: React.Key }) {
+  const Icon = tool.icon;
+  const cardContent = (
+    <article className="tool-card">
+      <div className="tool-card-top">
+        <span className="tool-number">{String(index + 1).padStart(2, "0")}</span>
+        <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
+      </div>
+      <h3>{tool.title}</h3>
+      <p className="tool-descriptor">{tool.promise}</p>
+      <span className="tool-model">{tool.descriptor}</span>
+    </article>
+  );
+
+  if (tool.href) {
+    return (
+      <Link href={tool.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+        {cardContent}
+      </Link>
+    );
+  }
+  return cardContent;
+}
+
+function ToolkitSection() {
+  return (
+    <section className="tools-section" id="tools">
+      <div className="tools-inner section-wrap">
+        <div className="tools-heading">
+          <div className="tools-title-block">
+            <span className="section-index section-index-light">03 / THE TOOLKIT</span>
+            <h2>
+              All the right tools.<br />
+              <em>One clear point of view.</em>
+            </h2>
           </div>
+          <p>
+            Thoughtful finishing tools for the details that make the whole image feel right.
+          </p>
+        </div>
 
-          {/* Right Column: Interactive Before/After Comparison Card */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
-            {/* Slider Container */}
-            <div
-              ref={sliderRef}
-              className="group relative aspect-[3/2] w-full touch-none cursor-ew-resize select-none overflow-hidden rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] bg-gray-900"
-              onPointerDown={(e) => {
-                isDragging.current = true;
-                e.currentTarget.setPointerCapture(e.pointerId);
-                handlePointerMove(e.clientX);
-              }}
-              onPointerMove={(e) => {
-                if (isDragging.current) handlePointerMove(e.clientX);
-              }}
-              onPointerUp={() => {
-                isDragging.current = false;
-              }}
-            >
-              {/* BEFORE LAYER (Original with Gemini Logo & Compression Artifacts) */}
-              <img
-                src="/hero-before-gemini.png"
-                alt="Original with Gemini Logo"
-                className="absolute inset-0 size-full object-cover"
-                draggable={false}
-              />
+        {/* Group A */}
+        <div className="tool-group">
+          <div className="tool-group-heading">
+            <span className="group-marker">A</span>
+            <div>
+              <span className="eyebrow eyebrow-light">RESTORE & ENHANCE</span>
+              <p>Sharper detail. Cleaner frames.</p>
+            </div>
+            <span className="group-count">11 TOOLS</span>
+          </div>
+          <div className="tool-grid">
+            {toolsGroupA.map((tool, idx) => (
+              <ToolCard key={tool.title} tool={tool} index={idx} />
+            ))}
+          </div>
+        </div>
 
-              {/* AFTER LAYER (Clean 4K Result, Logo Removed) */}
-              <div
-                className="absolute inset-0 overflow-hidden transition-none"
-                style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
-              >
-                <img
-                  src="/hero-after-clean.png"
-                  alt="Cleaned Result"
-                  className="size-full object-cover"
-                  draggable={false}
-                />
-              </div>
+        {/* Group B */}
+        <div className="tool-group tool-group-protect">
+          <div className="tool-group-heading">
+            <span className="group-marker group-marker-lime">B</span>
+            <div>
+              <span className="eyebrow eyebrow-light">CREATE & PROTECT</span>
+              <p>Space to make. Care built in.</p>
+            </div>
+            <span className="group-count">11 TOOLS</span>
+          </div>
+          <div className="tool-grid">
+            {toolsGroupB.map((tool, idx) => (
+              <ToolCard key={tool.title} tool={tool} index={idx + toolsGroupA.length} />
+            ))}
+          </div>
+        </div>
 
-              {/* RED SLIDER LINE & DRAGGABLE HANDLE */}
-              <div
-                className="absolute inset-y-0 w-1 bg-gradient-to-b from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_0_12px_rgba(225,29,72,0.9)] z-20"
-                style={{ left: `${sliderPos}%` }}
-              >
-                <div className="absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-[#E11D48] to-[#FF4FA3] text-white shadow-[0_4px_18px_rgba(225,29,72,0.6)] group-hover:scale-110 active:scale-95 transition-transform cursor-ew-resize">
-                  <span className="text-xs font-semibold select-none tracking-tighter">⇄</span>
-                </div>
-              </div>
+        <p className="tool-note">
+          <LockKeyhole size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: "6px" }} />
+          Tool names and descriptors reflect the Bellix creative suite; click any tool to open its dedicated studio.
+        </p>
+      </div>
+    </section>
+  );
+}
 
-              {/* BADGES ON TOP OF SLIDER */}
-              <div className="absolute top-3 left-3 z-10 pointer-events-none">
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/65 border border-white/20 text-white text-[11px] font-bold backdrop-blur-md">
-                  <span className="size-1.5 rounded-full bg-red-400" />
-                  <span className="sm:hidden">Original</span>
-                  <span className="hidden sm:inline">Low Quality (✦ Gemini Logo)</span>
+// 5. WORKFLOW SECTION
+const workflowSteps = [
+  {
+    number: "01",
+    title: "Start with your file",
+    description: "Drop it in. We handle the setup. Upload an image or video and Bellix automatically prepares the right workspace for your file.",
+    action: "Upload an image",
+    icon: FileImage,
+    href: "/background-remover",
+  },
+  {
+    number: "02",
+    title: "Choose your finish",
+    description: "Make every detail feel intentional. Remove distractions, restore clarity, and refine the result with controls that stay easy to understand.",
+    action: "Explore AI tools",
+    icon: WandSparkles,
+    href: "#tools",
+  },
+  {
+    number: "03",
+    title: "Export with confidence",
+    description: "Ready for the place it needs to go. Preview the finished result and download a clean, high-quality file for your next post, store, or campaign.",
+    action: "Create an export",
+    icon: ArrowUpRight,
+    href: "/gemini-video-watermark-remover",
+  },
+];
+
+function WorkflowSection() {
+  return (
+    <section className="workflow-section section-wrap" id="workflow">
+      <div className="workflow-intro">
+        <span className="section-index">04 / A SIMPLER CREATIVE WORKFLOW</span>
+        <h2>
+          From first upload<br />
+          to <em>finished work.</em>
+        </h2>
+        <p>
+          Three clear steps, one focused workspace, and no complicated editing timeline to learn.
+        </p>
+        <a className="button button-dark" href="#final-cta">
+          Find your tool <ArrowUpRight size={17} />
+        </a>
+        <div className="workflow-side-note">
+          <span className="side-note-line" />
+          BUILT FOR YOUR NEXT GREAT FRAME
+        </div>
+      </div>
+      <div className="workflow-steps">
+        {workflowSteps.map((step) => {
+          const Icon = step.icon;
+          return (
+            <article key={step.number} className="workflow-step">
+              <div className="step-top">
+                <span className="step-number">{step.number}</span>
+                <span className="step-icon">
+                  <Icon size={19} strokeWidth={1.7} />
                 </span>
               </div>
-
-              <div className="absolute top-3 right-3 z-10 pointer-events-none">
-                <span className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/95 border border-[#FCE7EC] text-[#E11D48] text-[11px] font-semibold backdrop-blur-md shadow-xs">
-                  <Sparkles className="size-3 text-[#E11D48]" />
-                  <span className="sm:hidden">Clean 4K</span>
-                  <span className="hidden sm:inline">High 4K Clean (Logo Removed)</span>
-                </span>
+              <div className="step-copy">
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+                <Link href={step.href}>
+                  {step.action} <ArrowRight size={15} />
+                </Link>
               </div>
-            </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
-            {/* Slider Controls Bar Below Card */}
-            <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-2">
-              <span className="text-gray-500 font-medium">Drag slider to compare</span>
-              <span className="flex items-center gap-1 text-[#E11D48] font-mono font-bold text-xs">
-                <CheckCircle2 className="size-3.5 text-green-600" />
-                <span>100% Logo Free • 4K Detail</span>
-              </span>
-            </div>
+// 6. INTERACTIVE BEFORE/AFTER CLEANUP DEMO
+function DemoSection() {
+  const [split, setSplit] = useState(53);
+  const style = { "--split": `${split}%` } as React.CSSProperties;
+
+  return (
+    <section className="demo-section" id="results">
+      <div className="demo-inner section-wrap">
+        <div className="demo-copy">
+          <span className="section-index section-index-light">05 / A CLEANER POINT OF VIEW</span>
+          <h2>
+            Keep the part<br />
+            <em>you love.</em>
+          </h2>
+          <p className="demo-lead">
+            Give your images and videos a thoughtful finishing touch. Select unwanted marks, inspect the result and keep the frame that tells your story.
+          </p>
+          <ul className="demo-benefits">
+            <li>
+              <CheckCircle2 size={16} /> Tools for images and video
+            </li>
+            <li>
+              <CheckCircle2 size={16} /> Original and result previews
+            </li>
+            <li>
+              <CheckCircle2 size={16} /> Download your processed file
+            </li>
+          </ul>
+          <Link className="button button-lime" href="/gemini-video-watermark-remover">
+            Open video cleaner <ArrowUpRight size={17} />
+          </Link>
+          <p className="prototype-note">
+            <ShieldCheck size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: "6px" }} />
+            Synchronized frame engine · sub-pixel edge matting
+          </p>
+        </div>
+
+        <div className="demo-visual-column">
+          <div className="demo-window-heading">
+            <span>
+              <span className="demo-status-dot" /> SAMPLE FRAME / 00:03
+            </span>
+            <span>BEFORE + AFTER</span>
           </div>
+          <div className="comparison-frame" style={style}>
+            <img
+              className="compare-base"
+              src="/bellix-manus/image-2.webp"
+              alt="Cinematic coastal travel scene shown as the original sample frame"
+              loading="lazy"
+            />
+            <div className="original-badge" aria-hidden="true">
+              <Sparkles size={13} /> Gemini
+            </div>
+            <img
+              className="compare-clean"
+              src="/bellix-manus/image-2.webp"
+              alt="The same sample frame presented as a clean preview concept"
+              loading="lazy"
+            />
+            <span className="comparison-label comparison-after">
+              <Check size={12} /> AFTER / CLEAN PREVIEW
+            </span>
+            <span className="comparison-label comparison-before">BEFORE / MARK VISIBLE</span>
+            <span className="comparison-divider" aria-hidden="true">
+              <span>
+                <ChevronDown size={14} />
+              </span>
+            </span>
+            <span className="comparison-frame-index">FIG. 01 — SAMPLE</span>
+          </div>
+
+          <div className="comparison-control">
+            <label htmlFor="comparison-slider">
+              <span>AFTER</span>
+              <span className="control-caption">Drag to compare this sample frame</span>
+              <span>BEFORE</span>
+            </label>
+            <input
+              id="comparison-slider"
+              type="range"
+              min="18"
+              max="82"
+              value={split}
+              onChange={(e) => setSplit(Number(e.target.value))}
+              aria-label="Adjust the illustrative before and after split"
+            />
+          </div>
+
+          <p className="demo-disclaimer">
+            Illustrative static preview based on our high-resolution neural inpainting pipeline. It represents our synchronized multi-frame cleanup engine, removing lower-right Gemini watermark artifacts while preserving natural dynamic range, edge clarity, and fine textures.
+          </p>
         </div>
       </div>
     </section>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* 2. INFINITE SLIDE RUN MARQUEE (SUPPORTED AI PLATFORMS WITH REAL LOGOS)     */
-/* -------------------------------------------------------------------------- */
-function SlideRunMarquee() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+// 7. REAL-WORLD BENCHMARKS SECTION
+const benchmarkItems = [
+  {
+    title: "Graduation & studio portraits",
+    description: "After large proof overlays and copyright stamps are erased, facial features, skin tone, eyelashes, and hair follicles are reconstructed naturally.",
+    icon: ScanFace,
+  },
+  {
+    title: "E-commerce & product photography",
+    description: "Bring back the small material details, crisp edges, and clean reflections that help a product image feel ready for its next setting.",
+    icon: Gem,
+  },
+  {
+    title: "Stock previews & 4K wallpapers",
+    description: "Restore the fine texture, atmosphere, and edge detail in expansive images while keeping the composition that makes them memorable.",
+    icon: ImageIcon,
+  },
+];
 
-  const renderCard = (m: AIModelData, keyPrefix: string) => {
-    const isHiddenTrack = keyPrefix === "track2";
-    return (
-      <div
-        key={`${keyPrefix}-${m.id}`}
-        {...(!isHiddenTrack ? {
-          role: "button",
-          tabIndex: 0,
-        } : {
-          tabIndex: -1,
-        })}
-        onClick={() => setSelectedId(m.id)}
-        onKeyDown={(e) => {
-          if (!isHiddenTrack && (e.key === "Enter" || e.key === " ")) {
-            e.preventDefault();
-            setSelectedId(m.id);
-          }
-        }}
-        className="group relative inline-flex items-center gap-3.5 px-3 py-1.5 cursor-pointer select-none transition-all duration-200 text-left shrink-0 hover:opacity-85"
-      >
-        {/* Left: Official Brand Vector Logo Container */}
-        <ModelIcon modelId={m.id} name={m.name} size="md" />
-
-        {/* Center: Model Details */}
-        <div className="flex flex-col text-left min-w-0 pr-1">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-gray-900 tracking-tight truncate group-hover:text-rose-600 transition-colors">
-              {m.name}
-            </span>
-            <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-mono text-gray-500 tracking-tight">
-            <span className="truncate text-gray-700 font-semibold">{m.version}</span>
-            <span className="text-gray-300 hidden sm:inline">•</span>
-            <span className="text-gray-500 text-[10px] hidden sm:inline truncate max-w-[160px]">
-              {m.description}
-            </span>
-          </div>
-        </div>
-
-        {/* Right: Supported Mode Text */}
-        <div className="flex items-center gap-1.5 shrink-0 pl-1 text-[11px] font-mono font-medium text-emerald-600">
-          <span className="size-1.5 rounded-full bg-emerald-500" />
-          <span>{m.mode}</span>
-        </div>
-      </div>
-    );
-  };
-
+function BenchmarksSection() {
   return (
-    <div className="relative w-full py-5 sm:py-6 bg-gradient-to-r from-[#FFF7ED] via-[#FFE4C4]/50 to-[#FFF7ED] border-y border-[#FED7AA]/60 overflow-hidden whitespace-nowrap select-none shadow-2xs">
-      {/* Edge gradient masks for seamless smooth fade */}
-      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-r from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-36 bg-gradient-to-l from-[#FFF7ED] via-[#FFF7ED]/90 to-transparent z-10 pointer-events-none" />
-
-      {/* Infinite Single-Line Sliding Track */}
-      <div className="flex w-max items-center animate-marquee hover:[animation-play-state:paused]">
-        {/* Track 1 */}
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0 pr-4 sm:pr-6">
-          {AI_MODELS.map((m) => renderCard(m, "track1"))}
-        </div>
-
-        {/* Track 2 (Seamless Infinite Duplication) */}
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0 pr-4 sm:pr-6" aria-hidden="true">
-          {AI_MODELS.map((m) => renderCard(m, "track2"))}
+    <section className="benchmark-section section-wrap">
+      <div className="benchmark-heading">
+        <span className="section-index">06 / REAL-WORLD BENCHMARK RESULTS</span>
+        <div>
+          <h2>
+            More than erasing.<br />
+            <em>Complete texture restoration.</em>
+          </h2>
+          <p>Our multi-scale neural inpainting model rebuilds the covered area using spatial context.</p>
         </div>
       </div>
+      <div className="benchmark-grid">
+        {benchmarkItems.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <article key={item.title} className="benchmark-card">
+              <div className="benchmark-card-top">
+                <span>0{idx + 1}</span>
+                <Icon size={18} strokeWidth={1.6} />
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <span className="benchmark-arrow">
+                <ArrowUpRight size={18} />
+              </span>
+            </article>
+          );
+        })}
+      </div>
+      <div className="benchmark-foot">
+        <span>
+          <ShieldCheck size={16} /> Zero data retention
+        </span>
+        <span>
+          <Zap size={16} /> Processing in seconds
+        </span>
+        <span>
+          <Expand size={16} /> 4K & 8K export
+        </span>
+        <span>
+          <BadgeCheck size={16} /> No watermarks added
+        </span>
+      </div>
+    </section>
+  );
+}
+
+// 8. FINAL CLOSING CTA SECTION
+function FinalCTASection() {
+  return (
+    <section className="final-cta" id="final-cta">
+      <div className="cta-orbit cta-orbit-one" aria-hidden="true" />
+      <div className="cta-orbit cta-orbit-two" aria-hidden="true" />
+      <div className="final-cta-inner section-wrap">
+        <div className="cta-side-label">
+          <span className="eyebrow eyebrow-light">YOUR NEXT GREAT FRAME STARTS HERE</span>
+          <span className="cta-vertical-text">BELLIX CREATIVE STUDIO / 2026</span>
+        </div>
+        <div className="cta-copy">
+          <h2>
+            Make something<br />
+            <em>worth a second look.</em>
+          </h2>
+          <p>Clear the watermark. Keep 100% of the image.</p>
+          <a className="button button-lime" href="#tools">
+            Find your tool <ArrowUpRight size={17} />
+          </a>
+          <span className="cta-reassurance">
+            <Check size={14} /> Start for free in your browser. No software installation, credit card, or account required.
+          </span>
+        </div>
+        <div className="cta-stamp" aria-hidden="true">
+          <BrandMark />
+          <span>
+            MAKE<br />
+            A LITTLE<br />
+            <em>MAGIC</em>
+          </span>
+          <ArrowDownRight size={17} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ROOT HOME PAGE COMPONENT
+export default function HomePage() {
+  return (
+    <div className="home-page">
+      <HeroSection />
+      <MetricsSection />
+      <ShowcaseSection />
+      <ToolkitSection />
+      <WorkflowSection />
+      <DemoSection />
+      <BenchmarksSection />
+      <FinalCTASection />
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* 3. USER-REQUESTED SYNCHRONIZED VIDEO CLEANUP RESULT SECTION               */
-/* (Matches user's exact screenshot "See a real video cleanup result")        */
-/* -------------------------------------------------------------------------- */
-function VideoCleanupResultSection() {
-  const vBeforeRef = useRef<HTMLVideoElement>(null);
-  const vAfterRef = useRef<HTMLVideoElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          vBeforeRef.current?.play().catch(() => {});
-          vAfterRef.current?.play().catch(() => {});
-        } else {
-          vBeforeRef.current?.pause();
-          vAfterRef.current?.pause();
-        }
-      },
-      { rootMargin: "300px 0px", threshold: 0.05 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Synchronize playback between both video players
-  useEffect(() => {
-    const v1 = vBeforeRef.current;
-    const v2 = vAfterRef.current;
-    if (!v1 || !v2) return;
-
-    const handleSync = () => {
-      if (Math.abs(v2.currentTime - v1.currentTime) > 0.08) {
-        v2.currentTime = v1.currentTime;
-      }
-    };
-
-    v1.addEventListener("timeupdate", handleSync);
-    return () => v1.removeEventListener("timeupdate", handleSync);
-  }, []);
-
-  return (
-    <section ref={sectionRef} className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
-      <div className="mx-auto max-w-5xl text-center space-y-4">
-        {/* Exact Heading from User's Screenshot */}
-        <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
-          See a real video cleanup result
-        </h2>
-
-        {/* Exact Subheading from User's Screenshot */}
-        <p className="max-w-2xl mx-auto text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
-          The same three-second clip plays in sync: the original keeps the visible Gemini mark at
-          the lower right, while the processed version removes it and preserves the subject,
-          lighting, and motion.
-        </p>
-
-        {/* Exact Link from User's Screenshot */}
-        <div className="pt-1 pb-4">
-          <Link
-            to="/remove/image"
-            className="text-xs sm:text-sm font-medium text-gray-600 hover:text-[#E11D48] underline underline-offset-4 transition-colors"
-          >
-            Working with images too? Open the Gemini Image Watermark Remover
-          </Link>
-        </div>
-
-        {/* Dual Video Comparison Card */}
-        <div className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden border-2 border-[#FED7AA] bg-black shadow-[0_20px_60px_-15px_rgba(225,29,72,0.20)]">
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
-            {/* Left: BEFORE (With Gemini Watermark at lower right) */}
-            <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
-              <span className="absolute top-4 left-4 z-20 px-3.5 py-1 rounded-full bg-black/70 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
-                BEFORE
-              </span>
-
-              {isVisible ? (
-                <video
-                  ref={vBeforeRef}
-                  src="/gemini-example-before.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="size-full object-cover pointer-events-none"
-                />
-              ) : (
-                <div className="size-full bg-black/60" />
-              )}
-
-              {/* Gemini watermark only on BEFORE video */}
-              <div className="absolute bottom-4 right-4 z-20 flex size-9 items-center justify-center rounded-full border border-white/20 bg-black/60 p-2 shadow-lg backdrop-blur-md">
-                <img
-                  src="/gemini-logo.png"
-                  alt="Gemini Mark"
-                  width={36}
-                  height={36}
-                  className="size-full object-contain"
-                />
-              </div>
-            </div>
-
-            {/* Right: AFTER (Cleaned with watermark completely removed) */}
-            <div className="relative aspect-[4/3] sm:aspect-video overflow-hidden bg-black flex items-center justify-center">
-              <span className="absolute top-4 left-4 z-20 px-3.5 py-1 rounded-full bg-black/70 text-white text-[11px] font-bold tracking-wider uppercase backdrop-blur-md border border-white/20">
-                AFTER
-              </span>
-
-              {isVisible ? (
-                <video
-                  ref={vAfterRef}
-                  src="/gemini-example-after.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="size-full object-cover pointer-events-none"
-                />
-              ) : (
-                <div className="size-full bg-black/60" />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Banner below video */}
-        <div className="pt-6 flex items-center justify-center gap-4">
-          <PinkButton size="md" className="px-6 py-2.5 font-bold shadow-md" asChild>
-            <Link to="/video-enhancer" className="flex items-center gap-2">
-              <Video className="size-4" />
-              <span>Enhance Your Video Now</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          </PinkButton>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 4. REAL-WORLD RESULTS & COMPARISON GALLERY                                 */
-/* -------------------------------------------------------------------------- */
-function RealWorldResults() {
-  const [activeTab, setActiveTab] = useState(0);
-  const showcases = [
-    {
-      title: "Graduation & Studio Portraits",
-      desc: "After large proof overlays and copyright stamps are erased, facial features, skin tone, eyelashes, and hair follicles are reconstructed naturally.",
-      before: "/creative-suite/portrait_restorer.jpg",
-      after: "/creative-suite/portrait_restorer.jpg",
-    },
-    {
-      title: "E-Commerce & Product Photography",
-      desc: "Brand logos, price tags, and promotional badges disappear cleanly. Background textures and reflective lighting remain 100% intact.",
-      before: "/creative-suite/fashion_ecommerce_model.jpg",
-      after: "/creative-suite/fashion_ecommerce_model.jpg",
-    },
-    {
-      title: "Stock Previews & 4K Wallpapers",
-      desc: "Semi-transparent diagonal tiled watermarks are removed without leaving behind hazy gray shadows or blotchy artifacts.",
-      before: "/creative-suite/inpainter_landscape.jpg",
-      after: "/creative-suite/inpainter_landscape.jpg",
-    },
-  ];
-
-  const current = showcases[activeTab];
-
-  return (
-    <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50">
-      <div className="mx-auto max-w-5xl">
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-xs font-bold text-[#E11D48]">
-            <WandSparkles className="size-3.5" />
-            <span>Real-World Benchmark Results</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-serif font-normal text-gray-950">
-            More than erasing. Complete texture restoration.
-          </h2>
-          <p className="text-sm text-gray-600">
-            Our multi-scale neural inpainting model rebuilds the covered area using spatial context.
-          </p>
-        </div>
-
-        {/* Tab Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-          {showcases.map((s, i) => (
-            <button
-              key={s.title}
-              onClick={() => setActiveTab(i)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                activeTab === i
-                  ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                  : "bg-[#FFF7ED] text-gray-700 hover:bg-[#FFE4C4] border border-[#FED7AA]"
-              }`}
-            >
-              {s.title}
-            </button>
-          ))}
-        </div>
-
-        {/* Active Tab Preview Card */}
-        <div className="rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA] p-6 sm:p-8 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          <div className="md:col-span-5 space-y-4 text-left">
-            <h3 className="text-2xl font-bold text-gray-900">{current.title}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{current.desc}</p>
-            <div className="pt-2">
-              <PinkButton size="sm" asChild>
-                <Link to="/remove/image">Try Image Cleaner</Link>
-              </PinkButton>
-            </div>
-          </div>
-
-          <div className="md:col-span-7">
-            <div className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-gray-100 shadow-inner">
-              <img src={current.before} alt={current.title} className="size-full object-cover" />
-              <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-md">
-                Neural Cleaned
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 5. WHY CHOOSE BELLIX AI (BENTO GRID)                                  */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* 5. WHY CHOOSE BELLIX AI (MODERN BENTO GRID)                           */
-/* -------------------------------------------------------------------------- */
-function BentoFeatures() {
-  const features = [
-    {
-      title: "Sub-pixel texture recovery",
-      label: "99.9% visual fidelity",
-      description:
-        "Rebuild fine hair, skin texture, natural grain, and lighting without the soft blur left by basic removers.",
-      icon: <ScanSearch className="size-5" />,
-      facts: ["Edge-aware reconstruction", "Natural texture matching"],
-    },
-    {
-      title: "Smooth motion at 60 FPS",
-      label: "Frame-consistent output",
-      description:
-        "Tracks the covered area across motion so restored pixels stay stable without flicker, jitter, or edge tearing.",
-      icon: <Film className="size-5" />,
-      facts: ["Temporal motion tracking", "Stable frame transitions"],
-    },
-    {
-      title: "Private by default",
-      label: "Zero-retention processing",
-      description:
-        "Media is processed in transient memory and cleared after the job. Your uploads are never used for training.",
-      icon: <ShieldCheck className="size-5" />,
-      facts: ["Encrypted transfer", "Automatic file deletion"],
-    },
-  ];
-
-  return (
-    <section className="relative overflow-hidden border-b border-rose-100 bg-[radial-gradient(circle_at_50%_0%,#fff1f5_0%,#fff_48%,#fafafa_100%)] px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-      <div className="relative mx-auto max-w-6xl">
-        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-14">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white px-3.5 py-1.5 text-xs uppercase tracking-[0.12em] text-rose-600">
-            <Sparkles className="size-3.5" />
-            Built for real media
-          </div>
-          <h2 className="text-3xl font-normal tracking-[-0.035em] text-gray-950 sm:text-5xl">
-            Clean results without the artificial finish
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm font-normal leading-6 text-gray-600 sm:text-base">
-            Three practical advantages you can see in the final export, from the first frame to the
-            last.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {features.map((feature) => (
-            <article
-              key={feature.title}
-              className="group flex min-h-[22rem] flex-col rounded-[1.75rem] border border-[#FED7AA] bg-[#FFF7ED]/95 backdrop-blur-md p-6 shadow-[0_18px_55px_-35px_rgba(15,23,42,.32)] transition duration-300 hover:-translate-y-1 hover:border-rose-300 hover:shadow-[0_24px_60px_-32px_rgba(225,29,72,.22)] sm:p-7"
-            >
-              <div className="mb-8 flex items-start justify-between gap-4">
-                <span className="grid size-11 place-items-center rounded-xl bg-gray-950 text-white transition group-hover:bg-rose-600">
-                  {feature.icon}
-                </span>
-                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-gray-600">
-                  {feature.label}
-                </span>
-              </div>
-
-              <h3 className="text-xl font-normal tracking-[-0.025em] text-gray-950">
-                {feature.title}
-              </h3>
-              <p className="mt-3 text-sm font-normal leading-6 text-gray-600">
-                {feature.description}
-              </p>
-
-              <div className="mt-auto border-t border-gray-100 pt-5">
-                {feature.facts.map((fact) => (
-                  <div key={fact} className="flex items-center gap-2 py-1.5 text-xs text-gray-600">
-                    <CheckCircle2 className="size-3.5 text-emerald-600" />
-                    <span>{fact}</span>
-                  </div>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 6. 3-STEP WORKFLOW (ELEVATED MODERN CARDS)                                 */
-/* -------------------------------------------------------------------------- */
-function StepsSection() {
-  const steps = [
-    {
-      num: "01",
-      badge: "Fast Upload",
-      title: "Upload Media",
-      desc: "Drag and drop any video (MP4, MOV, WebM) or image (PNG, JPG, WebP) with watermarks.",
-      icon: <Upload className="size-5 text-[#E11D48]" />,
-      detail: "Supports up to 4K 60FPS · 50MB",
-    },
-    {
-      num: "02",
-      badge: "Deep Synthesis",
-      title: "AI Detection & Inpainting",
-      desc: "Neural network automatically localizes the watermark and reconstructs covered visual context.",
-      icon: <WandSparkles className="size-5 text-[#E11D48]" />,
-      detail: "Temporal Optical Flow Tracking",
-    },
-    {
-      num: "03",
-      badge: "Instant Export",
-      title: "Export in Pristine 4K",
-      desc: "Preview the result instantly side-by-side and download watermark-free media in original resolution.",
-      icon: <Download className="size-5 text-[#E11D48]" />,
-      detail: "100% Lossless Video & Image",
-    },
-  ];
-
-  return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50 relative overflow-hidden">
-      <div className="mx-auto max-w-6xl text-center relative z-10">
-        <div className="max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-[#E11D48] tracking-wider uppercase">
-            <Zap className="size-3.5 text-[#E11D48]" />
-            LIGHTNING FAST WORKFLOW
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
-            Remove watermarks in 3 simple steps
-          </h2>
-          <p className="text-sm sm:text-base text-gray-600">
-            No technical knowledge needed. Our neural models handle frame reconstruction
-            automatically.
-          </p>
-        </div>
-
-        {/* 3 Steps Modern Connected Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-          {steps.map((s, idx) => (
-            <div
-              key={s.num}
-              className="group relative p-8 rounded-3xl bg-[#FFF7ED]/95 backdrop-blur-md border border-[#FED7AA] hover:border-[#FDA4AF] shadow-[0_15px_35px_-10px_rgba(225,29,72,0.06)] hover:shadow-[0_25px_50px_-12px_rgba(225,29,72,0.16)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
-            >
-              {/* Giant background number watermark */}
-              <span className="absolute -top-3 -right-2 text-7xl font-semibold text-rose-50/70 font-mono select-none pointer-events-none group-hover:text-rose-100/90 transition-colors">
-                {s.num}
-              </span>
-
-              <div>
-                {/* Top Step Number & Icon Row */}
-                <div className="flex items-center justify-between gap-2 mb-6 relative z-10">
-                  <div className="size-12 rounded-2xl bg-rose-50 border border-rose-200 text-[#E11D48] flex items-center justify-center font-semibold text-lg font-mono shadow-xs group-hover:bg-[#E11D48] group-hover:text-white transition-all">
-                    {s.num}
-                  </div>
-                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
-                    {s.badge}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2.5 relative z-10">{s.title}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 relative z-10">
-                  {s.desc}
-                </p>
-              </div>
-
-              {/* Bottom detail pill */}
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 relative z-10">
-                <span className="font-semibold text-gray-700">{s.detail}</span>
-                <span className="size-7 rounded-full bg-rose-50 text-[#E11D48] flex items-center justify-center group-hover:bg-[#E11D48] group-hover:text-white transition-colors">
-                  <ArrowRight className="size-3.5" />
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 7. FINAL CALL TO ACTION BANNER                                             */
-/* -------------------------------------------------------------------------- */
-function FinalCTA() {
-  return (
-    <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-warm-canvas border-b border-[#FED7AA]/50 text-center">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="size-14 mx-auto rounded-3xl bg-[#E11D48] text-white flex items-center justify-center shadow-lg shadow-rose-300">
-          <Sparkles className="size-7" />
-        </div>
-        <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950">
-          Clear the watermark. Keep 100% of the image.
-        </h2>
-        <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
-          Start for free in your browser. No software installation, credit card, or account
-          required.
-        </p>
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
-          <PinkButton size="lg" className="px-8 py-3 font-bold shadow-md" asChild>
-            <Link to="/video-enhancer">
-              <span>Try Video Enhancer</span>
-              <ArrowRight className="size-4 ml-1.5" />
-            </Link>
-          </PinkButton>
-          <PinkButton
-            variant="outline"
-            size="lg"
-            className="px-7 py-3 font-bold bg-[#FFF7ED]/90 border border-[#FED7AA] hover:bg-[#FFE4C4]"
-            asChild
-          >
-            <Link to="/background-remover">Background Remover</Link>
-          </PinkButton>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* MAIN HOME PAGE COMPONENT                                                   */
-/* -------------------------------------------------------------------------- */
-function LegacyHomePage() {
-  return (
-    <>
-      <HeroParallax />
-      <HeroSection />
-      <SlideRunMarquee />
-      <VideoCleanupResultSection />
-      <RealWorldResults />
-      <BentoFeatures />
-      <StepsSection />
-      <FinalCTA />
-    </>
-  );
-}
-
-function HomePage() {
-  return (
-    <>
-      <StudioHome />
-      <VideoCleanupResultSection />
-      <RealWorldResults />
-      <FinalCTA />
-    </>
-  );
-}
-
-import { StudioHome } from "@/components/studio/Studio";
-
-export default HomePage;

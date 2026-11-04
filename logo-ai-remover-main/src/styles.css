@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./studio.css";
+@import "./home-editorial.css";
 
 /*
  * Bellix.us design system — Luxury White & Red/Rose SaaS.
@@ -61,65 +62,75 @@
 :root {
   --radius: 1rem;
 
-  /* Bellix red and white palette */
-  --bg-cream: #ffffff;
-  --bg-soft-peach: #fff1f2;
-  --bg-light-coral: #ffe4e6;
-  --bg-pink: #fecdd3;
+  /* Bellix White & Forest Green Design System (from Hero Section) */
+  --paper: #f3f4ee;
+  --paper-bright: #ffffff;
+  --paper-warm: #e9ece4;
+  --forest: #10241e;
+  --forest-deep: #091712;
+  --forest-soft: #18362d;
+  --lime: #d0f471;
+  --lime-bright: #dbff83;
+  --ink: #10241e;
+  --ink-soft: #37433d;
+  --ink-muted: #637069;
 
-  --background: #ffffff;
-  --foreground: #18181b;
+  --bg-main: #f3f4ee;
+  --bg-navbar: #091712;
+  --bg-card: #ffffff;
+  --bg-card-dark: #10241e;
+  --bg-box: #e9ece4;
+  --border-subtle: rgba(16, 36, 30, 0.12);
+  --border-dark: rgba(215, 243, 175, 0.18);
+  --text-main: #10241e;
+  --text-secondary: #37433d;
+
+  --background: #f3f4ee;
+  --foreground: #10241e;
 
   --card: #ffffff;
-  --card-foreground: #18181b;
+  --card-foreground: #10241e;
   --popover: #ffffff;
-  --popover-foreground: #18181b;
+  --popover-foreground: #10241e;
 
-  /* Vibrant Luxury Red / Crimson-Rose */
-  --primary: #e11d48;
+  --primary: #10241e;
   --primary-foreground: #ffffff;
-  --primary-glow: #fb7185;
+  --primary-glow: #d0f471;
 
-  --secondary: #fff1f2;
-  --secondary-foreground: #9f1239;
+  --secondary: #e9ece4;
+  --secondary-foreground: #10241e;
 
-  --muted: #fff1f2;
-  --muted-foreground: #6b7280;
+  --muted: #e7eae4;
+  --muted-foreground: #637069;
 
-  --accent: #ffe4e6;
-  --accent-foreground: #be123c;
+  --accent: #d0f471;
+  --accent-foreground: #091712;
 
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --success: #059669;
-  --success-foreground: #ffffff;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --success: #16a34a;
+  --success-foreground: #FFFFFF;
 
-  --border: #fecdd3;
-  --input: #ffe4e6;
-  --ring: #e11d48;
+  --border: rgba(16, 36, 30, 0.12);
+  --input: #ffffff;
+  --ring: #10241e;
 
-  --chart-1: #e11d48;
-  --chart-2: #f43f5e;
-  --chart-3: #fb7185;
-  --chart-4: #fda4af;
-  --chart-5: #9f1239;
+  --chart-1: #10241e;
+  --chart-2: #16a34a;
+  --chart-3: #d0f471;
+  --chart-4: #22c55e;
+  --chart-5: #091712;
 
-  --gradient-primary: linear-gradient(135deg, #e11d48 0%, #ff2e63 50%, #ff4fa3 100%);
-  --gradient-warm: linear-gradient(135deg, #ffffff 0%, #fff1f2 45%, #ffe4e6 100%);
-  --gradient-red-soft: linear-gradient(135deg, #fff1f4 0%, #ffe4e9 100%);
-  --gradient-text: linear-gradient(135deg, #111827 0%, #be123c 60%, #e11d48 100%);
-  --gradient-heading: linear-gradient(135deg, #111827 0%, #4b5563 100%);
-  --gradient-red-text: linear-gradient(135deg, #e11d48 0%, #ff2e63 50%, #ff4fa3 100%);
+  --gradient-primary: linear-gradient(135deg, #10241e 0%, #1c3830 50%, #275240 100%);
+  --gradient-forest: linear-gradient(108deg, #091712, #0f251e 58%, #142e25);
+  --gradient-lime: linear-gradient(135deg, #d0f471 0%, #dbff83 100%);
+  --gradient-warm: linear-gradient(135deg, #f3f4ee 0%, #fbfcf8 50%, #ffffff 100%);
+  --gradient-text: linear-gradient(135deg, #10241e 0%, #1c3830 60%, #275240 100%);
+  --gradient-heading: linear-gradient(135deg, #10241e 0%, #37433d 100%);
 
-  --gradient-mesh:
-    radial-gradient(60% 55% at 15% 10%, rgba(225, 29, 72, 0.08), transparent 70%),
-    radial-gradient(55% 50% at 85% 15%, rgba(255, 46, 99, 0.07), transparent 70%),
-    radial-gradient(70% 60% at 50% 100%, rgba(255, 79, 163, 0.06), transparent 75%);
-
-  --shadow-glow: 0 10px 30px -8px rgba(225, 29, 72, 0.35);
-  --shadow-elegant: 0 12px 32px -8px rgba(225, 29, 72, 0.1), 0 4px 16px -2px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover:
-    0 20px 40px -10px rgba(225, 29, 72, 0.18), 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 10px 30px -8px rgba(208, 244, 113, 0.5);
+  --shadow-elegant: 0 12px 32px -8px rgba(16, 36, 30, 0.08), 0 4px 16px -2px rgba(16, 36, 30, 0.04);
+  --shadow-card-hover: 0 20px 40px -10px rgba(16, 36, 30, 0.12), 0 8px 20px -4px rgba(208, 244, 113, 0.25);
   --transition-smooth: 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -133,44 +144,112 @@
 
   html,
   body {
-    background-color: #ffffff;
-    color: var(--color-foreground);
+    background-color: #f3f4ee;
+    color: #10241e;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    font-size: 16px;
+    line-height: 1.6;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  /* Big, bold, impactful headings across all pages */
+  h1 {
     font-family: var(--font-sans) !important;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #18181b;
+    font-size: clamp(38px, 4.6vw, 64px) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.1 !important;
+    color: inherit;
+  }
+
+  h2 {
+    font-family: var(--font-sans) !important;
+    font-size: clamp(28px, 3.4vw, 44px) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.18 !important;
+    color: inherit;
+  }
+
+  h3 {
+    font-family: var(--font-sans) !important;
+    font-size: clamp(22px, 2.4vw, 30px) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.25 !important;
+    color: inherit;
+  }
+
+  h4 {
+    font-family: var(--font-sans) !important;
+    font-size: clamp(18px, 1.8vw, 22px) !important;
+    font-weight: 600 !important;
+    color: inherit;
+  }
+
+  /* Default heading color on light pages */
+  body:not(.dark) h1:not([class*="text-"]):not([class*="text-white"]),
+  body:not(.dark) h2:not([class*="text-"]):not([class*="text-white"]),
+  body:not(.dark) h3:not([class*="text-"]):not([class*="text-white"]),
+  body:not(.dark) h4:not([class*="text-"]):not([class*="text-white"]) {
+    color: #10241e;
+  }
+
+  /* Headings on dark backgrounds MUST be crisp pure white */
+  .text-white,
+  [class*="text-white"],
+  footer h1,
+  footer h2,
+  footer h3,
+  footer h4,
+  .hero h1,
+  .hero h2,
+  .hero h3,
+  .hero h4,
+  [class*="bg-[#091712]"] h1,
+  [class*="bg-[#091712]"] h2,
+  [class*="bg-[#091712]"] h3,
+  [class*="bg-[#091712]"] h4,
+  [class*="bg-[#10241e]"] h1,
+  [class*="bg-[#10241e]"] h2,
+  [class*="bg-[#10241e]"] h3,
+  [class*="bg-[#10241e]"] h4 {
+    color: #ffffff !important;
+  }
+
+  /* Ensure text inside lime buttons is always high contrast dark */
+  [class*="bg-[#d0f471]"] {
+    color: #091712 !important;
+  }
+  [class*="bg-[#d0f471]"] * {
+    color: #091712 !important;
   }
 
   b,
   strong,
   th {
+    color: inherit;
+    font-weight: 700;
   }
 
-  p,
+  p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: inherit;
+  }
+
   span,
   label,
-  input,
   button,
-  select,
-  textarea {
+  select {
     font-family: var(--font-sans);
   }
 
   ::selection {
-    background: rgba(225, 29, 72, 0.2);
-    color: #9f1239;
+    background: #d0f471;
+    color: #091712;
   }
 
   img {
@@ -179,60 +258,275 @@
 }
 
 @utility glass {
-  background: rgba(255, 255, 255, 0.88);
-  color: #111827;
+  background: rgba(255, 255, 255, 0.92);
+  color: #10241e;
   backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid #fce7ec;
+  border: 1px solid rgba(16, 36, 30, 0.10);
   border-radius: 24px;
-  box-shadow:
-    0 12px 36px -10px rgba(225, 29, 72, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 12px 36px -10px rgba(16, 36, 30, 0.08);
 }
 
 @utility glass-hover {
   transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
   &:hover {
     transform: translateY(-4px);
-    border-color: #fda4af;
-    box-shadow: 0 20px 44px -10px rgba(225, 29, 72, 0.18);
+    border-color: #10241e;
+    box-shadow: 0 20px 44px -10px rgba(16, 36, 30, 0.12);
   }
 }
 
 @utility gradient-text {
-  background-image: var(--gradient-red-text);
+  background-image: linear-gradient(135deg, #10241e 0%, #1c3830 50%, #275240 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-@utility mesh-bg {
-  background-image: var(--gradient-mesh);
-}
-
-/* ── User's Warm Background Design System ──
-   Cream: #FFF7ED | Soft Peach: #FFE4C4 | Light Coral: #FFD6A5 | Pink: #FCA5A5 */
+/* Warm Paper Canvas System */
 .bg-warm-canvas {
-  background-color: #ffffff;
-  background-image: radial-gradient(circle at 50% 0%, #fff1f2 0%, #ffffff 55%);
+  background-color: #f3f4ee;
+  background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f3f4ee 75%);
 }
 
 .bg-warm-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 50%, #ffe4e6 100%);
+  background: linear-gradient(135deg, #f3f4ee 0%, #fbfcf8 50%, #ffffff 100%);
 }
 
 .bg-warm-mesh {
-  background-color: #ffffff;
+  background-color: #f3f4ee;
   background-image:
-    radial-gradient(ellipse 70% 60% at 15% 95%, #fff1f2 0%, transparent 65%),
-    radial-gradient(ellipse 65% 55% at 35% 85%, #ffe4e6 0%, transparent 60%),
-    radial-gradient(ellipse 75% 65% at 85% 90%, #fecdd3 0%, transparent 65%),
-    radial-gradient(ellipse 90% 70% at 50% 15%, #ffffff 0%, transparent 75%);
+    radial-gradient(ellipse 70% 60% at 15% 95%, rgba(208, 244, 113, 0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 65% 55% at 85% 15%, rgba(16, 36, 30, 0.06) 0%, transparent 60%);
 }
 
 .bg-warm-card {
-  background: rgba(255, 255, 255, 0.94);
+  background: #ffffff;
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(254, 205, 211, 0.75);
+  border: 1px solid rgba(16, 36, 30, 0.10);
+  box-shadow: 0 10px 30px rgba(16, 36, 30, 0.06);
+}
+
+/* ==========================================================================
+   GLOBAL HERO SECTION WHITE & FOREST GREEN THEME SYSTEM
+   (Black background removed, Large typography, Spacious cards, Crisp contrast)
+   ========================================================================== */
+
+/* Main Canvas Background: Warm White / Paper (#f3f4ee) */
+html,
+body,
+#root,
+#__next,
+main {
+  background-color: #f3f4ee !important;
+  color: #10241e !important;
+}
+
+/* Header & Navbar: Luxury Deep Forest (#091712) */
+header,
+nav.sticky,
+.site-header {
+  background-color: #091712 !important;
+  border-color: rgba(215, 243, 175, 0.15) !important;
+}
+
+/* All Cards & Containers: Crisp White, Spacious, Clear Borders */
+.bg-white:not([data-keep-light]),
+.bg-card,
+.card,
+.studio-card,
+.feature-card,
+.pricing-card {
+  background-color: #ffffff !important;
+  color: #10241e !important;
+  border-color: rgba(16, 36, 30, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(16, 36, 30, 0.06) !important;
+}
+
+/* Light / Inner Panels */
+.bg-gray-50,
+.bg-slate-50,
+.bg-zinc-900,
+[class*="bg-[#f8fafc]"],
+[class*="bg-[#FFF0F4]"],
+[class*="bg-[#FFF1F4]"],
+[class*="bg-[#FFF5F7]"],
+[class*="bg-[#FFF6F9]"],
+[class*="bg-[#FFF7ED]"],
+[class*="bg-[#FFF8FA]"],
+[class*="bg-[#FFF9FA]"],
+[class*="bg-[#FFF0F4]"] {
+  background-color: #e9ece4 !important;
+  color: #10241e !important;
+  border-color: rgba(16, 36, 30, 0.12) !important;
+}
+
+/* Remove old black background elements */
+[class*="bg-[#080808]"],
+[class*="bg-[#0A0A0A]"],
+[class*="bg-[#0c0c0c]"],
+[class*="bg-[#0d0d0d]"],
+[class*="bg-[#111111]"],
+[class*="bg-[#121212]"],
+[class*="bg-[#141414]"],
+[class*="bg-[#151515]"],
+[class*="bg-[#1C1C1C]"],
+.bg-zinc-950 {
+  background-color: #ffffff !important;
+  color: #10241e !important;
+  border-color: rgba(16, 36, 30, 0.12) !important;
+}
+
+/* Hero / Dark Forest Sections: Deep Forest with White Text */
+.hero,
+.dark-section,
+.tools-section,
+.footer-banner {
+  background-color: #091712 !important;
+  color: #ffffff !important;
+}
+
+.hero h1,
+.hero h2,
+.hero h3,
+.hero h4,
+.hero p,
+.hero span,
+.dark-section h1,
+.dark-section h2,
+.dark-section h3,
+.dark-section p,
+.tools-section h2,
+.tools-section p,
+header nav a {
+  color: #ffffff;
+}
+
+header nav a:not([class*="bg-[#d0f471]"]):not([class*="text-[#d0f471]"]) span {
+  color: #ffffff;
+}
+
+.hero em,
+.hero .brand-dot,
+.tools-section em,
+.lime-accent,
+header .brand-mark {
+  color: #d0f471 !important;
+}
+
+/* Subtle clean borders */
+.border,
+.border-t,
+.border-b,
+.border-l,
+.border-r,
+.border-gray-200,
+.border-gray-100,
+.border-slate-200,
+.border-zinc-800,
+[class*="border-[#303030]"],
+[class*="border-[#2a2a2a]"],
+[class*="border-[#262626]"],
+[class*="border-[#222222]"],
+[class*="border-[#2f2f2f]"] {
+  border-color: rgba(16, 36, 30, 0.12) !important;
+}
+
+/* Main Text: Deep Ink (#10241e) */
+.text-gray-950,
+.text-gray-900,
+.text-slate-900,
+.text-slate-950,
+.text-zinc-950,
+.text-zinc-900 {
+  color: #10241e !important;
+}
+
+/* Secondary Text: Readable Ink-Soft (#37433d) */
+.text-gray-800,
+.text-gray-700,
+.text-slate-800,
+.text-slate-700,
+.text-zinc-800,
+.text-zinc-700,
+.text-gray-600,
+.text-gray-500,
+.text-slate-600,
+.text-slate-500,
+.text-zinc-400,
+[class*="text-[#9ca3af]"],
+[class*="text-[#C7C7C7]"] {
+  color: #37433d !important;
+}
+
+/* Form inputs & textareas: Clean white with crisp dark text & generous padding */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #ffffff !important;
+  color: #10241e !important;
+  border: 1.5px solid rgba(16, 36, 30, 0.18) !important;
+  font-size: 1.05rem !important;
+  padding: 0.8rem 1.25rem !important;
+  border-radius: 0.75rem !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #718278 !important;
+}
+
+/* Primary Action Buttons: Prominent, Big, Signature Forest & Lime */
+.btn-primary,
+button.btn-primary,
+.button-lime {
+  background-color: #d0f471 !important;
+  color: #091712 !important;
+  font-weight: 700 !important;
+  border-radius: 99px !important;
+  min-height: 52px !important;
+  padding: 0.85rem 2.2rem !important;
+  font-size: 1.05rem !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(208, 244, 113, 0.4) !important;
+}
+
+.btn-primary:hover,
+.button-lime:hover {
+  background-color: #dbff83 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(208, 244, 113, 0.5) !important;
+}
+
+/* Secondary Action Buttons: Forest Green with White Text */
+.btn-secondary,
+.button-forest {
+  background-color: #10241e !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 99px !important;
+  min-height: 52px !important;
+  padding: 0.85rem 2.2rem !important;
+  font-size: 1.05rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-secondary:hover,
+.button-forest:hover {
+  background-color: #18362d !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Shadows: Subtle soft studio elevation */
+.shadow-xs,
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(16, 36, 30, 0.05) !important;
+}
+
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: 0 12px 35px rgba(16, 36, 30, 0.08) !important;
 }
 
 @utility grid-lines {
@@ -3234,56 +3528,7 @@
   padding: 15px;
 }
 
-/* ==========================================================================
-   GLOBAL PROJECT-WIDE UNBOLDING
-   Ensure no font, word, or heading is bold anywhere in the project ("koi bhi bold na ho font")
-   ========================================================================== */
-*,
-*::before,
-*::after {
-  font-weight: 400 !important;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-b,
-strong,
-th,
-button,
-a,
-span,
-p,
-label,
-input,
-select,
-textarea,
-div,
-small,
-em,
-i {
-  font-weight: 400 !important;
-}
-
-.font-thin,
-.font-extralight,
-.font-light,
-.font-normal,
-.font-medium,
-.font-semibold,
-.font-bold,
-.font-extrabold,
-.font-black,
-[class*="font-bold"],
-[class*="font-semibold"],
-[class*="font-medium"],
-[class*="font-extrabold"],
-[class*="font-black"] {
-  font-weight: 400 !important;
-}
+/* Global unbolder removed to allow bold, confident luxury editorial typography */
 
 /* Lightweight creative showcase rails with smooth auto-running marquee */
 .creative-marquee-wrapper {
@@ -3588,4 +3833,207 @@ body {
 
 .animate-modal-in {
   animation: modal-scale-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ==========================================================================
+   GLOBAL ACCESSIBILITY & CONTRAST ENFORCEMENT (WCAG AAA AUDIT)
+   Ensures zero invisible text, crystal-clear headings, and readable CTA buttons
+   ========================================================================== */
+
+/* 1. BUTTON TEXT CONTRAST GUARANTEES */
+
+/* Lime Green Buttons: MUST HAVE DARK FOREST TEXT (#071A13) */
+.button-lime,
+.button-accent,
+.btn-lime,
+button.bg-\[\#d0f471\],
+a.bg-\[\#d0f471\],
+[class*="bg-[#d0f471]"],
+[class*="bg-[#dbff83]"] {
+  background-color: #d0f471 !important;
+  color: #071A13 !important;
+  font-weight: 700 !important;
+}
+
+.button-lime *,
+.button-accent *,
+.btn-lime *,
+button.bg-\[\#d0f471\] *,
+a.bg-\[\#d0f471\] *,
+[class*="bg-[#d0f471]"] *,
+[class*="bg-[#dbff83]"] * {
+  color: #071A13 !important;
+  stroke: #071A13 !important;
+}
+
+/* Dark Green / Near-Black Buttons: MUST HAVE CRISP WHITE TEXT (#FFFFFF) */
+.button-forest,
+.button-dark,
+button.bg-\[\#10241e\],
+a.bg-\[\#10241e\],
+button.bg-\[\#091712\],
+a.bg-\[\#091712\],
+button.bg-\[\#142e25\],
+a.bg-\[\#142e25\],
+[class*="bg-[#10241e]"]:not([class*="text-[#d0f471]"]):not(.tool-card),
+[class*="bg-[#091712]"]:not([class*="text-[#d0f471]"]),
+[class*="bg-[#142e25]"]:not([class*="text-[#d0f471]"]) {
+  color: #ffffff;
+}
+
+.button-forest *,
+.button-dark *,
+button.bg-\[\#10241e\] *,
+a.bg-\[\#10241e\] *,
+button.bg-\[\#091712\] *,
+a.bg-\[\#091712\] *,
+button.bg-\[\#142e25\] * {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+/* White Buttons: MUST HAVE DARK READABLE TEXT (#10251D) */
+button.bg-white,
+a.bg-white,
+.button-white {
+  color: #10251D !important;
+}
+
+button.bg-white *,
+a.bg-white *,
+.button-white * {
+  color: #10251D !important;
+  stroke: #10251D !important;
+}
+
+/* Outlined Buttons on Dark Sections */
+.button-outline-light,
+.hero .button-outline,
+footer .button-outline {
+  border-color: rgba(215, 243, 175, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.button-outline-light *,
+.hero .button-outline *,
+footer .button-outline * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* 2. HEADING VISIBILITY ACROSS ALL LIGHT & DARK CONTAINERS */
+
+/* Dark Sections: hero, footer, dark-section, studio-end */
+.hero,
+.tools-section,
+.dark-section,
+.studio-hero,
+.studio-end,
+footer,
+[class*="bg-[#091712]"],
+[class*="bg-[#10241e]"],
+[class*="bg-[#142e25]"] {
+  color: #ebf2e5;
+}
+
+.hero h1,
+.hero h2,
+.hero h3,
+.hero h4,
+.tools-section h2,
+.tools-section h3,
+.dark-section h1,
+.dark-section h2,
+.dark-section h3,
+.studio-end h2,
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+[class*="bg-[#091712]"] h1,
+[class*="bg-[#091712]"] h2,
+[class*="bg-[#091712]"] h3,
+[class*="bg-[#10241e]"] h1,
+[class*="bg-[#10241e]"] h2,
+[class*="bg-[#10241e]"] h3,
+[class*="bg-[#142e25]"] h1,
+[class*="bg-[#142e25]"] h2,
+[class*="bg-[#142e25]"] h3 {
+  color: #ffffff !important;
+}
+
+/* Emphasized Serif Spans in Dark Headings */
+.hero h1 em,
+.tools-section h2 em,
+.dark-section h2 em,
+footer h2 em {
+  color: #d0f471 !important;
+}
+
+/* Light Sections: default headings */
+.curated-section h2,
+.workflow-section h2,
+.demo-section h2,
+.benchmark-section h2,
+.faq-section h2,
+.steps-section h2,
+body:not(.dark) h1:not(.hero h1):not([class*="text-white"]),
+body:not(.dark) h2:not(.hero h2):not(.tools-section h2):not(footer h2):not([class*="text-white"]),
+body:not(.dark) h3:not([class*="text-white"]):not(.hero *):not(footer *) {
+  color: #10241e;
+}
+
+/* 3. PARAGRAPHS & SUBTEXTS */
+.hero p,
+.tools-section p,
+.dark-section p,
+footer p {
+  color: #ebf2e5cc;
+}
+
+/* 4. PREVENT INVISIBLE / TRANSPARENT TEXT BUGS */
+.text-transparent:not([class*="bg-clip-text"]) {
+  color: #10241e !important;
+}
+
+
+/* ==========================================================================
+   GLOBAL BRAND THEME & CONTRAST ENFORCEMENT
+   1. Convert all legacy pink/rose buttons to Brand Lime Green (#d0f471)
+   2. Ensure text on light cards/buttons is never hidden or white
+   ========================================================================== */
+
+button[class*="bg-rose-"]:not([class*="bg-rose-50"]),
+a[class*="bg-rose-"]:not([class*="bg-rose-50"]),
+button[class*="bg-pink-"],
+a[class*="bg-pink-"],
+button[class*="bg-[#E11D48]"],
+a[class*="bg-[#E11D48]"],
+[class*="from-[#E11D48]"],
+[class*="to-[#FF2E63]"],
+[class*="to-[#E11D48]"] {
+  background-color: #d0f471 !important;
+  background-image: none !important;
+  color: #071A13 !important;
+  font-weight: 700 !important;
+  border-color: rgba(215, 243, 175, 0.4) !important;
+}
+
+button[class*="bg-rose-"] *:not(.text-white),
+a[class*="bg-rose-"] *:not(.text-white),
+button[class*="bg-pink-"] *,
+a[class*="bg-pink-"] *,
+button[class*="bg-[#E11D48]"] *,
+a[class*="bg-[#E11D48]"] * {
+  color: #071A13 !important;
+  stroke: #071A13 !important;
+}
+
+/* Guard against invisible white text on white/gray button tabs */
+.bg-white button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
+.bg-gray-100 button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
+[class*="bg-[#f3f4ee]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]),
+[class*="bg-[#e9ece4]"] button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]) {
+  color: #10241e !important;
 }

@@ -1,0 +1,38 @@
+# =============================================================================
+# .dockerignore - Exclude files from Docker build context
+# =============================================================================
+
+# Git
+.git
+.gitignore
+
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploaded and output files (mounted as volumes)
+uploads/
+outputs/
+image_jobs/
+
+# Docker files
+docker-compose.yml
+Dockerfile
+
+# Documentation
+*.md
+LICENSE
+

@@ -1,0 +1,8 @@
+uploads/
+outputs/
+image_jobs/
+__pycache__/
+*.mp4
+*.avi
+*.mov
+

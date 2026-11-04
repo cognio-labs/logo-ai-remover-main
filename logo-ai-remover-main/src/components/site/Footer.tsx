@@ -14,13 +14,13 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { PinkButton } from "./PinkButton";
-import { SparklesCore } from "@/components/ui/sparkles";
+import { BrandLogo } from "./BrandLogo";
 import navbarLogo from "@/assets/navbar-logo.png";
 import logoData from "@/assets/logo.json";
 
 export function Footer() {
   const [email, setEmail] = useState("");
-  const [logoSrc, setLogoSrc] = useState<string>(navbarLogo);
+  const [logoSrc, setLogoSrc] = useState<string>(typeof navbarLogo === "object" && (navbarLogo as any)?.src ? (navbarLogo as any).src : (typeof navbarLogo === "string" ? navbarLogo : "/navbar-logo.png"));
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,69 +30,44 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-[#FED7AA]/60 bg-[#FFF7ED] text-gray-900 overflow-hidden">
+    <footer className="border-t border-[#d7f3af]/15 bg-[#091712] text-emerald-100 overflow-hidden">
       {/* 1. GRAND ACETERNITY SPARKLES BRAND BANNER */}
-      <div className="relative w-full bg-[#090204] py-20 sm:py-28 flex flex-col items-center justify-center overflow-hidden border-b border-[#240c14]">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#E11D48]/15 blur-[120px] rounded-full pointer-events-none" />
+      <div className="relative w-full bg-[#091712] py-20 sm:py-28 flex flex-col items-center justify-center overflow-hidden border-b border-[#d7f3af]/15">
+        
 
         <div className="relative z-20 flex flex-col items-center text-center px-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-bold text-[#FF4FA3] backdrop-blur-md mb-6">
-            <Sparkles className="size-3.5 text-[#FF4FA3]" />
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#142e25] border border-[#d0f471]/40 text-xs sm:text-sm font-bold text-[#d0f471] backdrop-blur-md mb-6 shadow-md">
+            <Sparkles className="size-4 text-[#d0f471]" />
             <span>Next-Generation Neural AI Studio</span>
           </div>
 
-          <h2 className="text-4xl sm:text-7xl lg:text-8xl font-semibold text-center tracking-tight text-white drop-shadow-[0_10px_35px_rgba(225,29,72,0.4)]">
+          <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-center tracking-tight !text-white text-white drop-shadow-[0_12px_40px_rgba(208,244,113,0.35)]">
             Bellix.us
           </h2>
 
-          <p className="mt-4 max-w-xl text-sm sm:text-base text-gray-300 font-normal leading-relaxed">
-            Eliminate watermarks, restore micro-textures, and upscale images & videos to 8K clarity
-            with zero plastic blur.
+          <p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl text-[#e2ece6] !text-[#e2ece6] font-medium leading-relaxed">
+            Eliminate watermarks, restore micro-textures, and enhance images &amp; videos with zero plastic blur.
           </p>
 
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <PinkButton
-              size="lg"
-              className="px-8 py-3.5 text-sm font-bold shadow-[0_10px_30px_rgba(225,29,72,0.5)]"
-              asChild
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/gemini-video-watermark-remover"
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base font-black bg-[#d0f471] hover:bg-[#dbff83] !text-[#091712] text-[#091712] shadow-[0_10px_35px_-4px_rgba(208,244,113,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
-              <Link to="/gemini-video-watermark-remover">
-                <span>Start Free Studio</span>
-                <ArrowRight className="size-4 ml-1.5" />
-              </Link>
-            </PinkButton>
+              <span className="!text-[#091712] font-black text-base">Start Free Studio</span>
+              <ArrowRight className="size-5 !text-[#091712] stroke-[2.5]" />
+            </Link>
 
             <Link
               to="/pdf-watermark-remover"
-              className="px-6 py-3 rounded-full text-sm font-bold text-white/90 bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-md transition-all"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-base font-bold text-white bg-[#142e25] hover:bg-[#1c3f33] border border-[#d0f471]/30 backdrop-blur-md shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               Remove PDF Watermark
             </Link>
           </div>
         </div>
 
-        {/* Glowing Beams & Sparkles Core Container */}
-        <div className="w-[36rem] sm:w-[50rem] md:w-[64rem] h-48 relative mt-6">
-          {/* Gradients */}
-          <div className="absolute inset-x-16 sm:inset-x-28 top-0 bg-gradient-to-r from-transparent via-[#E11D48] to-transparent h-[2px] w-3/4 blur-sm" />
-          <div className="absolute inset-x-16 sm:inset-x-28 top-0 bg-gradient-to-r from-transparent via-[#E11D48] to-transparent h-px w-3/4" />
-          <div className="absolute inset-x-36 sm:inset-x-64 top-0 bg-gradient-to-r from-transparent via-[#FF4FA3] to-transparent h-[5px] w-1/4 blur-sm" />
-          <div className="absolute inset-x-36 sm:inset-x-64 top-0 bg-gradient-to-r from-transparent via-[#FF4FA3] to-transparent h-px w-1/4" />
-
-          {/* Core Sparkles Component */}
-          <SparklesCore
-            background="transparent"
-            minSize={0.4}
-            maxSize={1.4}
-            particleDensity={900}
-            className="w-full h-full"
-            particleColor="#FFFFFF"
-          />
-
-          {/* Radial Gradient to prevent sharp edges */}
-          <div className="absolute inset-0 w-full h-full bg-[#090204] [mask-image:radial-gradient(380px_200px_at_top,transparent_20%,white)] pointer-events-none" />
-        </div>
+        
       </div>
 
       {/* 2. MAIN FOOTER CONTENT */}
@@ -100,24 +75,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-block">
-              <img
-                src={logoSrc}
-                alt="Bellix.us — Luxury Studio"
-                className="h-14 sm:h-16 w-auto max-w-[280px] object-contain hover:scale-105 transition-transform"
-                onError={() => {
-                  if (logoSrc !== logoData.data) {
-                    setLogoSrc(logoData.data);
-                  } else {
-                    setLogoSrc("/navbar-logo.png");
-                  }
-                }}
-              />
-            </Link>
+            <div className="mb-2">
+              <BrandLogo href="/" size="lg" />
+            </div>
 
-            <p className="max-w-sm text-sm text-gray-600 leading-relaxed">
+            <p className="max-w-sm text-sm text-emerald-100 leading-relaxed">
               Next-generation creative studio for digital creators and brands. Remove watermarks,
-              clean AI artifacts, and upscale images and videos to pristine 4K & 8K clarity.
+              clean AI artifacts, and enhance images and videos with pristine clarity.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -125,7 +89,7 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
                 aria-label="Instagram"
               >
                 <Instagram className="size-4" />
@@ -134,7 +98,7 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
                 aria-label="Twitter"
               >
                 <Twitter className="size-4" />
@@ -143,7 +107,7 @@ export function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] hover:bg-[#FFD6A5] hover:scale-105 transition-all"
+                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="size-4" />
@@ -151,16 +115,16 @@ export function Footer() {
             </div>
 
             <div className="pt-2 flex items-center gap-2.5">
-              <span className="size-9 rounded-xl bg-[#FFE4C4]/60 border border-[#FED7AA] flex items-center justify-center text-[#E11D48] shrink-0">
+              <span className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] shrink-0">
                 <Mail className="size-4" />
               </span>
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-100">
                   Email Support
                 </span>
                 <a
                   href="mailto:bellixus062@gmail.com"
-                  className="text-xs sm:text-sm font-semibold text-gray-900 hover:text-[#E11D48] transition-colors"
+                  className="text-xs sm:text-sm font-semibold text-white hover:text-[#d0f471] transition-colors"
                 >
                   bellixus062@gmail.com
                 </a>
@@ -170,24 +134,32 @@ export function Footer() {
 
           {/* Product Links */}
           <div>
-            <h4 className="text-xs uppercase font-bold tracking-wider text-gray-900 mb-4">
+            <h4 className="text-sm uppercase font-bold tracking-wider text-white !text-white mb-4">
               Products
             </h4>
-            <ul className="space-y-2.5 text-sm text-gray-600">
+            <ul className="space-y-2.5 text-sm text-emerald-100">
               <li>
-                <Link to="/upscale" className="hover:text-[#E11D48] transition-colors">
-                  4K / 8K Upscaler
+                <Link to="/background-remover" className="hover:text-[#d0f471] transition-colors">
+                  AI Background Remover
                 </Link>
               </li>
               <li>
-                <Link to="/background-remover" className="hover:text-[#E11D48] transition-colors">
-                  AI Background Remover
+                <Link to="/gemini-image-watermark-remover" className="hover:text-[#d0f471] transition-colors">
+                  Gemini Sparkle Remover
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/gemini-video-watermark-remover"
+                  className="hover:text-[#d0f471] transition-colors"
+                >
+                  Gemini Video Watermark Remover
                 </Link>
               </li>
               <li>
                 <Link
                   to="/pdf-watermark-remover"
-                  className="hover:text-[#E11D48] transition-colors"
+                  className="hover:text-[#d0f471] transition-colors"
                 >
                   PDF Watermark Remover
                 </Link>
@@ -195,17 +167,9 @@ export function Footer() {
               <li>
                 <Link
                   to="/video-enhancer"
-                  className="hover:text-[#E11D48] transition-colors"
+                  className="hover:text-[#d0f471] transition-colors"
                 >
                   AI Video Enhancer
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/gemini-video-watermark-remover"
-                  className="hover:text-[#E11D48] transition-colors"
-                >
-                  Gemini Video Watermark Remover
                 </Link>
               </li>
             </ul>
@@ -213,46 +177,46 @@ export function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="text-xs uppercase font-bold tracking-wider text-gray-900 mb-4">
+            <h4 className="text-sm uppercase font-bold tracking-wider text-white !text-white mb-4">
               Resources
             </h4>
-            <ul className="space-y-2.5 text-sm text-gray-600">
+            <ul className="space-y-2.5 text-sm text-emerald-100/90">
               <li>
-                <Link to="/how-it-works" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/how-it-works" className="hover:text-[#d0f471] transition-colors">
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link to="/features" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/features" className="hover:text-[#d0f471] transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/faq" className="hover:text-[#d0f471] transition-colors">
                   FAQ & Docs
                 </Link>
               </li>
               <li>
-                <Link to="/api-reference" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/api-reference" className="hover:text-[#d0f471] transition-colors">
                   API Reference
                 </Link>
               </li>
               <li>
-                <Link to="/affiliate" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/affiliate" className="hover:text-[#d0f471] transition-colors">
                   Affiliate Program
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-[#E11D48] transition-colors">
+                <Link to="/contact" className="hover:text-[#d0f471] transition-colors">
                   Contact Us (24/7)
                 </Link>
               </li>
               <li>
                 <a
                   href="mailto:bellixus062@gmail.com"
-                  className="hover:text-[#E11D48] transition-colors flex items-center gap-1.5 font-medium"
+                  className="hover:text-[#d0f471] transition-colors flex items-center gap-1.5 font-medium"
                 >
-                  <Mail className="size-3 text-[#E11D48]" />
+                  <Mail className="size-3 text-[#d0f471]" />
                   <span>bellixus062@gmail.com</span>
                 </a>
               </li>
@@ -261,10 +225,10 @@ export function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h4 className="text-xs uppercase font-bold tracking-wider text-gray-900 mb-4">
+            <h4 className="text-sm uppercase font-bold tracking-wider text-white !text-white mb-4">
               Get Updates
             </h4>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-xs text-emerald-100/90 mb-3">
               Weekly AI editing tips, new model drops & creative prompts.
             </p>
             <form onSubmit={handleSubscribe} className="space-y-2">
@@ -273,7 +237,7 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="creator@studio.com"
-                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#FED7AA] bg-[#FFF7ED] focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-3.5 py-2 rounded-xl text-xs border border-[#d7f3af]/15 bg-[#142e25] text-white placeholder-[#8E8E8E] focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
               />
               <PinkButton type="submit" size="sm" className="w-full text-xs">
                 Subscribe
@@ -283,26 +247,26 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-14 pt-8 border-t border-[#FED7AA]/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="mt-14 pt-8 border-t border-[#d7f3af]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-100">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="size-4 text-[#E11D48]" />
+            <ShieldCheck className="size-4 text-[#d0f471]" />
             <span>Bank-Grade 256-Bit SSL Encrypted. Zero training on user media.</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <span className="hover:text-gray-900 cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-gray-900 cursor-pointer">Terms of Service</span>
+            <span className="hover:text-white cursor-pointer">Privacy Policy</span>
+            <span className="hover:text-white cursor-pointer">Terms of Service</span>
             <a
               href="mailto:bellixus062@gmail.com"
-              className="hover:text-[#E11D48] text-gray-600 font-medium transition-colors"
+              className="hover:text-[#d0f471] text-emerald-100 font-medium transition-colors"
             >
               bellixus062@gmail.com
             </a>
           </div>
 
-          <div className="flex items-center gap-1 text-gray-400">
+          <div className="flex items-center gap-1 text-[#8E8E8E]">
             <span>Crafted with</span>
-            <Heart className="size-3 text-[#E11D48] fill-[#E11D48]" />
+            <Heart className="size-3 text-[#d0f471] fill-[#E11D48]" />
             <span>for creative artists & studios</span>
           </div>
         </div>

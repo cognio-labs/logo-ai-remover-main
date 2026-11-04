@@ -1,57 +1,95 @@
-# Gemini Image & Video Watermark Remover (Flask + OpenCV)
+# 🎬 Bellix Labs — Video Watermark Remover
 
-Local, privacy-friendly AI watermark remover tool built with Python Flask and OpenCV.
-Runs 100% locally on your machine with zero external paid APIs.
+> **Video watermark removal — 100% local, self-contained, no paid APIs.**
 
-## Features
+A full-stack application that removes watermarks from videos using OpenCV inpainting. Upload a video, paint over the watermark on an interactive canvas or use auto-detection, and download the clean result. Everything runs locally on your machine — no cloud services, no subscriptions.
 
-- **Gemini Video Watermark Remover** (`/`):
-  - Inpainting corner watermarks on MP4, MOV, WebM, AVI, MKV videos.
-  - Video player with synced comparison and MP4 export.
-- **Gemini Image Watermark Remover** (`/image-remover`):
-  - Batch image upload (up to 10 JPG, PNG, WEBP files, max 20 MB each).
-  - Background task queue with multi-threaded OpenCV inpainting.
-  - Interactive before/after comparison slider.
-  - Per-image status, error isolation, individual PNG download, and batch ZIP export.
-  - 1-hour automatic cleanup of temporary files.
+---
 
-## Project Structure
+## ✨ Features
+
+- **Drag & Drop Upload** — Upload videos up to 100 MB (MP4, AVI, MOV, MKV, WebM)
+- **Interactive Canvas Mask Editor** — Paint over watermarks with an adjustable brush, undo/clear support
+- **OpenCV Inpainting Engine** — Fast, CPU-optimized frame-by-frame watermark removal (Telea & Navier-Stokes)
+- **Multi-core Processing** — Distributes frame inpainting across all CPU cores via multiprocessing
+- **Audio Preservation** — Automatically extracts and remuxes the original audio track
+- **Real-time Progress** — Live progress bar that polls the backend during processing
+- **Premium Dark UI** — Luxury dark design with smooth gradients, animations, and responsive layout
+
+---
+
+## 📸 How It Works
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  1. Upload   │ ──▶ │  2. Paint    │ ──▶ │  3. Process  │ ──▶ │  4. Download │
+│    Video     │     │    Mask      │     │  (Inpaint)   │     │    Result    │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+```
+
+1. **Upload** a video file via drag-and-drop or file picker
+2. **Paint** over the watermark area on the first frame using the brush tool (or auto-detect)
+3. **Process** — the backend splits frames, runs inpainting, and reassembles the video
+4. **Download** the watermark-free video with original audio intact
+
+---
+
+## 🏗️ Architecture
 
 ```
 watermark-backend/
-├── app.py                # Merged Flask app serving both Video and Image tools
-├── processor.py          # Video watermark remover logic
-├── image_processor.py    # Image watermark remover logic (OpenCV inpainting)
-├── requirements.txt      # Python dependencies
-├── Dockerfile            # Container configuration
-├── docker-compose.yml    # Docker Compose setup
-├── uploads/              # Temporary video uploads
-├── outputs/              # Cleaned video results
-├── image_jobs/           # Temporary image uploads & cleaned results (auto-purged after 1 hr)
+├── Dockerfile              # Lightweight python:3.10-slim container
+├── docker-compose.yml      # Compose config with volume mounts
+├── .dockerignore            # Excludes dev files from build context
+├── .gitignore               # Git ignore rules
+├── requirements.txt         # Python dependencies
+│
+├── main.py                  # FastAPI app — REST endpoints
+├── video_utils.py           # FFmpeg wrapper — audio/frame/video pipeline
+├── inpainter.py             # OpenCV inpainting + multiprocessing
+├── processor.py             # Auto-detection and sub-pixel inpainting
+│
+├── uploads/                 # Runtime directory (gitignored)
+│
 └── static/
-    ├── index.html        # Video tool frontend
-    ├── image-remover.html# Image batch tool frontend
-    └── samples/          # Before/after sample images
+    ├── index.html           # Single-page frontend (semantic HTML5)
+    └── app.js               # Vanilla JS — canvas, upload, polling logic
 ```
 
-## How to Run Locally
+### Backend (Python / FastAPI)
 
-1. Install requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Start server:
-   ```bash
-   python app.py
-   ```
-3. Access in browser:
-   - Video Remover: `http://localhost:5000/`
-   - Image Remover: `http://localhost:5000/image-remover`
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/upload` | POST | Upload a video file, extract first frame |
+| `/frame/{task_id}` | GET | Retrieve the first frame as PNG for the canvas |
+| `/process` | POST | Submit a binary mask and start background processing |
+| `/status/{task_id}` | GET | Poll processing progress (0–100%) |
+| `/download/{task_id}` | GET | Download the final processed video |
+| `/api/upload` | POST | Bellix automated video upload & processing |
+| `/api/status/{job_id}` | GET | Status polling for web frontend |
+| `/api/result/{job_id}` | GET | Stream the cleaned video |
+| `/api/download/{job_id}` | GET | Download cleaned video |
 
-## How to Run with Docker
+---
+
+## 🚀 Quick Start
+
+### Run with Docker
 
 ```bash
-docker compose up --build -d
+docker-compose up --build
+# Open in your browser: http://localhost:8000
 ```
-Access at `http://localhost:5000/image-remover`.
 
+### Run Locally with Python
+
+```bash
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+---
+
+<p align="center">
+  Built with ◆ <strong>Bellix Labs Video Watermark Remover</strong> — 100% local, zero cloud dependencies
+</p>

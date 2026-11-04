@@ -1,21 +1,45 @@
+# =============================================================================
+# Docker Compose - Bellix Labs Video Watermark Removal Application (OpenCV Engine)
+# =============================================================================
+# CPU-optimized configuration for local and cloud deployment.
+# Uses OpenCV inpainting — no deep learning, no heavy GPU required.
+# =============================================================================
+
 services:
   watermark-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: watermark-backend
+
+    container_name: bellix-watermark-remover
+
+    # Map host port 8000 to container port 8000 (and 5000 for legacy compatibility)
     ports:
-      - "${PORT:-5000}:5000"
-    environment:
-      HOST: 0.0.0.0
-      PORT: 5000
-      IMAGE_JOB_DIR: /app/image_jobs
-      MAX_BATCH_IMAGES: ${MAX_BATCH_IMAGES:-10}
-      IMAGE_WORKERS: ${IMAGE_WORKERS:-2}
+      - "8000:8000"
+      - "5000:8000"
+
+    # -------------------------------------------------------------------------
+    # Volume mappings
+    # -------------------------------------------------------------------------
+    # - ./uploads:/app/uploads  — Persists processed video artifacts on the host
+    # - ./static:/app/static    — Mounts static frontend for hot-reloading
+    # - Source files mounted for development convenience (no rebuild needed)
     volumes:
-      - image_jobs:/app/image_jobs
+      - ./uploads:/app/uploads
+      - ./static:/app/static
+      - ./main.py:/app/main.py
+      - ./inpainter.py:/app/inpainter.py
+      - ./video_utils.py:/app/video_utils.py
+      - ./processor.py:/app/processor.py
+
+    # -------------------------------------------------------------------------
+    # Environment variables
+    # -------------------------------------------------------------------------
+    environment:
+      - MAX_UPLOAD_SIZE_MB=100
+      - UPLOAD_DIR=/app/uploads
+      - HOST=0.0.0.0
+      - PORT=8000
+
+    # Restart on failure, but not on manual stop
     restart: unless-stopped
-
-volumes:
-  image_jobs:
-

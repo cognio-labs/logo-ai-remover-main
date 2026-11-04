@@ -165,9 +165,9 @@ import { Navbar } from "@/components/site/Navbar";
 
 function MainAppLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-gray-900 relative">
+    <div className="flex min-h-screen flex-col bg-[#f3f4ee] text-[#10241e] relative font-sans">
       <Navbar />
-      <main className="flex-1 w-full overflow-x-hidden bg-white">
+      <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
       </main>

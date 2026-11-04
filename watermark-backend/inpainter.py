@@ -1,0 +1,215 @@
+"""
+=============================================================================
+inpainter.py — CPU-Optimized OpenCV Inpainting Engine
+=============================================================================
+Removes watermarks from video frames using OpenCV's inpainting algorithms
+(Telea, Navier-Stokes, and Shiftmap), distributed across all available CPU
+cores via multiprocessing.
+
+Algorithms:
+    - cv2.INPAINT_TELEA (Fast Marching Method by Alexandru Telea)
+    - cv2.INPAINT_NS (Fluid dynamics Navier-Stokes method — edge-preserving)
+    - cv2.xphoto.INPAINT_SHIFTMAP (Patch matching shiftmap when available)
+
+Security Notes:
+    - All paths are UUID-based, constructed by main.py — no user input here.
+=============================================================================
+"""
+
+import os
+import glob
+import logging
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import Callable, Optional
+
+import cv2
+import numpy as np
+
+try:
+    from cv2 import dnn_superres
+except ImportError:
+    dnn_superres = None
+
+logger = logging.getLogger("watermark-app.inpainter")
+
+# Inpainting radius: how many pixels around the mask boundary are used
+# to compute the fill.
+INPAINT_RADIUS = 3
+
+# Maximum number of worker processes. os.cpu_count() returns logical cores.
+MAX_WORKERS = max(1, (os.cpu_count() or 2) - 1)
+
+# Global reference to the super-resolution model (per worker process)
+_sr_model = None
+
+
+def _init_worker():
+    """
+    Initializer for ProcessPoolExecutor workers.
+    Loads the Super Resolution model once per worker if model file and cv2.dnn_superres exist.
+    """
+    global _sr_model
+    model_path = "/app/models/ESPCN_x2.pb"
+    if dnn_superres is not None and os.path.exists(model_path):
+        try:
+            _sr_model = dnn_superres.DnnSuperResImpl_create()
+            _sr_model.readModel(model_path)
+            _sr_model.setModel("espcn", 2)
+        except Exception as e:
+            logger.warning("Could not load ESPCN super-resolution model: %s", str(e))
+            _sr_model = None
+    else:
+        _sr_model = None
+
+
+def _inpaint_single_frame(args: tuple) -> tuple:
+    """
+    Inpaint a single frame. This function runs in a worker process.
+
+    Args:
+        args: Tuple of (frame_path, mask_path, output_path, enhance, inpaint_mode)
+
+    Returns:
+        (output_path, success, error_message)
+    """
+    frame_path, mask_path, output_path, enhance, inpaint_mode = args
+
+    try:
+        # Read the frame in BGR
+        frame = cv2.imread(frame_path, cv2.IMREAD_COLOR)
+        if frame is None:
+            return (output_path, False, f"Failed to read frame: {frame_path}")
+
+        # Read the mask as grayscale
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        if mask is None:
+            return (output_path, False, f"Failed to read mask: {mask_path}")
+
+        # Resize mask to match frame dimensions if they differ
+        fh, fw = frame.shape[:2]
+        mh, mw = mask.shape[:2]
+        if (mh, mw) != (fh, fw):
+            mask = cv2.resize(mask, (fw, fh), interpolation=cv2.INTER_NEAREST)
+
+        # Threshold to ensure binary mask (0 or 255)
+        _, mask_bin = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+
+        # If mask is completely black (no watermark painted), write original
+        if cv2.countNonZero(mask_bin) == 0:
+            cv2.imwrite(output_path, frame)
+            return (output_path, True, None)
+
+        # Apply Inpainting
+        if inpaint_mode == "shiftmap" and hasattr(cv2, "xphoto"):
+            # Shiftmap requires valid pixels to be 255 and missing pixels to be 0
+            inverted_mask = cv2.bitwise_not(mask_bin)
+            result = np.zeros_like(frame)
+            cv2.xphoto.inpaint(frame, inverted_mask, result, cv2.xphoto.INPAINT_SHIFTMAP)
+        elif inpaint_mode in ("ns", "navier-stokes"):
+            # Navier-Stokes preserves natural edge contours and avoids smearing
+            result = cv2.inpaint(frame, mask_bin, 2, cv2.INPAINT_NS)
+        else:
+            # Telea method (default)
+            result = cv2.inpaint(frame, mask_bin, INPAINT_RADIUS, cv2.INPAINT_TELEA)
+
+        # Apply AI Upscaling if requested
+        if enhance and _sr_model is not None:
+            result = _sr_model.upsample(result)
+
+        # Save the inpainted frame
+        cv2.imwrite(output_path, result)
+        return (output_path, True, None)
+
+    except Exception as e:
+        return (output_path, False, str(e))
+
+
+def process_frames(
+    frames_dir: str,
+    mask_path: str,
+    output_dir: str,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+    enhance: bool = False,
+    inpaint_mode: str = "telea",
+) -> None:
+    """
+    Run OpenCV inpainting on all frames using multiprocessing.
+
+    Each frame is processed independently across multiple CPU cores.
+    The same mask is applied to every frame since the watermark position
+    is static throughout the video.
+
+    Args:
+        frames_dir:        Directory of input PNG frames (frame_00001.png ...).
+        mask_path:         Path to the binary mask PNG (white = watermark).
+        output_dir:        Directory to save inpainted output frames.
+        progress_callback: Optional fn called as (current, total) per frame.
+
+    Raises:
+        FileNotFoundError: If frames dir or mask file not found.
+        RuntimeError:      If processing fails.
+    """
+    if not os.path.isdir(frames_dir):
+        raise FileNotFoundError(f"Frames directory not found: {frames_dir}")
+    if not os.path.isfile(mask_path):
+        raise FileNotFoundError(f"Mask file not found: {mask_path}")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Discover all frames
+    frame_files = sorted(glob.glob(os.path.join(frames_dir, "frame_*.png")))
+    total_frames = len(frame_files)
+
+    if total_frames == 0:
+        raise RuntimeError(f"No frames found in: {frames_dir}")
+
+    logger.info(
+        "Starting OpenCV inpainting (%s) on %d frames using %d workers...",
+        inpaint_mode, total_frames, MAX_WORKERS,
+    )
+
+    # Build the work items
+    work_items = []
+    for fp in frame_files:
+        fname = os.path.basename(fp)
+        out_path = os.path.join(output_dir, fname)
+        work_items.append((fp, mask_path, out_path, enhance, inpaint_mode))
+
+    # Process frames in parallel
+    completed = 0
+    errors = []
+
+    with ProcessPoolExecutor(max_workers=MAX_WORKERS, initializer=_init_worker) as executor:
+        futures = {
+            executor.submit(_inpaint_single_frame, item): item
+            for item in work_items
+        }
+
+        for future in as_completed(futures):
+            out_path, success, err_msg = future.result()
+            completed += 1
+
+            if not success:
+                errors.append(err_msg)
+                logger.error("Frame failed: %s", err_msg)
+
+            if progress_callback:
+                progress_callback(completed, total_frames)
+
+            # Log progress periodically
+            if completed % 50 == 0 or completed == total_frames:
+                logger.info(
+                    "Inpainted %d / %d frames.", completed, total_frames
+                )
+
+    if errors:
+        logger.warning(
+            "%d frame(s) failed during inpainting. First error: %s",
+            len(errors), errors[0],
+        )
+
+    logger.info(
+        "OpenCV inpainting complete. %d frames saved to: %s",
+        total_frames, output_dir,
+    )
+

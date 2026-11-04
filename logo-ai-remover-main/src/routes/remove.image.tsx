@@ -13,16 +13,26 @@ import {
   Wand2,
   ShieldCheck,
   Zap,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  ServerCrash,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { UploadZone } from "@/components/site/UploadZone";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import { PinkButton } from "@/components/site/PinkButton";
-import { IMAGE_STAGES, runPipeline } from "@/lib/pipeline";
 import { useUserStore } from "@/lib/userStore";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import {
+  checkBackendHealth,
+  fetchCleanedImageUrl,
+  getDownloadUrl,
+  pollJobStatus,
+  uploadImageForCleaning,
+} from "@/lib/imageRemoverApi";
 
 export const Route = createFileRoute("/remove/image")({
   head: () => ({
@@ -31,7 +41,7 @@ export const Route = createFileRoute("/remove/image")({
       {
         name: "description",
         content:
-          "Remove watermarks, logos, text overlays, and unwanted objects from photos using an AI brush tool. Paint over any area to erase it and fill with realistic background texture.",
+          "Remove watermarks, logos, text overlays, and unwanted objects from photos. Paint over any area to erase it and fill with realistic background texture.",
       },
       { rel: "canonical", href: "https://www.bellix.us/remove/image" },
       { property: "og:url", content: "https://www.bellix.us/remove/image" },
@@ -77,23 +87,38 @@ export const Route = createFileRoute("/remove/image")({
 });
 
 type Mark = { x: number; y: number; size: number; erase: boolean };
+type Phase = "upload" | "paint" | "processing" | "done" | "error";
 
 export default function ImageCleaner() {
-  const [url, setUrl] = useState<string | null>(null);
+  const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [tool, setTool] = useState<"brush" | "eraser">("brush");
   const [brush, setBrush] = useState(36);
   const [marks, setMarks] = useState<Mark[]>([]);
+  const [phase, setPhase] = useState<Phase>("upload");
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
-  const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [backendOk, setBackendOk] = useState<boolean | null>(null);
+
   const painting = useRef(false);
-  const cancel = useRef<(() => void) | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const { user, deductCredit, refundCredit, addJob } = useUserStore();
+  const { addJob } = useUserStore();
 
-  useEffect(() => () => cancel.current?.(), []);
+  // Check backend health on mount
+  useEffect(() => {
+    checkBackendHealth().then(setBackendOk);
+  }, []);
+
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+    },
+    []
+  );
 
   const paint = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -109,263 +134,387 @@ export default function ImageCleaner() {
   };
 
   const autoDetect = () => {
+    // Place marks in the bottom-right corner (typical Gemini/Veo watermark area)
     setMarks([
-      { x: 80, y: 88, size: 70, erase: false },
-      { x: 74, y: 88, size: 60, erase: false },
-      { x: 20, y: 15, size: 55, erase: false },
+      { x: 86, y: 90, size: 80, erase: false },
+      { x: 78, y: 90, size: 70, erase: false },
     ]);
-    toast.success("AI auto-detected 2 potential watermark regions!");
+    toast.success("AI auto-detected bottom-right watermark region!");
   };
 
-  const startProcessing = () => {
-    if (user.credits <= 0) {
-      toast.error("Insufficient credits! Please upgrade your plan or wait for daily reset.");
+  const startProcessing = async () => {
+    if (!file) return;
+
+    if (backendOk === false) {
+      toast.error(
+        "Flask backend is not running. Start it with: cd watermark-backend && python app.py",
+        { duration: 6000 }
+      );
       return;
     }
 
-    const deducted = deductCredit();
-    if (!deducted) return;
+    abortRef.current = new AbortController();
+    setPhase("processing");
+    setProgress(5);
+    setStage("Uploading image…");
+    setErrorMsg("");
 
-    setRunning(true);
-    setDone(false);
-    setProgress(0);
-
-    // Simulated AI API Pipeline (replaceable with real backend endpoint)
-    // TODO(real AI): POST /api/process/image with { imageUrl, maskCoordinates }
-    cancel.current = runPipeline(IMAGE_STAGES, 5000, (u) => {
-      setProgress(u.progress);
-      setStage(u.stage);
-      if (u.done) {
-        setRunning(false);
-        setDone(true);
-
-        // Add to persistent user jobs
-        addJob({
-          file_name: file?.name || "creative_image_clean.png",
-          file_type: "image",
-          status: "completed",
-          quality: "Ultra HD (4K)",
-          credits_used: 1,
-          processing_time: "4.8s",
-          file_url: url || undefined,
-          result_url: url || undefined,
+    try {
+      // Build optional bounding box from painted marks
+      let box: [number, number, number, number] | undefined;
+      const activeBrush = marks.filter((m) => !m.erase);
+      if (activeBrush.length > 0 && originalUrl) {
+        // Use a temporary image element to get real dimensions
+        const img = new Image();
+        await new Promise<void>((res) => {
+          img.onload = () => res();
+          img.src = originalUrl;
         });
-
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#FFE4E9"],
-        });
-
-        toast.success("Image cleaned & enhanced successfully! 1 credit used.");
+        const iw = img.naturalWidth || 1;
+        const ih = img.naturalHeight || 1;
+        const xs = activeBrush.map((m) => (m.x / 100) * iw);
+        const ys = activeBrush.map((m) => (m.y / 100) * ih);
+        const radii = activeBrush.map((m) => m.size / 2);
+        const x0 = Math.max(0, Math.round(Math.min(...xs) - Math.max(...radii)));
+        const y0 = Math.max(0, Math.round(Math.min(...ys) - Math.max(...radii)));
+        const x1 = Math.min(iw, Math.round(Math.max(...xs) + Math.max(...radii)));
+        const y1 = Math.min(ih, Math.round(Math.max(...ys) + Math.max(...radii)));
+        if (x1 > x0 && y1 > y0) box = [x0, y0, x1 - x0, y1 - y0];
       }
-    });
+
+      // 1. Upload
+      setProgress(15);
+      const { job_id } = await uploadImageForCleaning(file, box);
+      setJobId(job_id);
+
+      // 2. Poll status
+      setProgress(20);
+      setStage("Processing image on server…");
+      const finalJob = await pollJobStatus(
+        job_id,
+        (job) => {
+          setProgress(Math.max(20, Math.min(90, job.progress)));
+          if (job.status === "processing") setStage("Removing watermark…");
+          if (job.status === "queued") setStage("Queued, waiting for worker…");
+        },
+        1200,
+        abortRef.current.signal
+      );
+
+      if (finalJob.status === "failed") {
+        throw new Error(finalJob.error || "Server-side processing failed.");
+      }
+
+      // 3. Fetch result
+      setProgress(95);
+      setStage("Downloading cleaned image…");
+      const cleanUrl = await fetchCleanedImageUrl(job_id);
+      setResultUrl(cleanUrl);
+      setProgress(100);
+      setPhase("done");
+
+      // Log to user store
+      addJob({
+        file_name: file.name,
+        file_type: "image",
+        status: "completed",
+        quality: "Full Resolution",
+        credits_used: 0,
+        processing_time: "~3s",
+        file_url: originalUrl || undefined,
+        result_url: cleanUrl,
+      });
+
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#E11D48", "#FF2E63", "#FF4FA3", "#FFE4E9"],
+      });
+
+      toast.success("Watermark removed successfully!");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === "Cancelled") return;
+      const msg =
+        err instanceof Error ? err.message : "Unknown error occurred.";
+      setErrorMsg(msg);
+      setPhase("error");
+      toast.error(msg);
+    }
   };
 
-  const downloadResult = (format: "png" | "jpg") => {
-    if (!url) return;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bellix_${file?.name ? file.name.replace(/\.[^/.]+$/, "") : "image"}_4k.${format}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    toast.success(`Downloaded high-res ${format.toUpperCase()} image!`);
+  const cancelProcessing = () => {
+    abortRef.current?.abort();
+    setPhase("paint");
+    setProgress(0);
+    setStage("");
+  };
+
+  const downloadResult = () => {
+    if (jobId) {
+      const a = document.createElement("a");
+      a.href = getDownloadUrl(jobId);
+      a.download = `bellix_${file?.name?.replace(/\.[^/.]+$/, "") ?? "image"}_cleaned.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success("Downloading cleaned PNG…");
+    } else if (resultUrl) {
+      // Fallback: download blob directly
+      const a = document.createElement("a");
+      a.href = resultUrl;
+      a.download = `bellix_cleaned.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  const reset = () => {
+    abortRef.current?.abort();
+    setOriginalUrl(null);
+    setResultUrl(null);
+    setFile(null);
+    setMarks([]);
+    setPhase("upload");
+    setProgress(0);
+    setStage("");
+    setErrorMsg("");
+    setJobId(null);
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#FFF0F4] via-[#FFF6F9] to-white text-gray-900 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="relative min-h-screen bg-[#f3f4ee] text-[#10241e] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#FFE4E9]/60 via-[#FFF1F4]/30 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-br from-[#E11D48]/15 via-rose-950/10 to-transparent blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-bold text-[#E11D48] mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-bold text-[#10241e] mb-3 px-4 py-1.5 shadow-sm">
             <Sparkles className="size-3.5" />
-            <span>AI Watermark & Imperfection Inpainter</span>
+            <span>AI Watermark & Logo Remover</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-900 tracking-tight">
-            AI Image Cleaner
+          <h1 className="text-4xl sm:text-6xl font-bold text-[#10241e] tracking-tight">
+            Image Cleaner
           </h1>
-          <p className="mt-3 text-base text-gray-600">
-            Select or paint over unwanted watermarks, logos, timestamps, or AI artifacts. Our neural
-            inpaint engine reconstructs the missing pixels seamlessly.
+          <p className="mt-4 text-base sm:text-xl text-[#37433d] font-normal max-w-2xl mx-auto leading-relaxed">
+            Paint over watermarks, logos, or timestamps. Our AI inpaints the background seamlessly — no signup, no API key.
           </p>
+
+          {/* Backend status badge */}
+          <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-[#10241e]/15 bg-white text-[#10241e] shadow-xs px-4 py-1.5">
+            {backendOk === null ? (
+              <><Loader2 className="size-3 animate-spin text-gray-400" /><span className="text-gray-400">Checking server…</span></>
+            ) : backendOk ? (
+              <><CheckCircle2 className="size-3 text-green-400" /><span className="text-green-400">Server ready</span></>
+            ) : (
+              <><ServerCrash className="size-3 text-orange-400" /><span className="text-orange-400">Server offline — start Flask backend</span></>
+            )}
+          </div>
         </div>
 
-        {/* Upload State */}
-        {!url ? (
+        {/* ── UPLOAD STATE ── */}
+        {phase === "upload" && (
           <div className="max-w-3xl mx-auto">
             <UploadZone
               accept="image/*"
               type="image"
-              hint="PNG, JPG, WEBP or AVIF"
+              hint="PNG, JPG, or WEBP — up to 20 MB"
               onFile={(f, objUrl) => {
                 setFile(f);
-                setUrl(objUrl);
+                setOriginalUrl(objUrl);
                 setMarks([]);
-                setDone(false);
+                setPhase("paint");
               }}
               onAutoDetect={() => {
-                // Auto load demo with detection
                 const demoUrl =
                   "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&auto=format&fit=crop&q=80";
-                setUrl(demoUrl);
-                setFile(new File([], "sample_ai_portrait.png"));
+                setOriginalUrl(demoUrl);
+                setFile(new File([], "sample_ai_portrait.png", { type: "image/png" }));
+                setPhase("paint");
                 setTimeout(autoDetect, 300);
               }}
             />
           </div>
-        ) : (
+        )}
+
+        {/* ── PAINT / PROCESSING / DONE / ERROR STATES ── */}
+        {phase !== "upload" && (
           <div className="space-y-8">
-            {/* Action Bar / Tool Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#FCE7EC] shadow-[0_6px_20px_rgba(225,29,72,0.06)]">
-              {/* Left tools: Brush, Eraser, Clear */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setTool("brush")}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                    tool === "brush"
-                      ? "bg-[#E11D48] text-white shadow-xs"
-                      : "bg-[#FFF1F4] text-gray-700 hover:text-[#E11D48]"
-                  }`}
-                >
-                  <Brush className="size-3.5" />
-                  <span>Brush Tool</span>
-                </button>
-
-                <button
-                  onClick={() => setTool("eraser")}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                    tool === "eraser"
-                      ? "bg-[#E11D48] text-white shadow-xs"
-                      : "bg-[#FFF1F4] text-gray-700 hover:text-[#E11D48]"
-                  }`}
-                >
-                  <Eraser className="size-3.5" />
-                  <span>Eraser</span>
-                </button>
-
-                <button
-                  onClick={autoDetect}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#FFF1F4] text-[#E11D48] hover:bg-[#FFE4E9] transition-all"
-                >
-                  <Wand2 className="size-3.5" />
-                  <span>Auto Detect</span>
-                </button>
-
-                <button
-                  onClick={() => setMarks([])}
-                  disabled={marks.length === 0}
-                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-gray-500 hover:text-red-600 disabled:opacity-40 transition-colors"
-                >
-                  <Trash2 className="size-3.5" />
-                  <span>Clear Selection</span>
-                </button>
-              </div>
-
-              {/* Middle: Brush size slider */}
-              <div className="flex items-center gap-3 min-w-[200px]">
-                <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">
-                  Size: {brush}px
-                </span>
-                <Slider
-                  value={[brush]}
-                  min={12}
-                  max={90}
-                  step={2}
-                  onValueChange={([v]) => v && setBrush(v)}
-                  className="w-32 accent-[#E11D48]"
-                />
-              </div>
-
-              {/* Right: Reset & Start Button */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    setUrl(null);
-                    setMarks([]);
-                    setDone(false);
-                  }}
-                  className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-900"
-                >
-                  <RefreshCw className="size-3.5" />
-                  <span>Change Image</span>
-                </button>
-
-                {!done && (
-                  <PinkButton
-                    size="md"
-                    onClick={startProcessing}
-                    disabled={running}
-                    className="shadow-sm"
+            {/* Action Bar */}
+            {(phase === "paint" || phase === "error") && (
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#10241e]/15 shadow-xl rounded-3xl p-4 sm:p-5">
+                {/* Left: tools */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => setTool("brush")}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      tool === "brush"
+                        ? "bg-[#10241e] text-[#d0f471] font-bold shadow-md"
+                        : "bg-[#f3f4ee] text-[#10241e] font-semibold hover:bg-[#e9ece4] border border-[#10241e]/15"
+                    }`}
                   >
-                    <Zap className="size-4" />
-                    <span>{running ? "Processing..." : "Refine & Inpaint"}</span>
-                  </PinkButton>
-                )}
-              </div>
-            </div>
+                    <Brush className="size-3.5" />
+                    <span>Brush</span>
+                  </button>
 
-            {/* Interactive Painting Canvas / Processing / Comparison Slider */}
-            {running ? (
-              <div className="py-12">
-                <PinkScanLoader progress={progress} stage={stage} />
-              </div>
-            ) : done ? (
-              /* Before / After Comparison Result */
-              <div className="space-y-6">
-                <div className="rounded-3xl p-4 bg-white border border-[#FCE7EC] shadow-[0_15px_45px_-10px_rgba(225,29,72,0.15)]">
-                  <BeforeAfterSlider
-                    src={url}
-                    labelBefore="Original (With Marks)"
-                    labelAfter="Cleaned Result (Pristine)"
-                    badge="AI Repaired"
+                  <button
+                    onClick={() => setTool("eraser")}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      tool === "eraser"
+                        ? "bg-[#10241e] text-[#d0f471] font-bold shadow-md"
+                        : "bg-[#f3f4ee] text-[#10241e] font-semibold hover:bg-[#e9ece4] border border-[#10241e]/15"
+                    }`}
+                  >
+                    <Eraser className="size-3.5" />
+                    <span>Eraser</span>
+                  </button>
+
+                  <button
+                    onClick={autoDetect}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#d0f471] text-[#091712] font-bold hover:bg-[#dbff83] border border-[#10241e]/20 transition-all"
+                  >
+                    <Wand2 className="size-3.5" />
+                    <span>Auto Detect</span>
+                  </button>
+
+                  <button
+                    onClick={() => setMarks([])}
+                    disabled={marks.length === 0}
+                    className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-[#637069] hover:text-red-600 font-semibold disabled:opacity-40 transition-colors"
+                  >
+                    <Trash2 className="size-3.5" />
+                    <span>Clear</span>
+                  </button>
+                </div>
+
+                {/* Middle: Brush size */}
+                <div className="flex items-center gap-3 min-w-[180px]">
+                  <span className="text-xs font-semibold text-[#10241e] font-bold whitespace-nowrap">
+                    Size: {brush}px
+                  </span>
+                  <Slider
+                    value={[brush]}
+                    min={12}
+                    max={120}
+                    step={2}
+                    onValueChange={([v]) => v && setBrush(v)}
+                    className="w-28 accent-[#E11D48]"
                   />
                 </div>
 
-                {/* Download Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
+                {/* Right: Reset + Process */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={reset}
+                    className="flex items-center gap-1 text-xs font-semibold text-[#637069] hover:text-[#10241e] font-semibold"
+                  >
+                    <RefreshCw className="size-3.5" />
+                    <span>Change Image</span>
+                  </button>
+
+                  <PinkButton
+                    size="md"
+                    onClick={startProcessing}
+                    disabled={!backendOk}
+                    className="shadow-sm"
+                  >
+                    <Zap className="size-4" />
+                    <span>Remove Watermark</span>
+                  </PinkButton>
+                </div>
+              </div>
+            )}
+
+            {/* ── PROCESSING ── */}
+            {phase === "processing" && (
+              <div className="py-10">
+                <PinkScanLoader progress={progress} stage={stage} />
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={cancelProcessing}
+                    className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── ERROR ── */}
+            {phase === "error" && (
+              <div className="rounded-2xl p-5 bg-red-50 border border-red-200 flex items-start gap-3">
+                <AlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-red-700">Processing failed</p>
+                  <p className="text-xs text-red-600 mt-1">{errorMsg}</p>
+                  {errorMsg.toLowerCase().includes("fetch") && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      💡 Make sure Flask backend is running: <code className="bg-gray-100 px-1 rounded">cd watermark-backend &amp;&amp; python app.py</code>
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── DONE — Before/After + Download ── */}
+            {phase === "done" && resultUrl && originalUrl && (
+              <div className="space-y-6">
+                <div className="rounded-3xl p-6 bg-white border border-[#10241e]/15 shadow-2xl">
+                  <BeforeAfterSlider
+                    src={originalUrl}
+                    resultSrc={resultUrl}
+                    labelBefore="Original"
+                    labelAfter="Cleaned"
+                    badge="Watermark Removed"
+                  />
+                </div>
+
+                {/* Download + Actions */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-zinc-950 border border-zinc-800">
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#E11D48] text-white text-xs font-semibold uppercase">
-                      HD 4K Ready
-                    </span>
-                    <span className="text-xs text-gray-600 font-medium">
-                      All watermarks removed • Full dynamic range preserved
+                    <CheckCircle2 className="size-4 text-green-400" />
+                    <span className="text-sm font-semibold text-zinc-200">
+                      Watermark removed • Full resolution preserved
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <PinkButton variant="outline" size="md" onClick={() => downloadResult("jpg")}>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <PinkButton variant="primary" size="md" onClick={downloadResult}>
                       <Download className="size-4" />
-                      <span>Download JPG</span>
-                    </PinkButton>
-
-                    <PinkButton variant="primary" size="md" onClick={() => downloadResult("png")}>
-                      <Download className="size-4" />
-                      <span>Download PNG (Lossless)</span>
+                      <span>Download PNG</span>
                     </PinkButton>
 
                     <PinkButton
                       variant="soft"
                       size="md"
                       onClick={() => {
-                        setDone(false);
+                        setPhase("paint");
                         setMarks([]);
+                        setResultUrl(null);
+                        setJobId(null);
                       }}
                     >
+                      <Undo2 className="size-4" />
                       <span>Edit Again</span>
+                    </PinkButton>
+
+                    <PinkButton variant="outline" size="md" onClick={reset}>
+                      <RefreshCw className="size-4" />
+                      <span>New Image</span>
                     </PinkButton>
                   </div>
                 </div>
               </div>
-            ) : (
-              /* Canvas Painting Area */
-              <div className="relative rounded-3xl overflow-hidden border border-[#FCE7EC] bg-gray-50 shadow-md">
+            )}
+
+            {/* ── CANVAS PAINTING AREA ── */}
+            {(phase === "paint" || phase === "error") && originalUrl && (
+              <div className="relative rounded-3xl overflow-hidden border border-[#10241e]/15 bg-[#f3f4ee] shadow-md rounded-3xl">
                 <div
-                  className="relative aspect-[16/10] w-full cursor-crosshair select-none touch-none overflow-hidden"
+                  className="relative w-full cursor-crosshair select-none touch-none overflow-hidden"
+                  style={{ minHeight: "320px", maxHeight: "70vh" }}
                   onPointerDown={(e) => {
                     painting.current = true;
                     paint(e);
@@ -376,15 +525,19 @@ export default function ImageCleaner() {
                   onPointerUp={() => {
                     painting.current = false;
                   }}
+                  onPointerLeave={() => {
+                    painting.current = false;
+                  }}
                 >
                   <img
-                    src={url}
-                    alt="Source preview"
-                    className="size-full object-contain pointer-events-none"
+                    src={originalUrl}
+                    alt="Source to clean"
+                    className="w-full h-full object-contain pointer-events-none"
                     draggable={false}
+                    style={{ maxHeight: "70vh", display: "block" }}
                   />
 
-                  {/* Render drawn mask marks with glowing red/pink */}
+                  {/* Painted marks overlay */}
                   <svg className="absolute inset-0 size-full pointer-events-none">
                     {marks.map((m, i) => (
                       <circle
@@ -392,17 +545,17 @@ export default function ImageCleaner() {
                         cx={`${m.x}%`}
                         cy={`${m.y}%`}
                         r={m.size / 2}
-                        fill={m.erase ? "transparent" : "rgba(225, 29, 72, 0.45)"}
-                        stroke={m.erase ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 46, 99, 0.7)"}
-                        strokeWidth={m.erase ? 3 : 1}
+                        fill={m.erase ? "transparent" : "rgba(225, 29, 72, 0.40)"}
+                        stroke={m.erase ? "rgba(255,255,255,0.8)" : "rgba(255,46,99,0.75)"}
+                        strokeWidth={m.erase ? 3 : 1.5}
                       />
                     ))}
                   </svg>
 
                   {marks.length === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="px-4 py-2 rounded-2xl bg-white/90 text-gray-700 text-xs font-bold border border-gray-200 backdrop-blur-md shadow-sm">
-                        🖌️ Click and drag brush over watermarks to remove
+                      <span className="px-4 py-2.5 rounded-2xl bg-zinc-900/95 text-zinc-200 text-sm font-semibold border border-zinc-700 backdrop-blur-md shadow-sm">
+                        🖌️ Drag to paint over watermark — or click <strong>Auto Detect</strong>
                       </span>
                     </div>
                   )}
@@ -411,6 +564,23 @@ export default function ImageCleaner() {
             )}
           </div>
         )}
+
+        {/* Trust section */}
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          {[
+            { icon: ShieldCheck, title: "Processed on your server", desc: "Images never leave your machine. All AI runs on the local Flask backend." },
+            { icon: Sparkles, title: "No watermark added", desc: "We never stamp our own brand on your output. Clean image stays clean." },
+            { icon: Zap, title: "Full resolution output", desc: "Original pixel dimensions preserved. Download as lossless PNG." },
+          ].map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="flex gap-3 p-4 rounded-2xl bg-white border border-[#10241e]/15 shadow-md p-6 rounded-3xl">
+              <Icon className="size-5 text-[#E11D48] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-base font-bold text-[#10241e]">{title}</p>
+                <p className="text-sm text-[#37433d] mt-1 leading-relaxed">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

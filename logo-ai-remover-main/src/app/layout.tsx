@@ -74,13 +74,17 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
+          href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
+          rel="stylesheet"
+        />
+        <link
           rel="preload"
           as="image"
-          href="/hero-section-banner.webp"
+          href="/bellix-manus/image-1.webp"
           type="image/webp"
         />
       </head>
-      <body className="antialiased min-h-screen bg-white text-gray-900">
+      <body className="antialiased min-h-screen bg-[#f3f4ee] text-[#10241e]">
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -61,67 +61,9 @@ const DEFAULT_USER: UserProfile = {
   last_credit_reset: new Date().toISOString(),
 };
 
-const INITIAL_JOBS: JobItem[] = [
-  {
-    id: "job_01",
-    user_id: "usr_mock_001",
-    file_name: "cyberpunk_portrait_midjourney.png",
-    file_type: "image",
-    status: "completed",
-    quality: "4K UHD",
-    credits_used: 1,
-    processing_time: "4.2s",
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    file_url:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
-    result_url:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=95",
-  },
-  {
-    id: "job_02",
-    user_id: "usr_mock_001",
-    file_name: "fashion_reel_watermark_clean.mp4",
-    file_type: "video",
-    status: "completed",
-    quality: "1080p 60fps",
-    credits_used: 1,
-    processing_time: "14.8s",
-    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
-    file_url:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&auto=format&fit=crop&q=80",
-    result_url:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1200&auto=format&fit=crop&q=95",
-  },
-  {
-    id: "job_03",
-    user_id: "usr_mock_001",
-    file_name: "luxury_packaging_render_8x.png",
-    file_type: "upscale",
-    status: "completed",
-    quality: "8x SuperRes",
-    credits_used: 1,
-    processing_time: "6.1s",
-    created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
-    file_url:
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&auto=format&fit=crop&q=80",
-    result_url:
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&auto=format&fit=crop&q=95",
-  },
-  {
-    id: "job_04",
-    user_id: "usr_mock_001",
-    file_name: "corrupted_hdr_source.mov",
-    file_type: "video",
-    status: "failed",
-    error_message: "Bitrate stream desync in frame 142. Codec: HEVC 10-bit",
-    quality: "4K UHD",
-    credits_used: 0,
-    processing_time: "2.3s",
-    created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
-  },
-];
+const INITIAL_JOBS: JobItem[] = [];
 
-const LOCAL_STORAGE_KEY = "bellix_user_store_v2";
+const LOCAL_STORAGE_KEY = "bellix_user_store_v3";
 
 const loadState = () => {
   if (typeof window === "undefined") return null;
@@ -151,7 +93,9 @@ const saved = loadState();
 export const useUserStore = create<UserState>((set, get) => ({
   user: saved?.user || DEFAULT_USER,
   isLoggedIn: saved?.isLoggedIn ?? true,
-  jobs: saved?.jobs || INITIAL_JOBS,
+  jobs: (saved?.jobs || []).filter(
+    (j: JobItem) => !j.id.startsWith("job_0") && j.file_name !== "cyberpunk_portrait_midjourney.png" && j.file_name !== "Quotes_Templates14.jpeg"
+  ),
 
   login: (email, name, role) => {
     const newUser: UserProfile = {

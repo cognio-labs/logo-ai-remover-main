@@ -360,9 +360,7 @@ export function ImageUploader({
             {isDragging ? "Drop your image right here" : "Drop your image here"}
           </b>
 
-          <p className="up-drop-subtitle">
-            PNG, JPG, WebP, GIF or AVIF · Up to 35MB · Paste (Ctrl+V)
-          </p>
+          
 
           <div className="up-drop-actions">
             <button

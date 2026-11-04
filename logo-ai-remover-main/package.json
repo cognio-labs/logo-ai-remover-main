@@ -4,6 +4,7 @@
   "sideEffects": false,
   "scripts": {
     "dev": "next dev -p 3000",
+    "backend": "cd ../watermark-backend && python app.py",
     "build": "next build",
     "start": "next start -p 3000",
     "vercel-build": "next build",

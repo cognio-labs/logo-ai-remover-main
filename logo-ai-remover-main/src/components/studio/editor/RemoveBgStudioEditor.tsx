@@ -90,7 +90,7 @@ function InnerEditor({
       {/* 2. MAIN WORKSPACE WITH CANVAS & DYNAMIC SIDEBAR */}
       <div className="relative flex flex-col lg:flex-row min-h-[360px] sm:min-h-[420px] overflow-hidden">
         {/* CENTER: Main Canvas Area */}
-        <div className="flex-1 relative flex items-center justify-center bg-slate-100/60 overflow-hidden min-h-[300px] sm:min-h-[380px]">
+        <div className="flex-1 relative flex items-center justify-center bg-[#0D0D0D] overflow-hidden min-h-[300px] sm:min-h-[380px]">
           <EditorCanvas />
 
           {/* Floating Action: Edit in Canva (Optional) */}
@@ -99,7 +99,7 @@ function InnerEditor({
               type="button"
               onClick={onEditInCanva}
               disabled={isCanvaLoading}
-              className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full bg-white/95 text-gray-900 text-xs font-semibold shadow-sm border border-gray-200/80 flex items-center gap-1.5 hover:shadow-md transition-all cursor-pointer backdrop-blur-xs"
+              className="absolute top-3 left-3 z-20 px-3 py-1.5 rounded-full bg-[#1C1C1C] text-white text-xs font-semibold shadow-sm border border-[#303030] flex items-center gap-1.5 hover:shadow-md transition-all cursor-pointer backdrop-blur-xs"
             >
               <ExternalLink className="size-3 text-blue-600" />
               <span>{isCanvaLoading ? "Opening..." : "Edit in Canva"}</span>
@@ -109,10 +109,10 @@ function InnerEditor({
 
         {/* SIDEBAR: Opens smoothly when an active tab is selected */}
         {activeTab && (
-          <aside className="w-full lg:w-[320px] bg-white border-t lg:border-t-0 lg:border-l border-gray-200/80 flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20 shadow-lg">
+          <aside className="w-full lg:w-[320px] bg-[#151515] border-t lg:border-t-0 lg:border-l border-[#303030] flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20 shadow-lg">
             {/* Header of Sidebar */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-              <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#303030] bg-[#1C1C1C]">
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
                 {activeTab === "cutout"
                   ? "Cutout & Erase Tools"
                   : activeTab === "background"
@@ -126,7 +126,7 @@ function InnerEditor({
               <button
                 type="button"
                 onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: null })}
-                className="size-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                className="size-6 rounded-full flex items-center justify-center text-[#8E8E8E] hover:text-white hover:bg-[#252525] transition-colors cursor-pointer"
                 title="Close panel"
               >
                 <X className="size-3.5" />
@@ -144,10 +144,10 @@ function InnerEditor({
                   <div className="size-12 rounded-xl bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] text-white flex items-center justify-center mx-auto shadow-md">
                     <Sparkles className="size-6" />
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900">
+                  <h4 className="text-sm font-bold text-white">
                     Export directly to Canva
                   </h4>
-                  <p className="text-xs text-gray-500 leading-relaxed font-normal">
+                  <p className="text-xs text-[#C7C7C7] leading-relaxed font-normal">
                     Transform this cutout into banners, social media posts, presentations, and product listings in one click.
                   </p>
                   {onEditInCanva && (
@@ -165,11 +165,11 @@ function InnerEditor({
             </div>
 
             {/* Bottom Actions inside Sidebar */}
-            <div className="p-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between gap-2">
+            <div className="p-3 border-t border-[#303030] bg-[#1C1C1C] flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: null })}
-                className="py-1.5 px-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-medium cursor-pointer"
+                className="py-1.5 px-3 rounded-lg border border-[#303030] bg-[#151515] hover:bg-[#252525] text-white text-xs font-medium cursor-pointer"
               >
                 Done
               </button>
@@ -187,11 +187,11 @@ function InnerEditor({
       </div>
 
       {/* 3. BOTTOM FOOTER CONTROLS */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 border-t border-gray-200/80 bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#303030] bg-[#151515]">
         <button
           type="button"
           onClick={onReset}
-          className="px-3.5 py-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+          className="px-3.5 py-2 rounded-full border border-[#303030] bg-[#1C1C1C] hover:bg-[#252525] text-white text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
         >
           <RefreshCw className="size-3.5" />
           <span>Upload Another Image</span>

@@ -135,40 +135,40 @@ const DEMO_PRESETS = [
 
 const SHOWCASE_ITEMS = [
   {
-    id: "hair",
-    category: "FINE HAIR & PORTRAITS",
-    title: "Zero Flyaway Hair Loss",
+    id: "cars",
+    category: "AUTOMOTIVE & COMPLEX REFLECTIONS",
+    title: "Exotic Supercar Silhouette",
     description:
-      "Preserves individual wisps, curls, and transparent fringes without halos or jagged cuts.",
-    originalImage: "/upscale/portrait.png",
-    cutoutImage: "/upscale/portrait_cutout.png",
+      "Preserves aerodynamic curves, glossy tinted glass reflections, alloy spokes, and ground contact shadows.",
+    originalImage: "/showcase/cars_original.jpg",
+    cutoutImage: "/showcase/cars_transparent.png",
   },
   {
-    id: "product",
-    category: "E-COMMERCE & PRODUCTS",
-    title: "Crisp Catalog Product Cutouts",
+    id: "shoes",
+    category: "E-COMMERCE & STREETWEAR",
+    title: "High-Top Sneaker Edge Isolation",
     description:
-      "Amazon, Shopify, and eBay 100% pure white background compliant with razor-sharp contours.",
-    originalImage: "/upscale/product.png",
-    cutoutImage: "/upscale/product_cutout.png",
+      "Razor-sharp contours through rubber soles, shoelaces, and micro-textures ready for Amazon & Shopify.",
+    originalImage: "/showcase/shoes_original.jpg",
+    cutoutImage: "/showcase/shoes_transparent.png",
   },
   {
-    id: "pet",
-    category: "PETS & WILDLIFE",
-    title: "Soft Fur, Feathers & Whiskers",
+    id: "people",
+    category: "FINE HAIR & STUDIO PORTRAITS",
+    title: "Studio Model Hair Matting",
     description:
-      "Handles intricate textures, soft fur, and whisker details without blurring or artificial lines.",
-    originalImage: "/upscale/wildlife.png",
-    cutoutImage: "/upscale/wildlife_cutout.png",
+      "Micro-strand isolation capturing every flowing hair wisp and delicate edge without halos or jagged cuts.",
+    originalImage: "/showcase/people_original.jpg",
+    cutoutImage: "/showcase/people_transparent.png",
   },
   {
-    id: "jewelry",
-    category: "JEWELRY & REFLECTIONS",
-    title: "Transparent Facets & Metal Edges",
+    id: "animals",
+    category: "PETS & ULTRA-SOFT FUR",
+    title: "Fluffy Pet Fur & Whisker Details",
     description:
-      "Accurately isolates transparent gemstones, shiny metals, and fine filigree with edge clarity.",
-    originalImage: "/upscale/jewelry.png",
-    cutoutImage: "/upscale/jewelry_cutout.png",
+      "Zero plastic blur on fine animal fur, whisker tips, and ear fluff over clean transparent PNG export.",
+    originalImage: "/showcase/animals_original.jpg",
+    cutoutImage: "/showcase/animals_transparent.png",
   },
 ];
 
@@ -384,7 +384,7 @@ function ShowcaseSlider({
   };
 
   return (
-    <div className="rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-200/40 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-gray-300/80 flex flex-col">
+    <div className="rounded-3xl border border-[#10241e]/15 bg-white shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-[#10241e]/40 flex flex-col">
       <div
         ref={containerRef}
         role="slider"
@@ -397,7 +397,7 @@ function ShowcaseSlider({
           if (e.key === "ArrowLeft") setPosition((p) => Math.max(0, p - 5));
           if (e.key === "ArrowRight") setPosition((p) => Math.min(100, p + 5));
         }}
-        className="relative aspect-16/10 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
+        className="relative aspect-16/10 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-black focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -407,7 +407,7 @@ function ShowcaseSlider({
         <div
           className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
             backgroundSize: "20px 20px",
           }}
         />
@@ -439,37 +439,37 @@ function ShowcaseSlider({
         {/* BADGES */}
         {/* Left Badge: ORIGINAL */}
         <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none select-none">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-950/80 text-white text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/10">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#10241e]/85 text-white text-xs sm:text-sm font-bold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/20 px-3.5 py-1.5 rounded-full">
             ORIGINAL
           </span>
         </div>
 
         {/* Right Badge: TRANSPARENT PNG */}
         <div className="absolute top-3.5 right-3.5 z-20 pointer-events-none select-none">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#E11D48] text-white text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase backdrop-blur-md shadow-md border border-white/20">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#d0f471] text-[#091712] text-xs sm:text-sm font-bold tracking-wider uppercase backdrop-blur-md shadow-md border border-[#10241e]/20 px-3.5 py-1.5 rounded-full">
             TRANSPARENT PNG
           </span>
         </div>
 
         {/* DIVIDER & ↔ HANDLE */}
         <div
-          className="absolute top-0 bottom-0 w-[2px] bg-[#E11D48] z-20 pointer-events-none shadow-[0_0_12px_rgba(225,29,72,0.8)]"
+          className="absolute top-0 bottom-0 w-[3px] bg-[#d0f471] z-20 pointer-events-none shadow-[0_0_12px_rgba(208,244,113,0.8)]"
           style={{ left: `${position}%` }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-9 sm:size-10 rounded-full bg-[#E11D48] border-2 border-white shadow-xl flex items-center justify-center text-white ring-4 ring-black/10 select-none">
-            <ChevronLeft className="size-3.5 -mr-0.5" />
-            <ChevronRight className="size-3.5 -ml-0.5" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-11 sm:size-12 rounded-full bg-[#10241e] border-2 border-[#d0f471] shadow-2xl flex items-center justify-center text-[#d0f471] select-none">
+            <ChevronLeft className="size-4 -mr-0.5" />
+            <ChevronRight className="size-4 -ml-0.5" />
           </div>
         </div>
       </div>
 
-      <div className="p-5 sm:p-6 bg-white border-t border-gray-100 flex-1 flex flex-col justify-between">
+      <div className="p-6 sm:p-8 bg-white border-t border-[#10241e]/10 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-[11px] font-semibold text-[#E11D48] uppercase tracking-widest">
+          <p className="text-xs sm:text-sm font-bold text-[#10241e] uppercase tracking-wider font-mono">
             {category}
           </p>
-          <h3 className="text-xl font-semibold text-gray-950 mt-1 tracking-tight">{title}</h3>
-          <p className="text-sm text-gray-600 mt-1.5 leading-relaxed font-normal">{description}</p>
+          <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] mt-2 tracking-tight">{title}</h3>
+          <p className="text-base sm:text-lg text-[#37433d] mt-2 leading-relaxed font-normal">{description}</p>
         </div>
       </div>
     </div>
@@ -518,7 +518,7 @@ function WorkspaceSplitSlider({
         <div
           className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
             backgroundSize: "20px 20px",
           }}
         />
@@ -722,21 +722,21 @@ function SeeTheDifferenceShowcase() {
   ];
 
   return (
-    <section className="py-20 sm:py-28 bg-white border-t border-gray-100/90">
+    <section className="py-20 sm:py-28 bg-[#f3f4ee] border-t border-[#10241e]/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* SECTION TITLE & SUBTITLE */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
             See the Difference
           </h2>
-          <p className="mt-3 text-base sm:text-lg text-gray-600 font-normal">
+          <p className="mt-3 text-base sm:text-lg text-[#37433d] font-normal">
             Remove backgrounds in seconds. Create professional images for every purpose.
           </p>
         </div>
 
         {/* CATEGORY TABS */}
         <div className="flex items-center justify-center mb-10 sm:mb-14">
-          <div className="inline-flex p-1.5 rounded-full bg-gray-100/80 border border-gray-200/60 max-w-full overflow-x-auto scrollbar-none gap-1 shadow-2xs">
+          <div className="inline-flex p-1.5 rounded-full bg-white border border-[#10241e]/15 max-w-full overflow-x-auto scrollbar-none gap-1.5 shadow-md">
             {SEE_DIFFERENCE_CATEGORIES.map((cat) => {
               const active = activeCategory === cat.id;
               return (
@@ -746,8 +746,8 @@ function SeeTheDifferenceShowcase() {
                   onClick={() => handleSelectCategory(cat.id)}
                   className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${
                     active
-                      ? "bg-white text-gray-950 shadow-xs border border-gray-200/70"
-                      : "text-gray-600 hover:text-gray-950 hover:bg-white/50"
+                      ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
+                      : "text-[#37433d] hover:text-[#10241e] hover:bg-[#e9ece4] font-medium"
                   }`}
                 >
                   {cat.label}
@@ -768,17 +768,17 @@ function SeeTheDifferenceShowcase() {
           {cards.map((card) => (
             <div
               key={card.label}
-              className="group rounded-3xl border border-gray-200/80 bg-white p-3.5 sm:p-4 shadow-md shadow-gray-200/40 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+              className="group rounded-3xl border border-[#10241e]/15 bg-white p-5 sm:p-6 shadow-xl hover:border-[#10241e]/40 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Image Frame */}
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#f8fafc] border border-gray-100/90 flex items-center justify-center select-none">
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#f3f4ee] border border-[#10241e]/10 flex items-center justify-center select-none">
                   {/* Subtle Checkerboard for Card 2 */}
                   {card.isTransparent && (
                     <div
                       className="absolute inset-0 size-full pointer-events-none"
                       style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23e2e8f0'/%3E%3Crect x='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect y='12' width='12' height='12' fill='%23f8fafc'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E")`,
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
                         backgroundSize: "20px 20px",
                       }}
                     />
@@ -795,18 +795,18 @@ function SeeTheDifferenceShowcase() {
                   />
 
                   {/* Stage Number Badge */}
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-semibold tracking-wider backdrop-blur-md border border-white/10 shadow-xs">
+                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-[#10241e] text-[#d0f471] text-xs font-bold tracking-wider backdrop-blur-md border border-[#10241e]/20 shadow-xs">
                     {card.step}
                   </span>
                 </div>
 
                 {/* Card Title */}
-                <h3 className="text-base sm:text-lg font-semibold text-gray-950 mt-4 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mt-4 tracking-tight">
                   {card.label}
                 </h3>
 
                 {/* Card Description */}
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                <p className="text-sm sm:text-base text-[#37433d] mt-2 leading-relaxed">
                   {card.desc}
                 </p>
               </div>
@@ -816,12 +816,12 @@ function SeeTheDifferenceShowcase() {
 
         {/* CTA BELOW SHOWCASE */}
         <div className="mt-12 sm:mt-16 text-center flex flex-col items-center justify-center">
-          <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-widest mb-3">
+          <p className="text-xs sm:text-sm font-medium text-[#C7C7C7] uppercase tracking-widest mb-3">
             Try it yourself
           </p>
           <Link
             to="/background-remover/sample-images"
-            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-medium text-sm shadow-lg shadow-rose-950/20 hover:shadow-xl hover:scale-102 active:scale-98 transition-all cursor-pointer"
+            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] font-bold text-base px-8 py-4 shadow-xl hover:shadow-xl hover:scale-102 active:scale-98 transition-all cursor-pointer"
           >
             <span>See more samples</span>
             <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
@@ -1499,28 +1499,28 @@ export default function BackgroundRemoverPage() {
         : cutoutResult?.compositeBlobUrl;
 
   return (
-    <main className="min-h-screen bg-transparent text-gray-900 font-sans selection:bg-[#FFE4E9] selection:text-[#E11D48]">
+    <main className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-24">
       {/* 1. HERO SECTION */}
       <section
         id="upload-studio-section"
-        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-radial-[at_50%_0%] from-[#FFF0F5] via-white to-white"
+        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-[#f3f4ee]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Title & Pitch */}
           <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-medium text-[#E11D48] mb-4 shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-bold text-[#10241e] mb-4 shadow-sm px-4 py-1.5">
               <Sparkles className="size-3.5 text-[#E11D48]" />
               <span>100% AUTOMATIC &amp; FREE BACKGROUND REMOVER</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-normal text-gray-950 tracking-tight leading-[1.08]">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#10241e] tracking-tight leading-[1.08]">
               Remove Image Backgrounds{" "}
-              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent font-medium">
+              <span className="text-[#10241e] underline decoration-[#d0f471] decoration-4 font-bold">
                 in 5 Seconds Free
               </span>
             </h1>
 
-            <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto font-normal">
+            <p className="mt-4 text-lg sm:text-2xl text-[#37433d] leading-relaxed max-w-3xl mx-auto font-normal">
               Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and
               complex product silhouettes with sub-pixel edge matting.
             </p>
@@ -1528,7 +1528,7 @@ export default function BackgroundRemoverPage() {
             <div className="mt-5 flex items-center justify-center gap-3">
               <a
                 href="#trust-showcase-section"
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 hover:bg-white text-gray-800 hover:text-[#E11D48] text-xs font-semibold border border-gray-200/90 shadow-2xs hover:shadow-xs transition-all hover:scale-102 cursor-pointer backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white hover:bg-[#e9ece4] text-[#10241e] text-sm font-semibold border border-[#10241e]/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer"
               >
                 <Play className="size-3 text-[#E11D48] fill-[#E11D48]" />
                 <span>Watch 3 Real-Time AI Proof Videos (60 FPS)</span>
@@ -1541,7 +1541,7 @@ export default function BackgroundRemoverPage() {
           {/* STATE 1: UPLOAD SCREEN (Idle state with 2-column card)           */}
           {/* ============================================================== */}
           {status === "idle" && (
-            <div className="rounded-3xl border border-gray-200/80 bg-white/95 backdrop-blur-xl shadow-2xl shadow-gray-200/60 p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto">
+            <div className="rounded-3xl border border-[#10241e]/15 bg-white shadow-2xl p-6 sm:p-10 max-w-5xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                 {/* LEFT SIDE: Large Drag-and-Drop Area */}
                 <div className="lg:col-span-7 flex flex-col justify-center">
@@ -1563,7 +1563,7 @@ export default function BackgroundRemoverPage() {
                     className={`h-[400px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer relative group ${
                       isDragging
                         ? "border-[#E11D48] bg-[#FFF5F7] ring-2 ring-[#E11D48]/20 scale-[1.01]"
-                        : "border-gray-300/90 hover:border-[#E11D48] hover:bg-[#FFF9FA]/80 bg-[#FAFAFC]/60"
+                        : "border-[#10241e]/20 hover:border-[#10241e] hover:bg-[#f9faf7] bg-white"
                     }`}
                   >
                     <input
@@ -1614,24 +1614,18 @@ export default function BackgroundRemoverPage() {
 
                     {/* Pink/Red Circular Upload Icon Button */}
                     <span
-                      className={`size-16 rounded-full bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white flex items-center justify-center shadow-lg shadow-[#E11D48]/30 mb-3.5 transition-transform group-hover:scale-110 ${
+                      className={`size-24 rounded-3xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-xl mb-4 transition-transform group-hover:scale-110 ${
                         isDragging ? "scale-110 animate-bounce" : ""
                       }`}
                     >
                       <Upload className="size-8" />
                     </span>
 
-                    <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight">
                       {isDragging ? "Drop image to upload" : "Drop your image here"}
                     </h3>
 
-                    <p className="text-xs text-gray-500 mt-1.5 max-w-xs leading-relaxed font-normal">
-                      PNG, JPG, WebP, AVIF or HEIC · Up to 35MB · Paste (
-                      <kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-600 font-medium">
-                        Ctrl+V
-                      </kbd>
-                      )
-                    </p>
+                    
 
                     <button
                       type="button"
@@ -1639,7 +1633,7 @@ export default function BackgroundRemoverPage() {
                         e.stopPropagation();
                         fileInputRef.current?.click();
                       }}
-                      className="mt-4 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs font-semibold shadow-md shadow-[#E11D48]/25 transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
+                      className="mt-4 px-6 py-2.5 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] text-base font-bold shadow-lg px-8 py-3.5 rounded-2xl transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
                     >
                       <Upload className="size-4" />
                       <span>Upload Image</span>
@@ -1651,7 +1645,7 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         onClick={handleClipboardButtonClick}
-                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-gray-600 hover:text-[#E11D48] transition-colors underline underline-offset-2 cursor-pointer"
+                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#C7C7C7] hover:text-[#FF4FA3] transition-colors underline underline-offset-2 cursor-pointer"
                       >
                         <Copy className="size-3 text-[#E11D48]" />
                         <span>Paste from Clipboard</span>
@@ -1668,14 +1662,14 @@ export default function BackgroundRemoverPage() {
                     </h4>
 
                     {/* Mode Selector Tabs */}
-                    <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-gray-100 border border-gray-200 text-xs font-medium text-gray-600 mb-5">
+                    <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[#e9ece4] border border-[#10241e]/15 text-xs font-semibold text-[#10241e] mb-5">
                       <button
                         type="button"
                         onClick={() => setBgType("transparent")}
-                        className={`py-2 rounded-lg transition-all cursor-pointer ${
+                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${
                           bgType === "transparent"
-                            ? "bg-white text-gray-950 shadow-xs font-semibold"
-                            : "hover:text-gray-900"
+                            ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
+                            : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
                         }`}
                       >
                         Transparent
@@ -1684,10 +1678,10 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         onClick={() => setBgType("color")}
-                        className={`py-2 rounded-lg transition-all cursor-pointer ${
+                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${
                           bgType === "color"
-                            ? "bg-white text-gray-950 shadow-xs font-semibold"
-                            : "hover:text-gray-900"
+                            ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
+                            : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
                         }`}
                       >
                         Solid Color
@@ -1696,11 +1690,11 @@ export default function BackgroundRemoverPage() {
                       <button
                         type="button"
                         disabled
-                        className="py-2 rounded-lg opacity-60 cursor-not-allowed flex items-center justify-center gap-1 text-gray-400"
+                        className="py-2 px-3 rounded-lg opacity-60 cursor-not-allowed flex items-center justify-center gap-1 text-[#637069]"
                         title="Studio Set is coming soon"
                       >
                         <span>Studio Set</span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-600 font-normal">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#dfe3da] text-[#10241e] font-bold">
                           Soon
                         </span>
                       </button>
@@ -1713,7 +1707,7 @@ export default function BackgroundRemoverPage() {
                           <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
                           <span>32-Bit Transparent PNG</span>
                         </p>
-                        <p className="text-gray-500 leading-relaxed font-normal">
+                        <p className="text-[#C7C7C7] leading-relaxed font-normal">
                           Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web
                           code with true alpha transparency.
                         </p>
@@ -1740,7 +1734,7 @@ export default function BackgroundRemoverPage() {
                                 className="size-5 rounded-md border border-black/10 shadow-2xs"
                                 style={{ backgroundColor: c.hex }}
                               />
-                              <span className="text-[11px] font-medium text-gray-900 leading-tight">
+                              <span className="text-[11px] font-medium text-white leading-tight">
                                 {c.name}
                               </span>
                             </button>
@@ -1753,9 +1747,9 @@ export default function BackgroundRemoverPage() {
                             onChange={(e) => handleColorChange(e.target.value)}
                             className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
                           />
-                          <span className="text-xs font-medium text-gray-600">
+                          <span className="text-xs font-medium text-[#C7C7C7]">
                             Custom Hex:{" "}
-                            <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-900 font-normal">
+                            <code className="bg-gray-100 px-1.5 py-0.5 rounded text-white font-normal">
                               {solidColor}
                             </code>
                           </span>
@@ -1765,14 +1759,14 @@ export default function BackgroundRemoverPage() {
 
                     {/* AI Quality Engine */}
                     <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                      <div className="flex items-center justify-between text-xs text-[#C7C7C7] mb-2">
                         <span className="font-semibold flex items-center gap-1.5 text-gray-700">
                           <Sliders className="size-3.5 text-[#E11D48]" />
                           <span>AI Quality Engine</span>
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-gray-600">
+                      <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-[#C7C7C7]">
                         {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
                           <button
                             key={mode}
@@ -1807,7 +1801,7 @@ export default function BackgroundRemoverPage() {
                     </button>
 
                     {/* Trust Micro-Indicators */}
-                    <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-gray-500 pt-1">
+                    <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-[#C7C7C7] pt-1">
                       <span className="flex items-center gap-1.5">
                         <Check className="size-3 text-emerald-500 shrink-0" />
                         <span>Zero Quality Loss</span>
@@ -1837,7 +1831,7 @@ export default function BackgroundRemoverPage() {
           {(status === "uploading" || status === "processing") && sourceUrl && (
             <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
-                <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div className="flex items-center gap-2 text-xs text-[#C7C7C7]">
                   <FileImage className="size-4 text-[#E11D48]" />
                   <span className="font-semibold text-gray-800 truncate max-w-[200px] sm:max-w-xs">
                     {uploadedFile?.name || "cutout.png"}
@@ -1856,15 +1850,15 @@ export default function BackgroundRemoverPage() {
                 </button>
               </div>
 
-              <div className="relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden bg-slate-50">
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center z-30 pointer-events-none">
-                  <div className="size-14 sm:size-16 rounded-full bg-white shadow-xl border border-gray-100 flex items-center justify-center mb-3">
-                    <Loader2 className="size-7 sm:size-8 text-[#E11D48] animate-spin" />
+              <div className="relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden bg-[#f3f4ee]">
+                <div className="absolute inset-0 bg-[#10241e]/85 backdrop-blur-md flex flex-col items-center justify-center z-30 pointer-events-none">
+                  <div className="size-14 sm:size-16 rounded-full bg-[#10241e] shadow-2xl border border-[#d7f3af]/30 flex items-center justify-center mb-3">
+                    <Loader2 className="size-7 sm:size-8 text-[#d0f471] animate-spin" />
                   </div>
-                  <h4 className="text-xs sm:text-sm font-semibold text-gray-900 tracking-tight">
+                  <h4 className="text-xs sm:text-sm font-semibold text-white tracking-tight">
                     Removing background...
                   </h4>
-                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-[#C7C7C7] mt-0.5">
                     Creating transparent PNG
                   </p>
                 </div>
@@ -1898,7 +1892,7 @@ export default function BackgroundRemoverPage() {
           {/* STATE 4: ERROR SCREEN                                           */}
           {/* ============================================================== */}
           {status === "error" && (
-            <div className="relative rounded-3xl overflow-hidden border border-rose-200 shadow-2xl bg-slate-950 flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
+            <div className="relative rounded-3xl overflow-hidden border border-[#303030] shadow-2xl bg-[#151515] flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
               {sourceUrl && (
                 <img
                   src={sourceUrl}
@@ -1908,16 +1902,16 @@ export default function BackgroundRemoverPage() {
               )}
 
               <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-6">
-                <div className="max-w-md w-full bg-white rounded-2xl p-6 sm:p-8 text-center shadow-2xl border border-gray-100">
-                  <span className="size-14 rounded-full bg-rose-50 text-[#E11D48] flex items-center justify-center mx-auto mb-4 border border-rose-100">
+                <div className="max-w-md w-full bg-[#1C1C1C] rounded-2xl p-6 sm:p-8 text-center shadow-2xl border border-[#303030]">
+                  <span className="size-14 rounded-full bg-[#151515] text-[#FF4FA3] flex items-center justify-center mx-auto mb-4 border border-[#303030]">
                     <AlertTriangle className="size-7" />
                   </span>
 
-                  <h3 className="text-xl font-semibold text-gray-950 tracking-tight">
+                  <h3 className="text-xl font-semibold text-white tracking-tight">
                     We couldn't remove this background.
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-gray-600 mt-2 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#C7C7C7] mt-2 leading-relaxed">
                     {typeof inlineError === "string"
                       ? inlineError
                       : inlineError?.message || "Please try again or upload another image."}
@@ -1927,7 +1921,7 @@ export default function BackgroundRemoverPage() {
                     <button
                       type="button"
                       onClick={retryRemoval}
-                      className="px-5 py-2.5 rounded-full bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-medium transition-all cursor-pointer flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-1.5"
                     >
                       <RefreshCw className="size-3.5" />
                       <span>Try Again</span>
@@ -1936,7 +1930,7 @@ export default function BackgroundRemoverPage() {
                     <button
                       type="button"
                       onClick={resetToUpload}
-                      className="px-5 py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium transition-all cursor-pointer"
+                      className="px-5 py-2.5 rounded-full border border-[#303030] bg-[#151515] hover:bg-[#252525] text-white text-xs sm:text-sm font-medium transition-all cursor-pointer"
                     >
                       Upload Another
                     </button>
@@ -1961,16 +1955,16 @@ export default function BackgroundRemoverPage() {
       <SeeTheDifferenceShowcase />
 
       {/* 3. BEFORE / AFTER QUALITY SHOWCASE */}
-      <section className="py-20 sm:py-28 bg-[#FAFAFB] border-y border-gray-100">
+      <section className="py-20 sm:py-28 bg-black border-y border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="text-xs font-semibold text-[#E11D48] uppercase tracking-widest mb-2">
+            <p className="text-xs font-semibold text-[#FF4FA3] uppercase tracking-widest mb-2">
               SUB-PIXEL AI MATTING QUALITY
             </p>
-            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
               Stunning Results on Hair, Fur &amp; Complex Edges
             </h2>
-            <p className="mt-3 text-base text-gray-600 font-normal">
+            <p className="mt-3 text-base text-zinc-400 font-normal">
               Drag the interactive slider to inspect the actual transparent cutout over the
               professional checkerboard pattern.
             </p>
@@ -1992,16 +1986,16 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 4. WORKFLOW & PERSONA SECTION */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               BUILT FOR EVERY WORKFLOW
             </p>
-            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
               One Tool. Endless Possibilities.
             </h2>
-            <p className="mt-3 text-base text-gray-600 font-normal">
+            <p className="mt-3 text-base text-[#C7C7C7] font-normal">
               Whether you need 100% white backgrounds for your e-commerce store or transparent
               stickers for social media.
             </p>
@@ -2013,7 +2007,7 @@ export default function BackgroundRemoverPage() {
               return (
                 <div
                   key={p.title}
-                  className="rounded-3xl border border-gray-200/90 bg-white p-7 shadow-lg shadow-gray-100/70 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all"
+                  className="rounded-3xl border border-[#10241e]/15 bg-[#f3f4ee] p-8 sm:p-10 rounded-3xl shadow-xl flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all"
                 >
                   <div>
                     <span
@@ -2022,14 +2016,14 @@ export default function BackgroundRemoverPage() {
                     >
                       <Icon className="size-6" />
                     </span>
-                    <h3 className="text-xl font-medium text-gray-900">{p.title}</h3>
-                    <p className="text-xs font-medium text-[#E11D48] mt-0.5">{p.subtitle}</p>
-                    <p className="text-xs text-gray-600 mt-3 leading-relaxed font-normal">
+                    <h3 className="text-2xl font-bold text-[#10241e]">{p.title}</h3>
+                    <p className="text-sm font-bold text-[#18362d] mt-1">{p.subtitle}</p>
+                    <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
                       {p.desc}
                     </p>
                   </div>
 
-                  <ul className="mt-6 pt-5 border-t border-gray-100 space-y-2 text-xs text-gray-600">
+                  <ul className="mt-6 pt-5 border-t border-[#303030] space-y-2 text-xs text-[#C7C7C7]">
                     {p.bullets.map((b) => (
                       <li key={b} className="flex items-center gap-2">
                         <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
@@ -2045,24 +2039,24 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 5. HOW IT WORKS IN 3 STEPS */}
-      <section className="py-20 sm:py-28 bg-[#FFF9FA] border-y border-[#FFE4E9]/60">
+      <section className="py-20 sm:py-28 bg-[#f3f4ee] border-b border-[#10241e]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               EFFORTLESS 3-STEP PIPELINE
             </p>
-            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
               Remove Backgrounds in 3 Steps
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
+              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 1
               </span>
-              <h3 className="text-lg font-medium text-gray-900">Upload or Paste Image</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">Upload or Paste Image</h3>
+              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
                 Drag and drop your JPG, PNG, WebP or HEIC file, or press{" "}
                 <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700 font-normal">
                   Ctrl+V
@@ -2071,23 +2065,23 @@ export default function BackgroundRemoverPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
+              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 2
               </span>
-              <h3 className="text-lg font-medium text-gray-900">AI Isolates Subject</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">AI Isolates Subject</h3>
+              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
                 Our sub-pixel neural matting separates fine hair, jewelry, and products from
                 distracting backdrops in under 5 seconds.
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white p-8 border border-gray-200 shadow-sm text-center">
-              <span className="size-14 mx-auto rounded-2xl bg-[#FFF1F4] text-[#E11D48] font-medium text-xl flex items-center justify-center mb-5">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
+              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 3
               </span>
-              <h3 className="text-lg font-medium text-gray-900">Customize &amp; Download</h3>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">Customize &amp; Download</h3>
+              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
                 Export transparent 4K PNGs or instantly replace the background with Amazon-compliant
                 Pure White, studio colors, or scenic backdrops.
               </p>
@@ -2167,18 +2161,18 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 7. COMPREHENSIVE FAQ SECTION */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-xs font-medium text-[#E11D48] uppercase tracking-widest mb-2">
               FREQUENTLY ASKED QUESTIONS
             </p>
-            <h2 className="text-3xl sm:text-5xl font-normal text-gray-950 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
               Everything You Need to Know
             </h2>
           </div>
 
-          <div className="divide-y divide-gray-200 border-y border-gray-200">
+          <div className="divide-y divide-[#10241e]/10 border-y border-[#10241e]/15">
             {FAQS.map((item, idx) => {
               const isOpen = openFaq === idx;
               return (
@@ -2188,15 +2182,15 @@ export default function BackgroundRemoverPage() {
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     className="w-full text-left flex items-center justify-between gap-4 cursor-pointer group"
                   >
-                    <span className="text-base sm:text-lg font-medium text-gray-900 group-hover:text-[#E11D48] transition-colors">
+                    <span className="text-base sm:text-xl sm:text-2xl font-bold text-[#10241e] group-hover:text-[#E11D48] transition-colors">
                       {item.q}
                     </span>
-                    <span className="size-7 rounded-full bg-gray-100 group-hover:bg-[#FFE4E9] group-hover:text-[#E11D48] flex items-center justify-center font-medium text-sm text-gray-600 transition-all shrink-0">
+                    <span className="size-7 rounded-full bg-[#f3f4ee] group-open:bg-[#10241e] group-open:text-[#d0f471] flex items-center justify-center font-bold text-base text-[#10241e] transition-all shrink-0 border border-[#10241e]/15">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>
                   {isOpen && (
-                    <p className="mt-3 text-sm text-gray-600 leading-relaxed pr-6 animate-in fade-in duration-200 font-normal">
+                    <p className="mt-3 text-base sm:text-lg text-[#37433d] leading-relaxed pr-6 animate-in fade-in duration-200 font-normal">
                       {item.a}
                     </p>
                   )}
@@ -2208,9 +2202,9 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 8. HIGH-CONVERTING FINAL CTA */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-white to-[#FFF5F7]">
+      <section className="py-16 sm:py-24 bg-[#f3f4ee]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] p-8 sm:p-14 text-white text-center shadow-2xl shadow-[#E11D48]/30 relative overflow-hidden">
+          <div className="rounded-3xl bg-[#091712] border border-[#d7f3af]/25 p-10 sm:p-16 text-white text-center shadow-2xl relative overflow-hidden">
             <div className="relative z-10 max-w-2xl mx-auto space-y-4">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-md">
                 <Sparkles className="size-3.5" />
@@ -2233,7 +2227,7 @@ export default function BackgroundRemoverPage() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                     fileInputRef.current?.click();
                   }}
-                  className="px-8 py-3.5 rounded-full bg-white hover:bg-gray-50 text-[#E11D48] text-xs sm:text-sm font-medium shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-full bg-[#d0f471] hover:bg-[#dbff83] text-[#091712] text-base sm:text-lg font-bold shadow-xl px-10 py-4 transition-all cursor-pointer flex items-center gap-2"
                 >
                   <Upload className="size-4" />
                   <span>Upload Image Free</span>

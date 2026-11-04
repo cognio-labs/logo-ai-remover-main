@@ -146,8 +146,8 @@ def make_corner_mask(image_bgr: np.ndarray, manual_box: Optional[Box] = None, fa
 
 
 def remove_corner_mark(image: np.ndarray, manual_box: Optional[Box] = None,
-                       inpaint_radius: float = 3.0, fallback: bool = True) -> Tuple[np.ndarray, np.ndarray]:
-    """Inpaint a detected mark. Accepts BGR/BGRA uint8 and returns (image, mask)."""
+                       inpaint_radius: float = 2.5, fallback: bool = True) -> Tuple[np.ndarray, np.ndarray]:
+    """Inpaint a detected mark with Navier-Stokes and subtle camera grain matching."""
     if image is None or not isinstance(image, np.ndarray) or image.size == 0:
         raise ValueError("Image is empty or invalid")
     if image.dtype != np.uint8:
@@ -157,7 +157,17 @@ def remove_corner_mark(image: np.ndarray, manual_box: Optional[Box] = None,
     has_alpha = image.shape[2] == 4
     bgr = image[:, :, :3].copy()
     mask = make_corner_mask(bgr, manual_box=manual_box, fallback=fallback)
-    result_bgr = cv2.inpaint(bgr, mask, float(inpaint_radius), cv2.INPAINT_TELEA)
+    
+    # 1. High-fidelity Navier-Stokes edge-preserving inpaint (eliminates plastic blur)
+    result_bgr = cv2.inpaint(bgr, mask, float(inpaint_radius), cv2.INPAINT_NS)
+    
+    # 2. Add subtle sensor grain to inpaint area to blend seamlessly with camera texture
+    mask_indices = np.where(mask > 0)
+    if len(mask_indices[0]) > 0:
+        noise = np.random.normal(0, 1.8, (len(mask_indices[0]), 3))
+        patch_pixels = result_bgr[mask_indices].astype(np.float32) + noise
+        result_bgr[mask_indices] = np.clip(patch_pixels, 0, 255).astype(np.uint8)
+
     result = np.dstack((result_bgr, image[:, :, 3].copy())) if has_alpha else result_bgr
     return result, mask
 

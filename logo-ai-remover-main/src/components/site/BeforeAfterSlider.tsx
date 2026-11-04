@@ -3,6 +3,8 @@ import { Sparkles } from "lucide-react";
 
 type Props = {
   src: string;
+  /** If provided, shown on the "after" (right) side. Otherwise `src` is used on both sides. */
+  resultSrc?: string;
   beforeSrc?: string;
   beforeClassName?: string;
   labelBefore?: string;
@@ -13,12 +15,15 @@ type Props = {
 /** Interactive luxury before/after comparison slider. */
 export function BeforeAfterSlider({
   src,
+  resultSrc,
   beforeSrc,
   beforeClassName = "contrast-95 brightness-95",
   labelBefore = "Original / With Artifacts",
   labelAfter = "Enhanced / Cleaned",
   badge = "4K AI Output",
 }: Props) {
+  // After-side image: resultSrc takes priority, then fallback to src
+  const afterImage = resultSrc ?? src;
   const [pos, setPos] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -33,7 +38,7 @@ export function BeforeAfterSlider({
   return (
     <div
       ref={ref}
-      className="relative aspect-[16/10] w-full cursor-ew-resize select-none overflow-hidden rounded-3xl border border-[#FCE7EC] bg-white shadow-[0_15px_45px_-10px_rgba(225,29,72,0.15)] group"
+      className="relative aspect-[16/10] w-full cursor-ew-resize select-none overflow-hidden rounded-3xl border border-zinc-800 bg-black shadow-[0_15px_45px_-10px_rgba(0,0,0,0.8)] group"
       onPointerDown={(e) => {
         dragging.current = true;
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -50,8 +55,8 @@ export function BeforeAfterSlider({
         draggable={false}
       />
 
-      {/* Simulated AI watermark and logo on before side */}
-      {!beforeSrc && (
+      {/* Simulated AI watermark and logo on before side — only shown when no real result */}
+      {!beforeSrc && !resultSrc && (
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
@@ -78,7 +83,7 @@ export function BeforeAfterSlider({
         className="absolute inset-0 overflow-hidden transition-none"
         style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
       >
-        <img src={src} alt={labelAfter} className="size-full object-cover" draggable={false} />
+        <img src={afterImage} alt={labelAfter} className="size-full object-cover" draggable={false} />
       </div>
 
       {/* Slider Line & Handle */}
@@ -93,13 +98,13 @@ export function BeforeAfterSlider({
 
       {/* Badges */}
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-        <span className="rounded-full border border-gray-200/80 bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur-md shadow-xs">
+        <span className="rounded-full border border-zinc-700 bg-black/85 px-3 py-1 text-xs font-semibold text-zinc-200 backdrop-blur-md shadow-xs">
           {labelBefore}
         </span>
       </div>
 
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-        <span className="flex items-center gap-1.5 rounded-full border border-[#FCE7EC] bg-white/95 px-3.5 py-1.5 text-xs font-semibold text-[#E11D48] backdrop-blur-md shadow-xs">
+        <span className="flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-black/90 px-3.5 py-1.5 text-xs font-semibold text-[#FF4FA3] backdrop-blur-md shadow-xs">
           <Sparkles className="size-3.5" />
           {labelAfter}
         </span>
