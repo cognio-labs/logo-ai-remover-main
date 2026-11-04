@@ -1,53 +1,43 @@
 # =============================================================================
-# Dockerfile for Bellix Labs Video Watermark Removal Application
+# Dockerfile — Bellix Labs Video Watermark Remover Backend
 # =============================================================================
-# Base: python:3.10-slim (Debian Bookworm)
-# Lightweight image — inpainting handled by OpenCV (C++ backend, ~5ms per frame).
-# Preserves original audio and high-resolution video clarity.
+# Python 3.11 with real system FFmpeg & FFprobe binary
+# Deployable to Railway, Render, Fly.io, or any Linux VPS.
 # =============================================================================
 
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# ---------------------------------------------------------------------------
-# Environment configuration
-# ---------------------------------------------------------------------------
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
-ENV APP_HOME=/app
+ENV PORT=8000
+ENV UPLOAD_DIR=/app/uploads
 
-# ---------------------------------------------------------------------------
-# System dependencies
-# ---------------------------------------------------------------------------
-# ffmpeg: for video splitting / reassembly
-# libgl1 + libglib2.0: required by OpenCV headless
+# Install system dependencies: real ffmpeg, ffprobe, and OpenCV requirements
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libgl1 \
     libglib2.0-0 \
-    wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# ---------------------------------------------------------------------------
-# Application setup
-# ---------------------------------------------------------------------------
-WORKDIR ${APP_HOME}
+WORKDIR /app
 
-# Copy and install Python dependencies first (leverages Docker layer caching)
+# Copy dependencies first for Docker layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application source code
+# Copy backend application source
 COPY . .
 
-# Create the uploads and models directory for video processing artifacts
-RUN mkdir -p /app/uploads /app/outputs /app/models && \
-    (wget -qO /app/models/ESPCN_x2.pb https://raw.githubusercontent.com/fannymonori/TF-ESPCN/master/export/ESPCN_x2.pb || true)
+# Ensure upload directory exists
+RUN mkdir -p /app/uploads
 
-# ---------------------------------------------------------------------------
-# Runtime configuration
-# ---------------------------------------------------------------------------
 EXPOSE 8000
-EXPOSE 5000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Start uvicorn server binding to dynamic $PORT
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

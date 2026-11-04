@@ -1,19 +1,11 @@
 # =============================================================================
-# Python Dependencies - Bellix Labs Watermark Removal Backend
+# Python Dependencies - Bellix Labs Video Watermark Remover Backend
 # =============================================================================
 
-# --- Web Frameworks ---
-flask>=3.0.0
-flask-cors>=4.0.0
-requests>=2.31.0
 fastapi>=0.115.0
-uvicorn>=0.30.0
+uvicorn[standard]>=0.30.0
 python-multipart>=0.0.20
-
-# --- Video Processing ---
-ffmpeg-python==0.2.0
-
-# --- Image Processing & Inpainting Engine ---
 opencv-python-headless>=4.8.0.76
 numpy>=1.24.0
 Pillow>=10.0.0
+requests>=2.31.0

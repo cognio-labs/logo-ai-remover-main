@@ -1,95 +1,116 @@
-# 🎬 Bellix Labs — Video Watermark Remover
+# 🎬 Bellix Labs — Real FFmpeg Video Watermark Remover Backend
 
-> **Video watermark removal — 100% local, self-contained, no paid APIs.**
+High-performance Python backend powered by FastAPI and the real system `ffmpeg` binary. Performs mathematical reverse alpha unblending for Google Gemini / Veo watermarked videos with zero AI distortion, preserving 100% original video resolution, framerate, and audio track.
 
-A full-stack application that removes watermarks from videos using OpenCV inpainting. Upload a video, paint over the watermark on an interactive canvas or use auto-detection, and download the clean result. Everything runs locally on your machine — no cloud services, no subscriptions.
-
----
-
-## ✨ Features
-
-- **Drag & Drop Upload** — Upload videos up to 100 MB (MP4, AVI, MOV, MKV, WebM)
-- **Interactive Canvas Mask Editor** — Paint over watermarks with an adjustable brush, undo/clear support
-- **OpenCV Inpainting Engine** — Fast, CPU-optimized frame-by-frame watermark removal (Telea & Navier-Stokes)
-- **Multi-core Processing** — Distributes frame inpainting across all CPU cores via multiprocessing
-- **Audio Preservation** — Automatically extracts and remuxes the original audio track
-- **Real-time Progress** — Live progress bar that polls the backend during processing
-- **Premium Dark UI** — Luxury dark design with smooth gradients, animations, and responsive layout
+> **Note:** This backend requires the real `ffmpeg` binary and must be deployed to a persistent container service (Railway, Render, Fly.io, or VPS). It must **NOT** be deployed to serverless hosts like Vercel or Netlify.
 
 ---
 
-## 📸 How It Works
+## 🚀 Quick Start (Local Run)
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  1. Upload   │ ──▶ │  2. Paint    │ ──▶ │  3. Process  │ ──▶ │  4. Download │
-│    Video     │     │    Mask      │     │  (Inpaint)   │     │    Result    │
-└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-```
+### 1. Prerequisites
+- Python 3.11+
+- System `ffmpeg` and `ffprobe` installed and on your PATH:
+  ```bash
+  # Linux (Ubuntu/Debian)
+  sudo apt-get update && sudo apt-get install -y ffmpeg
 
-1. **Upload** a video file via drag-and-drop or file picker
-2. **Paint** over the watermark area on the first frame using the brush tool (or auto-detect)
-3. **Process** — the backend splits frames, runs inpainting, and reassembles the video
-4. **Download** the watermark-free video with original audio intact
+  # macOS
+  brew install ffmpeg
 
----
+  # Windows (via winget or chocolatey)
+  winget install Gyan.FFmpeg
+  ```
 
-## 🏗️ Architecture
-
-```
-watermark-backend/
-├── Dockerfile              # Lightweight python:3.10-slim container
-├── docker-compose.yml      # Compose config with volume mounts
-├── .dockerignore            # Excludes dev files from build context
-├── .gitignore               # Git ignore rules
-├── requirements.txt         # Python dependencies
-│
-├── main.py                  # FastAPI app — REST endpoints
-├── video_utils.py           # FFmpeg wrapper — audio/frame/video pipeline
-├── inpainter.py             # OpenCV inpainting + multiprocessing
-├── processor.py             # Auto-detection and sub-pixel inpainting
-│
-├── uploads/                 # Runtime directory (gitignored)
-│
-└── static/
-    ├── index.html           # Single-page frontend (semantic HTML5)
-    └── app.js               # Vanilla JS — canvas, upload, polling logic
-```
-
-### Backend (Python / FastAPI)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/upload` | POST | Upload a video file, extract first frame |
-| `/frame/{task_id}` | GET | Retrieve the first frame as PNG for the canvas |
-| `/process` | POST | Submit a binary mask and start background processing |
-| `/status/{task_id}` | GET | Poll processing progress (0–100%) |
-| `/download/{task_id}` | GET | Download the final processed video |
-| `/api/upload` | POST | Bellix automated video upload & processing |
-| `/api/status/{job_id}` | GET | Status polling for web frontend |
-| `/api/result/{job_id}` | GET | Stream the cleaned video |
-| `/api/download/{job_id}` | GET | Download cleaned video |
-
----
-
-## 🚀 Quick Start
-
-### Run with Docker
-
+### 2. Install Dependencies & Run
 ```bash
-docker-compose up --build
-# Open in your browser: http://localhost:8000
-```
-
-### Run Locally with Python
-
-```bash
+cd watermark-backend
 pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Health check will be available at: `http://localhost:8000/health`
+
+---
+
+## 🐳 Docker Deployment
+
+### Build and Run Locally
+```bash
+docker build -t bellix-watermark-backend .
+docker run -p 8000:8000 bellix-watermark-backend
+```
+
+---
+
+## ☁️ Cloud Deployment Guides
+
+### 1. Railway (Recommended)
+1. Fork or push the repo to GitHub.
+2. In Railway dashboard, click **New Project** > **Deploy from GitHub repo**.
+3. Set the Root Directory to `watermark-backend`.
+4. Railway will automatically detect the `Dockerfile` and expose `${PORT}`.
+5. Set Environment Variables:
+   - `CORS_ORIGINS`: `https://bellix.us,https://www.bellix.us`
+6. Copy the generated Railway URL (e.g. `https://xxx.up.railway.app`) and set it in your frontend as `NEXT_PUBLIC_API_URL`.
+
+### 2. Render
+1. Create a **New Web Service** from your GitHub repo.
+2. Select **Docker** environment (or set Root Directory to `watermark-backend`).
+3. Add Environment Variables:
+   - `CORS_ORIGINS`: `https://bellix.us,https://www.bellix.us`
+4. Deploy service and set public URL in frontend.
+
+### 3. Fly.io
+```bash
+cd watermark-backend
+fly launch
+fly deploy
+```
+
+### 4. Linux VPS (Ubuntu / Debian / systemd)
+```bash
+sudo apt-get update && sudo apt-get install -y ffmpeg python3-pip python3-venv git
+cd /opt/watermark-backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Run with uvicorn or configure a systemd service:
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 ---
 
-<p align="center">
-  Built with ◆ <strong>Bellix Labs Video Watermark Remover</strong> — 100% local, zero cloud dependencies
-</p>
+## 📡 API Specification
+
+### `POST /api/video/process` (multipart/form-data)
+- **Parameters:**
+  - `file`: Video file (`video/mp4`, `video/webm`, `video/quicktime`, etc., up to 500 MB, duration $\le 120$ s).
+  - `size_pct`: Corner box width % (float, default `7.0`).
+  - `dist_pct`: Distance from right/bottom corner % (float, default `4.0`).
+  - `alpha`: Watermark opacity calibration (float `0.10` to `0.90`, default `0.30`).
+- **Response:**
+  ```json
+  { "job_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+  ```
+
+### `GET /api/video/status/{job_id}`
+- **Response:**
+  ```json
+  {
+    "state": "queued|processing|done|error",
+    "progress": 45,
+    "error": null,
+    "log_tail": ["frame=  120 fps=45.0 ..."]
+  }
+  ```
+
+### `GET /api/video/download/{job_id}`
+Streams the pristine clean MP4 file (`<original-name>-clean.mp4`) with attachment headers.
+
+### `DELETE /api/video/{job_id}`
+Deletes job workspace and temporary artifacts immediately.
+
+### `GET /health`
+Returns `{"ok": true, "ffmpeg": true}` verifying server health and the ffmpeg binary.
