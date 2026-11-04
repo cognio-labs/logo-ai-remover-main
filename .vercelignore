@@ -1,5 +1,12 @@
+node_modules
+*/node_modules
+.next
+*/.next
 .venv
 venv
+watermark-backend/uploads
+watermark-backend/outputs
+watermark-backend/image_jobs
 logo-ai-remover-main/.venv
 logo-ai-remover-main/venv
 logo-ai-remover-main/backend/storage
@@ -11,10 +18,6 @@ backend/models/weights
 *.pyc
 __pycache__
 bun.lock
-logo-ai-remover-main/test_*.png
+*.mp4
+*.mkv
 test_*.png
-test_cv.png
-test_fast.png
-test_lake_fixed.png
-test_lake_out.png
-test_opt.png
