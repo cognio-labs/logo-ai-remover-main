@@ -5,8 +5,12 @@
   "scripts": {
     "dev": "npm --prefix logo-ai-remover-main run dev",
     "backend": "cd watermark-backend && python app.py",
-    "build": "npm --prefix logo-ai-remover-main run build",
-    "start": "npm --prefix logo-ai-remover-main run start",
-    "vercel-build": "cd logo-ai-remover-main && npm install && npm run build"
+    "build": "cd logo-ai-remover-main && npm install && npm run build && node -e \"const fs = require('fs'); if (fs.existsSync('.next')) { fs.cpSync('.next', '../.next', { recursive: true }); }\"",
+    "start": "cd logo-ai-remover-main && npm run start"
+  },
+  "dependencies": {
+    "next": "^16.3.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }
