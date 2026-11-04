@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useRef, PointerEvent } from "react";
 import {
@@ -196,7 +198,7 @@ function SampleComparisonCard({ item }: { item: SampleImageItem }) {
   );
 }
 
-function SampleImagesPage() {
+export default function SampleImagesPage() {
   const [activeCategory, setActiveCategory] = useState<SampleCategory>(() => {
     if (typeof window === "undefined") return "all";
     const params = new URLSearchParams(window.location.search);

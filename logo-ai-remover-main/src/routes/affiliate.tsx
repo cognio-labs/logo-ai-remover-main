@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -31,7 +33,7 @@ export const Route = createFileRoute("/affiliate")({
   component: AffiliatePage,
 });
 
-function AffiliatePage() {
+export default function AffiliatePage() {
   const [referredUsers, setReferredUsers] = useState(60);
 
   // Form state

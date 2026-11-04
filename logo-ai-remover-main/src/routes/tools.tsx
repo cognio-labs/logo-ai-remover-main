@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -65,7 +67,7 @@ const DEFAULT_TOOLS = [
   },
 ];
 
-function Tools() {
+export default function Tools() {
   const [toolsList, setToolsList] = useState(DEFAULT_TOOLS);
   const [search, setSearch] = useState("");
 

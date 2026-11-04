@@ -1,11 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": ".output/public",
-  "build": {
-    "env": {
-      "DANGEROUSLY_DEPLOY_VULNERABLE_TANSTACK_START_XSS": "1"
-    }
-  }
+  "framework": "nextjs"
 }

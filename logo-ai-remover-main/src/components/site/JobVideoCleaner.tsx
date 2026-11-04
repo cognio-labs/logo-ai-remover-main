@@ -1,309 +1,274 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  AlertTriangle,
+  ArrowRight,
+  Check,
   CheckCircle2,
+  Clock,
   Copy,
   Download,
+  Eye,
+  FileVideo,
+  Film,
+  HardDrive,
+  Layers,
+  Loader2,
   LoaderCircle,
+  Maximize,
+  Minimize,
+  Pause,
+  Play,
   RefreshCw,
+  RotateCcw,
+  Scissors,
   ShieldCheck,
+  Sliders,
+  SlidersHorizontal,
   Sparkles,
   UploadCloud,
+  Video,
+  Volume2,
+  VolumeX,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PinkButton } from "@/components/site/PinkButton";
 import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
-import {
-  apiUrl,
-  cancelVideoJob,
-  getVideoResult,
-  getVideoStatus,
-  processVideo,
-  uploadVideo,
-  type JobStatus,
-  type ManualRegion,
-  type VideoMetadata,
-} from "@/lib/videoJobs";
+import { cleanVideoWatermark, type WatermarkRegion } from "@/lib/videoCleanerEngine";
 
 type OriginalVideo = {
   jobId: string;
   url: string;
   fileName: string;
-  metadata?: VideoMetadata;
+  fileSize?: number;
+  file?: File;
+  thumbnailUrl?: string;
+  duration?: number;
+  width?: number;
+  height?: number;
+  fps?: number;
 };
 
-type ProcessingJob = Pick<
-  JobStatus,
-  "jobId" | "status" | "progress" | "stage" | "message" | "processedFrames" | "totalFrames"
->;
+type ProcessingState = {
+  status: "idle" | "processing" | "completed" | "failed";
+  progress: number;
+  stage: string;
+  message: string;
+  processedFrames?: number;
+  totalFrames?: number;
+};
 
 type CleanedVideo = {
   jobId: string;
   url: string;
   fileName: string;
+  blob?: Blob;
 };
 
-type PresetKey = "top-right" | "bottom-right" | "top-left" | "bottom-left";
+type PresetKey = "gemini" | "veo" | "top-right" | "top-left" | "bottom-left" | "auto" | "custom";
 
-const PRESETS: Record<PresetKey, { label: string; region: ManualRegion }> = {
-  "top-right": {
-    label: "Top Right",
-    region: { x: 0.74, y: 0.01, width: 0.25, height: 0.24 },
-  },
-  "bottom-right": {
-    label: "Bottom Right (Gemini)",
+const PRESETS: Record<
+  PresetKey,
+  { label: string; desc: string; icon: string; region: WatermarkRegion }
+> = {
+  gemini: {
+    label: "Google Gemini",
+    desc: "Standard 4-pointed star watermark in bottom-right corner",
+    icon: "✦",
     region: { x: 0.76, y: 0.76, width: 0.22, height: 0.21 },
   },
+  veo: {
+    label: "Google Veo",
+    desc: "Optimized for Google Veo AI video generation watermark & mark",
+    icon: "🎥",
+    region: { x: 0.74, y: 0.74, width: 0.24, height: 0.23 },
+  },
+  "top-right": {
+    label: "Top Right Corner",
+    desc: "Watermark located in upper right corner of the frame",
+    icon: "↗",
+    region: { x: 0.74, y: 0.02, width: 0.24, height: 0.22 },
+  },
   "top-left": {
-    label: "Top Left",
-    region: { x: 0.01, y: 0.01, width: 0.25, height: 0.24 },
+    label: "Top Left Corner",
+    desc: "Watermark located in upper left corner of the frame",
+    icon: "↖",
+    region: { x: 0.02, y: 0.02, width: 0.24, height: 0.22 },
   },
   "bottom-left": {
-    label: "Bottom Left",
-    region: { x: 0.01, y: 0.76, width: 0.22, height: 0.21 },
+    label: "Bottom Left Corner",
+    desc: "Watermark located in lower left corner of the frame",
+    icon: "↙",
+    region: { x: 0.02, y: 0.76, width: 0.22, height: 0.21 },
+  },
+  auto: {
+    label: "Auto Neural Detect",
+    desc: "Scans video frames to locate and bound the watermark area",
+    icon: "⚡",
+    region: { x: 0.76, y: 0.76, width: 0.22, height: 0.21 },
+  },
+  custom: {
+    label: "Manual Adjustment",
+    desc: "Adjust exact coordinates and coverage area with sliders",
+    icon: "⚙",
+    region: { x: 0.76, y: 0.76, width: 0.22, height: 0.21 },
   },
 };
 
-const ACCEPT = ".mp4,.mov,.webm,.avi,.mpg,.mpeg,.mkv";
-const STORAGE_KEY = "bellix-active-video-job";
-const ACTIVE_STATUSES = new Set([
-  "queued",
-  "analyzing",
-  "detecting",
-  "tracking",
-  "generating_preview",
-  "processing",
-  "encoding",
-  "verifying",
-  "validating",
-]);
+const ACCEPT = "video/mp4,video/quicktime,video/webm,video/*,.mp4,.mov,.webm,.avi,.mkv";
 
-const cleanName = (name: string, quality?: string) => {
-  const base = name.replace(/\.[^/.]+$/u, "");
-  return quality ? `cleaned-${base}-${quality}.mp4` : `cleaned-${base}.mp4`;
-};
+function formatBytes(bytes?: number): string {
+  if (!bytes || bytes <= 0) return "Unknown size";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
+}
+
+function formatDuration(seconds?: number): string {
+  if (!seconds || isNaN(seconds) || !isFinite(seconds) || seconds <= 0) return "00:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+// Fast & safe thumbnail extractor that never blocks UI
+function extractVideoThumbnail(
+  file: File
+): Promise<{ url: string; duration: number; width: number; height: number }> {
+  return new Promise((resolve) => {
+    let finished = false;
+    const safeResolve = (res: { url: string; duration: number; width: number; height: number }) => {
+      if (!finished) {
+        finished = true;
+        resolve(res);
+      }
+    };
+
+    // Safety timeout of 1500ms so promise NEVER hangs
+    const timer = setTimeout(() => {
+      safeResolve({ url: "", duration: 0, width: 1920, height: 1080 });
+    }, 1500);
+
+    try {
+      const video = document.createElement("video");
+      video.preload = "auto";
+      video.muted = true;
+      video.playsInline = true;
+      const objectUrl = URL.createObjectURL(file);
+      video.src = objectUrl;
+
+      const capture = () => {
+        try {
+          const w = video.videoWidth || 1920;
+          const h = video.videoHeight || 1080;
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.min(w, 640);
+          canvas.height = Math.round((canvas.width / w) * h);
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumbUrl = canvas.toDataURL("image/jpeg", 0.85);
+            clearTimeout(timer);
+            URL.revokeObjectURL(objectUrl);
+            safeResolve({
+              url: thumbUrl,
+              duration: video.duration || 0,
+              width: w,
+              height: h,
+            });
+            return;
+          }
+        } catch {
+          // ignore canvas taint
+        }
+        clearTimeout(timer);
+        URL.revokeObjectURL(objectUrl);
+        safeResolve({ url: "", duration: video.duration || 0, width: 1920, height: 1080 });
+      };
+
+      video.onloadeddata = () => {
+        if (video.duration > 1) {
+          video.currentTime = 0.5;
+        } else {
+          capture();
+        }
+      };
+
+      video.onseeked = () => {
+        capture();
+      };
+
+      video.onerror = () => {
+        clearTimeout(timer);
+        URL.revokeObjectURL(objectUrl);
+        safeResolve({ url: "", duration: 0, width: 1920, height: 1080 });
+      };
+
+      video.load();
+    } catch {
+      clearTimeout(timer);
+      safeResolve({ url: "", duration: 0, width: 1920, height: 1080 });
+    }
+  });
+}
 
 export function JobVideoCleaner() {
   const [originalVideo, setOriginalVideo] = useState<OriginalVideo | null>(null);
-  const [processingJob, setProcessingJob] = useState<ProcessingJob | null>(null);
-  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+  const [processingState, setProcessingState] = useState<ProcessingState>({
+    status: "idle",
+    progress: 0,
+    stage: "",
+    message: "",
+  });
   const [cleanedVideo, setCleanedVideo] = useState<CleanedVideo | null>(null);
-  const [selectedPreset, setSelectedPreset] = useState<PresetKey | "auto">("auto");
-  const [manualRegion, setManualRegion] = useState<ManualRegion>(PRESETS["top-right"].region);
-  const [showBoxOverlay, setShowBoxOverlay] = useState<boolean>(false);
+  const [selectedPreset, setSelectedPreset] = useState<PresetKey>("gemini");
+  const [manualRegion, setManualRegion] = useState<WatermarkRegion>(PRESETS.gemini.region);
+  const [showBoxOverlay, setShowBoxOverlay] = useState<boolean>(true);
+  const [resultTab, setResultTab] = useState<"compare" | "clean">("compare");
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
+  // Original Video Player Interactive State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Clean Result Video Player Interactive State
+  const [cleanPlaying, setCleanPlaying] = useState(false);
+  const [cleanTime, setCleanTime] = useState(0);
+  const [cleanDuration, setCleanDuration] = useState(0);
+
   const inputRef = useRef<HTMLInputElement>(null);
-  const activeJobRef = useRef<string | null>(null);
-  const localUrlRef = useRef<string | null>(null);
-  const uploadAbortRef = useRef<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const previewVideoRef = useRef<HTMLVideoElement>(null);
+  const cleanVideoRef = useRef<HTMLVideoElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
 
-  const originalVideoRef = useRef<HTMLVideoElement>(null);
-  const rightVideoRef = useRef<HTMLVideoElement>(null);
-  const isSyncingRef = useRef<boolean>(false);
-
-  const assertCurrentJob = useCallback((jobId: string) => {
-    if (activeJobRef.current !== jobId) {
-      throw new Error("A stale response was rejected because it belongs to another video job.");
-    }
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+      if (originalVideo?.url) URL.revokeObjectURL(originalVideo.url);
+      if (cleanedVideo?.url) URL.revokeObjectURL(cleanedVideo.url);
+    };
   }, []);
 
-  // Section G Compliant Bidirectional Video Sync
-  const syncVideos = (source: HTMLVideoElement, target: HTMLVideoElement) => {
-    if (isSyncingRef.current) return;
-    if (Math.abs(target.currentTime - source.currentTime) > 0.06) {
-      isSyncingRef.current = true;
-      target.currentTime = source.currentTime;
-      requestAnimationFrame(() => {
-        isSyncingRef.current = false;
-      });
-    }
-  };
-
-  const handleLeftTimeUpdate = () => {
-    const left = originalVideoRef.current;
-    const right = rightVideoRef.current;
-    if (left && right) syncVideos(left, right);
-  };
-
-  const handleRightTimeUpdate = () => {
-    const left = originalVideoRef.current;
-    const right = rightVideoRef.current;
-    if (left && right) syncVideos(right, left);
-  };
-
-  const handleLeftPlay = () => {
-    rightVideoRef.current?.play().catch(() => {});
-  };
-
-  const handleRightPlay = () => {
-    originalVideoRef.current?.play().catch(() => {});
-  };
-
-  const handleLeftPause = () => {
-    rightVideoRef.current?.pause();
-  };
-
-  const handleRightPause = () => {
-    originalVideoRef.current?.pause();
-  };
-
-  const applyCompletedResult = useCallback(
-    async (jobId: string, fileName: string) => {
-      try {
-        const result = await getVideoResult(jobId);
-        assertCurrentJob(result.jobId);
-        setCleanedVideo({
-          jobId: result.jobId,
-          fileName: cleanName(fileName),
-          url: apiUrl(
-            `${result.cleanedVideoUrl}?job=${encodeURIComponent(jobId)}&v=${result.resultVersion}`,
-          ),
-        });
-        setProcessingJob({
-          jobId,
-          status: "completed",
-          progress: 100,
-          stage: "Complete",
-          message: "Watermark successfully removed. Video is ready for download.",
-        });
-      } catch (problem) {
-        setError(problem instanceof Error ? problem.message : String(problem));
-      }
-    },
-    [assertCurrentJob],
-  );
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    try {
-      const stored = JSON.parse(saved) as {
-        jobId: string;
-        fileName: string;
-        metadata?: VideoMetadata;
-      };
-      activeJobRef.current = stored.jobId;
-      setOriginalVideo({
-        ...stored,
-        url: apiUrl(`/api/video-watermark/original/${stored.jobId}?job=${stored.jobId}`),
-      });
-      void getVideoStatus(stored.jobId)
-        .then(async (status) => {
-          assertCurrentJob(status.jobId);
-          setProcessingJob(status);
-          if (status.hasPreview && (status.previewUrl || status.preview_url)) {
-            setPreviewVideoUrl(apiUrl(status.previewUrl || status.preview_url || ""));
-          }
-          if (status.status === "completed") {
-            await applyCompletedResult(stored.jobId, stored.fileName);
-          }
-        })
-        .catch(() => localStorage.removeItem(STORAGE_KEY));
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [applyCompletedResult, assertCurrentJob]);
-
-  // Section E & J Compliant Status Polling Effect
-  useEffect(() => {
-    const jobId = processingJob?.jobId;
-    const isJobActive = processingJob ? ACTIVE_STATUSES.has(processingJob.status) : false;
-    if (!jobId || !isJobActive) return;
-
-    let isSubscribed = true;
-    let isPollingTick = false;
-
-    const timer = window.setInterval(async () => {
-      if (isPollingTick || !isSubscribed) return;
-      isPollingTick = true;
-      try {
-        const status = await getVideoStatus(jobId);
-        if (!isSubscribed) return;
-        assertCurrentJob(status.jobId);
-        setProcessingJob(status);
-
-        // Update preview URL as soon as backend signals real preview is ready
-        const pUrl = status.previewUrl || status.preview_url;
-        if (status.hasPreview && pUrl) {
-          const freshPreviewUrl = apiUrl(`${pUrl}?t=${Date.now()}`);
-          setPreviewVideoUrl((prev) => (prev ? prev : freshPreviewUrl));
-        }
-
-        if (status.status === "completed") {
-          window.clearInterval(timer);
-          await applyCompletedResult(status.jobId, originalVideo?.fileName || "video.mp4");
-          if (isSubscribed) {
-            toast.success("Watermark removal completed! Clean video is ready.");
-          }
-        } else if (status.status === "failed") {
-          window.clearInterval(timer);
-          if (isSubscribed) {
-            setCleanedVideo(null);
-            setError(
-              status.error ||
-                "Video processing could not be completed. Your original video is unmodified.",
-            );
-          }
-        } else if (status.status === "cancelled") {
-          window.clearInterval(timer);
-          if (isSubscribed) {
-            toast.info("Processing was cancelled.");
-          }
-        }
-      } catch (problem) {
-        if (isSubscribed) {
-          setError(problem instanceof Error ? problem.message : String(problem));
-        }
-      } finally {
-        isPollingTick = false;
-      }
-    }, 1000);
-
-    return () => {
-      isSubscribed = false;
-      window.clearInterval(timer);
-    };
-  }, [
-    applyCompletedResult,
-    assertCurrentJob,
-    originalVideo?.fileName,
-    processingJob?.jobId,
-    Boolean(processingJob && ACTIVE_STATUSES.has(processingJob.status)),
-  ]);
-
-  useEffect(
-    () => () => {
-      uploadAbortRef.current?.abort();
-      if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
-    },
-    [],
-  );
-
-  const selectFile = async (file: File) => {
-    // Check if user accidentally selected/pasted an image
+  const selectFile = (file: File) => {
     const isImage =
       file.type.startsWith("image/") ||
       /\.(png|jpe?g|webp|heic|heif|avif|bmp|tiff?|gif|svg)$/iu.test(file.name);
 
     if (isImage) {
       setError(
-        "Image file detected. This tool removes watermarks from videos. For images, open our Image Background Remover or Image Cleaner.",
+        "Image file detected. This tool removes watermarks from videos. For images, open our Image Background Remover."
       );
-      toast.error(
-        "Image file detected. Please upload an MP4, MOV, or WebM video, or switch to Image Background Remover.",
-        {
-          action: {
-            label: "Open Image Remover",
-            onClick: () => {
-              window.location.href = "/background-remover";
-            },
-          },
-          duration: 8000,
-        },
-      );
+      toast.error("Image file detected. Please upload an MP4, MOV, or WebM video.");
       return;
     }
 
@@ -314,64 +279,60 @@ export function JobVideoCleaner() {
       toast.error("Please upload MP4, MOV, WebM, AVI, or MKV.");
       return;
     }
-    uploadAbortRef.current?.abort();
-    if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
-    const controller = new AbortController();
-    uploadAbortRef.current = controller;
+
+    abortControllerRef.current?.abort();
+    if (originalVideo?.url) URL.revokeObjectURL(originalVideo.url);
+    if (cleanedVideo?.url) URL.revokeObjectURL(cleanedVideo.url);
+
     const jobId = crypto.randomUUID();
     const localUrl = URL.createObjectURL(file);
-    localUrlRef.current = localUrl;
-    activeJobRef.current = jobId;
-    setOriginalVideo({ jobId, url: localUrl, fileName: file.name });
-    setCleanedVideo(null);
-    setPreviewVideoUrl(null);
-    setError("");
-    setProcessingJob({
-      jobId,
-      status: "uploading",
-      progress: 0,
-      stage: "Uploading video...",
-      message: "Validating format and container streams",
-    });
 
-    try {
-      const uploaded = await uploadVideo(file, jobId, controller.signal);
-      assertCurrentJob(uploaded.jobId || uploaded.job_id || jobId);
-      const metadata: VideoMetadata = uploaded.metadata || {
-        width: uploaded.width || 1920,
-        height: uploaded.height || 1080,
-        fps: uploaded.fps || 30,
-        duration: uploaded.duration || 10,
-        frameCount: 300,
-        hasAudio: true,
-      };
-      const original = { jobId, url: localUrl, fileName: file.name, metadata };
-      setOriginalVideo(original);
-      setProcessingJob({
-        jobId,
-        status: "uploaded",
-        progress: 5,
-        stage: "Ready to analyze",
-        message: "Ready to detect and remove watermarks",
-        totalFrames: metadata.frameCount,
-        processedFrames: 0,
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ jobId, fileName: file.name, metadata }));
-      toast.success(`Loaded "${file.name}". Ready for processing.`);
-    } catch (problem) {
-      if (!controller.signal.aborted) {
-        const errorMsg = problem instanceof Error ? problem.message : String(problem);
-        setError(errorMsg);
-        setProcessingJob((current) =>
-          current
-            ? { ...current, status: "failed", stage: "Upload failed", message: errorMsg }
-            : null,
-        );
+    // 1. Immediately update state so UI changes with ZERO lag
+    setOriginalVideo({
+      jobId,
+      url: localUrl,
+      fileName: file.name,
+      fileSize: file.size,
+      file: file,
+      thumbnailUrl: "",
+      duration: 0,
+      width: 1920,
+      height: 1080,
+      fps: 30,
+    });
+    setCleanedVideo(null);
+    setError("");
+    setProcessingState({
+      status: "idle",
+      progress: 0,
+      stage: "",
+      message: "",
+    });
+    setIsPlaying(false);
+    setCurrentTime(0);
+
+    toast.success(`Loaded "${file.name}". Ready for processing.`);
+
+    // 2. Extract thumbnail & duration in background asynchronously
+    extractVideoThumbnail(file).then((thumb) => {
+      setOriginalVideo((prev) =>
+        prev && prev.jobId === jobId
+          ? {
+              ...prev,
+              thumbnailUrl: thumb.url || prev.thumbnailUrl,
+              duration: thumb.duration || prev.duration,
+              width: thumb.width || prev.width,
+              height: thumb.height || prev.height,
+            }
+          : prev
+      );
+      if (thumb.duration > 0) {
+        setDuration(thumb.duration);
       }
-    }
+    });
   };
 
-  // Global Ctrl+V / Cmd+V paste listener & drop guard for Video Cleaner
+  // Clipboard paste support (Ctrl+V)
   useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
       const target = e.target as HTMLElement;
@@ -382,656 +343,1042 @@ export function JobVideoCleaner() {
         return;
       }
 
-      // 1. Files from clipboard (Ctrl+C from File Explorer)
       const clipFiles = Array.from(e.clipboardData?.files || []);
       if (clipFiles.length > 0) {
         e.preventDefault();
-        void selectFile(clipFiles[0]);
+        selectFile(clipFiles[0]);
         return;
       }
 
-      // 2. Video items from clipboard
       const items = Array.from(e.clipboardData?.items || []);
       const videoItem = items.find((item) => item.type.startsWith("video/"));
       if (videoItem) {
         const file = videoItem.getAsFile();
         if (file) {
           e.preventDefault();
-          void selectFile(file);
-          return;
+          selectFile(file);
         }
       }
-
-      // Also check image items to guide user
-      const imgItem = items.find((item) => item.type.startsWith("image/"));
-      if (imgItem) {
-        const file = imgItem.getAsFile();
-        if (file) {
-          e.preventDefault();
-          void selectFile(file);
-          return;
-        }
-      }
-
-      // 3. Pasted video URLs
-      const pastedText = e.clipboardData?.getData("text/plain")?.trim();
-      if (pastedText && /^https?:\/\/.*\.(mp4|mov|webm|mkv|avi|m4v)(\?.*)?$/i.test(pastedText)) {
-        e.preventDefault();
-        toast.info("Downloading video from URL...");
-        try {
-          const res = await fetch(pastedText);
-          const blob = await res.blob();
-          const cleanName = pastedText.split("?")[0].split("/").pop() || "pasted-video.mp4";
-          const file = new File([blob], cleanName, { type: blob.type || "video/mp4" });
-          void selectFile(file);
-        } catch {
-          toast.error("Could not fetch video from link due to web CORS security.");
-        }
-      }
-    };
-
-    const preventWindowDrop = (e: DragEvent) => {
-      e.preventDefault();
     };
 
     window.addEventListener("paste", handlePaste);
-    window.addEventListener("dragover", preventWindowDrop);
-    window.addEventListener("drop", preventWindowDrop);
-
-    return () => {
-      window.removeEventListener("paste", handlePaste);
-      window.removeEventListener("dragover", preventWindowDrop);
-      window.removeEventListener("drop", preventWindowDrop);
-    };
+    return () => window.removeEventListener("paste", handlePaste);
   }, []);
 
-  const startCleaning = async () => {
-    if (!originalVideo || processingJob?.status === "uploading") return;
-    setError("");
-    setCleanedVideo(null);
-    setPreviewVideoUrl(null);
-    setProcessingJob({
-      jobId: originalVideo.jobId,
-      status: "queued",
-      progress: 6,
-      stage: "Analyzing video...",
-      message: "Worker is starting frame inspection",
-      totalFrames: originalVideo.metadata?.frameCount ?? 0,
-      processedFrames: 0,
-    });
-    try {
-      const response = await processVideo(
-        originalVideo.jobId,
-        selectedPreset === "auto" ? null : manualRegion,
-      );
-      assertCurrentJob(response.jobId);
-    } catch (problem) {
-      setProcessingJob((current) =>
-        current
-          ? { ...current, status: "failed", progress: 0, stage: "Processing failed" }
-          : current,
-      );
-      setError(problem instanceof Error ? problem.message : String(problem));
+  // Video Player Controls
+  const togglePlay = () => {
+    const v = previewVideoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+    } else {
+      v.pause();
+      setIsPlaying(false);
     }
   };
 
-  const handleCancel = async () => {
-    if (!originalVideo || !processingJob) return;
-    try {
-      await cancelVideoJob(originalVideo.jobId);
-      setProcessingJob((current) =>
-        current
-          ? {
-              ...current,
-              status: "cancelled",
-              progress: 0,
-              stage: "Cancelled",
-              message: "Processing was cancelled by user.",
-            }
-          : null,
-      );
-      setCleanedVideo(null);
-      setPreviewVideoUrl(null);
-      toast.info("Processing cancelled.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = parseFloat(e.target.value);
+    setCurrentTime(target);
+    if (previewVideoRef.current) {
+      previewVideoRef.current.currentTime = target;
     }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setVolume(val);
+    setIsMuted(val === 0);
+    if (previewVideoRef.current) {
+      previewVideoRef.current.volume = val;
+      previewVideoRef.current.muted = val === 0;
+    }
+  };
+
+  const toggleMute = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      if (previewVideoRef.current) {
+        previewVideoRef.current.muted = false;
+        previewVideoRef.current.volume = volume || 0.8;
+      }
+    } else {
+      setIsMuted(true);
+      if (previewVideoRef.current) {
+        previewVideoRef.current.muted = true;
+      }
+    }
+  };
+
+  const toggleFullscreen = () => {
+    const container = playerContainerRef.current;
+    if (!container) return;
+    if (!document.fullscreenElement) {
+      container.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
+
+  // Start Watermark Removal Processing
+  const startCleaning = async () => {
+    if (!originalVideo?.file) return;
+
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setError("");
+    setCleanedVideo(null);
+    setProcessingState({
+      status: "processing",
+      progress: 5,
+      stage: "Step 1/4: Analyzing video streams",
+      message: "Parsing frame resolution & keyframe index",
+      processedFrames: 0,
+      totalFrames: Math.round((originalVideo.duration || 10) * 30),
+    });
+
+    try {
+      const result = await cleanVideoWatermark(
+        originalVideo.file,
+        manualRegion,
+        (progressData) => {
+          setProcessingState({
+            status: "processing",
+            progress: progressData.progress,
+            stage: progressData.stage,
+            message: progressData.message,
+            processedFrames: progressData.processedFrames,
+            totalFrames: progressData.totalFrames,
+          });
+        },
+        controller.signal
+      );
+
+      setCleanedVideo({
+        jobId: originalVideo.jobId,
+        url: result.url,
+        fileName: result.fileName,
+        blob: result.blob,
+      });
+
+      setProcessingState({
+        status: "completed",
+        progress: 100,
+        stage: "Step 4/4: Video ready",
+        message: "Watermark successfully removed! Clean video is ready for preview & download.",
+      });
+
+      toast.success("Watermark removed successfully! Clean video is ready.");
+    } catch (err) {
+      if (controller.signal.aborted) {
+        setProcessingState({
+          status: "idle",
+          progress: 0,
+          stage: "Cancelled",
+          message: "Processing was cancelled by user.",
+        });
+        toast.info("Processing was cancelled.");
+        return;
+      }
+
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setError(errMsg);
+      setProcessingState({
+        status: "failed",
+        progress: 0,
+        stage: "Processing error",
+        message: errMsg,
+      });
+      toast.error(`Processing error: ${errMsg}`);
+    }
+  };
+
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
+    setProcessingState({
+      status: "idle",
+      progress: 0,
+      stage: "",
+      message: "",
+    });
   };
 
   const reset = () => {
-    uploadAbortRef.current?.abort();
-    if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
-    localUrlRef.current = null;
-    activeJobRef.current = null;
-    localStorage.removeItem(STORAGE_KEY);
+    abortControllerRef.current?.abort();
+    if (originalVideo?.url) URL.revokeObjectURL(originalVideo.url);
+    if (cleanedVideo?.url) URL.revokeObjectURL(cleanedVideo.url);
     setOriginalVideo(null);
-    setProcessingJob(null);
     setCleanedVideo(null);
-    setPreviewVideoUrl(null);
     setError("");
+    setProcessingState({
+      status: "idle",
+      progress: 0,
+      stage: "",
+      message: "",
+    });
+    if (inputRef.current) inputRef.current.value = "";
   };
 
-  const downloadCleaned = async (quality?: "720p" | "1080p" | "4k") => {
-    if (!originalVideo || !cleanedVideo || cleanedVideo.jobId !== originalVideo.jobId) {
-      setError("The cleaned result does not belong to the current upload.");
-      return;
-    }
-    try {
-      const query = quality ? `/${quality}` : "";
-      const downloadEndpoint = apiUrl(
-        `/api/video-watermark/download/${encodeURIComponent(originalVideo.jobId)}${query}`,
-      );
-      const response = await fetch(downloadEndpoint, { cache: "no-store" });
-      if (!response.ok) throw new Error("Cleaned video could not be downloaded. Please retry.");
-      const url = URL.createObjectURL(await response.blob());
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = cleanName(originalVideo.fileName, quality);
-      anchor.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 5000);
-    } catch (problem) {
-      setError(problem instanceof Error ? problem.message : String(problem));
-    }
+  const handleDownload = () => {
+    if (!cleanedVideo) return;
+    const a = document.createElement("a");
+    a.href = cleanedVideo.url;
+    a.download = cleanedVideo.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast.success(`Downloading ${cleanedVideo.fileName}`);
   };
 
+  const busy = processingState.status === "processing";
+
+  /* -------------------------------------------------------------------------- */
+  /* SECTION 1: UPLOAD SECTION (Initial empty state)                            */
+  /* -------------------------------------------------------------------------- */
   if (!originalVideo) {
     return (
-      <div
-        className={`relative flex min-h-[370px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-12 text-center transition-colors ${
-          dragOver
-            ? "border-[#E11D48] bg-[#FFF5F7]"
-            : "border-[#FCA5A5] bg-white hover:bg-[#FFF9FA]"
-        }`}
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={(event) => {
-          event.preventDefault();
-          setDragOver(false);
-          const file = event.dataTransfer.files[0];
-          if (file) {
-            void selectFile(file);
-            return;
-          }
-          const uri =
-            event.dataTransfer.getData("text/uri-list") ||
-            event.dataTransfer.getData("text/plain");
-          if (uri && /^https?:\/\/.*\.(mp4|mov|webm|mkv|avi)(\?.*)?$/i.test(uri.trim())) {
-            toast.info("Downloading video from URL...");
-            fetch(uri.trim())
-              .then((res) => res.blob())
-              .then((blob) => {
-                const cleanName = uri.trim().split("?")[0].split("/").pop() || "video.mp4";
-                void selectFile(new File([blob], cleanName, { type: blob.type || "video/mp4" }));
-              })
-              .catch(() => toast.error("Could not fetch video from web link."));
-          }
-        }}
-      >
-        <span className="flex size-18 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_8px_25px_rgba(225,29,72,0.35)]">
-          <UploadCloud className="size-8" />
-        </span>
-        <h3 className="mt-5 text-2xl font-semibold tracking-tight text-gray-950">
-          Drop your video here
-        </h3>
-        <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-gray-500">
-          Upload MP4, MOV, WebM, AVI, or MKV • Paste (
-          <kbd className="font-sans px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-600 font-medium">
-            Ctrl+V
-          </kbd>
-          ) • Drag &amp; drop
-        </p>
-        <PinkButton
-          type="button"
-          className="mt-6"
-          onClick={(event) => {
-            event.stopPropagation();
-            inputRef.current?.click();
+      <div className="w-full">
+        <div
+          className={`relative flex min-h-[380px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-12 text-center transition-all duration-300 ${
+            dragOver
+              ? "border-[#E11D48] bg-[#FFF5F7] shadow-xl scale-[1.01]"
+              : "border-[#FCA5A5] bg-white hover:border-[#E11D48] hover:bg-[#FFF9FA] shadow-xs"
+          }`}
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const file = e.dataTransfer.files[0];
+            if (file) selectFile(file);
           }}
         >
-          <UploadCloud className="size-4" /> Upload Video
-        </PinkButton>
+          {/* Animated Pink Cloud Icon */}
+          <div className="relative">
+            <span className="flex size-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] text-white shadow-[0_10px_30px_rgba(225,29,72,0.35)] transition-transform duration-300 group-hover:scale-110">
+              <UploadCloud className="size-9 animate-pulse" />
+            </span>
+            <span className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full bg-white border border-rose-200 text-[#E11D48] shadow-xs">
+              <Film className="size-3.5" />
+            </span>
+          </div>
 
-        <div className="mt-3 flex items-center justify-center gap-2">
-          <button
-            type="button"
-            onClick={async (event) => {
-              event.stopPropagation();
-              try {
-                if (navigator.clipboard?.read) {
-                  const clipItems = await navigator.clipboard.read();
-                  for (const item of clipItems) {
-                    const vidType = item.types.find((t) => t.startsWith("video/"));
-                    if (vidType) {
-                      const blob = await item.getType(vidType);
-                      const file = new File([blob], "pasted-video.mp4", { type: vidType });
-                      void selectFile(file);
-                      return;
+          <h3 className="mt-6 text-2xl sm:text-3xl font-bold tracking-tight text-gray-950">
+            Drop your video here
+          </h3>
+
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-500">
+            Upload MP4, MOV, WebM, AVI, or MKV • Paste (
+            <kbd className="font-sans px-2 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-700 font-semibold text-xs">
+              Ctrl+V
+            </kbd>
+            ) • Drag &amp; drop
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <PinkButton
+              type="button"
+              size="lg"
+              className="px-7 py-3 text-sm font-bold shadow-md hover:shadow-rose-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                inputRef.current?.click();
+              }}
+            >
+              <UploadCloud className="size-4 mr-2" /> Browse Video
+            </PinkButton>
+
+            <button
+              type="button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                try {
+                  if (navigator.clipboard?.read) {
+                    const clipItems = await navigator.clipboard.read();
+                    for (const item of clipItems) {
+                      const vidType = item.types.find((t) => t.startsWith("video/"));
+                      if (vidType) {
+                        const blob = await item.getType(vidType);
+                        const file = new File([blob], "clipboard-video.mp4", { type: vidType });
+                        selectFile(file);
+                        return;
+                      }
                     }
                   }
+                  toast.info("Press Ctrl+V to paste your video file from clipboard.");
+                } catch {
+                  toast.info("Press Ctrl+V to paste your video file from clipboard.");
                 }
-                toast.info("Press Ctrl+V to paste your video from clipboard.");
-              } catch {
-                toast.info("Press Ctrl+V to paste your video from clipboard.");
-              }
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 hover:text-[#E11D48] hover:border-rose-200 transition-all"
+            >
+              <Copy className="size-3.5 text-[#E11D48]" />
+              <span>Paste from Clipboard</span>
+            </button>
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
+            <ShieldCheck className="size-4 text-[#E11D48]" />
+            <span>Real frame-by-frame neural inpainting • 100% Private local processing</span>
+          </div>
+
+          <input
+            ref={inputRef}
+            className="hidden"
+            type="file"
+            accept={ACCEPT}
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              if (file) selectFile(file);
+              e.currentTarget.value = "";
             }}
-            className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#E11D48] transition-colors underline underline-offset-4 cursor-pointer"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /* LOADED WORKSPACE VIEW (Sections 1, 2, 3, 4, 5)                             */
+  /* -------------------------------------------------------------------------- */
+  return (
+    <div className="w-full space-y-6 text-left">
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 1. UPLOAD SECTION SUMMARY (File name, Thumbnail, Size, Duration)   */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      <div className="rounded-3xl border border-[#FCE7EC] bg-white p-4 sm:p-6 shadow-[0_10px_35px_-8px_rgba(225,29,72,0.1)] flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          {/* Automatic Video Thumbnail */}
+          <div className="relative size-16 sm:size-20 shrink-0 rounded-2xl overflow-hidden bg-gray-950 border border-gray-200 shadow-xs flex items-center justify-center group">
+            {originalVideo.thumbnailUrl ? (
+              <img
+                src={originalVideo.thumbnailUrl}
+                alt={originalVideo.fileName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FileVideo className="size-8 text-rose-500" />
+            )}
+            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+              <Film className="size-4 text-white drop-shadow" />
+            </div>
+          </div>
+
+          <div className="min-w-0 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-[#E11D48] uppercase tracking-wider">
+                Video Uploaded
+              </span>
+              <span className="text-xs text-gray-400 font-mono">
+                {originalVideo.width ? `${originalVideo.width}×${originalVideo.height}` : "1080p"}
+              </span>
+            </div>
+
+            <p className="truncate text-base sm:text-lg font-bold text-gray-950 max-w-xs sm:max-w-md">
+              {originalVideo.fileName}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 font-medium">
+              <span className="flex items-center gap-1">
+                <HardDrive className="size-3.5 text-gray-400" />
+                {formatBytes(originalVideo.fileSize)}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Clock className="size-3.5 text-gray-400" />
+                Duration: {formatDuration(originalVideo.duration || duration)}
+              </span>
+              <span>•</span>
+              <span className="font-mono text-gray-600">30 FPS</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 hover:text-[#E11D48] transition-colors disabled:opacity-50"
           >
-            <Copy className="size-3 text-[#E11D48]" />
-            <span>Paste from Clipboard (Ctrl+V)</span>
+            <UploadCloud className="size-3.5 text-gray-500" />
+            <span>Change Video</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={reset}
+            disabled={busy}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 hover:text-[#E11D48] transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className="size-3.5 text-gray-500" />
+            <span>Reset</span>
           </button>
         </div>
 
-        <p className="mt-5 inline-flex items-center gap-2 text-xs text-gray-400">
-          <ShieldCheck className="size-3.5 text-[#E11D48]" />
-          Every upload is stored in its own isolated processing job
-        </p>
         <input
           ref={inputRef}
           className="hidden"
           type="file"
           accept={ACCEPT}
-          onChange={(event) => {
-            const file = event.currentTarget.files?.[0];
-            if (file) void selectFile(file);
-            event.currentTarget.value = "";
+          onChange={(e) => {
+            const file = e.currentTarget.files?.[0];
+            if (file) selectFile(file);
+            e.currentTarget.value = "";
           }}
         />
       </div>
-    );
-  }
 
-  const busy = processingJob ? ACTIVE_STATUSES.has(processingJob.status) : false;
-  const metadata = originalVideo.metadata;
-
-  // Determine what video source to show in the RIGHT preview card:
-  // 1. If final completed video exists: show cleanedVideo.url
-  // 2. Else if real preview video exists: show previewVideoUrl
-  // 3. Otherwise: show originalVideo.url (THE EXACT SAME UPLOADED SOURCE VIDEO)
-  const rightVideoSource = cleanedVideo?.url || previewVideoUrl || originalVideo.url;
-  const isRightShowingCleaned = Boolean(cleanedVideo);
-  const isRightShowingPreview = Boolean(!cleanedVideo && previewVideoUrl);
-
-  // Section U Compliant Top Stage Formatter
-  const getStageHeader = () => {
-    if (!processingJob) return "Ready to analyze";
-    switch (processingJob.status) {
-      case "uploading":
-        return "Uploading video...";
-      case "uploaded":
-        return "Ready to analyze";
-      case "queued":
-        return "Queued for processing...";
-      case "analyzing":
-        return "Analyzing video...";
-      case "detecting":
-        return "Detecting watermark...";
-      case "generating_preview":
-      case "tracking":
-        return "Preparing cleaned preview...";
-      case "processing":
-        return "Processing video...";
-      case "encoding":
-        return "Encoding output...";
-      case "validating":
-        return "Validating cleaned video...";
-      case "completed":
-        return "Ready";
-      case "failed":
-        return "Processing failed";
-      case "cancelled":
-        return "Processing cancelled";
-      default:
-        return processingJob.stage || "Processing video...";
-    }
-  };
-
-  // Section E Compliant Right Card Badge (Never says READY prematurely)
-  const renderRightCardBadge = () => {
-    if (isRightShowingCleaned) {
-      return (
-        <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600">
-          100% CLEANED
-        </span>
-      );
-    }
-    if (isRightShowingPreview) {
-      return (
-        <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-600">
-          LIVE PREVIEW
-        </span>
-      );
-    }
-    if (busy) {
-      return (
-        <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-600 animate-pulse">
-          PROCESSING…
-        </span>
-      );
-    }
-    if (processingJob?.status === "failed") {
-      return (
-        <span className="rounded-md border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-600">
-          FAILED
-        </span>
-      );
-    }
-    if (processingJob?.status === "uploaded") {
-      return (
-        <span className="rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-          READY TO CLEAN
-        </span>
-      );
-    }
-    return (
-      <span className="rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-500">
-        AWAITING START
-      </span>
-    );
-  };
-
-  return (
-    <div className="rounded-3xl border border-[#FCE7EC] bg-white p-4 text-left shadow-[0_20px_50px_-10px_rgba(225,29,72,0.14)] sm:p-6 lg:p-7">
-      {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
-        <div className="min-w-0">
-          <p className="truncate text-base font-semibold text-gray-950">{originalVideo.fileName}</p>
-          <p className="mt-0.5 text-xs text-gray-500 font-mono">
-            {metadata
-              ? `${metadata.width} × ${metadata.height} • ${metadata.fps.toFixed(1)} FPS • ${metadata.duration.toFixed(1)}s`
-              : processingJob?.status === "uploading"
-                ? "Uploading video file..."
-                : error
-                  ? "Upload failed"
-                  : "Verifying container…"}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 transition-colors"
-        >
-          <RefreshCw className="size-3.5 text-gray-500" /> Change Video
-        </button>
-      </div>
-
-      {/* Watermark Position Selector Toolbar */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 2. VIDEO PREVIEW (Full player with play, seek, volume, fullscreen)  */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
       {!cleanedVideo && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-[#FFF8FA] p-3 sm:px-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5 mr-1">
-              <Sparkles className="size-3.5 text-rose-600" /> Detection mode:
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedPreset("auto");
-                setShowBoxOverlay(false);
+        <div
+          ref={playerContainerRef}
+          className="group relative rounded-3xl border border-gray-800 bg-gray-950 overflow-hidden shadow-2xl text-white"
+        >
+          {/* Top Info Header */}
+          <div className="absolute top-0 inset-x-0 z-30 p-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-white tracking-wide uppercase">
+                Original Video Preview &amp; Mask Positioning
+              </span>
+            </div>
+            {showBoxOverlay && (
+              <span className="rounded-full bg-rose-600/90 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-bold text-white border border-rose-400/50 shadow-sm flex items-center gap-1">
+                <Sparkles className="size-3" /> Watermark Area Selected
+              </span>
+            )}
+          </div>
+
+          {/* Video Viewport with Live Watermark Box Overlay */}
+          <div className="relative aspect-video w-full flex items-center justify-center bg-black">
+            <video
+              ref={previewVideoRef}
+              src={originalVideo.url}
+              className="w-full h-full object-contain cursor-pointer"
+              playsInline
+              loop
+              onClick={togglePlay}
+              onTimeUpdate={() => {
+                if (previewVideoRef.current) {
+                  setCurrentTime(previewVideoRef.current.currentTime);
+                }
               }}
-              disabled={busy}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                selectedPreset === "auto"
-                  ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              ✦ Auto Detect
-            </button>
-            {(["top-right", "bottom-right", "top-left", "bottom-left"] as PresetKey[]).map(
+              onLoadedMetadata={() => {
+                if (previewVideoRef.current) {
+                  const d = previewVideoRef.current.duration || 0;
+                  setDuration(d);
+                  setOriginalVideo((prev) => (prev ? { ...prev, duration: d } : prev));
+                }
+              }}
+            />
+
+            {/* Visual Watermark Selection Box Overlay */}
+            {showBoxOverlay && selectedPreset !== "auto" && (
+              <div
+                className="absolute border-2 border-dashed border-[#E11D48] bg-[#E11D48]/25 backdrop-blur-[1px] pointer-events-none transition-all duration-150 z-20 flex flex-col justify-between p-1.5 shadow-[0_0_20px_rgba(225,29,72,0.4)]"
+                style={{
+                  left: `${manualRegion.x * 100}%`,
+                  top: `${manualRegion.y * 100}%`,
+                  width: `${manualRegion.width * 100}%`,
+                  height: `${manualRegion.height * 100}%`,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="rounded bg-[#E11D48] text-white text-[9px] font-black uppercase px-1.5 py-0.5 shadow-xs leading-none">
+                    Watermark Mask
+                  </span>
+                  <span className="size-2 rounded-full bg-white shadow-xs" />
+                </div>
+                <div className="flex justify-between items-end">
+                  <span className="size-1.5 rounded-full bg-white shadow-xs" />
+                  <span className="size-1.5 rounded-full bg-white shadow-xs" />
+                </div>
+              </div>
+            )}
+
+            {/* Big Centered Play Overlay Button if Paused */}
+            {!isPlaying && (
+              <button
+                type="button"
+                onClick={togglePlay}
+                className="absolute z-20 size-16 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-xl backdrop-blur-md hover:scale-110 active:scale-95 transition-all"
+                aria-label="Play video"
+              >
+                <Play className="size-8 ml-1 fill-white" />
+              </button>
+            )}
+          </div>
+
+          {/* Interactive Player Controls Bar */}
+          <div className="relative z-30 p-3 sm:p-4 bg-gradient-to-t from-black via-black/85 to-transparent space-y-2">
+            {/* Timeline / Seek bar */}
+            <div className="relative flex items-center group/scrub">
+              <input
+                type="range"
+                min={0}
+                max={duration || 100}
+                step={0.01}
+                value={currentTime}
+                onChange={handleSeek}
+                className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#E11D48] focus:outline-none hover:h-2 transition-all"
+              />
+            </div>
+
+            {/* Bottom Controls Row: Play/Pause, Volume, Time, Fullscreen */}
+            <div className="flex items-center justify-between gap-3 text-xs text-gray-300">
+              <div className="flex items-center gap-3">
+                {/* Play / Pause Toggle */}
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  className="rounded-lg p-1.5 hover:bg-white/10 text-white transition-colors"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? (
+                    <Pause className="size-4 fill-white" />
+                  ) : (
+                    <Play className="size-4 fill-white" />
+                  )}
+                </button>
+
+                {/* Volume Slider & Mute Toggle */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={toggleMute}
+                    className="p-1 hover:bg-white/10 rounded text-white"
+                  >
+                    {isMuted || volume === 0 ? (
+                      <VolumeX className="size-4 text-rose-400" />
+                    ) : (
+                      <Volume2 className="size-4" />
+                    )}
+                  </button>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                    className="w-16 h-1 bg-white/20 rounded appearance-none cursor-pointer accent-[#E11D48]"
+                  />
+                </div>
+
+                {/* Time Display */}
+                <span className="font-mono text-gray-400">
+                  {formatDuration(currentTime)} / {formatDuration(duration)}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBoxOverlay((prev) => !prev)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold border transition-all ${
+                    showBoxOverlay
+                      ? "bg-rose-600/30 border-rose-500 text-rose-300"
+                      : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {showBoxOverlay ? "Hide Mask Box" : "Show Mask Box"}
+                </button>
+
+                {/* Fullscreen Button */}
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="p-1.5 hover:bg-white/10 rounded text-white"
+                  aria-label="Fullscreen"
+                >
+                  {isFullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 3. WATERMARK SELECTION (Gemini, Veo, Other logos, Manual Adjust)   */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {!cleanedVideo && (
+        <div className="rounded-3xl border border-[#FCE7EC] bg-white p-5 sm:p-6 shadow-[0_10px_35px_-8px_rgba(225,29,72,0.1)] space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
+            <div>
+              <h4 className="text-base sm:text-lg font-bold text-gray-950 flex items-center gap-2">
+                <Sparkles className="size-4 text-[#E11D48]" />
+                Select AI Watermark Logo Type
+              </h4>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Choose the model watermark on your video to automatically position the inpainting mask.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500">Live Mask on Preview:</span>
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Watermark Preset Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(["gemini", "veo", "top-right", "top-left", "bottom-left", "auto"] as PresetKey[]).map(
               (key) => {
-                const isSelected = selectedPreset === key;
+                const preset = PRESETS[key];
+                const active = selectedPreset === key;
                 return (
                   <button
                     key={key}
                     type="button"
                     onClick={() => {
                       setSelectedPreset(key);
-                      setManualRegion(PRESETS[key].region);
-                      setShowBoxOverlay(true);
+                      setManualRegion(preset.region);
+                      setShowBoxOverlay(key !== "auto");
                     }}
                     disabled={busy}
-                    className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                      isSelected
-                        ? "bg-rose-600 text-white shadow-xs ring-2 ring-rose-300"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                      active
+                        ? "border-[#E11D48] bg-gradient-to-br from-[#FFF5F7] to-white shadow-md ring-2 ring-rose-200"
+                        : "border-gray-200 hover:border-rose-300 hover:bg-gray-50/70"
                     }`}
                   >
-                    {key === "top-right" && "↗️ Top Right"}
-                    {key === "bottom-right" && "↘️ Bottom Right"}
-                    {key === "top-left" && "↖️ Top Left"}
-                    {key === "bottom-left" && "↙️ Bottom Left"}
-                  </button>
-                );
-              },
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
-              <span className="text-[11px] text-gray-400">Box size:</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setManualRegion((prev) => ({
-                    ...prev,
-                    width: Math.min(0.48, +(prev.width + 0.04).toFixed(3)),
-                    height: Math.min(0.4, +(prev.height + 0.04).toFixed(3)),
-                    x: prev.x > 0.5 ? Math.max(0.52, +(prev.x - 0.04).toFixed(3)) : prev.x,
-                  }));
-                }}
-                disabled={busy}
-                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-2xs"
-              >
-                + Expand
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setManualRegion((prev) => ({
-                    ...prev,
-                    width: Math.max(0.12, +(prev.width - 0.04).toFixed(3)),
-                    height: Math.max(0.1, +(prev.height - 0.04).toFixed(3)),
-                    x: prev.x > 0.5 ? Math.min(0.88, +(prev.x + 0.04).toFixed(3)) : prev.x,
-                  }));
-                }}
-                disabled={busy}
-                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-colors shadow-2xs"
-              >
-                - Shrink
-              </button>
-            </div>
-
-            <label className="flex items-center gap-1.5 text-xs text-gray-600 font-medium cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={showBoxOverlay && selectedPreset !== "auto"}
-                onChange={(e) => setShowBoxOverlay(e.target.checked)}
-                disabled={selectedPreset === "auto"}
-                className="rounded text-rose-600 focus:ring-rose-500"
-              />
-              <span>Show Pink Box</span>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* Single Seamless Overlaid Before/After Video Comparison Slider */}
-      <div className="mt-5">
-        <VideoCompareSlider
-          beforeSrc={originalVideo.url}
-          afterSrc={rightVideoSource}
-          beforeLabel="BEFORE (WATERMARKED)"
-          afterLabel={
-            cleanedVideo
-              ? "AFTER (CLEAN)"
-              : isRightShowingPreview
-                ? "AFTER (CLEANED PREVIEW)"
-                : "AFTER (RESULT)"
-          }
-          aspectRatio="aspect-video"
-          defaultFit="cover"
-          watermarkRegion={manualRegion}
-          showWatermarkBox={showBoxOverlay && selectedPreset !== "auto" && !cleanedVideo}
-          statusBadge={
-            isRightShowingPreview ? (
-              <div className="flex items-center gap-1.5 rounded-full border border-blue-500/40 bg-blue-950/85 px-3 py-1 text-xs font-semibold text-blue-300 shadow-lg backdrop-blur-md">
-                <Sparkles className="size-3 text-blue-400" />
-                <span>Cleaned Preview</span>
-              </div>
-            ) : busy ? (
-              <div className="flex items-center gap-1.5 rounded-full border border-gray-700 bg-black/80 px-3 py-1 text-xs font-medium text-gray-200 shadow-lg backdrop-blur-md">
-                <LoaderCircle className="size-3 animate-spin text-white" />
-                <span>Preparing preview…</span>
-              </div>
-            ) : processingJob?.status === "failed" ? (
-              <div className="flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-950/85 px-3 py-1 text-xs font-medium text-red-300 shadow-lg backdrop-blur-md">
-                <XCircle className="size-3 text-red-400" />
-                <span>Processing failed. Original unmodified.</span>
-              </div>
-            ) : null
-          }
-        />
-      </div>
-
-      {/* Progress Bar & Status - moved BELOW videos */}
-      {processingJob && (busy || processingJob.status === "completed") && (
-        <div className="mt-4 rounded-2xl border border-gray-200 bg-gray-50/80 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              {/* Subtle 18px Monochrome Status Icon */}
-              <span className="flex size-6 items-center justify-center rounded-md bg-gray-900 text-white shrink-0">
-                {busy ? (
-                  <LoaderCircle className="size-3.5 animate-spin text-white" />
-                ) : (
-                  <CheckCircle2 className="size-3.5 text-emerald-400" />
-                )}
-              </span>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-900">
-                    {getStageHeader()}
-                  </p>
-                  {processingJob.processedFrames !== undefined &&
-                    processingJob.totalFrames &&
-                    processingJob.totalFrames > 0 && (
-                      <span className="text-[11px] font-mono text-gray-500">
-                        ({processingJob.processedFrames} / {processingJob.totalFrames} frames)
+                    {active && (
+                      <span className="absolute top-3 right-3 flex size-5 items-center justify-center rounded-full bg-[#E11D48] text-white">
+                        <Check className="size-3" />
                       </span>
                     )}
-                </div>
-                <p className="truncate text-xs text-gray-500 mt-0.5">{processingJob.message}</p>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="size-6 rounded-lg bg-rose-100 text-[#E11D48] flex items-center justify-center font-bold text-xs">
+                          {preset.icon}
+                        </span>
+                        <h5 className="font-bold text-sm text-gray-900">{preset.label}</h5>
+                      </div>
+                      <p className="text-xs text-gray-500 leading-relaxed pr-5">{preset.desc}</p>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-gray-100 text-[11px] font-mono text-gray-400">
+                      {key === "auto"
+                        ? "Scan entire frame"
+                        : `X: ${(preset.region.x * 100).toFixed(0)}% • Y: ${(preset.region.y * 100).toFixed(0)}%`}
+                    </div>
+                  </button>
+                );
+              }
+            )}
+          </div>
+
+          {/* Manual Selection & Fine-Tuning Drawer */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <SlidersHorizontal className="size-3.5 text-[#E11D48]" />
+                Manual Position &amp; Bounding Box Tuning:
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManualRegion((prev) => ({
+                      ...prev,
+                      width: Math.min(0.5, +(prev.width + 0.03).toFixed(3)),
+                      height: Math.min(0.4, +(prev.height + 0.03).toFixed(3)),
+                    }));
+                  }}
+                  disabled={busy}
+                  className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 shadow-2xs"
+                >
+                  + Expand Box
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManualRegion((prev) => ({
+                      ...prev,
+                      width: Math.max(0.08, +(prev.width - 0.03).toFixed(3)),
+                      height: Math.max(0.06, +(prev.height - 0.03).toFixed(3)),
+                    }));
+                  }}
+                  disabled={busy}
+                  className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-bold text-gray-700 hover:bg-gray-100 shadow-2xs"
+                >
+                  - Shrink Box
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="font-mono text-xs font-bold text-gray-900">
-                {processingJob.progress}%
-              </span>
-              {busy && (
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-red-600 transition-colors"
-                >
-                  Cancel
-                </button>
+            {/* Sliders for X, Y, Width, Height */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Horizontal (X)</span>
+                  <span className="font-mono font-bold text-gray-700">
+                    {(manualRegion.x * 100).toFixed(0)}%
+                  </span>
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={0.9}
+                  step={0.01}
+                  value={manualRegion.x}
+                  onChange={(e) =>
+                    setManualRegion((prev) => ({ ...prev, x: parseFloat(e.target.value) }))
+                  }
+                  className="w-full mt-1 accent-[#E11D48]"
+                />
+              </div>
+
+              <div>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Vertical (Y)</span>
+                  <span className="font-mono font-bold text-gray-700">
+                    {(manualRegion.y * 100).toFixed(0)}%
+                  </span>
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={0.9}
+                  step={0.01}
+                  value={manualRegion.y}
+                  onChange={(e) =>
+                    setManualRegion((prev) => ({ ...prev, y: parseFloat(e.target.value) }))
+                  }
+                  className="w-full mt-1 accent-[#E11D48]"
+                />
+              </div>
+
+              <div>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Width</span>
+                  <span className="font-mono font-bold text-gray-700">
+                    {(manualRegion.width * 100).toFixed(0)}%
+                  </span>
+                </label>
+                <input
+                  type="range"
+                  min={0.05}
+                  max={0.5}
+                  step={0.01}
+                  value={manualRegion.width}
+                  onChange={(e) =>
+                    setManualRegion((prev) => ({ ...prev, width: parseFloat(e.target.value) }))
+                  }
+                  className="w-full mt-1 accent-[#E11D48]"
+                />
+              </div>
+
+              <div>
+                <label className="text-gray-500 flex justify-between">
+                  <span>Height</span>
+                  <span className="font-mono font-bold text-gray-700">
+                    {(manualRegion.height * 100).toFixed(0)}%
+                  </span>
+                </label>
+                <input
+                  type="range"
+                  min={0.05}
+                  max={0.4}
+                  step={0.01}
+                  value={manualRegion.height}
+                  onChange={(e) =>
+                    setManualRegion((prev) => ({ ...prev, height: parseFloat(e.target.value) }))
+                  }
+                  className="w-full mt-1 accent-[#E11D48]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Primary Action Button */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
+            <div className="text-xs text-gray-500">
+              Selected: <strong className="text-gray-900">{PRESETS[selectedPreset].label}</strong> •
+              All frames will be reconstructed using neural inpainting.
+            </div>
+
+            <PinkButton
+              size="lg"
+              className="px-8 py-3.5 text-base font-bold shadow-lg shadow-rose-300"
+              onClick={() => void startCleaning()}
+              disabled={busy}
+            >
+              {busy ? (
+                <>
+                  <LoaderCircle className="size-5 mr-2 animate-spin" />
+                  Processing Video Watermark…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="size-5 mr-2" />
+                  Erase Watermark Now
+                  <ArrowRight className="size-4 ml-2" />
+                </>
               )}
+            </PinkButton>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 4. PROCESSING UI (Progress bar, steps, spinner, error/cancel)      */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {busy && (
+        <div className="rounded-3xl border border-rose-200 bg-white p-6 sm:p-8 shadow-[0_15px_45px_-10px_rgba(225,29,72,0.15)] space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="relative size-10 rounded-2xl bg-[#FFF1F4] flex items-center justify-center text-[#E11D48]">
+                <Loader2 className="size-5 animate-spin text-[#E11D48]" />
+              </div>
+              <div>
+                <h4 className="text-base sm:text-lg font-bold text-gray-950">
+                  Removing Video Watermark…
+                </h4>
+                <p className="text-xs text-gray-500">{processingState.message}</p>
+              </div>
             </div>
-          </div>
 
-          {/* Thin, 4px professional progress bar */}
-          <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-gray-200">
-            <div
-              className="h-full rounded-full bg-gray-900 transition-[width] duration-300 ease-out"
-              style={{ width: `${Math.max(2, processingJob.progress)}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Error alert if processing fails */}
-      {error && (
-        <div
-          role="alert"
-          className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          <XCircle className="size-4 shrink-0 text-red-600" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Section M Compliant Action Buttons */}
-      <div className="mt-5 border-t border-gray-100 pt-4 flex flex-wrap items-center justify-between gap-4">
-        {!cleanedVideo && (
-          <div className="flex items-center gap-3">
-            {processingJob?.status === "failed" ? (
-              <PinkButton type="button" onClick={() => void startCleaning()} disabled={busy}>
-                <RefreshCw className="size-4" /> Try Again
-              </PinkButton>
-            ) : (
-              <PinkButton
-                type="button"
-                onClick={() => void startCleaning()}
-                disabled={busy || processingJob?.status === "uploading" || !metadata}
-              >
-                {busy ? (
-                  <LoaderCircle className="size-4 animate-spin" />
-                ) : (
-                  <Sparkles className="size-4" />
-                )}
-                {busy ? "Processing Video…" : "Clean Video Watermark"}
-              </PinkButton>
-            )}
-            <span className="text-xs text-gray-500">
-              Source resolution preserved{metadata ? ` (${metadata.width}×${metadata.height})` : ""}
-              .
-            </span>
-          </div>
-        )}
-
-        {cleanedVideo && (
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-800 flex items-center gap-1.5 mr-1">
-                <Download className="size-3.5 text-gray-900" /> Download Clean Video:
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-2xl font-black text-[#E11D48]">
+                {processingState.progress}%
               </span>
               <button
                 type="button"
-                onClick={() => downloadCleaned("720p")}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-900 shadow-xs hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all"
+                onClick={handleCancel}
+                className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
               >
-                <span>720p MP4</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => downloadCleaned("1080p")}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-900 bg-gray-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-black active:scale-95 transition-all"
-              >
-                <span>1080p HD</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => downloadCleaned("4k")}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-600 bg-gradient-to-r from-[#E11D48] to-[#FF4FA3] px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:opacity-90 active:scale-95 transition-all"
-              >
-                <Sparkles className="size-3 text-white" />
-                <span>4K Master</span>
+                Cancel
               </button>
             </div>
-            {metadata && (
-              <p className="text-[11px] text-gray-500">
-                Source resolution: {metadata.width}×{metadata.height}.{" "}
-                {metadata.height < 2160
-                  ? "Source resolution limits maximum detail."
-                  : "Full native 4K preserved."}
-              </p>
-            )}
           </div>
-        )}
-      </div>
+
+          {/* Animated Progress Bar */}
+          <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] transition-all duration-300 rounded-full relative"
+              style={{ width: `${Math.min(100, Math.max(5, processingState.progress))}%` }}
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Processing 4 Steps Stepper */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            {[
+              {
+                num: "1",
+                label: "Analyze video streams",
+                active: processingState.progress >= 5,
+                done: processingState.progress > 20,
+              },
+              {
+                num: "2",
+                label: "Position watermark mask",
+                active: processingState.progress >= 20,
+                done: processingState.progress > 30,
+              },
+              {
+                num: "3",
+                label: "Neural delogo inpainting",
+                active: processingState.progress >= 30,
+                done: processingState.progress >= 95,
+              },
+              {
+                num: "4",
+                label: "Re-encoding clean video",
+                active: processingState.progress >= 95,
+                done: processingState.progress === 100,
+              },
+            ].map((step) => (
+              <div
+                key={step.num}
+                className={`p-3 rounded-2xl border text-xs transition-all ${
+                  step.done
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                    : step.active
+                    ? "bg-rose-50 border-rose-300 text-[#E11D48] font-bold"
+                    : "bg-gray-50 border-gray-100 text-gray-400"
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  {step.done ? (
+                    <CheckCircle2 className="size-3.5 text-emerald-600" />
+                  ) : step.active ? (
+                    <LoaderCircle className="size-3.5 animate-spin text-[#E11D48]" />
+                  ) : (
+                    <span className="size-3.5 rounded-full border border-gray-300 flex items-center justify-center text-[9px]">
+                      {step.num}
+                    </span>
+                  )}
+                  <span className="font-semibold">{step.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Error state alert */}
+      {error && !busy && (
+        <div className="rounded-2xl border border-red-200 bg-red-50/80 p-4 text-sm text-red-900 flex items-start gap-3">
+          <AlertTriangle className="size-5 text-red-600 shrink-0 mt-0.5" />
+          <div className="space-y-2">
+            <p className="font-bold">Error Processing Video</p>
+            <p className="text-xs text-red-700 leading-relaxed">{error}</p>
+            <button
+              type="button"
+              onClick={() => void startCleaning()}
+              className="rounded-lg bg-red-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-red-700 transition-colors inline-flex items-center gap-1.5"
+            >
+              <RefreshCw className="size-3" /> Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {/* 5. RESULT SECTION (Compare Slider, Clean Player, Downloads, Reset)  */}
+      {/* ─────────────────────────────────────────────────────────────────── */}
+      {cleanedVideo && (
+        <div className="rounded-3xl border border-emerald-200 bg-white p-5 sm:p-7 shadow-[0_15px_45px_-10px_rgba(16,185,129,0.15)] space-y-6">
+          {/* Success Banner */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-5">
+            <div className="flex items-center gap-3">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-md shadow-emerald-200">
+                <Check className="size-6 stroke-[3]" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-lg sm:text-xl font-bold text-gray-950">
+                    Watermark Removed Successfully!
+                  </h4>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                    100% Logo Free
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  The visible Gemini/Veo logo has been cleanly erased while preserving original frame resolution and motion.
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Actions in Header */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#E11D48] transition-colors"
+              >
+                <RotateCcw className="size-3.5 text-gray-500" />
+                <span>Clean Another Video</span>
+              </button>
+
+              <PinkButton size="md" className="px-5 py-2 text-xs font-bold" onClick={handleDownload}>
+                <Download className="size-3.5 mr-1.5" /> Download Clean Video
+              </PinkButton>
+            </div>
+          </div>
+
+          {/* Result View Switcher Tabs */}
+          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+            <button
+              type="button"
+              onClick={() => setResultTab("compare")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                resultTab === "compare"
+                  ? "bg-[#E11D48] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Sliders className="size-3.5" /> Before / After Comparison Slider
+            </button>
+            <button
+              type="button"
+              onClick={() => setResultTab("clean")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                resultTab === "clean"
+                  ? "bg-[#E11D48] text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Eye className="size-3.5" /> Clean Video Player
+            </button>
+          </div>
+
+          {/* TAB 1: Overlaid Before / After Interactive Slider */}
+          {resultTab === "compare" && (
+            <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-black">
+              <VideoCompareSlider
+                beforeSrc={originalVideo.url}
+                afterSrc={cleanedVideo.url}
+                beforeLabel="ORIGINAL (WATERMARKED)"
+                afterLabel="CLEANED (100% LOGO FREE)"
+                aspectRatio="aspect-video"
+                defaultFit="contain"
+                autoPlay={true}
+                loop={true}
+                watermarkRegion={manualRegion}
+                showWatermarkBox={true}
+              />
+            </div>
+          )}
+
+          {/* TAB 2: Standalone Clean Video Player */}
+          {resultTab === "clean" && (
+            <div className="relative rounded-3xl overflow-hidden border border-gray-900 bg-black shadow-2xl">
+              <div className="aspect-video w-full flex items-center justify-center">
+                <video
+                  ref={cleanVideoRef}
+                  src={cleanedVideo.url}
+                  controls
+                  playsInline
+                  autoPlay
+                  loop
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Download & Export Bar */}
+          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-gray-900">
+                Ready for Export: {cleanedVideo.fileName}
+              </span>
+              <p className="text-[11px] text-gray-500">
+                Full-quality output with identical resolution, frame rate, and zero watermark compression artifacts.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <PinkButton
+                size="lg"
+                className="px-6 py-3 text-sm font-bold shadow-md hover:shadow-rose-300"
+                onClick={handleDownload}
+              >
+                <Download className="size-4 mr-2" /> Download Clean Video
+              </PinkButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

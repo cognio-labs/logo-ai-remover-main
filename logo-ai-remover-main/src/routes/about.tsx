@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -36,7 +38,7 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-function AboutPage() {
+export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-gray-900">
       {/* Hero Header */}

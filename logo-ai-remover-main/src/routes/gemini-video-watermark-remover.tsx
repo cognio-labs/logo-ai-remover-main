@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -21,9 +23,7 @@ import {
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
 import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
-import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
-import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
 
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
@@ -285,7 +285,7 @@ const CATEGORIES = [
   "Other",
 ];
 
-function GeminiVideoRemoverPage() {
+export default function GeminiVideoRemoverPage() {
   // Inspiration category filter & modal
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [activeModalItem, setActiveModalItem] = useState<(typeof INSPIRATION_ITEMS)[0] | null>(
@@ -331,145 +331,6 @@ function GeminiVideoRemoverPage() {
 
           {/* Trust Guarantees: 100% Local Processing | No Upload Required | Open Source Pipeline */}
           <VideoTrustBadges />
-        </div>
-      </section>
-
-      {/* 2. "SEE A REAL VIDEO CLEANUP RESULT" SECTION (Screenshot 1 Matching) */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white border-t border-[#FCE7EC]">
-        <div className="mx-auto max-w-5xl text-center space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-serif font-normal text-gray-950 tracking-tight">
-            See a real video cleanup result
-          </h2>
-          <p className="max-w-2xl mx-auto text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
-            The same three-second clip plays in sync: the original keeps the visible Gemini mark at
-            the lower right, while the processed version removes it and preserves the subject,
-            lighting, and motion.
-          </p>
-
-          <div className="pt-1 pb-4">
-            <Link
-              to="/remove/image"
-              className="text-xs sm:text-sm font-medium text-gray-500 hover:text-[#E11D48] underline underline-offset-4 transition-colors"
-            >
-              Working with images too? Open the Gemini Image Watermark Remover
-            </Link>
-          </div>
-
-          {/* Seamless Overlaid Before/After Video Comparison Slider */}
-          <div className="relative mx-auto max-w-4xl shadow-[0_20px_60px_-15px_rgba(225,29,72,0.18)]">
-            <VideoCompareSlider
-              beforeSrc="/gemini-example-before.mp4"
-              afterSrc="/gemini-example-after.mp4"
-              beforeLabel="BEFORE (WATERMARKED)"
-              afterLabel="AFTER (CLEAN)"
-              aspectRatio="aspect-video"
-              defaultFit="cover"
-              autoPlay={true}
-              loop={true}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 3. BENTO GRID FEATURES SECTION — Premium redesign */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#FFF8FA] border-y border-[#FCE7EC]">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] shadow-xs mb-5">
-              <img src="/gemini-logo.png" alt="" className="size-3.5" />
-              <span className="text-xs text-[#E11D48]">Frame-Perfect Gemini Removal</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl text-gray-950 tracking-tight">
-              Remove the visible mark while keeping the full frame and smooth motion
-            </h2>
-          </div>
-
-          {/* Main showcase demo image */}
-          <div className="relative rounded-3xl overflow-hidden border border-[#FCE7EC] shadow-[0_25px_60px_-15px_rgba(225,29,72,0.15)] mb-8">
-            <img
-              src="/gemini-video-demo.jpg"
-              alt="Gemini watermark removal before and after"
-              className="w-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-xs text-gray-800 border border-white/50 mb-2">
-                  <img src="/gemini-logo.png" alt="" className="size-3.5" />
-                  Gemini watermark visible in source
-                </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E11D48]/90 backdrop-blur-md text-xs text-white ml-2">
-                  <ShieldCheck className="size-3.5" />
-                  Cleanly removed in output
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature cards — 2x2 premium bento grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {[
-              {
-                icon: ShieldCheck,
-                title: "Restore the marked area frame by frame",
-                desc: "Detect visible Gemini and Veo marks across adjacent frames while aiming to keep motion, color, and texture consistent.",
-                gradient: "from-rose-50 to-pink-50",
-                iconBg: "bg-rose-100",
-                iconColor: "text-rose-600",
-                badge: "Frame-by-frame AI",
-              },
-              {
-                icon: FileVideo,
-                title: "Supports 7 formats, videos up to 15 seconds",
-                desc: "Upload MP4, MOV, WebM, AVI, MPG, MPEG, or MKV. Each video costs 3 credits, and the result is delivered as an MP4.",
-                gradient: "from-violet-50 to-purple-50",
-                iconBg: "bg-violet-100",
-                iconColor: "text-violet-600",
-                badge: "7 Formats supported",
-              },
-              {
-                icon: Monitor,
-                title: "Private local processing",
-                desc: "Your media stays in browser memory and is never sent to a server. Keep this tab open until the full-quality export finishes.",
-                gradient: "from-sky-50 to-blue-50",
-                iconBg: "bg-sky-100",
-                iconColor: "text-sky-600",
-                badge: "100% Private",
-              },
-              {
-                icon: Crop,
-                title: "Full-frame aware cleanup",
-                desc: "Cleans the mark area instead of cutting away the edges, so the original frame stays intact at full resolution.",
-                gradient: "from-emerald-50 to-teal-50",
-                iconBg: "bg-emerald-100",
-                iconColor: "text-emerald-600",
-                badge: "Zero crop",
-              },
-            ].map((card) => (
-              <div
-                key={card.title}
-                className={`p-8 sm:p-10 rounded-3xl bg-gradient-to-br ${card.gradient} border border-gray-100 shadow-xs hover:shadow-[0_20px_45px_-10px_rgba(225,29,72,0.12)] hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between`}
-              >
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div
-                      className={`size-14 rounded-2xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shadow-xs`}
-                    >
-                      <card.icon className="size-7" />
-                    </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs ${card.iconBg} ${card.iconColor} border border-white`}
-                    >
-                      {card.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl text-gray-950">{card.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -522,70 +383,6 @@ function GeminiVideoRemoverPage() {
               <p className="text-sm text-gray-600 leading-relaxed font-normal">
                 When processing finishes, download the cleaned MP4 from the task result.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. USER'S VEO FRAME SPOTLIGHT (From D:\videoframe_375.png) */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#FFF8FA] border-y border-[#FCE7EC]">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#E11D48]">
-              Google Veo Claymation Model
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-serif font-normal text-gray-950 tracking-tight mt-2">
-              Clean High-Detail AI Claymation & Animation
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-gray-600">
-              Notice the Google Gemini star mark in the lower right of the windshield. Our neural
-              in-painting erases the mark while preserving the girl's hand, wheel, and palm tree
-              motion.
-            </p>
-          </div>
-
-          <div className="rounded-3xl overflow-hidden border border-[#FCE7EC] shadow-[0_20px_50px_-15px_rgba(225,29,72,0.15)] bg-white p-3 sm:p-5 space-y-6">
-            <div className="relative rounded-2xl overflow-hidden">
-              <BeforeAfterSlider
-                beforeSrc="/videoframe_375_watermarked.png"
-                src="/videoframe_375_clean.png"
-                labelBefore="Veo Claymation (✦ Official Gemini Logo)"
-                labelAfter="Cleaned Result (100% Logo Free)"
-                badge="✦ Gemini Inpainting"
-              />
-            </div>
-
-            {/* Bottom Controls & Downloads */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-[#FCE7EC] px-2">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFF1F4] border border-[#FCE7EC] text-xs font-bold text-[#E11D48]">
-                  <img src="/gemini-logo.png" alt="Gemini Logo" className="size-4 object-contain" />
-                  <span>Google Gemini Logo Embedded</span>
-                </div>
-                <span className="text-xs text-gray-500 font-medium hidden md:inline">
-                  Drag the red line to see the Gemini logo erase cleanly.
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <a
-                  href="/videoframe_375_watermarked.png"
-                  download="gemini-veo-claymation-watermarked.png"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-[#FCE7EC] bg-white text-gray-800 hover:bg-[#FFF5F7] hover:border-[#E11D48] transition-all shadow-2xs"
-                >
-                  <Download className="size-3.5 text-[#E11D48]" />
-                  <span>Download Watermarked PNG</span>
-                </a>
-
-                <a
-                  href="/videoframe_375_clean.png"
-                  download="gemini-veo-claymation-clean.png"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#E11D48] text-white hover:bg-[#BE123C] transition-all shadow-xs"
-                >
-                  <Sparkles className="size-3.5" />
-                  <span>Download Clean PNG</span>
-                </a>
-              </div>
             </div>
           </div>
         </div>

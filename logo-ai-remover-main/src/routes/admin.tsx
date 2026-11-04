@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import {
@@ -154,7 +156,7 @@ interface AdminAuthUser {
   must_change_password?: boolean;
 }
 
-function AdminCommandCenter() {
+export default function AdminCommandCenter() {
   // ============================================================================
   // ADMIN AUTHENTICATION STATE
   // ============================================================================
@@ -393,7 +395,7 @@ function AdminCommandCenter() {
       supabase.auth.signInWithPassword({
         email: targetEmail,
         password: inputPass,
-      }).catch(() => {});
+      }).catch(() => { });
 
       // Record login in audit log
       recordAuditLog({
@@ -401,7 +403,7 @@ function AdminCommandCenter() {
         entity: "admin_auth",
         admin_email: targetEmail,
         after_json: { role: "super_admin", method: "credentials_verified" },
-      }).catch(() => {});
+      }).catch(() => { });
 
       toast.success("Welcome back to Bellix Super Admin Command Center!");
     } catch (err: unknown) {
@@ -432,7 +434,7 @@ function AdminCommandCenter() {
       await supabase.auth.updateUser({
         password: newPassword,
         data: { must_change_password: false },
-      }).catch(() => {});
+      }).catch(() => { });
 
       if (adminUser) {
         setAdminUser({ ...adminUser, must_change_password: false });
@@ -443,7 +445,7 @@ function AdminCommandCenter() {
         action: "ADMIN_PASSWORD_UPDATED",
         entity: "admin_auth",
         admin_email: adminUser?.email || "admin@bellix.us",
-      }).catch(() => {});
+      }).catch(() => { });
 
       toast.success("Admin password successfully updated!");
     } catch (err: unknown) {
@@ -464,8 +466,8 @@ function AdminCommandCenter() {
         action: "ADMIN_LOGOUT",
         entity: "admin_auth",
         admin_email: adminUser?.email || "admin@bellix.us",
-      }).catch(() => {});
-      await supabase.auth.signOut().catch(() => {});
+      }).catch(() => { });
+      await supabase.auth.signOut().catch(() => { });
       setAdminUser(null);
       toast.info("Logged out of Super Admin Command Center.");
     } catch (err) {
@@ -1026,27 +1028,24 @@ function AdminCommandCenter() {
           {/* Connection Indicators */}
           <div className="hidden lg:flex items-center gap-2 text-xs">
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
-                dbStatus.connected
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-amber-50 text-amber-700 border-amber-200"
-              }`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${dbStatus.connected
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+                }`}
             >
               <Database className="size-3" />
               <span>Supabase: {dbStatus.connected ? "Connected" : "Reconnecting"}</span>
               <span
-                className={`size-1.5 rounded-full ${
-                  dbStatus.connected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
-                }`}
+                className={`size-1.5 rounded-full ${dbStatus.connected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+                  }`}
               />
             </span>
 
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
-                realtimeActive
-                  ? "bg-sky-50 text-sky-700 border-sky-200"
-                  : "bg-slate-100 text-slate-600 border-slate-200"
-              }`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${realtimeActive
+                ? "bg-sky-50 text-sky-700 border-sky-200"
+                : "bg-slate-100 text-slate-600 border-slate-200"
+                }`}
             >
               <Activity className="size-3" />
               <span>Realtime: {realtimeActive ? "LIVE" : "Standby"}</span>
@@ -1081,11 +1080,10 @@ function AdminCommandCenter() {
               <button
                 key={t}
                 onClick={() => setTimeframe(t)}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timeframe === t
-                    ? "bg-white text-slate-900 shadow-2xs font-bold"
-                    : "text-slate-500 hover:text-slate-900"
-                }`}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${timeframe === t
+                  ? "bg-white text-slate-900 shadow-2xs font-bold"
+                  : "text-slate-500 hover:text-slate-900"
+                  }`}
               >
                 {t.toUpperCase()}
               </button>
@@ -1152,11 +1150,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1186,11 +1183,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1220,11 +1216,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1248,11 +1243,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1278,11 +1272,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1311,11 +1304,10 @@ function AdminCommandCenter() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id as NavSection)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      activeTab === item.id
-                        ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${activeTab === item.id
+                      ? "bg-rose-50 text-[#E11D48] font-bold shadow-2xs"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <item.icon className="size-3.5" />
@@ -1516,13 +1508,12 @@ function AdminCommandCenter() {
                             </div>
                           </div>
                           <span
-                            className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${
-                              job.status === "completed"
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : job.status === "processing"
-                                  ? "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
-                                  : "bg-rose-50 text-rose-700 border border-rose-200"
-                            }`}
+                            className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${job.status === "completed"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : job.status === "processing"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200 animate-pulse"
+                                : "bg-rose-50 text-rose-700 border border-rose-200"
+                              }`}
                           >
                             {job.status.toUpperCase()}
                           </span>
@@ -1628,11 +1619,10 @@ function AdminCommandCenter() {
                           </td>
                           <td className="py-2.5 px-3">
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                u.status === "active"
-                                  ? "bg-emerald-50 text-emerald-700"
-                                  : "bg-rose-50 text-rose-700"
-                              }`}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === "active"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-rose-50 text-rose-700"
+                                }`}
                             >
                               {u.status.toUpperCase()}
                             </span>
@@ -1735,13 +1725,12 @@ function AdminCommandCenter() {
                             <td className="py-3 px-4 text-slate-600 truncate max-w-xs">{job.file_name || "—"}</td>
                             <td className="py-3 px-4">
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  job.status === "completed"
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : job.status === "processing"
-                                      ? "bg-amber-50 text-amber-700 animate-pulse"
-                                      : "bg-rose-50 text-rose-700"
-                                }`}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${job.status === "completed"
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : job.status === "processing"
+                                    ? "bg-amber-50 text-amber-700 animate-pulse"
+                                    : "bg-rose-50 text-rose-700"
+                                  }`}
                               >
                                 {job.status.toUpperCase()}
                               </span>
@@ -1868,11 +1857,10 @@ function AdminCommandCenter() {
                             <td className="py-3 px-4">
                               <button
                                 onClick={() => handleToggleUserStatus(u)}
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${
-                                  u.status === "active"
-                                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                                    : "bg-rose-50 text-rose-700 hover:bg-rose-100"
-                                }`}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${u.status === "active"
+                                  ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                                  : "bg-rose-50 text-rose-700 hover:bg-rose-100"
+                                  }`}
                               >
                                 {u.status}
                               </button>
@@ -2031,11 +2019,10 @@ function AdminCommandCenter() {
                         <span className="text-xs font-bold text-slate-900">{tool.name}</span>
                         <button
                           onClick={() => handleToggleTool(tool)}
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${
-                            tool.enabled
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-slate-100 text-slate-500"
-                          }`}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${tool.enabled
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-500"
+                            }`}
                         >
                           {tool.enabled ? "Enabled" : "Disabled"}
                         </button>
@@ -2193,13 +2180,12 @@ function AdminCommandCenter() {
                             <td className="py-2.5 px-3 font-mono text-slate-600">${stripeFee.toFixed(2)}</td>
                             <td className="py-2.5 px-3">
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  marginPercent > 80
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : marginPercent > 50
-                                      ? "bg-sky-50 text-sky-700"
-                                      : "bg-slate-100 text-slate-600"
-                                }`}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${marginPercent > 80
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : marginPercent > 50
+                                    ? "bg-sky-50 text-sky-700"
+                                    : "bg-slate-100 text-slate-600"
+                                  }`}
                               >
                                 {price === 0 ? "Free Tier" : `${marginPercent}% Margin`}
                               </span>
@@ -2397,11 +2383,10 @@ function AdminCommandCenter() {
                       setSelectedTable(t.name);
                       setSqlQuery(`SELECT * FROM ${t.name} ORDER BY created_at DESC LIMIT 25;`);
                     }}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors ${
-                      selectedTable === t.name
-                        ? "bg-[#E11D48] text-white font-bold"
-                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    }`}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors ${selectedTable === t.name
+                      ? "bg-[#E11D48] text-white font-bold"
+                      : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
                   >
                     {t.name}
                   </button>
@@ -2643,9 +2628,8 @@ function AdminCommandCenter() {
                   <button
                     key={s}
                     onClick={() => setSelectedPageSlug(s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${
-                      selectedPageSlug === s ? "bg-rose-50 text-[#E11D48] border border-rose-200" : "bg-white border border-slate-200"
-                    }`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${selectedPageSlug === s ? "bg-rose-50 text-[#E11D48] border border-rose-200" : "bg-white border border-slate-200"
+                      }`}
                   >
                     {s} Page
                   </button>

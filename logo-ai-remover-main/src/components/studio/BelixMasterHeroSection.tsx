@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 import {

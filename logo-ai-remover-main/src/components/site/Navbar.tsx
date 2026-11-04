@@ -1,3 +1,5 @@
+"use client";
+
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
@@ -7,10 +9,9 @@ import {
   Home,
   Scissors,
   ScanLine,
+  Image as ImageIcon,
   LayoutGrid,
-  Clock,
   Mail,
-  PlusCircle,
   Sparkles,
 } from "lucide-react";
 
@@ -39,25 +40,18 @@ export const NAVBAR_NAV_ITEMS: NavItem[] = [
     desc: "One-click PNG cutout",
   },
   {
+    name: "Image cleaner",
+    shortName: "Image cleaner",
+    path: "/remove/image",
+    icon: ImageIcon,
+    desc: "Remove photo watermarks & logos",
+  },
+  {
     name: "Video cleaner",
     shortName: "Video cleaner",
     path: "/gemini-video-watermark-remover",
     icon: ScanLine,
     desc: "Remove Gemini & Veo marks",
-  },
-  {
-    name: "All tools",
-    shortName: "All tools",
-    path: "/tools",
-    icon: LayoutGrid,
-    desc: "Browse 20+ creative AI tools",
-  },
-  {
-    name: "History",
-    shortName: "History",
-    path: "/history",
-    icon: Clock,
-    desc: "Past edits & outputs",
   },
   {
     name: "Contact",
@@ -154,19 +148,8 @@ export function Navbar() {
           })}
         </div>
 
-        {/* ─── 3. RIGHT SIDE: PRIMARY CTA & MOBILE TOGGLE ─── */}
+        {/* ─── 3. RIGHT SIDE: MOBILE TOGGLE ─── */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {/* Primary "+ Create with AI" Button from sidebar */}
-          <Link
-            to="/tools"
-            className="relative group inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4.5 sm:py-2 rounded-full font-bold text-xs sm:text-[13px] tracking-tight text-white bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] shadow-[0_4px_16px_rgba(225,29,72,0.32)] hover:shadow-[0_6px_24px_rgba(225,29,72,0.45)] hover:scale-[1.03] active:scale-[0.98] transition-all overflow-hidden cursor-pointer whitespace-nowrap"
-            title="Create with AI Tools"
-          >
-            <PlusCircle className="size-3.5 sm:size-4 shrink-0 text-white" />
-            <span>Create with AI</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-          </Link>
-
           {/* Mobile hamburger menu toggle */}
           <button
             type="button"

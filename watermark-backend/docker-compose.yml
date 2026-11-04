@@ -1,0 +1,21 @@
+services:
+  watermark-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: watermark-backend
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 5000
+      IMAGE_JOB_DIR: /app/image_jobs
+      MAX_BATCH_IMAGES: ${MAX_BATCH_IMAGES:-10}
+      IMAGE_WORKERS: ${IMAGE_WORKERS:-2}
+    volumes:
+      - image_jobs:/app/image_jobs
+    restart: unless-stopped
+
+volumes:
+  image_jobs:
+

@@ -17,13 +17,11 @@ export function getStoredSupabaseConfig() {
   const storedService = localStorage.getItem("bellix_supabase_service_key");
 
   const envUrl =
-    import.meta.env.VITE_SUPABASE_URL ||
-    import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
+    (typeof process !== "undefined" && (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL)) ||
     DEFAULT_SUPABASE_URL;
 
   const envAnon =
-    import.meta.env.VITE_SUPABASE_ANON_KEY ||
-    import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    (typeof process !== "undefined" && (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY)) ||
     "";
 
   return {

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
@@ -17,7 +19,7 @@ export const Route = createFileRoute("/remove/video")({
   component: VideoRemoverPage,
 });
 
-function VideoRemoverPage() {
+export default function VideoRemoverPage() {
   return (
     <div className="min-h-screen bg-transparent px-4 py-12 text-gray-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">

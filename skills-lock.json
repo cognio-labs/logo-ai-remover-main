@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "wavespeed-watermark-remover": {
+      "source": "wavespeedai/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/wavespeed-watermark-remover/SKILL.md",
+      "computedHash": "c19d76446a3dba36f4fd5a11ce71e4f7c1c504dd20e6b08d25f44dd63a4df713"
+    }
+  }
+}

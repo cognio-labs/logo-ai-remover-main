@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -818,3 +820,5 @@ function HomePage() {
 }
 
 import { StudioHome } from "@/components/studio/Studio";
+
+export default HomePage;

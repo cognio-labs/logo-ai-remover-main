@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -296,12 +298,6 @@ export function Footer() {
             >
               bellixus062@gmail.com
             </a>
-            <Link
-              to="/admin"
-              className="hover:text-[#E11D48] text-gray-500 font-semibold transition-colors"
-            >
-              Admin Portal
-            </Link>
           </div>
 
           <div className="flex items-center gap-1 text-gray-400">

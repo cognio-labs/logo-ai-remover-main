@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -30,7 +32,7 @@ export const Route = createFileRoute("/api-reference")({
   component: ApiReferencePage,
 });
 
-function ApiReferencePage() {
+export default function ApiReferencePage() {
   const [selectedLang, setSelectedLang] = useState<"curl" | "python" | "node" | "go">("curl");
   const [copied, setCopied] = useState(false);
   const [testEndpoint, setTestEndpoint] = useState<"video" | "image">("video");
@@ -227,21 +229,19 @@ func main() {
               <span className="text-xs font-bold text-gray-400">Endpoint:</span>
               <button
                 onClick={() => setTestEndpoint("video")}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                  testEndpoint === "video"
-                    ? "bg-[#E11D48] text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${testEndpoint === "video"
+                  ? "bg-[#E11D48] text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }`}
               >
                 POST /v1/video/remove-watermark
               </button>
               <button
                 onClick={() => setTestEndpoint("image")}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                  testEndpoint === "image"
-                    ? "bg-[#E11D48] text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${testEndpoint === "image"
+                  ? "bg-[#E11D48] text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }`}
               >
                 POST /v1/image/clean
               </button>
@@ -253,11 +253,10 @@ func main() {
                 <button
                   key={lang}
                   onClick={() => setSelectedLang(lang)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold uppercase transition-colors ${
-                    selectedLang === lang
-                      ? "bg-white/20 text-white"
-                      : "text-gray-400 hover:text-white"
-                  }`}
+                  className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold uppercase transition-colors ${selectedLang === lang
+                    ? "bg-white/20 text-white"
+                    : "text-gray-400 hover:text-white"
+                    }`}
                 >
                   {lang}
                 </button>
@@ -288,26 +287,26 @@ func main() {
             <pre className="mt-2 text-[12px] text-gray-300">
               {testEndpoint === "video"
                 ? JSON.stringify(
-                    {
-                      status: "queued",
-                      job_id: "pr_vid_94a73b22e18f",
-                      estimated_seconds: 8.4,
-                      queue_priority: "h100_cluster",
-                      webhook_registered: true,
-                    },
-                    null,
-                    2,
-                  )
+                  {
+                    status: "queued",
+                    job_id: "pr_vid_94a73b22e18f",
+                    estimated_seconds: 8.4,
+                    queue_priority: "h100_cluster",
+                    webhook_registered: true,
+                  },
+                  null,
+                  2,
+                )
                 : JSON.stringify(
-                    {
-                      status: "completed",
-                      output_url: "https://cdn.bellix.ai/renders/clean_883a92.png",
-                      resolution: "3840x2160",
-                      latency_ms: 380,
-                    },
-                    null,
-                    2,
-                  )}
+                  {
+                    status: "completed",
+                    output_url: "https://cdn.bellix.ai/renders/clean_883a92.png",
+                    resolution: "3840x2160",
+                    latency_ms: 380,
+                  },
+                  null,
+                  2,
+                )}
             </pre>
           </div>
         </div>

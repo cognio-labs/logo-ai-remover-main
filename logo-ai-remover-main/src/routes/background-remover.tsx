@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect, ChangeEvent, PointerEvent } from "react";
 import {
@@ -933,7 +935,7 @@ async function normalizeImageFile(file: File): Promise<File> {
   return file;
 }
 
-function BackgroundRemoverPage() {
+export default function BackgroundRemoverPage() {
   const [status, setStatus] = useState<BackgroundRemovalStatus>("idle");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);

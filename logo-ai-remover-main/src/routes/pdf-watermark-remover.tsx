@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -245,14 +247,13 @@ export default function PdfWatermarkRemoverPage() {
   <text x="740" y="478" font-family="system-ui" font-size="14" font-weight="700" fill="#e11d48">$16,197.50</text>
   <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Authorized Signature: Validated Digitally · Bellix.us Verified</text>
   <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
-  ${
-    withWatermark
-      ? `<g transform="translate(450,310) rotate(-22)">
+  ${withWatermark
+          ? `<g transform="translate(450,310) rotate(-22)">
     <rect x="-260" y="-42" width="520" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">PAID SAMPLE COPY</text>
   </g>`
-      : ""
-  }
+          : ""
+        }
 </svg>`;
     } else if (type === "contract") {
       svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
@@ -278,14 +279,13 @@ export default function PdfWatermarkRemoverPage() {
   <text x="480" y="480" font-family="system-ui" font-size="12" fill="#9ca3af">Signatory: Elena Rostova, General Counsel</text>
   <text x="60" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Electronic Seal: SHA-256 Validated · Bellix.us Verified</text>
   <text x="780" y="550" font-family="system-ui" font-size="12" fill="#9ca3af">Page 1 of 1</text>
-  ${
-    withWatermark
-      ? `<g transform="translate(450,300) rotate(-22)">
+  ${withWatermark
+          ? `<g transform="translate(450,300) rotate(-22)">
     <rect x="-280" y="-42" width="560" height="84" rx="12" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.45"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#e11d48" opacity="0.45" text-anchor="middle" letter-spacing="5">CONFIDENTIAL · DRAFT</text>
   </g>`
-      : ""
-  }
+          : ""
+        }
 </svg>`;
     } else {
       svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="100%" height="100%">
@@ -313,14 +313,13 @@ export default function PdfWatermarkRemoverPage() {
   <text x="600" y="280" font-family="monospace" font-size="11" fill="#cbd5e1">• Thermal insulation R-30</text>
   <text x="60" y="550" font-family="monospace" font-size="12" fill="#64748b">CAD Vector Geometry · Sub-pixel Verification Passed</text>
   <text x="780" y="550" font-family="monospace" font-size="12" fill="#64748b">SHEET A-102</text>
-  ${
-    withWatermark
-      ? `<g transform="translate(450,300) rotate(-22)">
+  ${withWatermark
+          ? `<g transform="translate(450,300) rotate(-22)">
     <rect x="-290" y="-42" width="580" height="84" rx="12" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="12 8" opacity="0.5"/>
     <text x="0" y="16" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#ef4444" opacity="0.5" text-anchor="middle" letter-spacing="5">TRIAL · NOT FOR BUILD</text>
   </g>`
-      : ""
-  }
+          : ""
+        }
 </svg>`;
     }
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
@@ -680,11 +679,10 @@ export default function PdfWatermarkRemoverPage() {
                       if (file) processDocumentFile(file);
                     }}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`h-[420px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer ${
-                      isDragging
-                        ? "border-[#E11D48] bg-[#FFF5F7] scale-[1.01]"
-                        : "border-gray-300 hover:border-[#E11D48] hover:bg-[#FFF9FA]"
-                    }`}
+                    className={`h-[420px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer ${isDragging
+                      ? "border-[#E11D48] bg-[#FFF5F7] scale-[1.01]"
+                      : "border-gray-300 hover:border-[#E11D48] hover:bg-[#FFF9FA]"
+                      }`}
                   >
                     <input
                       ref={fileInputRef}
@@ -810,9 +808,8 @@ export default function PdfWatermarkRemoverPage() {
                       /* SINGLE CANVAS PREVIEW */
                       <div
                         onClick={handleCanvasClick}
-                        className={`relative w-full aspect-[16/10] sm:aspect-[16/11] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none ${
-                          !isProcessing ? "cursor-crosshair" : ""
-                        }`}
+                        className={`relative w-full aspect-[16/10] sm:aspect-[16/11] bg-white border border-gray-200 rounded-2xl shadow-inner overflow-hidden select-none ${!isProcessing ? "cursor-crosshair" : ""
+                          }`}
                       >
                         {previewUrl ? (
                           <div className="w-full h-full overflow-auto flex items-center justify-center p-2">
@@ -952,11 +949,10 @@ export default function PdfWatermarkRemoverPage() {
                           key={mode}
                           type="button"
                           onClick={() => setQualityEngine(mode)}
-                          className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${
-                            qualityEngine === mode
-                              ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
-                              : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
-                          }`}
+                          className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${qualityEngine === mode
+                            ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
+                            : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
+                            }`}
                         >
                           {mode === "standard" ? "Balanced" : mode === "fast" ? "Fast" : "Ultra HD"}
                         </button>
@@ -1171,9 +1167,8 @@ export default function PdfWatermarkRemoverPage() {
                 >
                   <span>{faq.q}</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-rose-500 transition-transform duration-200 ${
-                      activeFaq === fIdx ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 text-rose-500 transition-transform duration-200 ${activeFaq === fIdx ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 {activeFaq === fIdx && (

@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemini Image Watermark Remover | Local Batch Processing</title>
+  <meta name="description" content="Free local image watermark remover tool. Clean corner watermarks on your server using OpenCV inpainting. Preserves full resolution with PNG export and batch ZIP download.">
+  <meta name="theme-color" content="#f3f5fb">
+
+  <!-- FAQPage JSON-LD Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Gemini watermark aam taur par kahan hota hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Gemini / Veo generated images mein watermark aam taur par bottom-right corner (lagbhag 20% width x 15% height) ke area mein ek chhota bright sparkle logo hota hai. Yeh tool isi specific corner region ko scan karta hai."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya image quality ya resolution kam hoti hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nahi. Output image original pixel dimensions aur full resolution ko retain karti hai aur lossless PNG format mein export hoti hai. Agar source image mein alpha (transparency) channel ho to woh bhi preserve rehta hai."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kaunse formats aur maximum file size supported hain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "JPG, PNG, aur WEBP formats supported hain. Har file ka maximum size 20 MB tak ho sakta hai aur ek batch mein 10 images ek saath process ki ja sakti hain."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya meri images store hoti hain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Images sirf aapke server par temporarily process hoti hain. Background automated cleanup thread har 1 ghante (60 minutes) ke baad sari uploaded images, cleaned output PNGs aur temporary ZIP archives ko permanently delete kar deta hai."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya invisible SynthID watermark remove hota hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nahi. SynthID ek invisible mathematical cryptographic watermark hota hai jo pixels ke patterns mein embed rehta hai. Yeh tool sirf visible corner logo ko inpaint karta hai, invisible SynthID data ko nahi chhedta."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kabhi faint patch kyon reh jata hai, aur manual area option kaise madad karta hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "OpenCV ka inpainting algorithm (Telea) aas-paas ke pixels se color estimate karta hai. Agar watermark ke pichhe bohot busy ya textured background ho, to thoda soft blur patch dikh sakta hai. Manual box parameter (x,y,w,h) se aap algorithm ko exact bounding box specify karke detection refine kar sakte hain."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya tool free hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Haan, yeh 100% free aur open-source utility hai. Isme koi external paid cloud API use nahi hoti—sab kuch local OpenCV aur Python par run hota hai."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya cleaned image commercial use kar sakte hain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yeh legal advice nahi hai. Commercial use se pehle hamesha Google Gemini aur model providers ke respective terms of service aur image licensing guidelines zaroor check karein."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya phone par kaam karta hai?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Haan, page poori tarah responsive aur mobile-friendly hai. Aap Android ya iPhone browser se seedhe images select karke upload, compare aur download kar sakte hain."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Kya ek saath multiple images process kar sakte hain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Haan! Aap ek saath 10 images select kar sakte hain. Server background queue ke sath sabhi images ko alag-alag process karega aur aap chahein to individual PNGs ya sabhi completed results ka single ZIP download kar sakte hain."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --blue: #1f5eff;
+      --blue-hover: #1546cc;
+      --ink: #111827;
+      --mut: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f3f5fb;
+      --card-bg: #ffffff;
+      --green: #10b981;
+      --red: #ef4444;
+      --radius: 20px;
+      --shadow: 0 10px 40px rgba(30, 60, 130, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-link {
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-link span.accent {
+      color: var(--blue);
+    }
+    .nav-links a {
+      color: var(--mut);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-left: 18px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--blue);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 56px 0 32px;
+    }
+    .eyebrow {
+      color: var(--blue);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      line-height: 1.12;
+      margin: 8px auto 14px;
+      letter-spacing: -0.03em;
+      max-width: 820px;
+    }
+    .hero .sub {
+      color: var(--mut);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin: 0 auto 24px;
+      line-height: 1.5;
+    }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      padding: 28px;
+      margin-bottom: 34px;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #cfd8ee;
+      border-radius: 18px;
+      padding: 48px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fbfcff;
+    }
+    .dropzone.dragover {
+      background: #eef3ff;
+      border-color: var(--blue);
+    }
+    .drop-icon {
+      font-size: 2.2rem;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+    .dropzone h3 {
+      font-size: 1.25rem;
+      margin: 8px 0 4px;
+    }
+    .dropzone p {
+      color: var(--mut);
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+    }
+    .hint {
+      color: var(--mut);
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--blue-hover);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-sec {
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-sec:hover {
+      background: #f9fafb;
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      padding: 8px 12px;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+    }
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 13px;
+      border-radius: 8px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 14px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left h3 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .batch-note {
+      font-size: 0.88rem;
+      color: var(--mut);
+      margin-bottom: 16px;
+    }
+
+    /* Job List */
+    .job-list {
+      display: grid;
+      gap: 16px;
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--mut);
+      padding: 32px 16px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: #fafbfe;
+    }
+
+    .job-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: 84px minmax(0, 1fr);
+      gap: 16px;
+      transition: box-shadow 0.2s;
+    }
+    .job-item:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    .job-thumb {
+      width: 84px;
+      height: 84px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #eef2f7;
+      border: 1px solid var(--line);
+    }
+    .job-content {
+      min-width: 0;
+    }
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .job-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+    .status-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 3px 10px;
+      background: #eef2f7;
+      color: #4b5563;
+      white-space: nowrap;
+    }
+    .status-badge.completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-badge.processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .status-badge.failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .progress-bar-wrap {
+      height: 6px;
+      background: #eef2f7;
+      border-radius: 8px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--blue);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .job-meta {
+      font-size: 0.82rem;
+      color: var(--mut);
+    }
+    .job-error {
+      color: var(--red);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* Comparison Slider */
+    .compare-wrap {
+      display: none;
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      aspect-ratio: 16/10;
+      background: #111827;
+      margin-top: 14px;
+      max-width: 620px;
+    }
+    .compare-wrap.show {
+      display: block;
+    }
+    .compare-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .compare-processed {
+      clip-path: inset(0 50% 0 0);
+    }
+    .compare-tag {
+      position: absolute;
+      top: 10px;
+      padding: 4px 10px;
+      background: rgba(17, 24, 39, 0.85);
+      color: #ffffff;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .compare-tag.left { left: 10px; }
+    .compare-tag.right { right: 10px; }
+    .compare-range {
+      position: absolute;
+      bottom: 12px;
+      left: 5%;
+      width: 90%;
+      z-index: 5;
+      accent-color: var(--blue);
+      cursor: ew-resize;
+    }
+
+    .job-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Sections General */
+    .section-title {
+      font-size: 1.85rem;
+      letter-spacing: -0.03em;
+      margin: 0 0 8px;
+    }
+    .section-sub {
+      color: var(--mut);
+      margin: 0 0 24px;
+      font-size: 1rem;
+    }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .sample-card {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .sample-card img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      display: block;
+      background: #e9eef6;
+    }
+    .sample-info {
+      padding: 12px 14px;
+    }
+    .sample-info strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    .sample-info span {
+      color: var(--mut);
+      font-size: 0.8rem;
+      line-height: 1.35;
+      display: block;
+    }
+
+    /* How it works */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .step-card {
+      padding: 22px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #edf4ff;
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .step-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+    }
+    .step-card p {
+      color: var(--mut);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* Trust section */
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    /* Limitations notice */
+    .limits-box {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 34px;
+    }
+    .limits-box h3 {
+      margin: 0 0 8px;
+      color: #92400e;
+      font-size: 1.15rem;
+    }
+    .limits-box p {
+      margin: 6px 0;
+      color: #78350f;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    /* FAQ */
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+    .faq-item {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 0 20px;
+      overflow: hidden;
+    }
+    .faq-item summary {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 16px 0;
+      font-size: 1rem;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: "+";
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--mut);
+      transition: transform 0.2s;
+    }
+    .faq-item[open] summary::after {
+      content: "−";
+    }
+    .faq-item p {
+      color: var(--mut);
+      font-size: 0.92rem;
+      margin: 0 0 16px;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 44px;
+      color: var(--mut);
+      font-size: 0.88rem;
+      text-align: center;
+      background: #ffffff;
+      margin-top: 60px;
+    }
+    .footer p {
+      margin: 6px 0;
+    }
+    .footer strong {
+      color: var(--ink);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 100;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid, .trust-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .hero { padding: 36px 0 20px; }
+      .card { padding: 18px; }
+      .job-item { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 12px; }
+      .job-thumb { width: 64px; height: 64px; }
+      .toolbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <div class="wrap nav-content">
+      <a class="brand-link" href="/image-remover">
+        <span>✨</span>
+        <span>Gemini Image Watermark Remover</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Video Tool</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- 1. HERO SECTION -->
+    <section class="hero">
+      <div class="eyebrow">Local Neural Inpainting</div>
+      <h1>Gemini Image Watermark Remover</h1>
+      <p class="sub">
+        Upload your own images, process batches directly on your server, preview side-by-side with interactive slider, and download cleaned PNGs.
+      </p>
+      <div class="badges">
+        <span class="badge">🔒 Runs on your server</span>
+        <span class="badge">⚡ No signup</span>
+        <span class="badge">🖼️ PNG / JPG / WEBP</span>
+        <span class="badge">📦 Batch processing</span>
+      </div>
+    </section>
+
+    <!-- 2. MAIN TOOL SECTION -->
+    <section class="card" aria-labelledby="tool-heading">
+      <h2 id="tool-heading" class="sr-only">Image Uploader and Workspace</h2>
+
+      <!-- Dropzone -->
+      <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Drop images here or click to browse">
+        <div class="drop-icon" aria-hidden="true">＋</div>
+        <h3>Drop images here</h3>
+        <p>or select multiple files from your computer or phone. Ctrl+V paste is also supported.</p>
+        <button class="btn btn-primary" id="chooseBtn" type="button">Choose images</button>
+        <input type="file" id="fileInput" class="sr-only" accept="image/jpeg,image/png,image/webp" multiple aria-label="Upload JPG, PNG, or WEBP images">
+        <div class="hint">JPG, PNG, WEBP · Up to 20 MB each · Maximum 10 images per batch</div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <h3 id="queueTitle">Selected Images <span id="jobCount">(0)</span></h3>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-sec btn-sm" id="addMoreBtn" type="button">Choose more</button>
+          <button class="btn btn-primary btn-sm" id="processBtn" type="button" disabled>Remove Watermarks</button>
+          <button class="btn btn-sec btn-sm" id="zipBtn" type="button" style="display: none;">Download all as ZIP</button>
+          <button class="btn btn-danger btn-sm" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <p class="batch-note" id="batchNote" aria-live="polite">No images selected yet.</p>
+
+      <!-- Job List Queue -->
+      <div class="job-list" id="jobList" aria-live="polite">
+        <div class="empty-state">
+          Your selected images and processing results will appear here.
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. BEFORE/AFTER EXAMPLES GALLERY -->
+    <section class="card" id="gallery-section" aria-labelledby="gallery-heading">
+      <h2 class="section-title" id="gallery-heading">Before / After Examples Gallery</h2>
+      <p class="section-sub">
+        Explore representative placeholder test pairs. These are clearly marked placeholders and will be replaced with verified samples.
+      </p>
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- Generated via JS for 8 example pairs -->
+      </div>
+    </section>
+
+    <!-- 4. HOW IT WORKS -->
+    <section class="card" id="how-it-works" aria-labelledby="steps-heading">
+      <h2 class="section-title" id="steps-heading">How It Works</h2>
+      <p class="section-sub">Quick 3-step workflow for clean, watermark-free images.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Upload</h3>
+          <p>Choose up to 10 JPG, PNG, or WEBP files. Full image resolution and dimensions are preserved.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Remove</h3>
+          <p>Server-side OpenCV top-hat filter detects the corner sparkle and inpaints it cleanly.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Download</h3>
+          <p>Preview with the interactive slider, download individual PNGs or save the entire batch as ZIP.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TRUST SECTION -->
+    <section class="card" aria-labelledby="trust-heading">
+      <h2 class="section-title" id="trust-heading">Privacy & What to Expect</h2>
+      <p class="section-sub">Transparent, server-side processing without dark patterns.</p>
+      <div class="trust-grid">
+        <div class="step-card">
+          <h3>🕒 1-Hour Auto Deletion</h3>
+          <p>Uploaded images, output files, and ZIP archives are automatically purged after 60 minutes.</p>
+        </div>
+        <div class="step-card">
+          <h3>📐 Original Resolution</h3>
+          <p>Pixel dimensions and transparency alpha channels are preserved. No extra watermarks added.</p>
+        </div>
+        <div class="step-card">
+          <h3>🛡️ No Account Needed</h3>
+          <p>No login, email, or credit card required. Each image in your batch runs independently.</p>
+        </div>
+      </div>
+      <!-- Genuine testimonials placeholder: add only real customer feedback with permission -->
+    </section>
+
+    <!-- 6. HONEST LIMITATIONS -->
+    <section class="limits-box">
+      <h3>⚠️ Honest Limitations</h3>
+      <p>• <strong>Optimized for bottom-right:</strong> The algorithm is specifically tuned for the compact sparkle watermark located in the bottom-right corner (~20% width × 15% height).</p>
+      <p>• <strong>Busy backgrounds:</strong> Inpainting estimates surrounding texture; highly intricate or noisy backgrounds may leave a slightly soft patch.</p>
+      <p>• <strong>SynthID remains:</strong> Google's invisible cryptographic SynthID watermark is embedded in pixel values and is NOT removed by inpainting.</p>
+      <p>• <strong>Ethical usage:</strong> Use this tool only on your own images. Do not present AI-generated content as real human photography.</p>
+    </section>
+
+    <!-- 7. FAQ ACCORDION -->
+    <section class="card" id="faq" aria-labelledby="faq-heading">
+      <h2 class="section-title" id="faq-heading">Frequently Asked Questions</h2>
+      <p class="section-sub">Clear answers to common questions about local image watermark removal.</p>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Gemini watermark aam taur par kahan hota hai?</summary>
+          <p>Gemini / Veo images mein watermark bottom-right corner (lagbhag 20% width x 15% height area) mein ek chhota bright sparkle logo hota hai. Yeh tool isi area ko scan karta hai.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya image quality ya resolution kam hoti hai?</summary>
+          <p>Nahi. Output image original pixel dimensions aur full resolution ko retain karti hai aur lossless PNG format mein export hoti hai. Source alpha channel bhi preserve rehta hai.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kaunse formats aur maximum file size supported hain?</summary>
+          <p>JPG, PNG, aur WEBP formats supported hain. Har file ka maximum size 20 MB tak ho sakta hai aur ek batch mein 10 images ek saath process ki ja sakti hain.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya meri images store hoti hain?</summary>
+          <p>Images sirf aapke server par temporarily process hoti hain. Background automated cleanup thread har 1 ghante (60 minutes) ke baad sari uploaded images, cleaned output PNGs aur temporary ZIPs ko permanently delete kar deta hai.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya invisible SynthID watermark remove hota hai?</summary>
+          <p>Nahi. SynthID ek invisible mathematical cryptographic watermark hota hai jo pixels ke patterns mein embed rehta hai. Yeh tool sirf visible corner logo ko inpaint karta hai, invisible SynthID data ko nahi chhedta.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kabhi faint patch kyon reh jata hai, aur manual area option kaise madad karta hai?</summary>
+          <p>OpenCV ka inpainting algorithm (Telea) aas-paas ke pixels se color estimate karta hai. Agar watermark ke pichhe bohot busy ya textured background ho, to thoda soft blur patch dikh sakta hai. Manual box parameter (x,y,w,h) se aap algorithm ko exact bounding box specify karke detection refine kar sakte hain.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya tool free hai?</summary>
+          <p>Haan, yeh 100% free aur open-source utility hai. Isme koi external paid cloud API use nahi hoti—sab kuch local OpenCV aur Python par run hota hai.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya cleaned image commercial use kar sakte hain?</summary>
+          <p>Yeh legal advice nahi hai. Commercial use se pehle hamesha Google Gemini aur model providers ke respective terms of service aur image licensing guidelines zaroor check karein.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya phone par kaam karta hai?</summary>
+          <p>Haan, page poori tarah responsive aur mobile-friendly hai. Aap Android ya iPhone browser se seedhe images select karke upload, compare aur download kar sakte hain.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Kya ek saath multiple images process kar sakte hain?</summary>
+          <p>Haan! Aap ek saath 10 images select kar sakte hain. Server background queue ke sath sabhi images ko alag-alag process karega aur aap chahein to individual PNGs ya sabhi completed results ka single ZIP download kar sakte hain.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 8. FOOTER -->
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Gemini Image Watermark Remover</strong> · Not affiliated with Google.</p>
+      <p>Runs 100% locally on your machine via OpenCV & Flask. Uploads and generated files automatically delete after 1 hour.</p>
+      <p>Use only on images you have legal rights to process. Do not misrepresent AI footage as real human media.</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Client-side Logic -->
+  <script>
+  (() => {
+    const MAX_FILE_BYTES = 20 * 1024 * 1024;
+    const MAX_BATCH = 10;
+    const fileInput = document.getElementById('fileInput');
+    const dropzone = document.getElementById('dropzone');
+    const jobList = document.getElementById('jobList');
+    const processBtn = document.getElementById('processBtn');
+    const zipBtn = document.getElementById('zipBtn');
+    const toast = document.getElementById('toast');
+    const batchNote = document.getElementById('batchNote');
+    const jobCount = document.getElementById('jobCount');
+
+    const jobs = new Map();
+    let batchId = null;
+    let isPolling = false;
+    let toastTimeout = null;
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { toast.style.display = 'none'; }, 3200);
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function updateToolbar() {
+      jobCount.textContent = `(${jobs.size})`;
+      const hasQueued = [...jobs.values()].some(j => j.status === 'queued');
+      const hasCompleted = [...jobs.values()].some(j => j.status === 'completed');
+
+      processBtn.disabled = !jobs.size || !hasQueued || [...jobs.values()].some(j => j.status === 'processing');
+      zipBtn.style.display = hasCompleted ? 'inline-flex' : 'none';
+
+      if (!jobs.size) {
+        batchNote.textContent = 'No images selected yet.';
+        jobList.innerHTML = '<div class="empty-state">Your selected images and processing results will appear here.</div>';
+      } else {
+        const completed = [...jobs.values()].filter(j => j.status === 'completed').length;
+        const failed = [...jobs.values()].filter(j => j.status === 'failed').length;
+        batchNote.textContent = `${jobs.size} image(s) selected (Max ${MAX_BATCH}). ${completed} completed, ${failed} failed.`;
+      }
+    }
+
+    function createJobCard(job) {
+      const card = document.createElement('article');
+      card.className = 'job-item';
+      card.id = `job-${job.id}`;
+      card.innerHTML = `
+        <img class="job-thumb" src="${job.previewUrl}" alt="Thumbnail of ${escapeHTML(job.file.name)}">
+        <div class="job-content">
+          <div class="job-header">
+            <div class="job-title">${escapeHTML(job.file.name)}</div>
+            <span class="status-badge queued">Queued</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>
+          <div class="job-meta">${(job.file.size / (1024 * 1024)).toFixed(2)} MB · Ready to process</div>
+          
+          <!-- Interactive Slider (Hidden until completed) -->
+          <div class="compare-wrap">
+            <img class="compare-original" alt="Original image">
+            <img class="compare-processed" alt="Cleaned result image">
+            <span class="compare-tag left">Cleaned</span>
+            <span class="compare-tag right">Original</span>
+            <input type="range" class="compare-range" min="0" max="100" value="50" aria-label="Compare original and cleaned image">
+          </div>
+
+          <div class="job-actions">
+            <button class="btn btn-sec btn-sm remove-btn" type="button">Remove</button>
+            <a class="btn btn-primary btn-sm download-btn" style="display:none;" download>Download PNG</a>
+          </div>
+        </div>
+      `;
+
+      card.querySelector('.remove-btn').addEventListener('click', () => {
+        if (job.status === 'queued') {
+          URL.revokeObjectURL(job.previewUrl);
+          jobs.delete(job.id);
+          card.remove();
+          updateToolbar();
+        } else {
+          showToast('Completed or processing jobs cannot be removed individually. Use Reset.');
+        }
+      });
+
+      const slider = card.querySelector('.compare-range');
+      slider.addEventListener('input', () => {
+        card.querySelector('.compare-processed').style.clipPath = `inset(0 ${100 - slider.value}% 0 0)`;
+      });
+
+      return card;
+    }
+
+    function addFiles(fileList) {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      const incoming = [...fileList].filter(f => allowed.includes(f.type) || /\.(jpg|jpeg|png|webp)$/i.test(f.name));
+
+      if (!incoming.length) {
+        showToast('Please select valid JPG, PNG, or WEBP images.');
+        return;
+      }
+
+      let accepted = 0;
+      for (const file of incoming) {
+        if (file.size > MAX_FILE_BYTES) {
+          showToast(`${file.name} exceeds 20 MB size limit.`);
+          continue;
+        }
+        if (jobs.size >= MAX_BATCH) {
+          showToast(`Maximum batch limit is ${MAX_BATCH} images.`);
+          break;
+        }
+
+        const id = crypto.randomUUID ? crypto.randomUUID() : `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const job = {
+          id,
+          file,
+          previewUrl: URL.createObjectURL(file),
+          status: 'queued'
+        };
+
+        jobs.set(id, job);
+        jobList.querySelector('.empty-state')?.remove();
+        jobList.appendChild(createJobCard(job));
+        accepted++;
+      }
+
+      if (accepted > 0) {
+        showToast(`${accepted} image(s) added to queue.`);
+      }
+      updateToolbar();
+    }
+
+    // Dropzone Events
+    document.getElementById('chooseBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+    document.getElementById('addMoreBtn').addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        addFiles(fileInput.files);
+        fileInput.value = '';
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(ev => {
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(ev => {
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length) {
+        addFiles(e.dataTransfer.files);
+      }
+    });
+
+    // Paste support (Ctrl+V)
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.files;
+      if (items && items.length) {
+        addFiles(items);
+      }
+    });
+
+    function updateJobUI(jobId, data) {
+      const job = jobs.get(jobId);
+      if (!job) return;
+
+      job.status = data.status;
+      if (data.job_id) job.serverJobId = data.job_id;
+
+      const card = document.getElementById(`job-${job.id}`);
+      if (!card) return;
+
+      const badge = card.querySelector('.status-badge');
+      const bar = card.querySelector('.progress-bar-fill');
+      const meta = card.querySelector('.job-meta');
+
+      badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+      badge.className = `status-badge ${data.status}`;
+
+      if (data.status === 'processing') {
+        bar.style.width = '50%';
+        meta.textContent = 'Processing corner watermark with OpenCV...';
+      } else if (data.status === 'completed') {
+        bar.style.width = '100%';
+        meta.textContent = 'Watermark removed cleanly! Drag comparison slider to inspect.';
+        
+        const wrap = card.querySelector('.compare-wrap');
+        wrap.classList.add('show');
+        
+        const resultUrl = `/api/image/result/${encodeURIComponent(job.serverJobId)}`;
+        card.querySelector('.compare-original').src = job.previewUrl;
+        card.querySelector('.compare-processed').src = resultUrl;
+        
+        const downloadBtn = card.querySelector('.download-btn');
+        downloadBtn.href = `/api/image/download/${encodeURIComponent(job.serverJobId)}`;
+        downloadBtn.style.display = 'inline-flex';
+      } else if (data.status === 'failed') {
+        bar.style.width = '100%';
+        bar.style.background = 'var(--red)';
+        meta.innerHTML = `<span class="job-error">${escapeHTML(data.error || 'Failed to process')}</span>`;
+      }
+      updateToolbar();
+    }
+
+    // Batch Upload & Polling
+    async function runBatch() {
+      if (!jobs.size) return;
+      processBtn.disabled = true;
+
+      const formData = new FormData();
+      for (const job of jobs.values()) {
+        if (job.status === 'queued') {
+          formData.append('image', job.file, job.file.name);
+        }
+      }
+
+      showToast('Uploading images to processing queue...');
+
+      try {
+        const res = await fetch('/api/image/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+        batchId = data.batch_id;
+        const queuedJobs = [...jobs.values()].filter(j => j.status === 'queued');
+
+        data.jobs.forEach((serverJob, idx) => {
+          const clientJob = queuedJobs[idx];
+          if (clientJob) {
+            clientJob.serverJobId = serverJob.job_id;
+            updateJobUI(clientJob.id, serverJob);
+          }
+        });
+
+        pollBatch();
+      } catch (err) {
+        showToast(err.message || 'Error uploading images');
+        for (const job of jobs.values()) {
+          if (job.status === 'queued') {
+            updateJobUI(job.id, { status: 'failed', error: err.message });
+          }
+        }
+      }
+    }
+
+    async function pollBatch() {
+      if (isPolling || !batchId) return;
+      isPolling = true;
+
+      try {
+        let isDone = false;
+        while (!isDone) {
+          const res = await fetch(`/api/image/batch/${encodeURIComponent(batchId)}`);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not fetch batch status');
+
+          const serverMap = new Map(data.jobs.map(j => [j.job_id, j]));
+          for (const job of jobs.values()) {
+            if (job.serverJobId && serverMap.has(job.serverJobId)) {
+              updateJobUI(job.id, serverMap.get(job.serverJobId));
+            }
+          }
+
+          isDone = data.jobs.length > 0 && data.jobs.every(j => ['completed', 'failed'].includes(j.status));
+          if (!isDone) {
+            await new Promise(r => setTimeout(r, 1000));
+          }
+        }
+        showToast('Batch processing complete!');
+      } catch (err) {
+        showToast(err.message || 'Polling error');
+      } finally {
+        isPolling = false;
+        updateToolbar();
+      }
+    }
+
+    processBtn.addEventListener('click', runBatch);
+
+    zipBtn.addEventListener('click', () => {
+      if (batchId) {
+        window.location.href = `/api/image/batch/${encodeURIComponent(batchId)}/download`;
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      for (const j of jobs.values()) {
+        URL.revokeObjectURL(j.previewUrl);
+      }
+      jobs.clear();
+      batchId = null;
+      updateToolbar();
+      showToast('Queue reset. Temporary files auto-deleted after 1 hour.');
+    });
+
+    // Generate Example Gallery (8 items with clear placeholder labels)
+    const galleryGrid = document.getElementById('galleryGrid');
+    for (let i = 1; i <= 8; i++) {
+      const card = document.createElement('article');
+      card.className = 'sample-card';
+      card.innerHTML = `
+        <img src="/static/samples/sample-${i}-before.jpg" loading="lazy" alt="Placeholder example ${i}">
+        <div class="sample-info">
+          <strong>Example ${i} · Placeholder</strong>
+          <span>Replace sample-${i}-before.jpg with your real sample.</span>
+        </div>
+      `;
+      galleryGrid.appendChild(card);
+    }
+
+    updateToolbar();
+  })();
+  </script>
+</body>
+</html>
+

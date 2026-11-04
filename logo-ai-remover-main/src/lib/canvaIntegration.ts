@@ -32,7 +32,9 @@ export async function handleEditInCanva(
   fileName: string = "bellix-cutout.png",
   config?: CanvaExportConfig
 ): Promise<CanvaExportResult> {
-  const canvaAppId = config?.appId || (import.meta as any).env?.VITE_CANVA_APP_ID;
+  const canvaAppId =
+    config?.appId ||
+    (typeof process !== "undefined" && (process.env.NEXT_PUBLIC_CANVA_APP_ID || process.env.VITE_CANVA_APP_ID));
 
   // 1. If Canva Connect API credentials are fully configured
   if (canvaAppId) {

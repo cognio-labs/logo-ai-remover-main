@@ -44,10 +44,15 @@ export type UpscaleJobResult = {
 };
 const API_ORIGIN =
   (
-    ((import.meta as any).env?.VITE_API_URL ||
-      (import.meta as any).env?.VITE_IMAGE_API_URL ||
-      (import.meta as any).env?.VITE_VIDEO_API_URL) as string | undefined
-  )?.replace(/\/$/u, "") ?? "";
+    (typeof process !== "undefined" &&
+      (process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_IMAGE_API_URL ||
+        process.env.NEXT_PUBLIC_VIDEO_API_URL ||
+        process.env.VITE_API_URL ||
+        process.env.VITE_IMAGE_API_URL ||
+        process.env.VITE_VIDEO_API_URL)) ||
+    ""
+  ).replace(/\/$/u, "");
 
 export const apiImageUrl = (path: string) => `${API_ORIGIN}${path}`;
 

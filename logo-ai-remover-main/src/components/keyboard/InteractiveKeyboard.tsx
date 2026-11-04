@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { MAC_KEYBOARD_ROWS, type KeyConfig } from "./keyboardLayout";

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Watermark Remover</title>
+<style>
+:root{--blue:#1f5eff;--ink:#111827;--mut:#6b7280;--line:#e5e7eb;--bg:#f3f5fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:40px 16px 60px;text-align:center}
+h1{font-size:34px;margin:0 0 8px}
+.sub{color:var(--mut);max-width:640px;margin:0 auto 28px;line-height:1.5}
+.card{background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(30,60,130,.10);
+  padding:26px}
+.drop{border:2px dashed #cfd8ee;border-radius:20px;padding:56px 20px;cursor:pointer;
+  transition:.2s;background:#fbfcff}
+.drop.over{background:#eef3ff;border-color:var(--blue)}
+.drop h3{margin:22px 0 8px;font-size:16px}
+.drop p{margin:0;color:var(--mut);font-size:12.5px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;
+  border-radius:12px;padding:14px 34px;font-size:17px;font-weight:600;cursor:pointer;
+  background:var(--blue);color:#fff;transition:.15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);
+  padding:10px 16px;font-size:14px;font-weight:500}
+.btn.go{padding:11px 22px;font-size:15px}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:16px;
+  overflow:hidden;background:#eef1f8}
+.pane{position:relative;aspect-ratio:16/9;background:#e9edf7;display:flex;
+  align-items:center;justify-content:center}
+.pane+.pane{border-left:1px solid #fff}
+.pane video{width:100%;height:100%;object-fit:contain;background:#000}
+.tag{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.85);color:#fff;
+  font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;z-index:2}
+.ph{color:#475569;font-size:14px;padding:16px;line-height:1.5}
+.ph small{display:block;color:var(--mut);margin-top:8px;font-size:12px}
+.spin{width:30px;height:30px;border:3px solid #cdd7f5;border-top-color:var(--blue);
+  border-radius:50%;animation:sp 0.9s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.bar{display:flex;align-items:center;gap:12px;margin-top:14px;padding:6px 4px}
+.bar input[type=range]{flex:1}
+.pl{width:36px;height:36px;border-radius:50%;border:0;background:var(--ink);
+  color:#fff;cursor:pointer;font-size:13px}
+.time{font-size:12px;color:var(--mut);min-width:84px;text-align:right}
+.stat{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;
+  font-size:13px;color:#475569;text-align:left}
+.prog{height:4px;background:#e5e9f5;border-radius:4px;margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.err{color:#b91c1c}
+@media(max-width:640px){.grid{grid-template-columns:1fr}
+  .pane+.pane{border-left:0;border-top:1px solid #fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Video Watermark Remover</h1>
+  <p class="sub">Upload your AI-generated video. The visible corner logo is removed and
+  you can compare original and cleaned video side by side, then download the MP4.</p>
+
+  <!-- STEP 1: upload box -->
+  <div class="card" id="uploadCard">
+    <div class="drop" id="drop">
+      <button class="btn" id="chooseBtn" type="button">+ Choose video</button>
+      <h3>Upload a Gemini or Veo video</h3>
+      <p>MP4, WebM, MOV, AVI or MKV. Short clips under 100 MB are the safest first test.</p>
+    </div>
+    <input type="file" id="file" accept="video/*,.mkv" class="hidden">
+  </div>
+
+  <!-- STEP 2: workspace -->
+  <div class="card hidden" id="work">
+    <div class="grid">
+      <div class="pane">
+        <span class="tag">Original</span>
+        <video id="vOrig" playsinline preload="auto"></video>
+      </div>
+      <div class="pane">
+        <span class="tag">Processed</span>
+        <div class="ph" id="phReady">
+          Ready to process
+          <small>Preview and export run at the source resolution.</small>
+        </div>
+        <div class="ph hidden" id="phBusy">
+          <div class="spin"></div>
+          Processing. Keep this tab open.
+        </div>
+        <video id="vProc" class="hidden" playsinline preload="auto" muted></video>
+      </div>
+    </div>
+
+    <div class="bar">
+      <button class="pl" id="play" type="button">&#9654;</button>
+      <input type="range" id="seek" min="0" max="1000" value="0">
+      <span class="time" id="time">0:00 / 0:00</span>
+    </div>
+
+    <div class="stat">
+      <span id="statTxt">Reading video metadata...</span>
+      <div class="prog"><i id="progBar"></i></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn sec" id="another" type="button">Choose another</button>
+      <button class="btn sec" id="reset" type="button">Reset</button>
+      <button class="btn go" id="process" type="button">Remove Watermark</button>
+      <a class="btn go hidden" id="download" href="#">Download MP4</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = location.protocol === "file:" ? "http://localhost:5000" : "";
+const $ = (id) => document.getElementById(id);
+const vO = $("vOrig"), vP = $("vProc");
+let file = null, objUrl = null, jobId = null, doneFlag = false, timer = null;
+
+function fmt(t) {
+  if (!isFinite(t)) t = 0;
+  const m = Math.floor(t / 60), s = Math.floor(t % 60);
+  return m + ":" + String(s).padStart(2, "0");
+}
+function setStat(msg, isErr) {
+  const el = $("statTxt");
+  el.textContent = msg;
+  el.className = isErr ? "err" : "";
+}
+function setProg(p) { $("progBar").style.width = p + "%"; }
+
+/* ---------- choose / load ---------- */
+$("drop").addEventListener("click", () => $("file").click());
+$("another").addEventListener("click", () => $("file").click());
+$("drop").addEventListener("dragover", (e) => {
+  e.preventDefault(); $("drop").classList.add("over");
+});
+$("drop").addEventListener("dragleave", () => $("drop").classList.remove("over"));
+$("drop").addEventListener("drop", (e) => {
+  e.preventDefault(); $("drop").classList.remove("over");
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+$("file").addEventListener("change", (e) => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+  e.target.value = "";
+});
+
+function loadFile(f) {
+  const ok = /\.(mp4|mov|webm|avi|mkv)$/i.test(f.name);
+  if (!ok) { alert("Please choose MP4, WebM, MOV, AVI or MKV."); return; }
+  resetState(false);
+  file = f;
+  objUrl = URL.createObjectURL(f);
+  vO.src = objUrl;
+  vO.load();
+  $("uploadCard").classList.add("hidden");
+  $("work").classList.remove("hidden");
+  setStat("Reading video metadata...");
+}
+
+vO.addEventListener("loadedmetadata", () => {
+  setStat("Ready to process. Click Remove Watermark.");
+  updateTime();
+});
+
+/* ---------- processing ---------- */
+$("process").addEventListener("click", async () => {
+  if (!file) return;
+  $("process").disabled = true;
+  $("another").disabled = true;
+  $("phReady").classList.add("hidden");
+  $("phBusy").classList.remove("hidden");
+  setStat("Uploading video...");
+  setProg(2);
+  try {
+    const fd = new FormData();
+    fd.append("video", file);
+    const r = await fetch(API + "/api/upload", { method: "POST", body: fd });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "Upload failed");
+    jobId = j.job_id;
+    timer = setInterval(poll, 1000);
+  } catch (err) { fail(err.message); }
+});
+
+async function poll() {
+  try {
+    const r = await fetch(API + "/api/status/" + jobId);
+    const j = await r.json();
+    if (j.status === "error") { fail(j.error || "Processing failed"); return; }
+    setStat(j.stage || "Processing...");
+    setProg(j.progress || 0);
+    if (j.status === "done") { clearInterval(timer); onDone(); }
+  } catch (err) { fail("Cannot reach server: " + err.message); }
+}
+
+function fail(msg) {
+  clearInterval(timer);
+  setStat(msg, true);
+  $("phBusy").classList.add("hidden");
+  $("phReady").classList.remove("hidden");
+  $("process").disabled = false;
+  $("another").disabled = false;
+}
+
+function onDone() {
+  vP.src = API + "/api/result/" + jobId;
+  vP.load();
+  $("phBusy").classList.add("hidden");
+  vP.classList.remove("hidden");
+  $("process").classList.add("hidden");
+  $("download").classList.remove("hidden");
+  $("download").href = API + "/api/download/" + jobId;
+  $("another").disabled = false;
+  doneFlag = true;
+  setProg(100);
+  setStat("Done. Left is the original, right has the watermark removed.");
+  vO.currentTime = 0; vP.currentTime = 0;
+  playBoth();
+}
+
+/* ---------- synced playback ---------- */
+function playBoth() {
+  vO.play().catch(() => {});
+  if (doneFlag) vP.play().catch(() => {});
+}
+function pauseBoth() { vO.pause(); if (doneFlag) vP.pause(); }
+
+$("play").addEventListener("click", () => { vO.paused ? playBoth() : pauseBoth(); });
+vO.addEventListener("play",  () => { $("play").innerHTML = "&#10074;&#10074;"; });
+vO.addEventListener("pause", () => { $("play").innerHTML = "&#9654;"; });
+vO.addEventListener("ended", () => { $("play").innerHTML = "&#9654;"; });
+
+function updateTime() {
+  const d = vO.duration || 0;
+  $("time").textContent = fmt(vO.currentTime) + " / " + fmt(d);
+  if (d) $("seek").value = Math.round((vO.currentTime / d) * 1000);
+}
+vO.addEventListener("timeupdate", () => {
+  updateTime();
+  if (doneFlag && Math.abs(vP.currentTime - vO.currentTime) > 0.25) {
+    vP.currentTime = vO.currentTime;
+  }
+});
+$("seek").addEventListener("input", (e) => {
+  const t = (e.target.value / 1000) * (vO.duration || 0);
+  vO.currentTime = t;
+  if (doneFlag) vP.currentTime = t;
+});
+
+/* ---------- reset ---------- */
+function resetState(showUpload) {
+  clearInterval(timer);
+  pauseBoth();
+  if (objUrl) URL.revokeObjectURL(objUrl);
+  objUrl = null; file = null; jobId = null; doneFlag = false;
+  vO.removeAttribute("src"); vP.removeAttribute("src");
+  vP.classList.add("hidden");
+  $("phReady").classList.remove("hidden");
+  $("phBusy").classList.add("hidden");
+  $("process").classList.remove("hidden");
+  $("process").disabled = false;
+  $("another").disabled = false;
+  $("download").classList.add("hidden");
+  setProg(0);
+  $("time").textContent = "0:00 / 0:00";
+  $("seek").value = 0;
+  if (showUpload) {
+    $("work").classList.add("hidden");
+    $("uploadCard").classList.remove("hidden");
+  }
+}
+$("reset").addEventListener("click", () => resetState(true));
+</script>
+</body>
+</html>
+

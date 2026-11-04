@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -44,7 +46,7 @@ export const Route = createFileRoute("/how-it-works")({
   component: HowItWorksPage,
 });
 
-function HowItWorksPage() {
+export default function HowItWorksPage() {
   const [activeStage, setActiveStage] = useState(0);
 
   const stages = [
@@ -173,11 +175,10 @@ function HowItWorksPage() {
             <button
               key={st.step}
               onClick={() => setActiveStage(i)}
-              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                activeStage === i
-                  ? "bg-white border-2 border-[#E11D48] shadow-md shadow-rose-100 ring-2 ring-[#FFF1F4]"
-                  : "bg-[#FFFDFC] border-[#FCE7EC] hover:bg-white hover:border-[#FDA4AF]"
-              }`}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${activeStage === i
+                ? "bg-white border-2 border-[#E11D48] shadow-md shadow-rose-100 ring-2 ring-[#FFF1F4]"
+                : "bg-[#FFFDFC] border-[#FCE7EC] hover:bg-white hover:border-[#FDA4AF]"
+                }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-mono font-semibold text-[#E11D48]">{st.step}</span>

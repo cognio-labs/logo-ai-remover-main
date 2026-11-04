@@ -66,9 +66,13 @@ export type VideoResult = {
 };
 const API_ORIGIN =
   (
-    ((import.meta as any).env?.VITE_API_URL || import.meta.env.VITE_VIDEO_API_URL) as
-      string | undefined
-  )?.replace(/\/$/u, "") ?? "";
+    (typeof process !== "undefined" &&
+      (process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_VIDEO_API_URL ||
+        process.env.VITE_API_URL ||
+        process.env.VITE_VIDEO_API_URL)) ||
+    ""
+  ).replace(/\/$/u, "");
 
 export const apiUrl = (path: string) => `${API_ORIGIN}${path}`;
 

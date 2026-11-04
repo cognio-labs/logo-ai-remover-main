@@ -87,10 +87,13 @@ export interface DirectRemovalResult {
 }
 const API_ORIGIN =
   (
-    (import.meta as any).env?.VITE_API_URL ||
-    (import.meta as any).env?.VITE_VIDEO_API_URL ||
+    (typeof process !== "undefined" &&
+      (process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_VIDEO_API_URL ||
+        process.env.VITE_API_URL ||
+        process.env.VITE_VIDEO_API_URL)) ||
     ""
-  )?.replace(/\/$/u, "") ?? "";
+  ).replace(/\/$/u, "");
 const API_BASE = `${API_ORIGIN}/api/v1`;
 
 /**

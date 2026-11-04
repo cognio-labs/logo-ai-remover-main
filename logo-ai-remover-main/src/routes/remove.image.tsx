@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -76,7 +78,7 @@ export const Route = createFileRoute("/remove/image")({
 
 type Mark = { x: number; y: number; size: number; erase: boolean };
 
-function ImageCleaner() {
+export default function ImageCleaner() {
   const [url, setUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [tool, setTool] = useState<"brush" | "eraser">("brush");

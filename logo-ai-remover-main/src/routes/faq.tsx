@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import {
@@ -67,7 +69,7 @@ const DEFAULT_FAQS = [
   },
 ];
 
-function FaqPage() {
+export default function FaqPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -173,11 +175,10 @@ function FaqPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                activeCategory === cat
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${activeCategory === cat
                   ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-[#FCE7EC]"
-              }`}
+                }`}
             >
               {cat}
             </button>
@@ -212,9 +213,8 @@ function FaqPage() {
               >
                 <span>{faq.q}</span>
                 <ChevronDown
-                  className={`size-4 text-gray-400 shrink-0 transition-transform ${
-                    openIndex === i ? "rotate-180 text-[#E11D48]" : ""
-                  }`}
+                  className={`size-4 text-gray-400 shrink-0 transition-transform ${openIndex === i ? "rotate-180 text-[#E11D48]" : ""
+                    }`}
                 />
               </button>
               {openIndex === i && (

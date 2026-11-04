@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Footer } from "@/components/site/Footer";
-import GlowCursor from "@/components/ui/GlowCursor";
 
 function NotFoundComponent() {
   return (
@@ -186,17 +185,6 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GlowCursor
-        color="#5f8bff"
-        secondaryColor="#ec4899"
-        intensity={1.4}
-        trailWidth={3.5}
-        linger={1.4}
-        glow={1.2}
-        clickBurst={true}
-        theme="light"
-        className="fixed inset-0 pointer-events-none z-[99999]"
-      />
       {isAdmin ? (
         <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
           <Outlet />

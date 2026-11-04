@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -44,7 +46,7 @@ export const Route = createFileRoute("/features")({
   component: FeaturesPage,
 });
 
-function FeaturesPage() {
+export default function FeaturesPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   const featureTabs = [
@@ -238,11 +240,10 @@ function FeaturesPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(i)}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                activeTab === i
-                  ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                  : "bg-white text-gray-700 hover:bg-gray-50 border border-[#FCE7EC]"
-              }`}
+              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${activeTab === i
+                ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-[#FCE7EC]"
+                }`}
             >
               {tab.title}
             </button>

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -39,7 +41,7 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
-export function ContactPage() {
+export default function ContactPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

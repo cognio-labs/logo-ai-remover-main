@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
@@ -34,7 +36,7 @@ export const Route = createFileRoute("/history")({
 
 const TABS = ["All", "Images", "Videos", "Upscaled"] as const;
 
-function HistoryPage() {
+export default function HistoryPage() {
   const { jobs, deleteJob } = useUserStore();
   const [tab, setTab] = useState<(typeof TABS)[number]>("All");
   const [search, setSearch] = useState("");
@@ -138,11 +140,10 @@ function HistoryPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  tab === t
-                    ? "bg-[#E11D48] text-white shadow-xs"
-                    : "text-gray-600 hover:text-[#E11D48]"
-                }`}
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${tab === t
+                  ? "bg-[#E11D48] text-white shadow-xs"
+                  : "text-gray-600 hover:text-[#E11D48]"
+                  }`}
               >
                 {t}
               </button>
@@ -211,13 +212,12 @@ function HistoryPage() {
                     {/* Status badge top left */}
                     <div className="absolute top-3 left-3">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
-                          item.status === "completed"
-                            ? "bg-green-500 text-white"
-                            : item.status === "processing"
-                              ? "bg-yellow-500 text-white"
-                              : "bg-red-500 text-white"
-                        }`}
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${item.status === "completed"
+                          ? "bg-green-500 text-white"
+                          : item.status === "processing"
+                            ? "bg-yellow-500 text-white"
+                            : "bg-red-500 text-white"
+                          }`}
                       >
                         {item.status === "completed" && <CheckCircle2 className="size-3" />}
                         {item.status === "failed" && <AlertCircle className="size-3" />}
