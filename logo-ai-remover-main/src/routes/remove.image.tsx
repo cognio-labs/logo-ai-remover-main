@@ -552,7 +552,6 @@ export default function ImageCleaner() {
             </div>
           ))}
         </div>
-      </div>
     </div>
   );
 }

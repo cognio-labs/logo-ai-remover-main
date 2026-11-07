@@ -45,6 +45,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from processor import remove_watermark
 
 # ---------------------------------------------------------------------------
 # Logging configuration
@@ -200,8 +201,8 @@ app = FastAPI(
 default_origins = [
     "https://bellix.us",
     "https://www.bellix.us",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://localhost:5678",
+    "http://127.0.0.1:5678",
     "http://localhost:5000",
     "http://127.0.0.1:5000",
     "http://localhost:8000",
@@ -410,90 +411,38 @@ async def _run_ffmpeg_attempt(cmd: list[str], duration: float, job: dict) -> tup
 
 
 async def _process_video_worker(job_id: str):
-    """Background worker that handles queuing, semaphore acquisition, and multi-tier ffmpeg retries."""
+    """Process a video with temporal logo detection and texture-preserving inpainting."""
     job = video_jobs.get(job_id)
     if not job:
         return
 
-    # Wait in queue until one of 2 concurrency slots is free
+    # Wait in queue until one of 2 concurrency slots is free.
     async with video_semaphore:
         job["state"] = "processing"
         job["progress"] = 5
-        logger.info("[Job %s] Acquired semaphore slot. Processing started.", job_id)
+        logger.info("[Job %s] Acquired semaphore slot. Detecting and removing static logo.", job_id)
 
-        in_path = job["input_path"]
-        out_path = job["output_path"]
-        duration = job.get("duration", 0.0)
+        def on_progress(percent, _frames, stage):
+            job["progress"] = min(99, max(5, int(percent)))
+            job["log_tail"] = [stage]
 
-        # 1. Geometry and Filter construction
-        box, x, y = _calculate_geometry(job["width"], job["height"], job["size_pct"], job["dist_pct"])
-        vf_filter = _build_reverse_alpha_filter(box, x, y, job["alpha"])
-
-        # 2. Command candidate list:
-        # Tier 1: Try -c:a copy first
-        # Tier 2: Retry with -c:a aac -b:a 192k
-        # Tier 3: Retry once with -an
-        cmd_candidates = []
-        if job.get("has_audio", True):
-            cmd_candidates.append([
-                "ffmpeg", "-y", "-i", in_path,
-                "-vf", vf_filter,
-                "-c:v", "libx264", "-crf", "16", "-preset", "medium",
-                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                "-c:a", "copy",
-                "-progress", "pipe:1", "-nostats",
-                out_path,
-            ])
-            cmd_candidates.append([
-                "ffmpeg", "-y", "-i", in_path,
-                "-vf", vf_filter,
-                "-c:v", "libx264", "-crf", "16", "-preset", "medium",
-                "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-                "-c:a", "aac", "-b:a", "192k",
-                "-progress", "pipe:1", "-nostats",
-                out_path,
-            ])
-        cmd_candidates.append([
-            "ffmpeg", "-y", "-i", in_path,
-            "-vf", vf_filter,
-            "-c:v", "libx264", "-crf", "16", "-preset", "medium",
-            "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-            "-an",
-            "-progress", "pipe:1", "-nostats",
-            out_path,
-        ])
-
-        last_code = -1
-        last_stderr_lines = []
-
-        for attempt_idx, cmd in enumerate(cmd_candidates):
-            if os.path.exists(out_path):
-                try:
-                    os.remove(out_path)
-                except Exception:
-                    pass
-
-            logger.info("[Job %s] Executing ffmpeg attempt %d/%d...", job_id, attempt_idx + 1, len(cmd_candidates))
-            rc, stderr_lines = await _run_ffmpeg_attempt(cmd, duration, job)
-            last_code = rc
-            last_stderr_lines = stderr_lines
-
-            if rc == 0 and os.path.exists(out_path) and os.path.getsize(out_path) > 0:
-                logger.info("[Job %s] Clean video generated successfully (attempt %d).", job_id, attempt_idx + 1)
-                job["state"] = "done"
-                job["progress"] = 100
-                job["finished_at"] = time.time()
-                return
-
-            logger.warning("[Job %s] Attempt %d failed with code %d.", job_id, attempt_idx + 1, rc)
-
-        # All attempts failed
-        logger.error("[Job %s] All FFmpeg attempts failed. Last code: %d", job_id, last_code)
-        tail = last_stderr_lines[-8:] if last_stderr_lines else ["Unknown FFmpeg failure"]
-        job["state"] = "error"
-        job["error"] = f"FFmpeg failed with exit code {last_code}:\n" + "\n".join(tail)
-        job["log_tail"] = tail
-        job["finished_at"] = time.time()
+        try:
+            await asyncio.to_thread(
+                remove_watermark, job["input_path"], job["output_path"],
+                progress_cb=on_progress,
+            )
+            if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
+                raise RuntimeError("The watermark-removal pipeline did not produce an output video.")
+            job["state"] = "done"
+            job["progress"] = 100
+            job["finished_at"] = time.time()
+            logger.info("[Job %s] Clean video generated successfully.", job_id)
+        except Exception as exc:
+            logger.exception("[Job %s] Video watermark removal failed.", job_id)
+            job["state"] = "error"
+            job["error"] = str(exc)
+            job["log_tail"] = [str(exc)]
+            job["finished_at"] = time.time()
 
 
 @app.post("/api/video/process")
@@ -921,3 +870,24 @@ async def root():
 static_dir = BASE_DIR / "static"
 if static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+
+@app.post("/api/video/detect-frame")
+async def detect_video_frame(request: Request):
+    """Native-resolution PNG only; uses exactly the export detector and repair."""
+    import base64
+    import cv2
+    import numpy as np
+    from logo_target import detect_target, repair
+    data = await request.body()
+    if len(data) > 20 * 1024 * 1024:
+        raise HTTPException(413, "Frame too large")
+    frame = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if frame is None:
+        raise HTTPException(422, "Invalid frame")
+    box = await asyncio.to_thread(detect_target, frame)
+    if box is None:
+        raise HTTPException(422, "No confident white sparkle detected in this frame")
+    cleaned = await asyncio.to_thread(repair, frame, box)
+    _, png = cv2.imencode(".png", cleaned)
+    return {"box": box, "preview": "data:image/png;base64," + base64.b64encode(png).decode()}

@@ -223,140 +223,68 @@ def detect_mask(video_path: str, samples: int = 24):
 
 
 def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None):
-    """
-    Remove video watermark with Navier-Stokes inpainting, local sensor grain/texture
-    restoration, and edge feathering. Produces natural, sharp, flicker-free video without blur.
-
-    progress_cb(percent, frames_done, stage_text)
-    manual_box = (x, y, w, h) in pixels overrides auto-detection.
-    """
-    def report(p, n, stage):
-        if progress_cb:
-            progress_cb(p, n, stage)
-
+    """Detect/track the actual icon and inpaint decoded frames before MP4 encoding."""
+    from logo_target import detect_target, repair
     cap = cv2.VideoCapture(src)
-    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    ok, first = cap.read()
+    if not ok:
+        cap.release()
+        raise RuntimeError("Cannot decode the first video frame")
+    h, w = first.shape[:2]
     fps = cap.get(cv2.CAP_PROP_FPS) or 24
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
-    cap.release()
-
-    report(1, 0, "Detecting watermark candidates...")
-    if manual_box:
-        bx, by, bw, bh = manual_box
-        x0, y0 = max(0, bx), max(0, by)
-        x1, y1 = min(bx + bw, w), min(by + bh, h)
-        rw = max(1, x1 - x0)
-        rh = max(1, y1 - y0)
-
-        # Sample frames inside manual box to isolate actual watermark strokes
-        # rather than wiping out the entire rectangular bounding box as a blur.
-        cap_box = cv2.VideoCapture(src)
-        sample_indices = np.linspace(2, max(total - 3, 2), min(12, total)).astype(int)
-        box_frames = []
-        for idx in sample_indices:
-            cap_box.set(cv2.CAP_PROP_POS_FRAMES, int(idx))
-            ok, bframe = cap_box.read()
-            if ok:
-                box_frames.append(bframe[y0:y1, x0:x1])
-        cap_box.release()
-
-        if box_frames:
-            stack = np.stack(box_frames).astype(np.float32)
-            temporal_low = np.percentile(stack, 15, axis=0).astype(np.uint8)
-            detected = detect_mask_bgr(temporal_low)
-            if cv2.countNonZero(detected) >= 6:
-                mask = detected
-            else:
-                # Secondary bright/white filter for clean stroke isolation
-                hsv = cv2.cvtColor(temporal_low, cv2.COLOR_BGR2HSV)
-                bright = cv2.inRange(hsv, np.array([0, 0, 150], np.uint8), np.array([180, 120, 255], np.uint8))
-                if cv2.countNonZero(bright) >= 6:
-                    mask = cv2.dilate(bright, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
-                else:
-                    # Subtle elliptical center mask rather than harsh solid rectangle
-                    mask = np.zeros((rh, rw), dtype=np.uint8)
-                    cv2.circle(mask, (rw // 2, rh // 2), max(6, int(min(rw, rh) * 0.38)), 255, -1)
-        else:
-            mask = np.full((rh, rw), 255, np.uint8)
-    else:
-        mask, (x0, y0, x1, y1) = detect_mask(src)
-
-    # The semi-transparent sparkle can survive temporal thresholding. Add a
-    # tight geometry-based mask after validating the first frame's pixels.
-    cap_probe = cv2.VideoCapture(src)
-    ok_probe, probe = cap_probe.read()
-    cap_probe.release()
-    if ok_probe:
-        known = _validated_known_sparkle(probe)
-        if cv2.countNonZero(known):
-            mask_full = np.zeros((h, w), dtype=np.uint8)
-            mask_full[y0:y1, x0:x1] = mask
-            mask_full = cv2.bitwise_or(mask_full, known)
-            mask = mask_full[y0:y1, x0:x1]
-
-    # Cover the antialiased halo, but keep the repair local to the sparkle.
-    mask = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=1)
-
-    # Precomputations for fast per-frame execution (avoids allocations inside the loop)
-    # 1. Soft feathering for seamless edge blending
-    feather = cv2.GaussianBlur(mask, (3, 3), 0).astype(np.float32) / 255.0
-    feather_3d = np.expand_dims(feather, axis=2)
-    inv_feather = 1.0 - feather_3d
-    mask_float = (mask.astype(np.float32) / 255.0)[:, :, None]
-
-    # 2. Local surrounding ring to measure natural background grain / camera sensor noise
-    surround = cv2.dilate(mask, np.ones((7, 7), np.uint8)) - mask
-    surround_idx = surround > 0
-    has_surround = np.count_nonzero(surround_idx) > 20
-
-    cmd = [
-        "ffmpeg", "-y", "-loglevel", "error",
-        "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}", "-r", str(fps),
-        "-i", "-",
-        "-i", src,
-        "-map", "0:v:0", "-map", "1:a?",
-        "-c:v", "libx264", "-crf", "14", "-preset", "medium",
-        "-pix_fmt", "yuv420p", "-c:a", "copy", "-shortest",
-        "-movflags", "+faststart", dst,
-    ]
+    box = manual_box or detect_target(first)
+    if box is None:
+        cap.release()
+        raise RuntimeError("No confident white sparkle detected; no arbitrary region was removed.")
+    initial_width, initial_height = box[2:]
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24",
+           "-s", f"{w}x{h}", "-r", str(fps), "-i", "-", "-i", src,
+           "-map", "0:v:0", "-map", "1:a?", "-c:v", "libx264", "-crf", "14",
+           "-preset", "medium", "-pix_fmt", "yuv420p", "-c:a", "copy",
+           "-movflags", "+faststart", dst]
     ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-
-    cap = cv2.VideoCapture(src)
     n = 0
-    while True:
-        ok, frame = cap.read()
-        if not ok:
-            break
-
-        roi = frame[y0:y1, x0:x1]
-
-        # 1. High-fidelity Navier-Stokes inpaint (preserves edge geometry and natural lines)
-        inp = cv2.inpaint(roi, mask, 2, cv2.INPAINT_NS)
-
-        # 2. Texture & grain restoration: sample noise from local surroundings and blend in
-        if has_surround:
-            gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-            blur = cv2.GaussianBlur(gray, (3, 3), 0)
-            hf = gray.astype(np.float32) - blur.astype(np.float32)
-            noise_std = float(np.std(hf[surround_idx]))
-            if noise_std > 0.4:
-                noise = np.random.normal(0, min(noise_std * 0.8, 6.0), roi.shape).astype(np.float32)
-                inp = np.clip(inp.astype(np.float32) + noise * mask_float, 0, 255).astype(np.uint8)
-
-        # 3. Feathered alpha blending: guarantees zero hard seams or boundary lines
-        frame[y0:y1, x0:x1] = (roi.astype(np.float32) * inv_feather + inp.astype(np.float32) * feather_3d).astype(np.uint8)
-
-        ff.stdin.write(frame.tobytes())
-        n += 1
-        if n % 6 == 0 or n == total:
-            report(min(98, 5 + int(n * 93 / total)), n,
-                   f"Exporting video, processed {n}/{total} frames.")
-
-    cap.release()
-    ff.stdin.close()
-    ff.wait()
-
-    if ff.returncode != 0:
-        raise RuntimeError("FFmpeg encoding failed")
-    report(100, n, "Done")
+    frame = first
+    previous_scene = None
+    tracking_active = True
+    try:
+        while True:
+            scene = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (32, 32))
+            scene_cut = previous_scene is not None and np.mean(
+                np.abs(scene.astype(float)-previous_scene.astype(float))
+            ) > 35
+            # Match near the last accepted position, retaining it on low-confidence frames.
+            candidate = detect_target(frame, box)
+            if candidate is not None:
+                x, y, bw, bh = candidate
+                # Do not shrink the repair onto just the bright center as the
+                # translucent arms fade against a changing background.
+                rw, rh = max(initial_width, bw), max(initial_height, bh)
+                box = (max(0, x+(bw-rw)//2), max(0, y+(bh-rh)//2), rw, rh)
+                tracking_active = True
+                cleaned = repair(frame, box)
+            elif tracking_active and not scene_cut:
+                # Translucent arms may briefly lose contrast without moving.
+                cleaned = repair(frame, box)
+            else:
+                # A cut may remove the logo entirely. Never repair stale coordinates
+                # or walk toward unrelated highlights when confidence is lost.
+                cleaned = frame
+                tracking_active = False
+            previous_scene = scene
+            ff.stdin.write(cleaned.tobytes())
+            n += 1
+            if progress_cb and (n % 6 == 0 or n == total):
+                progress_cb(min(98, 5+int(n*93/total)), n, f"Inpainting frame {n}/{total}")
+            ok, frame = cap.read()
+            if not ok:
+                break
+    finally:
+        cap.release()
+        ff.stdin.close()
+        ff.wait()
+    if ff.returncode or n != total:
+        raise RuntimeError("Video encoding failed or decoded frame count changed")
+    if progress_cb:
+        progress_cb(100, n, "Done")

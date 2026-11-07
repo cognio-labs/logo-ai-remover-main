@@ -37,3 +37,5 @@ Authoritative plans/credits, account/guest ownership, retention/provider disclos
 ## Future entry format
 
 Date → finding/decision → source/test evidence → consequence → task ID. Mark obsolete assumptions explicitly when superseded.
+
+2026-11-07: Video cleanup uses logo_target.py for shared pixel detection/first-frame inpainting and per-frame local tracking. Preview coordinates map through object-contain letterboxing. Unsupported browser unblending/recording is routed through backend. No confident detection fails without editing arbitrary corner pixels.

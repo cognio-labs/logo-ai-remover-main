@@ -15,12 +15,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { PinkButton } from "./PinkButton";
 import { BrandLogo } from "./BrandLogo";
-import navbarLogo from "@/assets/navbar-logo.png";
-import logoData from "@/assets/logo.json";
 
 export function Footer() {
   const [email, setEmail] = useState("");
-  const [logoSrc, setLogoSrc] = useState<string>(typeof navbarLogo === "object" && (navbarLogo as any)?.src ? (navbarLogo as any).src : (typeof navbarLogo === "string" ? navbarLogo : "/navbar-logo.png"));
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();

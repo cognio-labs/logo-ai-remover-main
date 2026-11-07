@@ -22,7 +22,8 @@ npm run build
 .\.venv\Scripts\python.exe -m pytest backend/tests
 ```
 
-`npm run test:backend` uses Python on PATH. Prefer the explicit virtual-environment executable where dependencies are installed. Requirements are in `backend/requirements.txt`; media tests may need FFmpeg/ffprobe and model dependencies.
+
+pm run test:backend` uses Python on PATH. Prefer the explicit virtual-environment executable where dependencies are installed. Requirements are in `backend/requirements.txt`; media tests may need FFmpeg/ffprobe and model dependencies.
 
 `pytest.ini` hard-codes a D-drive base-temp path. On other machines/checkouts, override with a dedicated disposable directory:
 
@@ -54,3 +55,5 @@ Verify production API origin, expired results, 360/768/1440-pixel layouts, keybo
 ## Baseline review, 2026-09-25
 
 Four public pages returned HTTP 200 and their HTML text was inspected. Configuration, routes and test source were reviewed. No media jobs, browser interaction suite, benchmarks, billing tests or application build were run for this documentation-only task. A simulated timer is not a processing test.
+
+Video target regressions: from workspace root run `python -m unittest discover -s watermark-backend -p test_video_target.py`. Covers portrait pixel coordinates, no-mark rejection, moving translucent icon, MP4 reopen, dimensions/FPS/frame count and audio presence. Does not certify arbitrary video restoration quality.

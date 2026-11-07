@@ -35,12 +35,11 @@ import {
 
 const ACCEPT = "video/mp4,video/quicktime,video/webm,video/*,.mp4,.mov,.webm,.avi,.mkv";
 
-// Resolve API base URL from env with fallback to local backend port 8000
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.VITE_API_URL ||
-  "http://localhost:8000"
-).replace(/\/+$/, "");
+// Resolve API base URL from env with fallback to local backend port 5000
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "").replace(
+  /\/+$/,
+  "",
+);
 
 function fmt(t: number): string {
   if (!isFinite(t) || t < 0) t = 0;
@@ -51,13 +50,26 @@ function fmt(t: number): string {
 
 export function JobVideoCleaner() {
   const [file, setFile] = useState<File | null>(null);
+  const [detectedBox, setDetectedBox] = useState<number[] | null>(null);
+  const [framePreview, setFramePreview] = useState<string | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
+  const [paneSize, setPaneSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    if (!file || !paneRef.current) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setPaneSize({ width: entry.contentRect.width, height: entry.contentRect.height }),
+    );
+    observer.observe(paneRef.current);
+    return () => observer.disconnect();
+  }, [file]);
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [outputExt, setOutputExt] = useState<string>("mp4");
 
-  // Engine Mode: Default to Python Backend with real FFmpeg
+  // Engine Mode: Toggleable between Python Backend and In-Browser
   const [engineMode, setEngineMode] = useState<"backend" | "browser">("backend");
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [backendJobId, setBackendJobId] = useState<string | null>(null);
   const backendJobIdRef = useRef<string | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -70,7 +82,7 @@ export function JobVideoCleaner() {
   const [isMuted, setIsMuted] = useState(false);
 
   // Calibration Settings: alpha range 0.10 to 0.90, step 0.01, default 0.30
-  const [alpha, setAlpha] = useState(0.30);
+  const [alpha, setAlpha] = useState(0.3);
   const [sizePct, setSizePct] = useState(7.0);
   const [distancePct, setDistancePct] = useState(4.0);
   const [enableEdgeBlur, setEnableEdgeBlur] = useState(true);
@@ -107,27 +119,54 @@ export function JobVideoCleaner() {
     }
   }, []);
 
-  // Clean up object URLs and backend jobs on unmount or unload
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (backendJobIdRef.current) {
-        deleteBackendJob(backendJobIdRef.current);
+  // Check backend server availability
+  const checkBackendHealth = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/health`, {
+        method: "GET",
+        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const isOk = Boolean(data.ok);
+        setBackendOnline(isOk);
+        return isOk;
       }
-    };
+      setBackendOnline(false);
+      return false;
+    } catch {
+      setBackendOnline(false);
+      return false;
+    }
+  }, []);
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+  useEffect(() => {
+    checkBackendHealth();
+    const timer = setInterval(checkBackendHealth, 15000);
+    return () => clearInterval(timer);
+  }, [checkBackendHealth]);
+
+  // Downloads can fire beforeunload. Keep completed server files until explicit
+  // reset/replacement or server expiry, so download navigation cannot delete them.
+  useEffect(() => {
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      if (backendJobIdRef.current) {
-        deleteBackendJob(backendJobIdRef.current);
-      }
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
-      if (origUrl) URL.revokeObjectURL(origUrl);
-      if (cleanUrl) URL.revokeObjectURL(cleanUrl);
     };
-  }, [deleteBackendJob, origUrl, cleanUrl]);
+  }, []);
+  useEffect(
+    () => () => {
+      if (origUrl) URL.revokeObjectURL(origUrl);
+    },
+    [origUrl],
+  );
+  useEffect(
+    () => () => {
+      if (cleanUrl) URL.revokeObjectURL(cleanUrl);
+    },
+    [cleanUrl],
+  );
 
   // Update Live Preview Canvas with frame unblending
   const updateLivePreview = useCallback(() => {
@@ -146,9 +185,37 @@ export function JobVideoCleaner() {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    const { box, x, y } = getHardenedCornerGeometry(w, h, sizePct, distancePct);
-    applyGeminiFrameUnblend(ctx, video, x, y, box, alpha);
-  }, [alpha, sizePct, distancePct, dimensions]);
+    // The source is shown until the server returns a genuinely repaired first frame.
+    ctx.drawImage(video, 0, 0, w, h);
+  }, [dimensions]);
+
+  const detectFirstFrame = async () => {
+    const video = origVideoRef.current;
+    if (!video || video.readyState < 2 || video.currentTime > 0.1) return;
+    const source = video.currentSrc;
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    const png = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!png) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/video/detect-frame`, {
+        method: "POST",
+        body: png,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Detection failed");
+      if (origVideoRef.current?.currentSrc !== source) return;
+      setDetectedBox(data.box);
+      setFramePreview(data.preview);
+      setStatusMsg(
+        `Detected watermark at frame pixels (${data.box.join(", ")}). Ready to process.`,
+      );
+    } catch (error) {
+      setStatusMsg(error instanceof Error ? error.message : "Frame detection failed");
+    }
+  };
 
   // Trigger preview update on calibration change
   useEffect(() => {
@@ -180,6 +247,8 @@ export function JobVideoCleaner() {
     if (cleanUrl) URL.revokeObjectURL(cleanUrl);
 
     const url = URL.createObjectURL(f);
+    setDetectedBox(null);
+    setFramePreview(null);
     setFile(f);
     setOrigUrl(url);
     setCleanUrl(null);
@@ -196,7 +265,7 @@ export function JobVideoCleaner() {
     setStatusMsg(
       engineMode === "backend"
         ? "Video loaded. Ready for high-speed Python FFmpeg backend cleanup."
-        : "Video loaded. Ready for in-browser cleanup."
+        : "Video loaded. Ready for in-browser cleanup.",
     );
     toast.success(`Loaded "${f.name}". Ready for processing.`);
   };
@@ -205,11 +274,16 @@ export function JobVideoCleaner() {
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
         return;
       }
       const clipFiles = Array.from(e.clipboardData?.files || []);
-      const vidFile = clipFiles.find((f) => f.type.startsWith("video/") || /\.(mp4|mov|webm|avi|mkv)$/i.test(f.name));
+      const vidFile = clipFiles.find(
+        (f) => f.type.startsWith("video/") || /\.(mp4|mov|webm|avi|mkv)$/i.test(f.name),
+      );
       if (vidFile) {
         e.preventDefault();
         loadFile(vidFile);
@@ -310,17 +384,23 @@ export function JobVideoCleaner() {
   };
 
   // Video Processing Dispatcher
-  const handleProcess = async () => {
+  const handleProcess = async (overrideMode?: "backend" | "browser") => {
     if (!file || !origUrl) return;
+    // Export requires the tracking/inpainting backend. The old browser reverse-alpha
+    // and real-time recording fallbacks cannot preserve source frames and audio.
+    const activeEngine: string = "backend";
+    if ((overrideMode || engineMode) === "browser") {
+      toast.info("Tracked content-aware removal uses the Python backend.");
+    }
     setIsProcessing(true);
     setIsError(false);
     setErrorDetails(null);
     setProgress(2);
 
     // -------------------------------------------------------------------------
-    // OPTION A: PYTHON BACKEND (Default - Real FFmpeg binary on server)
+    // OPTION A: PYTHON BACKEND (Real FFmpeg binary on server)
     // -------------------------------------------------------------------------
-    if (engineMode === "backend") {
+    if (activeEngine === "backend") {
       setStatusMsg("Uploading video to Python backend (Real FFmpeg)...");
 
       if (backendJobIdRef.current) {
@@ -351,8 +431,7 @@ export function JobVideoCleaner() {
             errJson = await uploadRes.json();
           } catch {}
           const errMsg =
-            errJson?.detail ||
-            `Server returned HTTP ${uploadRes.status}: ${uploadRes.statusText}`;
+            errJson?.detail || `Server returned HTTP ${uploadRes.status}: ${uploadRes.statusText}`;
           throw new Error(errMsg);
         }
 
@@ -399,10 +478,10 @@ export function JobVideoCleaner() {
 
               setOutputExt("mp4");
               setCleanUrl(blobUrl);
-              setDownloadUrl(blobUrl);
+              setDownloadUrl(downloadUrlStr);
               setIsDone(true);
               setIsProcessing(false);
-              setStatusMsg("Watermark removed successfully with zero quality loss!");
+              setStatusMsg("Video processed. Check the clean preview before downloading.");
               toast.success("Done! Clean video processed by Python backend.");
 
               try {
@@ -465,7 +544,7 @@ export function JobVideoCleaner() {
         const errStr = [
           `Backend Upload Error:\n${uploadErr?.message || uploadErr}`,
           `Target API URL: ${API_BASE}/api/video/process`,
-          "Ensure watermark-backend is started via `uvicorn main:app --port 8000` or deployed to your server.",
+          "Ensure watermark-backend is started via `uvicorn main:app --host 0.0.0.0 --port 5000` or deployed to your server.",
         ].join("\n\n");
 
         setErrorDetails(errStr);
@@ -501,7 +580,7 @@ export function JobVideoCleaner() {
         (pct) => {
           setProgress(Math.round(pct * 100));
           setStatusMsg(`FFmpeg processing frames... ${Math.round(pct * 100)}%`);
-        }
+        },
       );
     } catch (ffmpegErr: any) {
       ffmpegFailureError = ffmpegErr;
@@ -522,7 +601,7 @@ export function JobVideoCleaner() {
           (pct, msg) => {
             setProgress(Math.round(pct * 100));
             setStatusMsg(msg);
-          }
+          },
         );
       } catch (canvasErr: any) {
         console.error("Both FFmpeg and Canvas fallback failed:", { ffmpegErr, canvasErr });
@@ -578,13 +657,15 @@ export function JobVideoCleaner() {
   };
 
   // Calculate coordinates for visual target overlay box
-  const targetCoords = getHardenedCornerGeometry(dimensions.width, dimensions.height, sizePct, distancePct);
-  const targetStyle = {
-    width: `${(targetCoords.box / dimensions.width) * 100}%`,
-    height: `${(targetCoords.box / dimensions.height) * 100}%`,
-    left: `${(targetCoords.x / dimensions.width) * 100}%`,
-    top: `${(targetCoords.y / dimensions.height) * 100}%`,
-  };
+  const scale = Math.min(paneSize.width / dimensions.width, paneSize.height / dimensions.height);
+  const targetStyle = detectedBox
+    ? {
+        width: detectedBox[2] * scale,
+        height: detectedBox[3] * scale,
+        left: (paneSize.width - dimensions.width * scale) / 2 + detectedBox[0] * scale,
+        top: (paneSize.height - dimensions.height * scale) / 2 + detectedBox[1] * scale,
+      }
+    : {};
 
   /* -------------------------------------------------------------------------- */
   /* STEP 1: UPLOAD BOX                                                         */
@@ -625,7 +706,8 @@ export function JobVideoCleaner() {
           </h3>
 
           <p className="mt-3 text-sm sm:text-base text-[#637069] max-w-lg">
-            Supports MP4, MOV, WebM, AVI & MKV up to 4K resolution. Powered by your Python backend with the real FFmpeg binary.
+            Supports MP4, MOV, WebM, AVI & MKV up to 4K resolution. Powered by your Python backend
+            with the real FFmpeg binary.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -671,7 +753,9 @@ export function JobVideoCleaner() {
 
           <div className="mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#637069]">
             <ShieldCheck className="size-4 text-[#10241e]" />
-            <span>Mathematical Reverse Alpha Unblending • Zero Quality Loss • Real FFmpeg Engine</span>
+            <span>
+              Mathematical Reverse Alpha Unblending • Zero Quality Loss • Real FFmpeg Engine
+            </span>
           </div>
 
           <input
@@ -695,17 +779,35 @@ export function JobVideoCleaner() {
   /* -------------------------------------------------------------------------- */
   return (
     <div className="w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left">
-      {/* Engine Mode Toggle: Python Backend vs In-Browser */}
+      {/* Engine Mode Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f3f4ee] p-3.5 rounded-2xl border border-[#10241e]/15">
         <div className="flex items-center gap-2">
           <Server className="size-4 text-[#10241e]" />
-          <span className="text-xs sm:text-sm font-bold text-[#10241e]">Video Processing Engine:</span>
+          <span className="text-xs sm:text-sm font-bold text-[#10241e]">
+            Video Processing Engine:
+          </span>
+          {backendOnline === true && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <span className="size-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              Online
+            </span>
+          )}
+          {backendOnline === false && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <span className="size-1.5 rounded-full bg-amber-600" />
+              Offline
+            </span>
+          )}
         </div>
         <div className="inline-flex rounded-xl bg-white p-1 border border-[#10241e]/15 shadow-xs">
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => setEngineMode("backend")}
+            onClick={() => {
+              setEngineMode("backend");
+              setIsError(false);
+              setErrorDetails(null);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50 ${
               engineMode === "backend"
                 ? "bg-[#10241e] text-[#d0f471] shadow-xs"
@@ -713,12 +815,16 @@ export function JobVideoCleaner() {
             }`}
           >
             <Server className="size-3.5" />
-            <span>Python Backend (FFmpeg Binary)</span>
+            <span>Python Backend (FFmpeg)</span>
           </button>
           <button
             type="button"
             disabled={isProcessing}
-            onClick={() => setEngineMode("browser")}
+            onClick={() => {
+              setEngineMode("browser");
+              setIsError(false);
+              setErrorDetails(null);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50 ${
               engineMode === "browser"
                 ? "bg-[#10241e] text-[#d0f471] shadow-xs"
@@ -734,7 +840,10 @@ export function JobVideoCleaner() {
       {/* 2-Pane Side-by-Side Video Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden border border-[#10241e]/15 bg-[#f3f4ee]">
         {/* Left Pane: Original */}
-        <div className="relative aspect-video bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+        <div
+          ref={paneRef}
+          className="relative aspect-video bg-[#0a0a0a] flex items-center justify-center overflow-hidden"
+        >
           <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-black/85 border border-[#333] text-white text-xs font-bold tracking-wide">
             Original (Watermarked)
           </span>
@@ -754,13 +863,17 @@ export function JobVideoCleaner() {
                 setTimeout(updateLivePreview, 150);
               }
             }}
+            onLoadedData={() => {
+              updateLivePreview();
+              void detectFirstFrame();
+            }}
             onSeeked={updateLivePreview}
             onTimeUpdate={handleTimeUpdate}
             onEnded={() => setIsPlaying(false)}
           />
 
           {/* Visual Target Box Indicator */}
-          {showTargetBox && !isDone && (
+          {showTargetBox && detectedBox && !isDone && (
             <div
               className="absolute border-2 border-dashed border-[#d0f471] pointer-events-none rounded-lg transition-all"
               style={targetStyle}
@@ -776,15 +889,25 @@ export function JobVideoCleaner() {
         <div className="relative aspect-video bg-[#0e0e0e] flex items-center justify-center border-t md:border-t-0 md:border-l border-[#262626] overflow-hidden">
           <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-[#10241e]/90 border border-[#d0f471]/30 text-[#d0f471] text-xs font-bold tracking-wide flex items-center gap-1.5">
             <Sparkles className="size-3 text-[#d0f471]" />
-            <span>{isDone ? "Clean Video Output" : "Live Frame 1 Calibration Preview"}</span>
+            <span>
+              {isDone
+                ? "Clean Video Output"
+                : framePreview
+                  ? "Inpainted First Frame Preview"
+                  : "Source Frame - Awaiting Detection"}
+            </span>
           </span>
 
           {/* 1. Live Calibration Preview Canvas (shown before full video export) */}
-          {!isDone && (
-            <canvas
-              ref={previewCanvasRef}
+          {!isDone && framePreview && (
+            <img
+              src={framePreview}
+              alt="Inpainted first video frame"
               className="w-full h-full object-contain bg-black"
             />
+          )}
+          {!isDone && !framePreview && (
+            <canvas ref={previewCanvasRef} className="w-full h-full object-contain bg-black" />
           )}
 
           {/* 2. Processing Spinner Overlay */}
@@ -792,10 +915,13 @@ export function JobVideoCleaner() {
             <div className="absolute inset-0 z-20 bg-black/85 flex flex-col items-center justify-center p-6 text-center">
               <div className="w-12 h-12 rounded-full border-4 border-white/20 border-t-[#d0f471] animate-spin mb-4" />
               <div className="text-base font-bold text-white mb-1">
-                {engineMode === "backend" ? "Processing on Python Backend" : "Processing in your browser"}
+                {engineMode === "backend"
+                  ? "Processing on Python Backend"
+                  : "Processing in your browser"}
               </div>
               <p className="text-xs text-[#a0af9f] font-mono">
-                {progress}% complete • {engineMode === "backend" ? "FFmpeg running on server" : "keep tab open"}
+                {progress}% complete •{" "}
+                {engineMode === "backend" ? "FFmpeg running on server" : "keep tab open"}
               </p>
               <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden mt-3">
                 <div
@@ -855,127 +981,19 @@ export function JobVideoCleaner() {
         </button>
       </div>
 
-      {/* Calibration Controls Bar: range 0.10 to 0.90, default 0.30 */}
       {!isDone && (
-        <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#10241e]/10 pb-3">
-            <div className="flex items-center gap-2">
-              <Sliders className="size-4 text-[#10241e]" />
-              <span className="font-bold text-sm text-[#10241e]">Live Alpha Calibration</span>
-              <span className="text-xs font-mono bg-white px-2 py-0.5 rounded border border-[#10241e]/15 font-semibold text-[#10241e]">
-                α = {alpha.toFixed(2)} ({Math.round(alpha * 100)}%)
-              </span>
-            </div>
-            <div className="text-xs text-[#52645d] font-medium">
-              Formula: <code className="bg-white px-1.5 py-0.5 rounded border border-[#10241e]/10 text-[11px] font-mono text-[#10241e]">original = (pixel - a·255) / (1 - a)</code>
-            </div>
-          </div>
-
-          {/* Alpha Calibration Slider: 0.10 to 0.90, step 0.01 */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-[#37433d]">
-              <span className="font-medium">Alpha Blending Strength (0.10 – 0.90)</span>
-              <span className="font-mono text-[#10241e] font-bold">{alpha.toFixed(2)}</span>
-            </div>
-            <input
-              type="range"
-              min={0.10}
-              max={0.90}
-              step={0.01}
-              value={alpha}
-              disabled={isProcessing}
-              onChange={(e) => setAlpha(Number(e.target.value))}
-              className="w-full accent-[#10241e] cursor-pointer h-2.5 bg-gray-300 rounded-lg"
-            />
-            {/* Real-time calibration guidance */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
-              <div className="bg-white/80 p-2 rounded-xl border border-[#10241e]/10 text-[#37433d]">
-                <b className="text-[#10241e]">White star visible?</b> Slide right (increase α)
-              </div>
-              <div className="bg-white/80 p-2 rounded-xl border border-[#10241e]/10 text-[#37433d]">
-                <b className="text-[#10241e]">Dark star forming?</b> Slide left (decrease α)
-              </div>
-              <div className="bg-white/80 p-2 rounded-xl border border-[#10241e]/10 text-[#10241e] font-semibold flex items-center gap-1">
-                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                <span>Star disappears? Click Remove Watermark!</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Toggle Advanced Position & Size */}
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-xs font-bold text-[#10241e] hover:underline cursor-pointer flex items-center gap-1"
-            >
-              <span>{showAdvanced ? "Hide Fine-Tuning" : "Fine-tune Logo Position & Edge Blur"}</span>
-            </button>
-
-            {showAdvanced && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 mt-3 border-t border-[#10241e]/10">
-                <label className="text-xs text-[#37433d] space-y-1 block">
-                  <div className="flex justify-between font-semibold">
-                    <span>Logo Size</span>
-                    <span className="font-mono">{sizePct}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={4}
-                    max={14}
-                    step={0.2}
-                    value={sizePct}
-                    onChange={(e) => setSizePct(Number(e.target.value))}
-                    className="w-full accent-[#10241e] cursor-pointer h-1.5 bg-gray-300 rounded"
-                  />
-                </label>
-
-                <label className="text-xs text-[#37433d] space-y-1 block">
-                  <div className="flex justify-between font-semibold">
-                    <span>Edge Distance</span>
-                    <span className="font-mono">{distancePct}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={1}
-                    max={10}
-                    step={0.2}
-                    value={distancePct}
-                    onChange={(e) => setDistancePct(Number(e.target.value))}
-                    className="w-full accent-[#10241e] cursor-pointer h-1.5 bg-gray-300 rounded"
-                  />
-                </label>
-
-                <div className="flex flex-col justify-center gap-1.5 pt-2 sm:pt-0">
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-[#10241e] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={enableEdgeBlur}
-                      onChange={(e) => setEnableEdgeBlur(e.target.checked)}
-                      className="accent-[#10241e] size-4 rounded cursor-pointer"
-                    />
-                    <span>1px Edge De-ghosting Blur</span>
-                  </label>
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-[#10241e] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={showTargetBox}
-                      onChange={(e) => setShowTargetBox(e.target.checked)}
-                      className="accent-[#10241e] size-4 rounded cursor-pointer"
-                    />
-                    <span>Show Target Box on Video</span>
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-5 text-sm">
+          White sparkle detection and content-aware frame repair are automatic. Review the detected
+          first-frame target before processing. Full video export requires the Python backend.
         </div>
       )}
 
       {/* Status & Progress Bar */}
       <div className="border border-[#10241e]/15 rounded-2xl p-4 sm:p-5 bg-[#f3f4ee]">
         <div className="flex items-center justify-between text-sm sm:text-base font-bold">
-          <span className={`font-semibold ${isError ? "text-rose-600" : isDone ? "text-emerald-700" : "text-[#10241e]"}`}>
+          <span
+            className={`font-semibold ${isError ? "text-rose-600" : isDone ? "text-emerald-700" : "text-[#10241e]"}`}
+          >
             {statusMsg}
           </span>
           <span className="font-mono text-sm font-bold text-[#10241e]">{progress}%</span>
@@ -1002,13 +1020,59 @@ export function JobVideoCleaner() {
               className="text-xs text-rose-700 hover:text-rose-900 font-bold flex items-center gap-1 cursor-pointer"
             >
               <span>{showLogExpand ? "Hide Logs" : "Show Full Logs"}</span>
-              {showLogExpand ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+              {showLogExpand ? (
+                <ChevronUp className="size-3.5" />
+              ) : (
+                <ChevronDown className="size-3.5" />
+              )}
             </button>
           </div>
 
           <pre className="text-xs font-mono text-rose-950 bg-white/90 p-3 rounded-xl border border-rose-200 overflow-x-auto whitespace-pre-wrap break-all max-h-56 leading-relaxed">
-            {showLogExpand ? errorDetails : errorDetails.split("\n").slice(0, 8).join("\n") + (errorDetails.split("\n").length > 8 ? "\n... (click Show Full Logs above)" : "")}
+            {showLogExpand
+              ? errorDetails
+              : errorDetails.split("\n").slice(0, 8).join("\n") +
+                (errorDetails.split("\n").length > 8 ? "\n... (click Show Full Logs above)" : "")}
           </pre>
+
+          {/* Quick Fallback and Resolution Actions */}
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-rose-200">
+            <button
+              type="button"
+              onClick={() => {
+                setEngineMode("browser");
+                setIsError(false);
+                setErrorDetails(null);
+                setTimeout(() => handleProcess("browser"), 50);
+              }}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-4 py-2.5 text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
+            >
+              <Sparkles className="size-4 text-[#d0f471]" />
+              <span>⚡ Switch to In-Browser Engine & Process Now (No server required)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsError(false);
+                setErrorDetails(null);
+                checkBackendHealth().then((online) => {
+                  if (online) {
+                    toast.success("Backend is online! Retrying...");
+                    handleProcess("backend");
+                  } else {
+                    toast.error(
+                      "Backend is still offline. Run `npm run backend` or click In-Browser above.",
+                    );
+                  }
+                });
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-300 bg-white hover:bg-rose-100 text-rose-900 px-4 py-2.5 text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+            >
+              <RotateCcw className="size-3.5" />
+              <span>Retry Python Backend</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -1038,7 +1102,7 @@ export function JobVideoCleaner() {
           <button
             type="button"
             disabled={isProcessing}
-            onClick={handleProcess}
+            onClick={() => void handleProcess()}
             className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (

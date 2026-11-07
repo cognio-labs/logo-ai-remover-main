@@ -549,7 +549,7 @@ export const INITIAL_GALLERY_SAMPLES: GallerySample[] = REAL_SAMPLES.map((s) => 
 
 export default function GeminiImageWatermarkRemoverPage() {
   const [sizePct, setSizePct] = useState<number>(7);
-  const [marginPct, setMarginPct] = useState<number>(4);
+  const [marginPct, setMarginPct] = useState<number>(15.6);
   const [showTargetBox, setShowTargetBox] = useState<boolean>(true);
   const [showCleanOnly, setShowCleanOnly] = useState<boolean>(false);
   const [sliderPos, setSliderPos] = useState<number>(46);
@@ -558,7 +558,6 @@ export default function GeminiImageWatermarkRemoverPage() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
   const [gallerySamples, setGallerySamples] = useState<GallerySample[]>(INITIAL_GALLERY_SAMPLES);
-  const [engine, setEngine] = useState<"client" | "backend">("client");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -571,7 +570,7 @@ export default function GeminiImageWatermarkRemoverPage() {
     async (item: ImageItem, sPct: number, mPct: number): Promise<ImageItem> => {
       const W = item.canvas.width;
       const H = item.canvas.height;
-      const R = calcRect(W, H, sPct, mPct);
+      let R = calcRect(W, H, sPct, mPct);
 
       const afterCanvas = document.createElement("canvas");
       afterCanvas.width = W;
@@ -584,7 +583,7 @@ export default function GeminiImageWatermarkRemoverPage() {
 
       // Inpaint corner
       let blob: Blob | null = null;
-      if (engine === "backend") {
+      {
         try {
           const rawBlob = await new Promise<Blob | null>((res) =>
             item.canvas.toBlob((b) => res(b), "image/png")
@@ -592,45 +591,34 @@ export default function GeminiImageWatermarkRemoverPage() {
           if (rawBlob) {
             const fd = new FormData();
             fd.append("image", rawBlob, "image.png");
-            fd.append("box_size_pct", (sPct / 100).toString());
-            fd.append("margin_pct", (mPct / 100).toString());
+            fd.append("box_pct", (sPct / 100).toString());
+            fd.append("offset_pct", (mPct / 100).toString());
             fd.append("inpaint_mode", "ns");
 
             const apiHost =
               typeof window !== "undefined" && window.location.hostname === "localhost"
                 ? "http://localhost:5000"
                 : "https://watermark-backend-weld.vercel.app";
-            let resp = await fetch(`${apiHost}/api/gemini-image/clean`, {
+            const resp = await fetch(`${apiHost}/api/gemini-image/clean`, {
               method: "POST",
               body: fd,
-            }).catch(() => null);
-
-            if (!resp || !resp.ok) {
-              resp = await fetch("https://watermark-backend-weld.vercel.app/api/gemini-image/clean", {
-                method: "POST",
-                body: fd,
-              }).catch(() => null);
+            });
+            if (!resp.ok) throw new Error(`Image processing failed (HTTP ${resp.status})`);
+            const boxHeader = resp.headers.get("X-Box");
+            if (boxHeader) {
+              const [x, y, w, h] = boxHeader.split(",").map(Number);
+              if ([x, y, w, h].every(Number.isFinite)) R = { x, y, w, h, g: Math.round((mPct / 100) * Math.min(W, H)) };
             }
-
-            if (resp && resp.ok) {
-              blob = await resp.blob();
-              const tempImg = new Image();
-              tempImg.src = URL.createObjectURL(blob);
-              await new Promise((r) => { tempImg.onload = r; });
-              g.drawImage(tempImg, 0, 0);
-            }
+            blob = await resp.blob();
+            const tempImg = await createImageBitmap(blob);
+            g.drawImage(tempImg, 0, 0);
+            tempImg.close();
           }
         } catch (e) {
-          console.warn("Backend inpaint failed, using in-browser canvas:", e);
+          throw e;
         }
       }
-
-      if (!blob) {
-        inpaintCanvas(g, W, H, R);
-        blob = await new Promise<Blob | null>((res) =>
-          afterCanvas.toBlob((b) => res(b), "image/png")
-        );
-      }
+      if (!blob) throw new Error("Could not encode image for processing.");
       const afterURL = blob ? URL.createObjectURL(blob) : item.beforeURL;
       const loupes = generateLoupes(item.canvas, afterCanvas, R);
 
@@ -644,53 +632,6 @@ export default function GeminiImageWatermarkRemoverPage() {
     },
     []
   );
-
-  // Initialize with sample items and gallery
-  useEffect(() => {
-    // Load initial real photograph (Alpine Lake Reflection) into Viewfinder
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = REAL_SAMPLES[0].beforeURL;
-    img.onload = () => {
-      const cvs = document.createElement("canvas");
-      cvs.width = img.naturalWidth;
-      cvs.height = img.naturalHeight;
-      const ctx = cvs.getContext("2d", { willReadFrequently: true });
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const item: ImageItem = {
-          id: "real_alpine_0",
-          name: "Alpine Lake Reflection (Real Gemini 16:9).png",
-          canvas: cvs,
-          beforeURL: REAL_SAMPLES[0].beforeURL,
-          width: cvs.width,
-          height: cvs.height,
-        };
-        processItem(item, 7, 4).then((processed) => {
-          setItems([processed]);
-          setCurrentIndex(0);
-        });
-      }
-    };
-  }, [processItem, engine]);
-
-  // Re-process current item when sliders change (debounced)
-  useEffect(() => {
-    if (!currentItem) return;
-    const currentKey = `${sizePct}|${marginPct}`;
-    if (currentItem.key === currentKey) return;
-
-    const timer = setTimeout(async () => {
-      setIsProcessing(true);
-      const updated = await processItem(currentItem, sizePct, marginPct);
-      setItems((prev) =>
-        prev.map((it, idx) => (idx === currentIndex ? updated : it))
-      );
-      setIsProcessing(false);
-    }, 120);
-
-    return () => clearTimeout(timer);
-  }, [sizePct, marginPct, currentItem, currentIndex, processItem, engine]);
 
   // Handle file uploads (multiple images)
   const handleIncomingFiles = useCallback(
@@ -712,10 +653,15 @@ export default function GeminiImageWatermarkRemoverPage() {
         const img = new Image();
         img.src = objUrl;
 
-        await new Promise((res) => {
+        const loaded = await new Promise<boolean>((res) => {
           img.onload = () => res(true);
           img.onerror = () => res(false);
         });
+        if (!loaded || !img.naturalWidth || !img.naturalHeight) {
+          URL.revokeObjectURL(objUrl);
+          toast.error(`Could not open ${file.name}`);
+          continue;
+        }
 
         const canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
@@ -734,21 +680,36 @@ export default function GeminiImageWatermarkRemoverPage() {
           height: img.naturalHeight,
         };
 
-        const processed = await processItem(rawItem, sizePct, marginPct);
-        newItems.push(processed);
+        newItems.push(rawItem);
       }
 
+      if (!newItems.length) return;
       setItems((prev) => [...prev, ...newItems]);
-      setCurrentIndex((prev) => (prev === 0 && items.length <= 1 ? 1 : prev));
-      toast.success(`${newItems.length} image(s) processed instantly in canvas!`);
+      setCurrentIndex(items.length);
+      toast.success(`${newItems.length} image(s) ready. Click Remove Gemini Logo to process.`);
 
-      const workEl = document.getElementById("workspace");
-      if (workEl) {
-        workEl.scrollIntoView({ behavior: "smooth" });
-      }
     },
-    [items.length, processItem, sizePct, marginPct]
+    [items.length]
   );
+
+  const processPendingImages = useCallback(async () => {
+    const pending = items.filter((item) => !item.afterURL || item.key !== `${sizePct}|${marginPct}`);
+    if (!pending.length || isProcessing) return;
+
+    setIsProcessing(true);
+    try {
+      for (const item of pending) {
+        const processed = await processItem(item, sizePct, marginPct);
+        setItems((prev) => prev.map((candidate) => (candidate.id === item.id ? processed : candidate)));
+      }
+      toast.success(`${pending.length} image(s) cleaned successfully.`);
+    } catch (error) {
+      console.error("Image processing failed:", error);
+      toast.error(error instanceof Error ? error.message : "Image processing failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [items, isProcessing, processItem, sizePct, marginPct]);
 
   // Clipboard paste listener
   useEffect(() => {
@@ -799,13 +760,14 @@ export default function GeminiImageWatermarkRemoverPage() {
 
   // Download all images
   const downloadAllImages = () => {
-    if (items.length === 0) return;
-    items.forEach((item, idx) => {
+    const ready = items.filter((item) => item.afterURL);
+    if (!ready.length) return;
+    ready.forEach((item, idx) => {
       setTimeout(() => {
         downloadCleanImage(item);
       }, idx * 250);
     });
-    toast.success(`Started download for ${items.length} images.`);
+    toast.success(`Started download for ${ready.length} images.`);
   };
 
   return (
@@ -819,7 +781,7 @@ export default function GeminiImageWatermarkRemoverPage() {
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-sm">
                 <Sparkles className="size-4 text-[#10241e]" />
                 <span className="text-xs sm:text-sm font-bold text-[#10241e] tracking-wider uppercase font-mono">
-                  ClearCorner • 100% In-Browser Inpainter
+                  ClearCorner • Gemini image cleaner
                 </span>
               </div>
 
@@ -832,7 +794,7 @@ export default function GeminiImageWatermarkRemoverPage() {
 
               <p className="text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed max-w-xl">
                 Drop in a picture, aim the box at the corner mark, and get a clean copy at the exact same resolution.
-                Everything runs in this tab — your files never leave your device.
+                Preview your image, then process it to remove the corner mark.
               </p>
 
               {/* 3 Value Points */}
@@ -873,20 +835,22 @@ export default function GeminiImageWatermarkRemoverPage() {
                     handleIncomingFiles(e.dataTransfer.files);
                   }
                 }}
-                onClick={() => fileInputRef.current?.click()}
-                className={`relative min-h-[380px] sm:min-h-[420px] rounded-3xl border-2 border-dashed p-8 sm:p-12 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 shadow-xl group ${
+                onClick={() => { if (!currentItem && !isProcessing) fileInputRef.current?.click(); }}
+                className={`relative min-h-[380px] sm:min-h-[420px] rounded-3xl border p-8 sm:p-10 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-xl group ${
                   isDraggingOver
-                    ? "border-[#10241e] bg-[#f9faf7] shadow-2xl scale-[1.01]"
-                    : "border-[#10241e]/20 bg-white hover:border-[#10241e] hover:bg-[#f9faf7]"
+                    ? "border-[#10241e] bg-white shadow-2xl"
+                    : currentItem?.afterURL
+                      ? "border-[#10241e]/10 bg-white"
+                      : "border-dashed border-[#10241e]/20 bg-white hover:border-[#10241e]"
                 }`}
               >
-                {/* Viewfinder Target Corner Brackets */}
-                <div className="absolute inset-4 pointer-events-none border border-transparent">
+                {/* Viewfinder brackets appear only while waiting for an upload. */}
+                {!currentItem && !isProcessing && <div className="absolute inset-4 pointer-events-none border border-transparent">
                   <div className="absolute top-0 left-0 size-6 border-t-2 border-l-2 border-[#10241e]" />
                   <div className="absolute top-0 right-0 size-6 border-t-2 border-r-2 border-[#10241e]" />
                   <div className="absolute bottom-0 left-0 size-6 border-b-2 border-l-2 border-[#10241e]" />
                   <div className="absolute bottom-0 right-0 size-6 border-b-2 border-r-2 border-[#10241e]" />
-                </div>
+                </div>}
 
                 <input
                   ref={fileInputRef}
@@ -900,378 +864,63 @@ export default function GeminiImageWatermarkRemoverPage() {
                   }}
                 />
 
-                {/* Upload Icon */}
-                <span className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-lg mb-5 group-hover:scale-105 transition-transform">
-                  <Upload className="size-9" />
-                </span>
+                {isProcessing ? (
+                  <div className="flex flex-col items-center gap-4" role="status" aria-live="polite">
+                    <span className="size-14 rounded-full border-4 border-[#10241e]/20 border-t-[#10241e] animate-spin" />
+                    <span className="text-lg font-bold text-[#10241e]">Removing Gemini logo...</span>
+                  </div>
+                ) : currentItem ? (
+                  <div className="w-full flex justify-center mb-5">
+                    <img src={currentItem.afterURL || currentItem.beforeURL} alt={currentItem.afterURL ? "Processed image at original aspect ratio" : "Uploaded image preview"}
+                      width={currentItem.width} height={currentItem.height}
+                      className="block w-auto h-auto max-h-[min(68vh,680px)] max-w-full object-contain" />
+                  </div>
+                ) : (
+                  <span className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-lg mb-5 group-hover:scale-105 transition-transform">
+                    <Upload className="size-9" />
+                  </span>
+                )}
 
-                <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight">
-                  Drop Gemini images here
-                </h3>
+                {!isProcessing && <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight break-all">
+                  {currentItem?.afterURL ? "Your clean image is ready" : currentItem ? currentItem.name : "Drop Gemini images here"}
+                </h3>}
 
                 <p className="text-base text-[#37433d] mt-2 max-w-sm leading-relaxed">
-                  or paste directly with{" "}
+                  {currentItem ? `${currentItem.width} × ${currentItem.height} px · ${currentItem.afterURL ? "Processed image" : "Ready to process"}` : "or paste directly with "}
+                  {!currentItem && <>
                   <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
                     Ctrl+V
                   </kbd>{" "}
                   /{" "}
                   <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
                     Cmd+V
-                  </kbd>
+                  </kbd></>}
                 </p>
 
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                  <span className="px-7 py-3.5 rounded-full bg-[#10241e] text-[#d0f471] font-bold text-base shadow-md group-hover:bg-[#18362d] transition-colors">
-                    Choose Images (Multiple)
-                  </span>
-                </div>
+                {!isProcessing && <button type="button" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                  className="mt-6 px-7 py-3.5 rounded-full bg-[#10241e] !text-[#d0f471] font-bold text-base shadow-md hover:bg-[#18362d] transition-colors">
+                  {currentItem ? "Choose another image" : "Choose Images (Multiple)"}
+                </button>}
 
                 <span className="mt-4 text-xs font-mono font-medium text-[#637069]">
-                  Processed 100% locally on this device
+                  {currentItem ? `${items.length} image(s) selected` : "PNG, JPG and WebP supported"}
                 </span>
+                {currentItem?.afterURL && <span className="mt-2 text-xs text-[#637069]">AI-generated image · edited</span>}
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 2. REAL WORKING WORKSPACE (Viewer + Sliders + Queue) ── */}
-      <section id="workspace" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-[#10241e]/10 bg-white">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#10241e] font-mono">
-                Your Workspace
-              </span>
-              <h2 className="text-3xl sm:text-5xl font-bold text-[#10241e] tracking-tight mt-1">
-                Aim, check, save.
-              </h2>
-              <p className="text-base sm:text-lg text-[#37433d] mt-1 max-w-2xl">
-                Inspect the corner sparkle in high definition. Drag the comparison handle or customize the corner target box size.
-              </p>
-            </div>
-
-            {items.length > 1 && (
-              <button
-                type="button"
-                onClick={downloadAllImages}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] font-bold text-sm shadow-md transition-all cursor-pointer"
-              >
-                <Download className="size-4" />
-                <span>Download All ({items.length})</span>
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Center Stage Viewer (8 Cols) */}
-            <div className="lg:col-span-8 rounded-3xl bg-[#091712] p-4 sm:p-6 shadow-2xl border border-[#d7f3af]/15 flex flex-col justify-between space-y-4">
-              {currentItem ? (
-                <>
-                  {/* Before / After Draggable Compare Canvas */}
-                  <div
-                    ref={sliderRef}
-                    role="slider"
-                    aria-label="Watermark comparison slider"
-                    aria-valuenow={Math.round(sliderPos)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    tabIndex={0}
-                    onPointerDown={(e) => {
-                      isDraggingSlider.current = true;
-                      e.currentTarget.setPointerCapture(e.pointerId);
-                      updateSliderPos(e.clientX);
-                    }}
-                    onPointerMove={(e) => {
-                      if (isDraggingSlider.current) {
-                        updateSliderPos(e.clientX);
-                      }
-                    }}
-                    onPointerUp={(e) => {
-                      isDraggingSlider.current = false;
-                      try {
-                        e.currentTarget.releasePointerCapture(e.pointerId);
-                      } catch {}
-                    }}
-                    className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-2xl overflow-hidden cursor-ew-resize select-none bg-black/80 flex items-center justify-center"
-                  >
-                    {/* AFTER IMAGE (Underneath, Clean Copy) */}
-                    <img
-                      src={currentItem.afterURL || currentItem.beforeURL}
-                      alt="Clean copy"
-                      className="absolute inset-0 size-full object-contain pointer-events-none select-none"
-                    />
-
-                    {/* BEFORE IMAGE (Clipped on top, Original with Sparkle) */}
-                    {!showCleanOnly && (
-                      <div
-                        className="absolute inset-0 size-full pointer-events-none select-none overflow-hidden"
-                        style={{
-                          clipPath: `inset(0 0 0 ${sliderPos}%)`,
-                          WebkitClipPath: `inset(0 0 0 ${sliderPos}%)`,
-                        }}
-                      >
-                        <img
-                          src={currentItem.beforeURL}
-                          alt="Original with sparkle"
-                          className="absolute inset-0 size-full object-contain pointer-events-none select-none"
-                        />
-                      </div>
-                    )}
-
-                    {/* TARGET BOX VIEWFINDER OVERLAY */}
-                    {showTargetBox && currentItem.rect && !showCleanOnly && (
-                      <div
-                        className="absolute pointer-events-none border-2 border-dashed border-white shadow-[0_0_8px_rgba(0,0,0,0.8)] z-20"
-                        style={{
-                          left: `${(currentItem.rect.x / currentItem.width) * 100}%`,
-                          top: `${(currentItem.rect.y / currentItem.height) * 100}%`,
-                          width: `${(currentItem.rect.w / currentItem.width) * 100}%`,
-                          height: `${(currentItem.rect.h / currentItem.height) * 100}%`,
-                        }}
-                      >
-                        <span className="absolute -top-5 right-0 text-[10px] font-mono font-bold bg-black/80 text-[#d0f471] px-1.5 py-0.5 rounded">
-                          Target
-                        </span>
-                      </div>
-                    )}
-
-                    {/* SLIDER DIVIDER BAR & DRAGGABLE HANDLE */}
-                    {!showCleanOnly && (
-                      <div
-                        className="absolute top-0 bottom-0 w-[2.5px] bg-[#d0f471] z-20 pointer-events-none shadow-[0_0_12px_rgba(208,244,113,0.8)]"
-                        style={{ left: `${sliderPos}%` }}
-                      >
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-10 rounded-full bg-[#10241e] border-2 border-[#d0f471] shadow-2xl flex items-center justify-center text-[#d0f471]">
-                          <ChevronLeft className="size-3.5 -mr-0.5" />
-                          <ChevronRight className="size-3.5 -ml-0.5" />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* TOP BADGES */}
-                    <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none z-10 font-mono text-[11px] font-bold">
-                      <span className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-[#d0f471] border border-white/10 shadow-xs">
-                        AFTER (CLEAN)
-                      </span>
-                      {!showCleanOnly && (
-                        <span className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md text-white border border-white/10 shadow-xs">
-                          BEFORE (ORIGINAL)
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Metadata and Loupes Row */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs font-mono text-emerald-200/80">
-                    <div>
-                      <span className="font-bold text-white text-sm block">
-                        {currentItem.name}
-                      </span>
-                      <span>
-                        {currentItem.width}×{currentItem.height} px • Box {currentItem.rect?.w}×{currentItem.rect?.h} px • {currentItem.rect?.g} px from corner
-                      </span>
-                    </div>
-
-                    {/* Corner Loupes (120x120 Macro Zoom of corner) */}
-                    {currentItem.loupe && (
-                      <div className="flex items-center gap-3 bg-[#10241e] p-2.5 rounded-2xl border border-[#d7f3af]/20">
-                        <figure className="text-center">
-                          <img
-                            src={currentItem.loupe[0]}
-                            alt="Corner Before"
-                            className="size-16 object-cover rounded-lg border border-white/20"
-                          />
-                          <span className="text-[9px] uppercase tracking-wider text-gray-400 mt-1 block">
-                            Before
-                          </span>
-                        </figure>
-
-                        <figure className="text-center">
-                          <img
-                            src={currentItem.loupe[1]}
-                            alt="Corner After"
-                            className="size-16 object-cover rounded-lg border border-[#d0f471]/40"
-                          />
-                          <span className="text-[9px] uppercase tracking-wider text-[#d0f471] mt-1 block font-bold">
-                            Cleaned
-                          </span>
-                        </figure>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="py-24 text-center text-gray-400">No image selected</div>
+              {currentItem?.afterURL && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button type="button" onClick={() => downloadCleanImage(currentItem)} className="flex-1 rounded-2xl bg-[#10241e] px-6 py-4 font-bold !text-[#d0f471] inline-flex items-center justify-center gap-2">
+                    <Download className="size-5" /> Download Clean PNG
+                  </button>
+                  {items.filter((item) => item.afterURL).length > 1 && <button type="button" onClick={downloadAllImages} className="rounded-2xl bg-white px-5 py-4 font-bold text-[#10241e]">Download All</button>}
+                </div>
               )}
-            </div>
-
-            {/* Right Controls & Queue Panel (4 Cols) */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* Corner Tuning Panel */}
-              <div className="rounded-3xl border border-[#10241e]/15 bg-[#f3f4ee] p-6 shadow-xl space-y-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-[#10241e]">Corner Region</h3>
-                  {isProcessing && (
-                    <span className="text-xs font-mono text-[#10241e] font-semibold animate-pulse">
-                      Updating...
-                    </span>
-                  )}
-                </div>
-
-                {/* Engine Selector */}
-                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white border border-[#10241e]/15 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEngine("client");
-                      toast.info("Using 100% In-Browser Canvas (Instant)");
-                    }}
-                    className={`flex-1 py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
-                      engine === "client"
-                        ? "bg-[#10241e] text-[#d0f471] shadow-xs"
-                        : "text-[#37433d] hover:text-[#10241e]"
-                    }`}
-                  >
-                    ⚡ In-Browser
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEngine("backend");
-                      toast.info("Using Python AI Backend (Navier-Stokes)");
-                    }}
-                    className={`flex-1 py-1.5 px-3 rounded-lg transition-all cursor-pointer ${
-                      engine === "backend"
-                        ? "bg-[#10241e] text-[#d0f471] shadow-xs"
-                        : "text-[#37433d] hover:text-[#10241e]"
-                    }`}
-                  >
-                    🚀 Python Backend
-                  </button>
-                </div>
-
-                {/* Box Size Slider */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-sm font-bold text-[#10241e]">
-                    <label htmlFor="size-slider">Box Size</label>
-                    <output className="font-mono text-xs font-semibold text-[#37433d]">
-                      {sizePct}% of short side
-                    </output>
-                  </div>
-                  <input
-                    id="size-slider"
-                    type="range"
-                    min={3}
-                    max={18}
-                    step={0.5}
-                    value={sizePct}
-                    onChange={(e) => setSizePct(parseFloat(e.target.value))}
-                    className="w-full accent-[#10241e] cursor-pointer"
-                  />
-                </div>
-
-                {/* Corner Distance Slider */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-sm font-bold text-[#10241e]">
-                    <label htmlFor="margin-slider">Distance from Corner</label>
-                    <output className="font-mono text-xs font-semibold text-[#37433d]">
-                      {marginPct}% of short side
-                    </output>
-                  </div>
-                  <input
-                    id="margin-slider"
-                    type="range"
-                    min={0}
-                    max={10}
-                    step={0.5}
-                    value={marginPct}
-                    onChange={(e) => setMarginPct(parseFloat(e.target.value))}
-                    className="w-full accent-[#10241e] cursor-pointer"
-                  />
-                </div>
-
-                {/* Target Box Toggle */}
-                <label className="flex items-center gap-2.5 text-sm font-semibold text-[#10241e] cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showTargetBox}
-                    onChange={(e) => setShowTargetBox(e.target.checked)}
-                    className="size-4 rounded accent-[#10241e]"
-                  />
-                  <span>Show dashed target box on image</span>
-                </label>
-
-                {/* Clean View Toggle */}
-                <button
-                  type="button"
-                  onClick={() => setShowCleanOnly(!showCleanOnly)}
-                  className="w-full py-2.5 px-4 rounded-xl border border-[#10241e]/20 bg-white hover:bg-[#e9ece4] text-[#10241e] font-bold text-sm shadow-xs transition-colors cursor-pointer"
-                >
-                  {showCleanOnly ? "Back to comparison slider" : "Show clean image only"}
+              {items.some((item) => !item.afterURL || item.key !== `${sizePct}|${marginPct}`) && (
+                <button type="button" disabled={isProcessing} onClick={processPendingImages}
+                  className="mt-4 w-full rounded-2xl bg-[#10241e] px-6 py-4 font-bold !text-[#d0f471] disabled:opacity-50">
+                  {isProcessing ? "Removing logo..." : "Remove Gemini Logo"}
                 </button>
-
-                {/* Primary Download Button */}
-                {currentItem && (
-                  <button
-                    type="button"
-                    onClick={() => downloadCleanImage(currentItem)}
-                    className="w-full py-3.5 px-6 rounded-2xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Download className="size-5" />
-                    <span>Download Clean PNG</span>
-                  </button>
-                )}
-
-                <p className="text-xs text-[#637069] leading-relaxed">
-                  Tip: Right-click the clean image (or long-press on mobile) to save it directly at original 4K/8K resolution.
-                </p>
-              </div>
-
-              {/* Batch Queue Card */}
-              <div className="rounded-3xl border border-[#10241e]/15 bg-white p-6 shadow-xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-[#10241e]">Batch Images</h3>
-                  <span className="text-xs font-mono font-bold text-[#637069]">
-                    {items.length} item{items.length === 1 ? "" : "s"}
-                  </span>
-                </div>
-
-                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  {items.map((it, idx) => {
-                    const isSelected = idx === currentIndex;
-                    return (
-                      <button
-                        key={it.id}
-                        type="button"
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`w-full flex items-center gap-3 p-2.5 rounded-2xl text-left border transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-[#f3f4ee] border-[#10241e] shadow-sm"
-                            : "bg-white border-[#10241e]/10 hover:bg-[#f9faf7]"
-                        }`}
-                      >
-                        <img
-                          src={it.beforeURL}
-                          alt=""
-                          className="size-11 object-cover rounded-xl border border-[#10241e]/10 shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-xs font-bold text-[#10241e] truncate block">
-                            {it.name}
-                          </span>
-                          <span className="text-[11px] font-mono text-[#637069] block">
-                            {it.width}×{it.height} px
-                          </span>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-full bg-[#10241e] text-[#d0f471] text-[10px] font-mono font-bold shrink-0">
-                          Done
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
