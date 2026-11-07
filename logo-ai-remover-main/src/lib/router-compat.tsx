@@ -162,3 +162,7 @@ export function HeadContent() {
 export function Scripts() {
   return null;
 }
+
+export function createRouter(opts?: any) {
+  return opts || {};
+}

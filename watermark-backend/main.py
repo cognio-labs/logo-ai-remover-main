@@ -195,6 +195,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from pdf_api import router as pdf_router
+app.include_router(pdf_router)
+
 # ---------------------------------------------------------------------------
 # CORS Configuration
 # ---------------------------------------------------------------------------
@@ -428,8 +431,11 @@ async def _process_video_worker(job_id: str):
 
         try:
             await asyncio.to_thread(
-                remove_watermark, job["input_path"], job["output_path"],
+                remove_watermark,
+                job["input_path"],
+                job["output_path"],
                 progress_cb=on_progress,
+                alpha=job.get("alpha", 0.30),
             )
             if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
                 raise RuntimeError("The watermark-removal pipeline did not produce an output video.")

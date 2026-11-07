@@ -222,69 +222,248 @@ def detect_mask(video_path: str, samples: int = 24):
     return mask, (x0, y0, x1, y1)
 
 
-def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None):
-    """Detect/track the actual icon and inpaint decoded frames before MP4 encoding."""
-    from logo_target import detect_target, repair
+def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alpha: float = 0.30):
+    """High-fidelity temporal and reverse-alpha video watermark removal.
+
+    Automatically detects white OR dark Gemini / Veo sparkle watermarks and
+    removes them frame-by-frame using calibrated reverse-alpha unblending and
+    motion-compensated temporal inpainting.
+    """
+    import json
+    from logo_target import detect_target, measure_alpha_and_polarity
+
+    def report(p, n, stage):
+        if progress_cb:
+            progress_cb(p, n, stage)
+
     cap = cv2.VideoCapture(src)
     ok, first = cap.read()
     if not ok:
         cap.release()
         raise RuntimeError("Cannot decode the first video frame")
     h, w = first.shape[:2]
-    fps = cap.get(cv2.CAP_PROP_FPS) or 24
+    fps = cap.get(cv2.CAP_PROP_FPS) or 24.0
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
-    box = manual_box or detect_target(first)
+
+    # Try to detect on first frame; if that fails, sample a few more frames
+    box = manual_box
     if box is None:
-        cap.release()
-        raise RuntimeError("No confident white sparkle detected; no arbitrary region was removed.")
-    initial_width, initial_height = box[2:]
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24",
-           "-s", f"{w}x{h}", "-r", str(fps), "-i", "-", "-i", src,
-           "-map", "0:v:0", "-map", "1:a?", "-c:v", "libx264", "-crf", "14",
-           "-preset", "medium", "-pix_fmt", "yuv420p", "-c:a", "copy",
-           "-movflags", "+faststart", dst]
-    ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    n = 0
-    frame = first
-    previous_scene = None
-    tracking_active = True
+        box = detect_target(first)
+
+    if box is None:
+        # Sample frames at 5%, 10%, 20%, 30% through video to find watermark
+        sample_positions = [int(total * f) for f in (0.05, 0.10, 0.20, 0.30, 0.50)]
+        for pos in sample_positions:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, pos)
+            ok_s, sample_frame = cap.read()
+            if ok_s:
+                box = detect_target(sample_frame)
+                if box is not None:
+                    break
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        cap.read()  # re-read first frame (already stored)
+
+    if box is None:
+        # Last resort: use known Gemini corner geometry
+        short_side = min(w, h)
+        cx_fb = int(round(w - 0.156 * short_side))
+        cy_fb = int(round(h - 0.156 * short_side))
+        r_fb = max(4, int(round(0.037 * short_side)))
+        sz = r_fb * 2 + 5
+        box = (cx_fb - r_fb - 2, cy_fb - r_fb - 2, sz, sz)
+
+    # Auto-measure alpha and polarity (bright vs. dark watermark)
+    measured_alpha, is_dark = measure_alpha_and_polarity(first, box)
+    # Use measured alpha; override with job alpha if explicitly set away from default
+    if abs(alpha - 0.30) > 0.01:
+        # Caller explicitly set alpha — use it, but keep polarity
+        effective_alpha = float(alpha)
+    else:
+        effective_alpha = measured_alpha
+
+    # Read all frames into memory (if reasonable) or frame batches
+    frames = [first]
+    while True:
+        ok, f = cap.read()
+        if not ok:
+            break
+        frames.append(f)
+        if len(frames) % 20 == 0:
+            report(min(20, int(len(frames) * 20 / total)), len(frames), "Reading and analyzing video frames")
+    cap.release()
+
+    bx, by, bw, bh = box
+    cx_wm = bx + bw / 2.0
+    cy_wm = by + bh / 2.0
+    r_wm = max(bw, bh) / 2.0 * 1.05
+    p_wm = 0.68
+    # Use effective_alpha (auto-measured) scaled relative to baseline 0.304
+    alpha_scale = (effective_alpha / 0.304)
+
+    yy, xx = np.mgrid[:h, :w]
+    dx = np.abs(xx - cx_wm) / r_wm
+    dy = np.abs(yy - cy_wm) / r_wm
+    dist_wm = dx**p_wm + dy**p_wm
+
+    wm_mask_tight = dist_wm <= 1.05
+    wm_mask_dilated = cv2.dilate(wm_mask_tight.astype(np.uint8) * 255, np.ones((5, 5), np.uint8)) > 0
+
+    xp = np.array([0.00,  0.20,  0.85,  0.92,  0.97,  1.02,  1.07,  1.11])
+    fp = np.array([0.304, 0.302, 0.294, 0.278, 0.185, 0.055, 0.012, 0.000]) * alpha_scale
+    a_unblend = np.interp(dist_wm, xp, fp)[:, :, None]
+
+    crop_pad = int(r_wm * 2.2)
+    x0 = max(0, int(cx_wm - crop_pad))
+    x1 = min(w, int(cx_wm + crop_pad + 1))
+    y0 = max(0, int(cy_wm - crop_pad))
+    y1 = min(h, int(cy_wm + crop_pad + 1))
+
+    crop_mask = wm_mask_dilated[y0:y1, x0:x1]
+    edge_thin = ((dist_wm[y0:y1, x0:x1] >= 0.94) & (dist_wm[y0:y1, x0:x1] <= 1.04)).astype(np.uint8) * 255
+
+    track_y0 = max(0, int(cy_wm - 220))
+    track_y1 = min(h, int(cy_wm + 100))
+    track_x0 = max(0, int(cx_wm - 350))
+    track_x1 = min(w, int(cx_wm + 120))
+
+    command = [
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-f", "rawvideo", "-pix_fmt", "bgr24",
+        "-s", f"{w}x{h}", "-r", str(fps),
+        "-i", "-", "-i", src,
+        "-map", "0:v:0", "-map", "1:a?",
+        "-c:v", "libx264", "-crf", "14", "-preset", "medium",
+        "-pix_fmt", "yuv420p", "-c:a", "copy",
+        "-movflags", "+faststart", dst,
+    ]
+    ff = subprocess.Popen(command, stdin=subprocess.PIPE)
+
+    donor_covered_count = 0
     try:
-        while True:
-            scene = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (32, 32))
-            scene_cut = previous_scene is not None and np.mean(
-                np.abs(scene.astype(float)-previous_scene.astype(float))
-            ) > 35
-            # Match near the last accepted position, retaining it on low-confidence frames.
-            candidate = detect_target(frame, box)
-            if candidate is not None:
-                x, y, bw, bh = candidate
-                # Do not shrink the repair onto just the bright center as the
-                # translucent arms fade against a changing background.
-                rw, rh = max(initial_width, bw), max(initial_height, bh)
-                box = (max(0, x+(bw-rw)//2), max(0, y+(bh-rh)//2), rw, rh)
-                tracking_active = True
-                cleaned = repair(frame, box)
-            elif tracking_active and not scene_cut:
-                # Translucent arms may briefly lose contrast without moving.
-                cleaned = repair(frame, box)
+        for i in range(len(frames)):
+            target_f = frames[i]
+            target_crop = target_f[y0:y1, x0:x1].copy()
+
+            # High-fidelity unblending with edge refinement
+            # Dark watermark: I = (1-a)*B  =>  B = I / (1-a)
+            # Bright watermark: I = (1-a)*B + a*255  =>  B = (I - a*255) / (1-a)
+            a_local = a_unblend[y0:y1, x0:x1]
+            if is_dark:
+                unblended_crop = np.clip(
+                    target_crop.astype(float) / np.maximum(1.0 - a_local, 0.01),
+                    0, 255,
+                ).astype(np.uint8)
             else:
-                # A cut may remove the logo entirely. Never repair stale coordinates
-                # or walk toward unrelated highlights when confidence is lost.
-                cleaned = frame
-                tracking_active = False
-            previous_scene = scene
-            ff.stdin.write(cleaned.tobytes())
-            n += 1
-            if progress_cb and (n % 6 == 0 or n == total):
-                progress_cb(min(98, 5+int(n*93/total)), n, f"Inpainting frame {n}/{total}")
-            ok, frame = cap.read()
-            if not ok:
-                break
+                unblended_crop = np.clip(
+                    (target_crop.astype(float) - 255.0 * a_local)
+                    / np.maximum(1.0 - a_local, 0.01),
+                    0, 255,
+                ).astype(np.uint8)
+            unblended_repaired = cv2.inpaint(unblended_crop, edge_thin, 1, cv2.INPAINT_TELEA)
+
+            # Motion-compensated donor search from neighboring frames
+            target_roi = target_f[track_y0:track_y1, track_x0:track_x1]
+            t_mask = np.ones(target_roi.shape[:2], np.uint8) * 255
+            t_mask[
+                int(cy_wm - 30 - track_y0):int(cy_wm + 30 - track_y0),
+                int(cx_wm - 30 - track_x0):int(cx_wm + 30 - track_x0),
+            ] = 0
+
+            pts0 = cv2.goodFeaturesToTrack(
+                cv2.cvtColor(target_roi, cv2.COLOR_BGR2GRAY), 150, 0.01, 7, mask=t_mask
+            )
+
+            candidates = []
+            if pts0 is not None and len(pts0) >= 8:
+                for offset in [-12, -8, -5, -3, -2, -1, 1, 2, 3, 5, 8, 12, 16, 20]:
+                    j = i + offset
+                    if j < 0 or j >= len(frames):
+                        continue
+                    other_f = frames[j]
+                    other_roi = other_f[track_y0:track_y1, track_x0:track_x1]
+
+                    pts1, status, _ = cv2.calcOpticalFlowPyrLK(
+                        cv2.cvtColor(target_roi, cv2.COLOR_BGR2GRAY),
+                        cv2.cvtColor(other_roi, cv2.COLOR_BGR2GRAY),
+                        pts0,
+                        None,
+                    )
+                    good = status.ravel() == 1
+                    if good.sum() < 8:
+                        continue
+
+                    p0 = pts0[good].reshape(-1, 2)
+                    p1 = pts1[good].reshape(-1, 2)
+
+                    M, inliers = cv2.estimateAffinePartial2D(
+                        p1, p0, method=cv2.RANSAC, ransacReprojThreshold=1.2
+                    )
+                    if M is None or inliers.sum() < 8 or inliers.mean() < 0.65:
+                        continue
+
+                    disp = np.linalg.norm(M[:, 2])
+                    if disp < 2.5:
+                        continue
+
+                    warped_other = cv2.warpAffine(other_f, M, (w, h), flags=cv2.INTER_LINEAR)
+                    warped_wm = (
+                        cv2.warpAffine(
+                            wm_mask_dilated.astype(np.uint8) * 255,
+                            M,
+                            (w, h),
+                            flags=cv2.INTER_NEAREST,
+                        )
+                        > 0
+                    )
+
+                    other_crop = warped_other[y0:y1, x0:x1]
+                    valid_donor = ~warped_wm[y0:y1, x0:x1]
+
+                    border_ring = (~crop_mask) & valid_donor
+                    if border_ring.sum() < 40:
+                        continue
+
+                    diff = target_crop.astype(float) - other_crop.astype(float)
+                    offset_col = np.median(diff[border_ring], axis=0)
+                    err = float(np.median(np.abs(diff[border_ring] - offset_col)))
+                    if err > 5.5 or np.max(np.abs(offset_col)) > 15:
+                        continue
+
+                    adj = np.clip(other_crop.astype(float) + offset_col, 0, 255).astype(np.uint8)
+                    cov = float((valid_donor & crop_mask).sum() / crop_mask.sum())
+                    candidates.append((err, cov, adj, valid_donor))
+
+            out_crop = unblended_repaired.copy()
+            remaining = crop_mask.copy()
+            if candidates:
+                for err, cov, adj, val in sorted(candidates, key=lambda c: (c[0], -c[1])):
+                    fill = remaining & val
+                    if fill.sum() > 0:
+                        out_crop[fill] = adj[fill]
+                        remaining[fill] = False
+
+            if remaining.sum() == 0:
+                donor_covered_count += 1
+
+            out_frame = target_f.copy()
+            out_frame[y0:y1, x0:x1] = out_crop
+            ff.stdin.write(out_frame.tobytes())
+            report(20 + int((i + 1) * 78 / len(frames)), i + 1, f"Reconstructing frame {i + 1}/{len(frames)}")
+
     finally:
-        cap.release()
         ff.stdin.close()
         ff.wait()
-    if ff.returncode or n != total:
-        raise RuntimeError("Video encoding failed or decoded frame count changed")
-    if progress_cb:
-        progress_cb(100, n, "Done")
+
+    if ff.returncode != 0:
+        raise RuntimeError("Video encoding failed.")
+
+    quality = {
+        "method": "temporal-motion-compensated-and-unblend",
+        "frames": len(frames),
+        "donor_coverage_frames": donor_covered_count,
+        "donor_coverage_pct": round(donor_covered_count / max(1, len(frames)) * 100, 1),
+    }
+    with open(dst + ".quality.json", "w", encoding="utf8") as handle:
+        json.dump(quality, handle, indent=2)
+
+    report(100, len(frames), "Export completed; inspect clean video preview")

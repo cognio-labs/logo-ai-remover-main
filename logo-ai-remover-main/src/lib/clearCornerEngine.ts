@@ -111,9 +111,9 @@ export function getGeminiFilterString(
   enableEdgeBlur = false
 ) {
   const c = (box / 2).toFixed(2);
-  const radius = ((box / 2) * 0.95).toFixed(2);
+  const radius = ((box / 2) * 1.05).toFixed(2);
   const aStr = Math.max(0.01, Math.min(0.99, alpha)).toFixed(4);
-  const shape = `${aStr}*clip((1-pow(abs((X-${c})/${radius}),0.55)-pow(abs((Y-${c})/${radius}),0.55))*6,0,1)`;
+  const shape = `${aStr}*clip((1-pow(abs((X-${c})/${radius}),0.68)-pow(abs((Y-${c})/${radius}),0.68))*4,0,1)`;
   const expr = `clip((p(X,Y)-255*(${shape}))/(1-(${shape})),0,255)`;
 
   let vf = `split[a][b];[b]crop=${box}:${box}:${x}:${y},format=gbrp,geq=r='${expr}':g='${expr}':b='${expr}'[c];[a][c]overlay=${x}:${y},format=yuv420p`;
@@ -232,18 +232,34 @@ export function applyGeminiFrameUnblend(
   const H = targetCtx.canvas.height;
   targetCtx.drawImage(videoEl, 0, 0, W, H);
 
-  const radius = (box / 2) * 0.95;
+  const radius = (box / 2) * 1.05;
   const boxHalf = box / 2;
+  const p = 0.68;
+  const xp = [0.00, 0.20, 0.85, 0.92, 0.97, 1.02, 1.07, 1.11];
+  const fp = [0.304, 0.302, 0.294, 0.278, 0.185, 0.055, 0.012, 0.000];
+  const alphaScale = alpha / 0.30;
+
+  function getAlpha(d: number): number {
+    if (d <= xp[0]) return fp[0] * alphaScale;
+    if (d >= xp[xp.length - 1]) return 0;
+    for (let k = 0; k < xp.length - 1; k++) {
+      if (d >= xp[k] && d <= xp[k + 1]) {
+        const t = (d - xp[k]) / (xp[k + 1] - xp[k]);
+        return (fp[k] + t * (fp[k + 1] - fp[k])) * alphaScale;
+      }
+    }
+    return 0;
+  }
 
   const imgData = targetCtx.getImageData(boxX, boxY, box, box);
   const data = imgData.data;
 
   for (let by = 0; by < box; by++) {
     for (let bx = 0; bx < box; bx++) {
-      const dx = (bx - boxHalf) / radius;
-      const dy = (by - boxHalf) / radius;
-      const val = (1 - Math.pow(Math.abs(dx), 0.55) - Math.pow(Math.abs(dy), 0.55)) * 6;
-      const a = alpha * Math.max(0, Math.min(1, val));
+      const dx = Math.abs(bx - boxHalf) / radius;
+      const dy = Math.abs(by - boxHalf) / radius;
+      const dist = Math.pow(dx, p) + Math.pow(dy, p);
+      const a = getAlpha(dist);
       if (a > 0.001) {
         const idx = (by * box + bx) * 4;
         const oneMinusA = 1 - a;
@@ -287,19 +303,33 @@ export function processGeminiVideoCanvasFallback(
       options.distancePct
     );
 
-    const radius = (box / 2) * 0.95;
+    const radius = (box / 2) * 1.05;
     const boxHalf = box / 2;
-    const alphaVal = options.alpha;
+    const p = 0.68;
+    const xp = [0.00, 0.20, 0.85, 0.92, 0.97, 1.02, 1.07, 1.11];
+    const fp = [0.304, 0.302, 0.294, 0.278, 0.185, 0.055, 0.012, 0.000];
+    const alphaScale = options.alpha / 0.30;
+
+    function getTableAlpha(d: number): number {
+      if (d <= xp[0]) return fp[0] * alphaScale;
+      if (d >= xp[xp.length - 1]) return 0;
+      for (let k = 0; k < xp.length - 1; k++) {
+        if (d >= xp[k] && d <= xp[k + 1]) {
+          const t = (d - xp[k]) / (xp[k + 1] - xp[k]);
+          return (fp[k] + t * (fp[k + 1] - fp[k])) * alphaScale;
+        }
+      }
+      return 0;
+    }
 
     // Precompute alpha lookup table for the [box x box] region
     const alphaTable = new Float32Array(box * box);
     for (let by = 0; by < box; by++) {
       for (let bx = 0; bx < box; bx++) {
-        const dx = (bx - boxHalf) / radius;
-        const dy = (by - boxHalf) / radius;
-        const val = (1 - Math.pow(Math.abs(dx), 0.55) - Math.pow(Math.abs(dy), 0.55)) * 6;
-        const clamped = Math.max(0, Math.min(1, val));
-        alphaTable[by * box + bx] = alphaVal * clamped;
+        const dx = Math.abs(bx - boxHalf) / radius;
+        const dy = Math.abs(by - boxHalf) / radius;
+        const dist = Math.pow(dx, p) + Math.pow(dy, p);
+        alphaTable[by * box + bx] = getTableAlpha(dist);
       }
     }
 

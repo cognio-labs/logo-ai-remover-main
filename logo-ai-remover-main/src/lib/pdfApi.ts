@@ -15,6 +15,8 @@ export interface PdfUploadResponse {
   pageCount: number;
   fileSize: number;
   isPdf: boolean;
+  width?: number;
+  height?: number;
   previewUrl: string;
 }
 
@@ -25,25 +27,47 @@ export interface PdfDetectResponse {
   regions: DetectedRegion[];
 }
 
+export interface PdfAnalysisResponse {
+  success: boolean;
+  jobId: string;
+  pageCount: number;
+  selectableText: boolean;
+  vectorObjects: number;
+  embeddedImages: number;
+  scannedPages: number;
+  watermarkCount: number;
+  method: "native" | "raster";
+  pages: Array<{
+    page: number;
+    selectableText: boolean;
+    vectorObjects: number;
+    embeddedImages: number;
+    scanned: boolean;
+    watermarkCount: number;
+  }>;
+  regions: DetectedRegion[];
+}
+
 export interface PdfProcessResponse {
   success: boolean;
   jobId: string;
   status: string;
   message?: string;
+  scope: "first" | "full";
 }
 
 export interface PdfStatusResponse {
   jobId: string;
   status:
-  | "queued"
-  | "analyzing"
-  | "detecting"
-  | "restoring"
-  | "rebuilding"
-  | "verifying"
-  | "completed"
-  | "failed";
-  progress: number;
+    | "queued"
+    | "analyzing"
+    | "detecting"
+    | "restoring"
+    | "rebuilding"
+    | "verifying"
+    | "completed"
+    | "failed";
+  progress: number | null;
   stage: string;
   message: string;
   error?: string;
@@ -58,20 +82,20 @@ export interface PdfResultResponse {
   isPdf: boolean;
   downloadUrl: string;
   cleanedPreviewUrl: string;
+  scope: "first" | "full";
   error?: string;
 }
 
-const API_ORIGIN =
-  (
-    (typeof process !== "undefined" &&
-      (process.env.NEXT_PUBLIC_API_URL ||
-        process.env.NEXT_PUBLIC_IMAGE_API_URL ||
-        process.env.NEXT_PUBLIC_VIDEO_API_URL ||
-        process.env.VITE_API_URL ||
-        process.env.VITE_IMAGE_API_URL ||
-        process.env.VITE_VIDEO_API_URL)) ||
-    ""
-  ).replace(/\/$/u, "");
+const API_ORIGIN = (
+  (typeof process !== "undefined" &&
+    (process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_IMAGE_API_URL ||
+      process.env.NEXT_PUBLIC_VIDEO_API_URL ||
+      process.env.VITE_API_URL ||
+      process.env.VITE_IMAGE_API_URL ||
+      process.env.VITE_VIDEO_API_URL)) ||
+  ""
+).replace(/\/$/u, "");
 
 export const apiPdfUrl = (path: string) => `${API_ORIGIN}${path}`;
 
@@ -81,8 +105,8 @@ export const pdfPreviewUrl = (
   type: "original" | "cleaned" = "original",
 ) => apiPdfUrl(`/api/pdf/preview/${encodeURIComponent(jobId)}/${page}?type=${type}`);
 
-export const pdfDownloadUrl = (jobId: string) =>
-  apiPdfUrl(`/api/pdf/download/${encodeURIComponent(jobId)}`);
+export const pdfDownloadUrl = (jobId: string, format?: "pdf" | "png" | "jpg") =>
+  apiPdfUrl(`/api/pdf/download/${encodeURIComponent(jobId)}${format ? `?format=${format}` : ""}`);
 
 async function parse<T>(response: Response): Promise<T> {
   if (response.ok) return (await response.json()) as T;
@@ -119,6 +143,13 @@ export async function detectPdfWatermarks(
   return parse<PdfDetectResponse>(res);
 }
 
+export async function analyzePdfDocument(jobId: string): Promise<PdfAnalysisResponse> {
+  const res = await fetch(apiPdfUrl(`/api/pdf/analyze/${encodeURIComponent(jobId)}`), {
+    method: "POST",
+  });
+  return parse<PdfAnalysisResponse>(res);
+}
+
 export async function processPdfDocument(
   jobId: string,
   options?: {
@@ -126,12 +157,14 @@ export async function processPdfDocument(
     removeAnnotations?: boolean;
     removeBlueMarker?: boolean;
     manualRegions?: DetectedRegion[];
+    scope?: "first" | "full";
   },
 ): Promise<PdfProcessResponse> {
   const form = new FormData();
   if (options?.mode) form.append("mode", options.mode);
   form.append("removeAnnotations", String(options?.removeAnnotations ?? true));
   form.append("removeBlueMarker", String(options?.removeBlueMarker ?? true));
+  form.append("scope", options?.scope ?? "full");
   if (options?.manualRegions && options.manualRegions.length > 0) {
     form.append("manualRegions", JSON.stringify(options.manualRegions));
   }

@@ -11,8 +11,8 @@
 
 const API_BASE =
   (typeof import.meta !== "undefined" &&
-    (import.meta as Record<string, unknown>).env &&
-    ((import.meta as Record<string, unknown>).env as Record<string, string>)
+    (import.meta as unknown as Record<string, unknown>).env &&
+    ((import.meta as unknown as Record<string, unknown>).env as Record<string, string>)
       .VITE_IMAGE_API_URL) ||
   (typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:5000"

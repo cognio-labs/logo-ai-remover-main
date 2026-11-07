@@ -1,0 +1,6 @@
+{
+  "method": "temporal-motion-compensated-and-unblend",
+  "frames": 240,
+  "donor_coverage_frames": 40,
+  "donor_coverage_pct": 16.7
+}
