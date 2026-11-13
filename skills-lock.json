@@ -1,11 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "gemini-watermark-remover": {
+      "source": "GargantuaX/gemini-watermark-remover",
+      "sourceType": "github",
+      "skillPath": "skills/gemini-watermark-remover/SKILL.md",
+      "computedHash": "7ad403ccdea9856afeed9eb26909a4ab5ba056acd559b86f0289257dcc4f6237"
+    },
     "wavespeed-watermark-remover": {
       "source": "wavespeedai/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/wavespeed-watermark-remover/SKILL.md",
-      "computedHash": "c19d76446a3dba36f4fd5a11ce71e4f7c1c504dd20e6b08d25f44dd63a4df713"
+      "computedHash": "96214b6e5594f220cbec79de836663fa1e0cecc85593131cd32739e74b12608d"
     }
   }
 }

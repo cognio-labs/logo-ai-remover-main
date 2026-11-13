@@ -298,7 +298,7 @@ export default function GeminiVideoRemoverPage() {
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-[#10241e]/15 shadow-md">
             <img src="/gemini-logo.png" alt="Gemini" className="size-4 object-contain" />
             <span className="text-xs sm:text-sm font-bold text-[#10241e] tracking-wide">
-              Official Gemini & Veo Watermark Removal Engine
+              Browser-local Gemini & Veo watermark cleanup
             </span>
           </div>
 
@@ -312,8 +312,8 @@ export default function GeminiVideoRemoverPage() {
 
           {/* Subheading */}
           <p className="max-w-3xl mx-auto text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed">
-            Detect and erase visible Google Gemini and Veo marks across every frame. Keep 100% full
-            resolution, smooth camera movement, and natural lighting.
+            Remove supported visible sparkle marks from your original Gemini or Veo export.
+            Processing starts as soon as you choose a video.
           </p>
 
           {/* Primary Upload Area */}

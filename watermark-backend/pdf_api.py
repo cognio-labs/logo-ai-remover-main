@@ -29,6 +29,48 @@ ALLOWED_IMAGE_FORMATS = ("PNG", "JPEG", "WEBP", "BMP", "TIFF")
 def get_job(job_id: str):
     job = jobs.get(job_id)
     if job is None:
+        folder = ROOT / job_id
+        if folder.is_dir():
+            candidates = list(folder.glob("original.*"))
+            if candidates:
+                source = candidates[0]
+                is_pdf = source.suffix.lower() == ".pdf"
+                cleaned_candidates = [p for p in folder.glob("cleaned*.*") if p.is_file()]
+                output_path = cleaned_candidates[0] if cleaned_candidates else folder / ("cleaned.pdf" if is_pdf else "cleaned.png")
+                has_cleaned = output_path.is_file()
+                pages = 1
+                img_width, img_height = 0, 0
+                if is_pdf:
+                    try:
+                        with pymupdf.open(source) as doc:
+                            pages = len(doc)
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        with Image.open(source) as img:
+                            img_width, img_height = img.size
+                    except Exception:
+                        pass
+                job = {
+                    "jobId": job_id,
+                    "source": source,
+                    "output": output_path,
+                    "outputs": {"full": output_path} if has_cleaned else {},
+                    "fileName": source.name,
+                    "fileSize": source.stat().st_size,
+                    "pageCount": pages,
+                    "isPdf": is_pdf,
+                    "width": img_width,
+                    "height": img_height,
+                    "status": "completed" if has_cleaned else "ready",
+                    "progress": 100 if has_cleaned else 0,
+                    "stage": "Clean document ready." if has_cleaned else "Document ready.",
+                    "message": "",
+                    "created": source.stat().st_mtime,
+                }
+                jobs[job_id] = job
+                return job
         raise HTTPException(404, "Document job not found. Upload the document again.")
     return job
 

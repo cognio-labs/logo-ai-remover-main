@@ -8,6 +8,8 @@ logo-ai-remover-main/.next/
 watermark-backend/uploads/
 watermark-backend/outputs/
 watermark-backend/image_jobs/
+.playwright-browsers/
+.npm-cache/
 
 # Logs & temp
 logs/

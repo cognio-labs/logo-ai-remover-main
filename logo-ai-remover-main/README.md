@@ -1,5 +1,24 @@
 # Bellix.us
 
+## Browser-local Gemini/Veo video cleanup
+
+Open `/video` (or `/gemini-video-watermark-remover`) in Chrome or Edge. Select an
+original MP4, MOV, WebM, or MKV file up to 100 MB; detection and processing start
+automatically. The page uses the bundled, MIT-licensed
+`@pilio/gemini-watermark-remover` WebCodecs/MediaBunny engine and calibrated alpha
+maps. It rejects low-confidence matches and leaves the original file unchanged.
+The uploader, live processing status, and playable MP4 result use the same video
+box. Frame progress comes from the local engine; the UI holds at 99% after
+export because frame count and MP4 validity do not verify visual cleanup.
+Review the full result before use: no watermark removal method can guarantee a
+perfect result for every frame or unsupported mark.
+The exported MP4 is re-encoded, so pixel identity outside the mark cannot be
+promised in the downloaded video. See `THIRD_PARTY_VIDEO_ENGINE.md` for credits.
+
+For a larger clip, use the upstream CLI locally after installing its optional
+Playwright dependency and browser. Test on your own original Veo export before
+relying on output quality. This route does not remove invisible SynthID.
+
 Browser-based media cleanup, upscaling, video enhancement, background removal and PDF tools. Public site: <https://www.bellix.us/>.
 
 Current stack: React + TypeScript + TanStack Start/Router + Vite, with a Python FastAPI media backend. Image cleanup is currently simulated; user/credit state includes browser-controlled mocks, and payment enforcement is not established. Marketing copy is not proof of implemented functionality.

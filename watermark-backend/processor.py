@@ -354,9 +354,18 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
                     0, 255,
                 ).astype(np.uint8)
             else:
+                border_pixels = target_crop[~crop_mask]
+                if len(border_pixels) > 10:
+                    b_ref = np.median(border_pixels, axis=0)
+                    floor_b = 0.88 * b_ref
+                    a_limit = np.clip((target_crop.astype(float) - floor_b) / np.maximum(255.0 - floor_b, 1.0), 0.0, 0.99)
+                    eff_a = np.minimum(a_local, a_limit)
+                else:
+                    max_a = np.minimum(0.99, (target_crop.astype(float) / 255.0) * 0.94)
+                    eff_a = np.minimum(a_local, max_a)
                 unblended_crop = np.clip(
-                    (target_crop.astype(float) - 255.0 * a_local)
-                    / np.maximum(1.0 - a_local, 0.01),
+                    (target_crop.astype(float) - 255.0 * eff_a)
+                    / np.maximum(1.0 - eff_a, 0.02),
                     0, 255,
                 ).astype(np.uint8)
             unblended_repaired = cv2.inpaint(unblended_crop, edge_thin, 1, cv2.INPAINT_TELEA)
@@ -416,8 +425,17 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
                         > 0
                     )
 
+                    warped_valid = (
+                        cv2.warpAffine(
+                            np.ones((h, w), dtype=np.uint8) * 255,
+                            M,
+                            (w, h),
+                            flags=cv2.INTER_NEAREST,
+                        )
+                        == 255
+                    )
                     other_crop = warped_other[y0:y1, x0:x1]
-                    valid_donor = ~warped_wm[y0:y1, x0:x1]
+                    valid_donor = (~warped_wm[y0:y1, x0:x1]) & warped_valid[y0:y1, x0:x1]
 
                     border_ring = (~crop_mask) & valid_donor
                     if border_ring.sum() < 40:

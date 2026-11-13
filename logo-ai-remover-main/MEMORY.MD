@@ -39,3 +39,7 @@ Authoritative plans/credits, account/guest ownership, retention/provider disclos
 Date → finding/decision → source/test evidence → consequence → task ID. Mark obsolete assumptions explicitly when superseded.
 
 2026-11-07: Video cleanup uses logo_target.py for shared pixel detection/first-frame inpainting and per-frame local tracking. Preview coordinates map through object-contain letterboxing. Unsupported browser unblending/recording is routed through backend. No confident detection fails without editing arbitrary corner pixels.
+
+2026-11-13: The browser-local Gemini/Veo route now shows upload, engine progress, and exported MP4 in one player. The progress display includes processed frame counts when the engine supplies them. Full-frame visual quality still needs real-fixture review.
+
+2026-11-13 video quality audit: The active Gemini/Veo page downloads a browser WebCodecs/MediaBunny blob; the FastAPI/FFmpeg endpoint is not in this route. On cartoon-source.mp4 the detector found a 48x48 mark at (576,1136), and the actual exported MP4 retained 240 frames, 720x1280, 24 FPS and AAC audio, but baseline decoded frames retained a faint outline. A tested footprint-polish profile reduced the outline on sampled frames. Strict low-confidence gating was restored, and the UI no longer treats frame/export completion as verified visual cleanup. The user's pictured fight-video MP4 was not available for exact frame review.

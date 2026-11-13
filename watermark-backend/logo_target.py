@@ -149,8 +149,8 @@ def measure_alpha_and_polarity(frame, box) -> tuple[float, bool]:
     center_pixels = crop[center_mask]      # shape (N, 3)
     border_pixels = crop[border_mask]      # shape (M, 3)
 
-    mean_center = center_pixels.mean(axis=0)   # BGR at watermark center
-    mean_border = border_pixels.mean(axis=0)   # BGR at background ring
+    mean_center = np.median(center_pixels, axis=0)   # BGR at watermark center
+    mean_border = np.median(border_pixels, axis=0)   # BGR at background ring (median prevents outlier skew)
 
     # Determine polarity
     brightness_diff = float(mean_center.mean()) - float(mean_border.mean())
