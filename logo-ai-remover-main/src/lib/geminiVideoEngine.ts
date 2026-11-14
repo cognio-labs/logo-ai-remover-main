@@ -155,6 +155,48 @@ async function auditExportRegion(
   }
 }
 
+async function readVideoShape(
+  blob: Blob,
+  signal?: AbortSignal,
+): Promise<{
+  duration: number;
+  width: number;
+  height: number;
+}> {
+  const url = URL.createObjectURL(blob);
+  const video = document.createElement("video");
+  video.preload = "metadata";
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const timeout = window.setTimeout(
+        () => finish(new Error("Video metadata timed out.")),
+        15000,
+      );
+      const finish = (error?: Error) => {
+        window.clearTimeout(timeout);
+        video.removeEventListener("loadedmetadata", loaded);
+        video.removeEventListener("error", failed);
+        signal?.removeEventListener("abort", aborted);
+        if (error) reject(error);
+        else resolve();
+      };
+      const loaded = () => finish();
+      const failed = () => finish(new Error("Exported video cannot be decoded."));
+      const aborted = () => finish(new DOMException("Aborted", "AbortError"));
+      video.addEventListener("loadedmetadata", loaded);
+      video.addEventListener("error", failed);
+      signal?.addEventListener("abort", aborted, { once: true });
+      if (signal?.aborted) aborted();
+      else video.src = url;
+    });
+    return { duration: video.duration, width: video.videoWidth, height: video.videoHeight };
+  } finally {
+    video.removeAttribute("src");
+    video.load();
+    URL.revokeObjectURL(url);
+  }
+}
+
 export type ProcessedFramePreview = {
   url: string;
   applied: boolean;
@@ -324,7 +366,6 @@ function mapProgress(engineWindow: EngineWindow, doc: Document): GeminiVideoProg
     ? Number(raw?.processedFrames)
     : null;
   const frameEstimate = Number.isFinite(raw?.frameEstimate) ? Number(raw?.frameEstimate) : null;
-  const status = doc.getElementById("status")?.textContent?.trim() || "Processing locally…";
 
   if (!raw) {
     return {
@@ -345,19 +386,21 @@ function mapProgress(engineWindow: EngineWindow, doc: Document): GeminiVideoProg
     };
   }
   if (upstreamPhase === "export") {
-    const count =
-      processedFrames === null
-        ? ""
-        : ` — ${processedFrames}${frameEstimate ? ` / ${frameEstimate}` : ""} frames`;
     return {
       phase: progress > 0.94 ? "encoding" : "processing",
       progress,
       processedFrames,
       frameEstimate,
-      message: `Processing and encoding locally${count}`,
+      message: "Cleaning and encoding your video",
     };
   }
-  return { phase: "analyzing", progress, processedFrames, frameEstimate, message: status };
+  return {
+    phase: "analyzing",
+    progress,
+    processedFrames,
+    frameEstimate,
+    message: "Analyzing your video",
+  };
 }
 
 export async function processWithGeminiEngine(
@@ -370,14 +413,29 @@ export async function processWithGeminiEngine(
   const doc = documentFor(frame);
   const engineWindow = windowFor(frame);
 
-  // Use the native AI auto preset policy from d:\remove (AI FDnCNN ONNX / footprint polish)
-  engineWindow.__gwrVideoOverrideAllowLowConfidence = true;
+  // Reject weak detections instead of modifying unrelated image detail.
+  engineWindow.__gwrVideoOverrideAllowLowConfidence = false;
+  // Test adaptive reverse-alpha with restrained footprint cleanup; this aims
+  // to avoid the visible halo without smearing nearby scene edges.
+  engineWindow.__gwrVideoOverrideAdaptiveAlpha = true;
+  engineWindow.__gwrVideoOverrideDenoiseBackend = "canvas-footprint-polish";
+  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 1;
+  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 1.2;
   engineWindow.__gwrVideoOverrideBitrate = 20_000_000;
 
   // Mirror direct input state into the iframe form
   try {
     const allowLowInput = doc.getElementById("allowLowConfidence") as HTMLInputElement | null;
-    if (allowLowInput) allowLowInput.checked = true;
+    if (allowLowInput) allowLowInput.checked = false;
+    const denoiseInput = doc.getElementById("denoiseBackend") as HTMLSelectElement | null;
+    if (denoiseInput) {
+      denoiseInput.value = "canvas-footprint-polish";
+      denoiseInput.dispatchEvent(new engineWindow.Event("change", { bubbles: true }));
+    }
+    const edgeInput = doc.getElementById("edgeDenoiseStrength") as HTMLInputElement | null;
+    if (edgeInput) edgeInput.value = "1";
+    const residualInput = doc.getElementById("residualCleanup") as HTMLInputElement | null;
+    if (residualInput) residualInput.value = "1.2";
     const bitrateInput = doc.getElementById("videoBitrateMbps") as HTMLInputElement | null;
     if (bitrateInput) {
       bitrateInput.value = "20";
@@ -420,6 +478,24 @@ export async function processWithGeminiEngine(
         throw new Error("The local engine returned an invalid MP4 export.");
       }
       const finalRaw = engineWindow.__gwrVideoCliProgress;
+      if (!finalRaw?.processedFrames || finalRaw.processedFrames < 1) {
+        throw new Error("No video frames were exported.");
+      }
+      const [sourceShape, outputShape] = await Promise.all([
+        readVideoShape(file, signal),
+        readVideoShape(blob, signal),
+      ]);
+      if (
+        !Number.isFinite(sourceShape.duration) ||
+        !Number.isFinite(outputShape.duration) ||
+        outputShape.duration <= 0 ||
+        outputShape.width !== sourceShape.width ||
+        outputShape.height !== sourceShape.height ||
+        Math.abs(outputShape.duration - sourceShape.duration) >
+          Math.max(0.25, sourceShape.duration * 0.01)
+      ) {
+        throw new Error("Export duration or dimensions do not match the original video.");
+      }
       const detection = doc.getElementById("detection")?.textContent?.trim() || "";
       const qualityAudit = await auditExportRegion(file, blob, detection, signal);
       if (qualityAudit.status === "unchanged") {

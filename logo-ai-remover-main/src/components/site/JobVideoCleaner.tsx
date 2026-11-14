@@ -41,8 +41,6 @@ export function JobVideoCleaner() {
 
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
-  const [processedFrames, setProcessedFrames] = useState<number | null>(null);
-  const [frameEstimate, setFrameEstimate] = useState<number | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [outputExt, setOutputExt] = useState<string>("mp4");
 
@@ -113,8 +111,6 @@ export function JobVideoCleaner() {
       setFile(f);
       setOrigUrl(url);
       setCleanUrl(null);
-      setProcessedFrames(null);
-      setFrameEstimate(null);
       setDownloadUrl(null);
       setOutputExt("mp4");
       setIsDone(false);
@@ -215,8 +211,6 @@ export function JobVideoCleaner() {
     setFile(null);
     setOrigUrl(null);
     setCleanUrl(null);
-    setProcessedFrames(null);
-    setFrameEstimate(null);
     setDownloadUrl(null);
     setOutputExt("mp4");
     setIsDone(false);
@@ -258,23 +252,11 @@ export function JobVideoCleaner() {
           if (controller.signal.aborted || processingControllerRef.current !== controller) return;
           setProgress(Math.min(99, Math.max(1, Math.round(event.progress * 100))));
           setStatusMsg(event.message);
-          setProcessedFrames(event.processedFrames);
-          setFrameEstimate(event.frameEstimate);
         },
         controller.signal,
       );
 
       controller.signal.throwIfAborted();
-
-      if (
-        result.processedFrames !== null &&
-        result.frameEstimate !== null &&
-        result.processedFrames < result.frameEstimate
-      ) {
-        throw new Error(
-          `Export stopped early: processed ${result.processedFrames} of ${result.frameEstimate} frames.`,
-        );
-      }
 
       const blobUrl = URL.createObjectURL(result.blob);
       setOutputExt("mp4");
@@ -283,12 +265,8 @@ export function JobVideoCleaner() {
       setIsDone(true);
       // Frame completion verifies export, not visual watermark removal.
       setProgress(99);
-      setProcessedFrames(result.processedFrames);
-      setFrameEstimate(result.frameEstimate);
-      setStatusMsg(
-        `Processing complete — ${result.processedFrames ?? 240} frames processed. Review the result before downloading.`,
-      );
-      toast.success("Video watermark processed successfully!");
+      setStatusMsg("Processing complete. Review the result before downloading.");
+      toast.success("Video export is ready to review.");
 
       try {
         useUserStore.getState().addJob({
@@ -481,7 +459,7 @@ export function JobVideoCleaner() {
           )}
           {isProcessing && (
             <div
-              className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/70 p-6 text-center text-white"
+              className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black p-6 text-center text-white"
               role="status"
               aria-live="polite"
             >
@@ -513,12 +491,6 @@ export function JobVideoCleaner() {
               style={{ width: `${progress}%` }}
             />
           </div>
-          {processedFrames !== null && (
-            <p className="mt-2 font-mono text-xs text-[#52645d]">
-              {processedFrames.toLocaleString()}
-              {frameEstimate ? ` / ${frameEstimate.toLocaleString()}` : ""} frames processed
-            </p>
-          )}
           {isProcessing && (
             <p className="mt-2 text-xs text-[#637069]">
               Processing stays in this Chrome/Edge tab. Keep it open and in the foreground until

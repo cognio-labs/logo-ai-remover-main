@@ -18,7 +18,6 @@ import {
 import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
 import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
-import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
@@ -381,29 +380,6 @@ export default function GeminiVideoRemoverPage() {
             </h2>
           </div>
 
-          {/* Main showcase demo image */}
-          <div className="relative rounded-3xl overflow-hidden border border-[#10241e]/15 shadow-xl mb-8 bg-white">
-            <img
-              src="/gemini-video-demo.jpg"
-              alt="Gemini watermark removal before and after"
-              className="w-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-5 left-5 right-5 flex flex-wrap items-end justify-between gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-xs font-bold text-[#10241e] border border-white/50 shadow-sm">
-                  <img src="/gemini-logo.png" alt="" className="size-3.5" />
-                  Gemini watermark visible in source
-                </div>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#10241e] text-[#d0f471] backdrop-blur-md text-xs font-bold shadow-sm">
-                  <ShieldCheck className="size-3.5" />
-                  Cleanly removed in output
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Feature cards — 2x2 bento grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
@@ -508,71 +484,7 @@ export default function GeminiVideoRemoverPage() {
         </div>
       </section>
 
-      {/* 5. USER'S VEO FRAME SPOTLIGHT (From D:\videoframe_375.png) */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#f3f4ee] border-b border-[#10241e]/10">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#10241e] bg-white px-3 py-1 rounded-full border border-[#10241e]/15">
-              Google Veo Claymation Model
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-bold text-[#10241e] tracking-tight pt-2">
-              Clean High-Detail AI Claymation & Animation
-            </h2>
-            <p className="text-sm sm:text-base text-[#37433d] leading-relaxed">
-              Notice the Google Gemini star mark in the lower right of the windshield. Our neural
-              in-painting erases the mark while preserving the girl's hand, wheel, and palm tree
-              motion.
-            </p>
-          </div>
-
-          <div className="rounded-3xl overflow-hidden border border-[#10241e]/15 shadow-2xl bg-white p-4 sm:p-6 space-y-6">
-            <div className="relative rounded-2xl overflow-hidden">
-              <BeforeAfterSlider
-                beforeSrc="/videoframe_375_watermarked.png"
-                src="/videoframe_375_clean.png"
-                labelBefore="Veo Claymation (✦ Official Gemini Logo)"
-                labelAfter="Cleaned Result (100% Logo Free)"
-                badge="✦ Gemini Inpainting"
-              />
-            </div>
-
-            {/* Bottom Controls & Downloads */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-[#10241e]/10 px-2">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f3f4ee] border border-[#10241e]/15 text-xs font-bold text-[#10241e]">
-                  <img src="/gemini-logo.png" alt="Gemini Logo" className="size-4 object-contain" />
-                  <span>Google Gemini Logo Embedded</span>
-                </div>
-                <span className="text-xs text-[#52645d] font-medium hidden md:inline">
-                  Drag the slider to see the Gemini logo erase cleanly.
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <a
-                  href="/videoframe_375_watermarked.png"
-                  download="gemini-veo-claymation-watermarked.png"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-[#10241e]/20 bg-white text-[#10241e] hover:bg-[#f3f4ee] transition-all shadow-xs"
-                >
-                  <Download className="size-3.5 text-[#10241e]" />
-                  <span>Download Watermarked PNG</span>
-                </a>
-
-                <a
-                  href="/videoframe_375_clean.png"
-                  download="gemini-veo-claymation-clean.png"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#10241e] text-[#d0f471] hover:bg-[#18362d] transition-all shadow-xs"
-                >
-                  <Sparkles className="size-3.5" />
-                  <span>Download Clean PNG</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FAQ: Clear Answers */}
+      {/* 5. FAQ: Clear Answers */}
       <section className="border-b border-[#10241e]/10 bg-white px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>

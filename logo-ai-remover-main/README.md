@@ -8,8 +8,12 @@ automatically. The page uses the bundled, MIT-licensed
 `@pilio/gemini-watermark-remover` WebCodecs/MediaBunny engine and calibrated alpha
 maps. It rejects low-confidence matches and leaves the original file unchanged.
 The uploader, live processing status, and playable MP4 result use the same video
-box. Frame progress comes from the local engine; the UI holds at 99% after
-export because frame count and MP4 validity do not verify visual cleanup.
+box. During processing the source picture and frame counts are hidden. The engine
+processes every decoded source frame, including clips with more than 500 frames;
+it does not invent extra frames for shorter clips. Its frame count is only an
+estimate, so export validation checks MP4 decoding, duration, dimensions, and
+sampled watermark-region changes instead of demanding an exact estimate match.
+The UI holds at 99% after export because these checks do not verify perfect visual cleanup.
 Review the full result before use: no watermark removal method can guarantee a
 perfect result for every frame or unsupported mark.
 The exported MP4 is re-encoded, so pixel identity outside the mark cannot be
