@@ -242,12 +242,13 @@ async function waitUntil(
   predicate: () => boolean,
   timeoutMs: number,
   signal?: AbortSignal,
+  timeoutMessage = "Local video processing timed out.",
 ): Promise<void> {
   const started = performance.now();
   while (!predicate()) {
     signal?.throwIfAborted();
     if (performance.now() - started > timeoutMs) {
-      throw new Error("Local video processing timed out.");
+      throw new Error(timeoutMessage);
     }
     await sleep(100);
   }
@@ -310,15 +311,29 @@ export async function createProcessedFramePreview(
   };
 }
 
-export async function waitForGeminiEngine(frame: HTMLIFrameElement): Promise<void> {
-  await waitUntil(() => {
-    try {
-      const doc = documentFor(frame);
-      return Boolean(doc.getElementById("fileInput") && doc.getElementById("processBtn"));
-    } catch {
-      return false;
-    }
-  }, 20_000);
+export async function waitForGeminiEngine(
+  frame: HTMLIFrameElement,
+  signal?: AbortSignal,
+): Promise<void> {
+  await waitUntil(
+    () => {
+      try {
+        const doc = documentFor(frame);
+        // The controls exist before the blocking video-app.js script has executed.
+        // Sending the change event earlier loses the upload and later times out.
+        return Boolean(
+          doc.readyState === "complete" &&
+          doc.getElementById("fileInput") &&
+          doc.getElementById("processBtn"),
+        );
+      } catch {
+        return false;
+      }
+    },
+    45_000,
+    signal,
+    "The local video engine did not finish loading. Reload the page and try again.",
+  );
 }
 
 export async function loadVideoIntoGeminiEngine(
@@ -327,7 +342,7 @@ export async function loadVideoIntoGeminiEngine(
   signal?: AbortSignal,
 ): Promise<void> {
   assertBrowserVideoSupport();
-  await waitForGeminiEngine(frame);
+  await waitForGeminiEngine(frame, signal);
   signal?.throwIfAborted();
 
   const doc = documentFor(frame);
@@ -351,10 +366,17 @@ export async function loadVideoIntoGeminiEngine(
   await waitUntil(
     () => {
       const video = doc.getElementById("originalVideo") as HTMLVideoElement | null;
+      const status = doc.getElementById("status");
+      if (status?.getAttribute("data-tone") === "error") {
+        throw new Error(
+          status.textContent?.trim() || "The local engine could not open this video.",
+        );
+      }
       return Boolean(video?.src && video.readyState >= HTMLMediaElement.HAVE_METADATA);
     },
     30_000,
     signal,
+    "The local engine could not prepare this video. Check the file format and try again.",
   );
 }
 

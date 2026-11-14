@@ -7,13 +7,15 @@ original MP4, MOV, WebM, or MKV file up to 100 MB; detection and processing star
 automatically. The page uses the bundled, MIT-licensed
 `@pilio/gemini-watermark-remover` WebCodecs/MediaBunny engine and calibrated alpha
 maps. It rejects low-confidence matches and leaves the original file unchanged.
-The uploader, live processing status, and playable MP4 result use the same video
-box. During processing the source picture and frame counts are hidden. The engine
+The uploader and live processing status use one video box. After export, a
+draggable before/after player compares the original with the processed MP4 at
+the same playback position. During processing the source picture and frame counts are hidden. The engine
 processes every decoded source frame, including clips with more than 500 frames;
 it does not invent extra frames for shorter clips. Its frame count is only an
 estimate, so export validation checks MP4 decoding, duration, dimensions, and
 sampled watermark-region changes instead of demanding an exact estimate match.
-The UI holds at 99% after export because these checks do not verify perfect visual cleanup.
+The processing progress is replaced by a review state after export because these
+checks do not verify perfect visual cleanup.
 Review the full result before use: no watermark removal method can guarantee a
 perfect result for every frame or unsupported mark.
 The exported MP4 is re-encoded, so pixel identity outside the mark cannot be

@@ -17,8 +17,10 @@ import {
   VolumeX,
   Sparkles,
   AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
 import {
   assertBrowserVideoSupport,
   cancelGeminiEngine,
@@ -37,7 +39,6 @@ function fmt(t: number): string {
 
 export function JobVideoCleaner() {
   const [file, setFile] = useState<File | null>(null);
-  const paneRef = useRef<HTMLDivElement>(null);
 
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
@@ -64,7 +65,6 @@ export function JobVideoCleaner() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const origVideoRef = useRef<HTMLVideoElement>(null);
-  const procVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     return () => {
@@ -153,18 +153,18 @@ export function JobVideoCleaner() {
 
   // Synchronized Playback
   const playBoth = () => {
-    const video = procVideoRef.current || origVideoRef.current;
+    const video = origVideoRef.current;
     video?.play().catch(() => {});
     setIsPlaying(true);
   };
 
   const pauseBoth = () => {
-    (procVideoRef.current || origVideoRef.current)?.pause();
+    origVideoRef.current?.pause();
     setIsPlaying(false);
   };
 
   const togglePlay = () => {
-    const video = procVideoRef.current || origVideoRef.current;
+    const video = origVideoRef.current;
     if (!video) return;
     if (video.paused) {
       playBoth();
@@ -174,7 +174,7 @@ export function JobVideoCleaner() {
   };
 
   const handleTimeUpdate = () => {
-    const video = procVideoRef.current || origVideoRef.current;
+    const video = origVideoRef.current;
     if (!video) return;
     setCurrentTime(video.currentTime);
     const dur = video.duration || 0;
@@ -186,7 +186,7 @@ export function JobVideoCleaner() {
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     setSeekValue(val);
-    const video = procVideoRef.current || origVideoRef.current;
+    const video = origVideoRef.current;
     const dur = video?.duration || 0;
     const targetTime = (val / 1000) * dur;
     if (video) video.currentTime = targetTime;
@@ -194,7 +194,7 @@ export function JobVideoCleaner() {
   };
 
   const toggleMute = () => {
-    const video = procVideoRef.current || origVideoRef.current;
+    const video = origVideoRef.current;
     if (video) {
       video.muted = !isMuted;
       setIsMuted(!isMuted);
@@ -227,6 +227,11 @@ export function JobVideoCleaner() {
   // Browser-local WebCodecs + MediaBunny processing via the official MIT runtime.
   const handleProcess = async () => {
     if (!file || !origUrl) return;
+    // The engine has one mutable job slot. A second call would revoke the
+    // first job's blob URL while its result is being validated.
+    if (processingControllerRef.current && !processingControllerRef.current.signal.aborted) {
+      return;
+    }
     const engineFrame = engineFrameRef.current;
     if (!engineFrame) {
       toast.error("The local video engine is still loading. Please try again.");
@@ -234,7 +239,6 @@ export function JobVideoCleaner() {
     }
 
     const controller = new AbortController();
-    processingControllerRef.current?.abort();
     processingControllerRef.current = controller;
     setIsProcessing(true);
     setIsError(false);
@@ -419,32 +423,45 @@ export function JobVideoCleaner() {
   /* -------------------------------------------------------------------------- */
   return (
     <div className="w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left">
-      {/* One player for the original, live scan, and processed result. */}
-      <div className="overflow-hidden rounded-2xl border border-[#10241e]/15 bg-black">
-        <div
-          ref={paneRef}
-          className="relative flex aspect-video items-center justify-center overflow-hidden bg-black"
-        >
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-black/85 px-3 py-1 text-xs font-bold text-white">
-            {isDone
-              ? "Processed result"
-              : isProcessing
-                ? "Scanning original video"
-                : "Original video"}
-          </span>
-          {isDone && cleanUrl ? (
-            <video
-              ref={procVideoRef}
-              src={cleanUrl}
-              playsInline
-              preload="auto"
-              className="h-full w-full cursor-pointer bg-black object-contain"
-              onClick={togglePlay}
-              onLoadedMetadata={() => setDuration(procVideoRef.current?.duration || 0)}
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={() => setIsPlaying(false)}
-            />
-          ) : (
+      {isDone && cleanUrl && (
+        <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] px-5 py-4 sm:px-6">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d0f471] text-[#10241e]">
+              <CheckCircle2 className="size-5" />
+            </span>
+            <div>
+              <h3 className="text-lg font-bold text-[#10241e]">Your processed video is ready</h3>
+              <p className="mt-1 text-sm text-[#4e5f55]">
+                Drag the line to compare the same moment before and after cleanup. Play or scrub
+                through the full clip to check the watermark area.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDone && cleanUrl ? (
+        <VideoCompareSlider
+          beforeSrc={origUrl}
+          afterSrc={cleanUrl}
+          beforeLabel="Original"
+          afterLabel="Processed"
+          defaultFit="contain"
+          autoPlay={false}
+          loop={false}
+          controlsOutside
+          className="border-[#10241e]/15 shadow-none"
+        />
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-[#10241e]/15 bg-black">
+          <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-black">
+            <span className="absolute left-3 top-3 z-10 rounded-full bg-black/85 px-3 py-1 text-xs font-bold text-white">
+              {isDone
+                ? "Processed result"
+                : isProcessing
+                  ? "Scanning original video"
+                  : "Original video"}
+            </span>
             <video
               ref={origVideoRef}
               src={origUrl}
@@ -456,30 +473,30 @@ export function JobVideoCleaner() {
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
             />
-          )}
-          {isProcessing && (
-            <div
-              className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black p-6 text-center text-white"
-              role="status"
-              aria-live="polite"
-            >
-              <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-[#d0f471]/50 bg-[#10241e]">
-                <div className="size-9 animate-spin rounded-full border-[3px] border-transparent border-t-[#d0f471] motion-reduce:animate-none" />
+            {isProcessing && (
+              <div
+                className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black p-6 text-center text-white"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-[#d0f471]/50 bg-[#10241e]">
+                  <div className="size-9 animate-spin rounded-full border-[3px] border-transparent border-t-[#d0f471] motion-reduce:animate-none" />
+                </div>
+                <strong className="text-base sm:text-lg">Scanning and cleaning video</strong>
+                <span className="mt-2 max-w-md text-sm text-white/80">{statusMsg}</span>
+                <div className="mt-5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/25">
+                  <div
+                    className="h-full rounded-full bg-[#d0f471] transition-[width] duration-200"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <span className="mt-2 font-mono text-xs text-[#d0f471]">{progress}%</span>
               </div>
-              <strong className="text-base sm:text-lg">Scanning and cleaning video</strong>
-              <span className="mt-2 max-w-md text-sm text-white/80">{statusMsg}</span>
-              <div className="mt-5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/25">
-                <div
-                  className="h-full rounded-full bg-[#d0f471] transition-[width] duration-200"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <span className="mt-2 font-mono text-xs text-[#d0f471]">{progress}%</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-      {(isProcessing || isDone) && (
+      )}
+      {isProcessing && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-4">
           <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]">
             <span>{statusMsg}</span>
@@ -501,39 +518,45 @@ export function JobVideoCleaner() {
       )}
 
       {/* Playback Control Bar */}
-      <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f3f4ee] rounded-2xl border border-[#10241e]/15">
-        <button
-          type="button"
-          onClick={togglePlay}
-          className="size-11 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] shadow-md flex items-center justify-center transition-all cursor-pointer shrink-0"
-          title={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
-        </button>
+      {!isDone && (
+        <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f3f4ee] rounded-2xl border border-[#10241e]/15">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="size-11 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] shadow-md flex items-center justify-center transition-all cursor-pointer shrink-0"
+            title={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
+          </button>
 
-        <input
-          type="range"
-          min={0}
-          max={1000}
-          value={seekValue}
-          onChange={handleSeek}
-          className="flex-1 accent-[#10241e] cursor-pointer h-2 bg-gray-300 rounded-lg"
-          aria-label="Seek video position"
-        />
+          <input
+            type="range"
+            min={0}
+            max={1000}
+            value={seekValue}
+            onChange={handleSeek}
+            className="flex-1 accent-[#10241e] cursor-pointer h-2 bg-gray-300 rounded-lg"
+            aria-label="Seek video position"
+          />
 
-        <span className="min-w-[84px] text-right font-mono text-xs sm:text-sm font-semibold text-[#10241e]">
-          {fmt(currentTime)} / {fmt(duration)}
-        </span>
+          <span className="min-w-[84px] text-right font-mono text-xs sm:text-sm font-semibold text-[#10241e]">
+            {fmt(currentTime)} / {fmt(duration)}
+          </span>
 
-        <button
-          type="button"
-          onClick={toggleMute}
-          className="size-8 rounded-lg bg-white border border-[#10241e]/15 text-[#10241e] hover:bg-[#e9ece4] flex items-center justify-center transition-all cursor-pointer"
-          title={isMuted ? "Unmute" : "Mute"}
-        >
-          {isMuted ? <VolumeX className="size-4 text-[#10241e]" /> : <Volume2 className="size-4" />}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="size-8 rounded-lg bg-white border border-[#10241e]/15 text-[#10241e] hover:bg-[#e9ece4] flex items-center justify-center transition-all cursor-pointer"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? (
+              <VolumeX className="size-4 text-[#10241e]" />
+            ) : (
+              <Volume2 className="size-4" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Error Message Box (Clean, friendly, non-technical) */}
       {isError && (
