@@ -812,12 +812,12 @@ export default function GeminiImageWatermarkRemoverPage() {
   return (
     <div className="gemini-page min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-28 selection:bg-[#d0f471] selection:text-[#091712]">
       <div className="gemini-scroll-progress" style={{ width: `${scrollProgress}%` }} aria-hidden="true" />
-      {/* ── 1. HERO SECTION & INTEGRATED WORKSPACE ── */}
-      <section className="relative pt-10 pb-16 sm:pt-14 sm:pb-20 px-4 sm:px-6 lg:px-8 bg-transparent">
-        <div className={`mx-auto ${currentItem ? "max-w-7xl" : "max-w-6xl"}`}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-            {/* Left Copy & Action Panel */}
-            <div className={`${currentItem ? "lg:col-span-5" : "lg:col-span-6"} space-y-6`}>
+      {/* ── 1. HERO SECTION & SINGLE WORKSPACE CONTAINER ── */}
+      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-transparent">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Copy (Constant across all states — never changes or sprouts extra cards) */}
+            <div className="lg:col-span-6 space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-sm">
                 <Sparkles className="size-4 text-[#10241e]" />
                 <span className="text-xs sm:text-sm font-bold text-[#10241e] tracking-wider uppercase font-mono">
@@ -825,126 +825,20 @@ export default function GeminiImageWatermarkRemoverPage() {
                 </span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#10241e] leading-[1.08]">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#10241e] leading-[1.06]">
                 Take the sparkle off your{" "}
                 <span className="underline decoration-[#d0f471] decoration-wavy decoration-4">
                   Gemini images.
                 </span>
               </h1>
 
-              <p className="text-base sm:text-xl text-[#37433d] font-normal leading-relaxed">
-                {currentItem
-                  ? "Inspect the corner restoration in real time. Compare before and after with the interactive slider, then export in original resolution."
-                  : "Drop in a picture, aim the box at the corner mark, and get a clean copy at the exact same resolution. Preview your image, then process it to remove the corner mark."}
+              <p className="text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed max-w-xl">
+                Drop in a picture, aim the box at the corner mark, and get a clean copy at the exact same resolution.
+                Preview your image, then process it to remove the corner mark.
               </p>
 
-              {/* When currentItem is loaded: Compact Action Card with downloads */}
-              {currentItem ? (
-                <div className="rounded-3xl border border-[#10241e]/15 bg-white p-5 sm:p-6 shadow-xl space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-[#10241e]/10 bg-[#f3f4ee] px-3 py-1.5 text-xs font-bold text-[#10241e]">
-                      <FileCheck2 className="size-4 text-[#10241e]" />
-                      <span>{currentItem.afterURL ? "Restoration complete" : "Image ready to scan"}</span>
-                    </div>
-                    <span className="text-xs font-mono font-semibold text-[#637069]">
-                      {currentItem.width} × {currentItem.height} px
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] tracking-tight truncate" title={currentItem.name}>
-                      {currentItem.afterURL ? "Your clean image is ready" : currentItem.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#637069] mt-1 truncate">
-                      {currentItem.name} · {items.length} image{items.length > 1 ? "s" : ""} selected
-                    </p>
-                  </div>
-
-                  {validationError && (
-                    <p className="flex items-center gap-2 text-sm font-semibold text-rose-700">
-                      <AlertCircle className="size-4" />
-                      {validationError}
-                    </p>
-                  )}
-
-                  {/* Download buttons when processed */}
-                  {currentItem.afterURL && (
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => downloadCleanImage(currentItem, "png")}
-                          className="gemini-download-button flex-1 rounded-2xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-5 py-3.5 font-bold text-sm sm:text-base inline-flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer"
-                          style={{ color: "#d0f471", backgroundColor: "#10241e" }}
-                        >
-                          <Download className="size-4 text-[#d0f471]" style={{ color: "#d0f471" }} />
-                          <span style={{ color: "#d0f471" }}>Download PNG</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => downloadCleanImage(currentItem, "jpeg")}
-                          className="gemini-download-secondary rounded-2xl border border-[#10241e]/20 bg-white hover:bg-[#f3f4ee] text-[#10241e] px-4 py-3.5 font-bold text-sm sm:text-base shadow-xs transition-colors cursor-pointer"
-                          style={{ color: "#10241e", backgroundColor: "#ffffff" }}
-                        >
-                          <span style={{ color: "#10241e" }}>JPEG</span>
-                        </button>
-                      </div>
-
-                      {items.filter((item) => item.afterURL).length > 1 && (
-                        <button
-                          type="button"
-                          onClick={downloadAllImages}
-                          className="gemini-download-secondary w-full rounded-2xl border border-[#10241e]/20 bg-white hover:bg-[#f3f4ee] text-[#10241e] px-4 py-3 font-bold text-xs shadow-xs transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
-                          style={{ color: "#10241e", backgroundColor: "#ffffff" }}
-                        >
-                          <Download className="size-3.5 text-[#10241e]" />
-                          <span>Download All ({items.filter((item) => item.afterURL).length}) Clean Images</span>
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Scan & Clean Image button if not yet processed */}
-                  {items.some((item) => !item.afterURL || item.key !== `${sizePct}|${marginPct}`) && (
-                    <button
-                      type="button"
-                      disabled={isProcessing}
-                      onClick={processPendingImages}
-                      className="gemini-scan-button w-full rounded-2xl bg-[#d0f471] hover:bg-[#dbff83] text-[#10241e] px-6 py-4 font-bold text-base shadow-[0_12px_30px_rgba(208,244,113,.22)] transition cursor-pointer disabled:bg-[#a9c57a] disabled:text-[#42503d] disabled:cursor-wait inline-flex items-center justify-center gap-2"
-                      style={{ color: "#10241e", backgroundColor: "#d0f471" }}
-                    >
-                      {isProcessing ? (
-                        <>
-                          <span className="size-4 rounded-full border-2 border-[#10241e] border-t-transparent animate-spin" />
-                          <span>Scanning image...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="size-5 text-[#10241e]" />
-                          <span>Scan &amp; Clean Image</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Replace Image Action */}
-                  <div className="pt-2 flex items-center justify-between border-t border-[#10241e]/10">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="gemini-upper-button px-4 py-2 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] font-bold text-xs inline-flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
-                      style={{ color: "#d0f471", backgroundColor: "#10241e" }}
-                    >
-                      <RotateCcw className="size-3.5 text-[#d0f471]" style={{ color: "#d0f471" }} />
-                      <span style={{ color: "#d0f471" }}>Replace / Add Image</span>
-                    </button>
-                    <span className="text-[11px] text-[#637069]">AI-generated · local inpaint</span>
-                  </div>
-                </div>
-              ) : null}
-
               {/* 3 Value Points */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs">
                   <CheckCircle2 className="size-4 text-[#10241e]" /> No sign-up required
                 </span>
@@ -957,8 +851,8 @@ export default function GeminiImageWatermarkRemoverPage() {
               </div>
             </div>
 
-            {/* Right Column: Viewfinder Drop Box (when !currentItem) OR Image Workspace (when currentItem) */}
-            <div className={currentItem ? "lg:col-span-7" : "lg:col-span-6"}>
+            {/* Right: The SINGLE Upload, Preview, Process & Result Workspace */}
+            <div className="lg:col-span-6">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -971,8 +865,8 @@ export default function GeminiImageWatermarkRemoverPage() {
                 }}
               />
 
-              {!currentItem ? (
-                /* Viewfinder Dropzone */
+              {/* STATE 1: IDLE (No image selected yet) */}
+              {!currentItem && (
                 <div
                   onDragEnter={(e) => {
                     e.preventDefault();
@@ -1009,14 +903,14 @@ export default function GeminiImageWatermarkRemoverPage() {
                   </div>
 
                   <span className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-lg mb-5 group-hover:scale-105 transition-transform">
-                    <Upload className="size-9" />
+                    <Upload className="size-9 text-[#d0f471]" style={{ color: "#d0f471" }} />
                   </span>
 
-                  <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight" style={{ color: "#10241e" }}>
                     Drop Gemini images here
                   </h3>
 
-                  <p className="text-base text-[#37433d] mt-2 max-w-sm leading-relaxed">
+                  <p className="text-base text-[#37433d] mt-2 max-w-sm leading-relaxed" style={{ color: "#37433d" }}>
                     or paste directly with{" "}
                     <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
                       Ctrl+V
@@ -1033,14 +927,14 @@ export default function GeminiImageWatermarkRemoverPage() {
                       e.stopPropagation();
                       fileInputRef.current?.click();
                     }}
-                    className="gemini-upper-button mt-5 px-7 py-3 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] font-bold text-sm sm:text-base shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
-                    style={{ color: "#d0f471", backgroundColor: "#10241e" }}
+                    className="mt-5 px-7 py-3 rounded-full bg-[#10241e] hover:bg-[#18362d] text-white font-bold text-sm sm:text-base shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
+                    style={{ color: "#FFFFFF", backgroundColor: "#10241e" }}
                   >
-                    <Upload className="size-4 text-[#d0f471]" style={{ color: "#d0f471" }} />
-                    <span style={{ color: "#d0f471" }}>Choose image</span>
+                    <Upload className="size-4 text-white" style={{ color: "#FFFFFF" }} />
+                    <span style={{ color: "#FFFFFF" }}>Choose image</span>
                   </button>
 
-                  <span className="mt-4 text-xs font-mono font-medium text-[#637069]">
+                  <span className="mt-4 text-xs font-mono font-medium text-[#637069]" style={{ color: "#637069" }}>
                     PNG, JPG and WebP supported
                   </span>
 
@@ -1051,30 +945,53 @@ export default function GeminiImageWatermarkRemoverPage() {
                     </p>
                   )}
                 </div>
-              ) : (
-                /* The Image Workspace directly in Hero */
-                <div className="gemini-workspace overflow-hidden rounded-[2rem] border border-[#10241e]/15 bg-[#10241e] p-4 text-white shadow-2xl sm:p-6" aria-label="Image cleanup workspace">
-                  <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                      <span className="gemini-kicker text-xs font-mono font-bold tracking-widest uppercase" style={{ color: "#C4D0C8" }}>
-                        IMAGE WORKSPACE
-                      </span>
-                      <h2 className="mt-1 text-xl sm:text-2xl font-bold tracking-tight" style={{ color: "#FFFFFF" }}>
-                        Inspect the corner restoration.
-                      </h2>
-                      <p className="mt-0.5 text-xs sm:text-sm font-normal" style={{ color: "#E8EFE9" }}>
-                        Original pixels stay untouched. Compare the local result before exporting.
-                      </p>
+              )}
+
+              {/* STATES 2, 3, 4: UPLOADED / PROCESSING / COMPLETED IN THE SAME SINGLE CONTAINER */}
+              {currentItem && (
+                <div
+                  className="gemini-workspace overflow-hidden rounded-[2rem] border border-[#10241e]/15 bg-[#10241e] p-5 sm:p-6 text-white shadow-2xl transition-all"
+                  aria-label="Image cleanup workspace"
+                  style={{ backgroundColor: "#10241e", color: "#FFFFFF" }}
+                >
+                  {/* Top Bar inside the container */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                      {isProcessing ? (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d0f471]/20 border border-[#d0f471]/30 text-xs font-mono font-bold text-[#d0f471] shadow-xs"
+                          style={{ color: "#d0f471" }}
+                        >
+                          <span className="size-2 rounded-full bg-[#d0f471] animate-ping" />
+                          <span>Scanning watermark...</span>
+                        </span>
+                      ) : currentItem.afterURL ? (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-xs font-mono font-bold text-emerald-300 shadow-xs"
+                          style={{ color: "#6ee7b7" }}
+                        >
+                          <Check className="size-3.5 text-emerald-400" />
+                          <span>Restoration complete</span>
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-mono font-bold text-white shadow-xs"
+                          style={{ color: "#FFFFFF" }}
+                        >
+                          <FileCheck2 className="size-3.5 text-[#d0f471]" style={{ color: "#d0f471" }} />
+                          <span>Image ready to scan</span>
+                        </span>
+                      )}
                     </div>
-                    <div className="gemini-dimensions flex items-center gap-2 text-xs font-mono" style={{ color: "#C4D0C8" }}>
-                      <FileCheck2 className="size-4 text-[#d0f471]" style={{ color: "#d0f471" }} />
-                      <span style={{ color: "#E8EFE9" }}>{currentItem.width} × {currentItem.height} px</span>
+
+                    <div className="flex items-center gap-2 text-xs font-mono font-semibold" style={{ color: "#FFFFFF" }}>
+                      <span style={{ color: "#FFFFFF" }}>{currentItem.width} × {currentItem.height} px</span>
                     </div>
                   </div>
 
-                  {/* Batch Thumbnail Switcher if multiple images */}
+                  {/* Batch Switcher (if >1 images loaded) */}
                   {items.length > 1 && (
-                    <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                    <div className="pt-3 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                       {items.map((item, idx) => (
                         <button
                           key={item.id}
@@ -1082,62 +999,139 @@ export default function GeminiImageWatermarkRemoverPage() {
                           onClick={() => setCurrentIndex(idx)}
                           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shrink-0 cursor-pointer ${
                             idx === currentIndex
-                              ? "border-[#d0f471] bg-white/20 text-[#FFFFFF]"
-                              : "border-white/15 bg-white/5 text-[#C4D0C8] hover:bg-white/10 hover:text-[#FFFFFF]"
+                              ? "border-[#d0f471] bg-white/20 text-white"
+                              : "border-white/15 bg-white/5 text-[#C4D0C8] hover:bg-white/10 hover:text-white"
                           }`}
+                          style={{ color: "#FFFFFF" }}
                         >
                           <span className="size-2 rounded-full" style={{ backgroundColor: item.afterURL ? "#d0f471" : "#f59e0b" }} />
-                          <span className="max-w-[130px] truncate">{item.name}</span>
+                          <span className="max-w-[120px] truncate" style={{ color: "#FFFFFF" }}>{item.name}</span>
                         </button>
                       ))}
                     </div>
                   )}
 
-                  {isProcessing ? (
-                    <div className="gemini-scan-stage relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-[#d0f471]/25 bg-[#091712] sm:min-h-[440px]">
-                      <img
-                        src={currentItem.beforeURL}
-                        alt="Original image being scanned"
-                        className="absolute inset-0 size-full object-contain opacity-60"
-                      />
-                      <div className="gemini-scan-beam" />
-                      <div className="relative z-10 w-[min(90%,380px)] rounded-2xl border border-white/15 bg-[#10241e]/90 p-5 shadow-2xl backdrop-blur">
-                        <div className="flex items-center justify-between text-sm font-semibold" style={{ color: "#FFFFFF" }}>
-                          <span style={{ color: "#FFFFFF" }}>
-                            {[
-                              "Loading original image",
-                              "Analyzing image dimensions",
-                              "Detecting unwanted watermark artifacts",
-                              "Applying corner restoration",
-                              "Generating final clean preview",
-                            ][scanStage]}
-                          </span>
-                          <span className="text-[#d0f471]" style={{ color: "#d0f471" }}>{scanProgress}%</span>
-                        </div>
-                        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full bg-[#d0f471] transition-all duration-500"
-                            style={{ width: `${scanProgress}%` }}
-                          />
-                        </div>
-                        <div className="mt-4 grid gap-2 text-xs" style={{ color: "#C4D0C8" }}>
-                          {["Load", "Measure", "Detect", "Restore", "Preview"].map((label, index) => (
-                            <span
-                              key={label}
-                              className={index <= scanStage ? "text-[#d0f471] font-semibold" : ""}
-                              style={{ color: index <= scanStage ? "#d0f471" : "#C4D0C8" }}
-                            >
-                              {index < scanStage ? "✓" : index === scanStage ? "◉" : "○"} {label}
+                  {/* STATE 2: UPLOADED (Before Scan) */}
+                  {!isProcessing && !currentItem.afterURL && (
+                    <div className="pt-4 space-y-4">
+                      <div className="relative mx-auto aspect-video max-h-[48vh] overflow-hidden rounded-2xl bg-[#091712] border border-white/10 flex items-center justify-center shadow-inner">
+                        <img
+                          src={currentItem.beforeURL}
+                          alt="Uploaded image preview"
+                          className="size-full object-contain"
+                        />
+                        <span
+                          className="absolute left-3.5 top-3.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-md select-none pointer-events-none"
+                          style={{ color: "#FFFFFF", backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+                        >
+                          Before · Original
+                        </span>
+                      </div>
+
+                      <div className="text-xs font-mono text-[#C4D0C8] truncate" style={{ color: "#C4D0C8" }}>
+                        {currentItem.name} · {items.length} image{items.length > 1 ? "s" : ""} selected
+                      </div>
+
+                      {validationError && (
+                        <p className="flex items-center gap-2 text-sm font-semibold text-rose-300" style={{ color: "#fca5a5" }}>
+                          <AlertCircle className="size-4" />
+                          {validationError}
+                        </p>
+                      )}
+
+                      {/* Primary Button: Scan & Clean Image */}
+                      <button
+                        type="button"
+                        onClick={processPendingImages}
+                        className="w-full rounded-2xl bg-[#d0f471] hover:bg-[#dbff83] text-[#10241e] px-6 py-4 font-bold text-base shadow-[0_12px_30px_rgba(208,244,113,.25)] transition-all cursor-pointer inline-flex items-center justify-center gap-2"
+                        style={{ color: "#10241e", backgroundColor: "#d0f471" }}
+                      >
+                        <Sparkles className="size-5 text-[#10241e]" style={{ color: "#10241e" }} />
+                        <span style={{ color: "#10241e", fontWeight: "700" }}>Scan &amp; Clean Image</span>
+                      </button>
+
+                      {/* Secondary Actions: Replace Image & Remove */}
+                      <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                          style={{ color: "#FFFFFF" }}
+                        >
+                          <RotateCcw className="size-3.5 text-white" style={{ color: "#FFFFFF" }} />
+                          <span style={{ color: "#FFFFFF" }}>Replace Image</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newItems = items.filter((item) => item.id !== currentItem.id);
+                            setItems(newItems);
+                            if (currentIndex >= newItems.length) {
+                              setCurrentIndex(Math.max(0, newItems.length - 1));
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-400/30 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                          style={{ color: "#fca5a5" }}
+                        >
+                          <X className="size-3.5" style={{ color: "#fca5a5" }} />
+                          <span style={{ color: "#fca5a5" }}>Remove</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STATE 3: PROCESSING */}
+                  {isProcessing && (
+                    <div className="pt-4">
+                      <div className="gemini-scan-stage relative mx-auto aspect-video max-h-[48vh] flex items-center justify-center overflow-hidden rounded-2xl border border-[#d0f471]/30 bg-[#091712]">
+                        <img
+                          src={currentItem.beforeURL}
+                          alt="Original image being scanned"
+                          className="absolute inset-0 size-full object-contain opacity-50"
+                        />
+                        <div className="gemini-scan-beam" />
+                        <div className="relative z-10 w-[min(90%,360px)] rounded-2xl border border-white/20 bg-[#10241e]/95 p-5 shadow-2xl backdrop-blur">
+                          <div className="flex items-center justify-between text-sm font-semibold" style={{ color: "#FFFFFF" }}>
+                            <span style={{ color: "#FFFFFF" }}>
+                              {[
+                                "Loading original image",
+                                "Analyzing image dimensions",
+                                "Detecting watermark artifacts",
+                                "Applying corner restoration",
+                                "Generating final preview",
+                              ][scanStage]}
                             </span>
-                          ))}
+                            <span className="text-[#d0f471] font-bold" style={{ color: "#d0f471" }}>{scanProgress}%</span>
+                          </div>
+                          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                            <div
+                              className="h-full rounded-full bg-[#d0f471] transition-all duration-300"
+                              style={{ width: `${scanProgress}%` }}
+                            />
+                          </div>
+                          <div className="mt-4 grid gap-1.5 text-xs font-mono" style={{ color: "#FFFFFF" }}>
+                            {["Load", "Measure", "Detect", "Restore", "Preview"].map((label, index) => (
+                              <span
+                                key={label}
+                                className={index <= scanStage ? "text-[#d0f471] font-semibold" : "text-white/60"}
+                                style={{ color: index <= scanStage ? "#d0f471" : "#C4D0C8" }}
+                              >
+                                {index < scanStage ? "✓" : index === scanStage ? "◉" : "○"} {label}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  ) : currentItem.afterURL ? (
-                    <>
+                  )}
+
+                  {/* STATE 4: COMPLETED (Before/After Slider + Download Actions) */}
+                  {!isProcessing && currentItem.afterURL && (
+                    <div className="pt-4 space-y-4">
                       <div
                         ref={sliderRef}
-                        className="gemini-compare relative mx-auto aspect-video max-h-[65vh] overflow-hidden rounded-2xl bg-[#091712] select-none shadow-inner"
+                        className="gemini-compare relative mx-auto aspect-video max-h-[50vh] overflow-hidden rounded-2xl bg-[#091712] select-none shadow-inner border border-white/10"
                         onPointerMove={(event) => {
                           if (isDraggingSlider.current) updateSliderPos(event.clientX);
                         }}
@@ -1148,25 +1142,28 @@ export default function GeminiImageWatermarkRemoverPage() {
                           isDraggingSlider.current = false;
                         }}
                       >
+                        {/* After Image */}
                         <img
                           src={currentItem.afterURL}
-                          alt="After: sparkle cleaned image"
+                          alt="After: watermark removed"
                           className="absolute inset-0 size-full object-contain transition-transform duration-200"
                           style={{ transform: `scale(${zoom})` }}
                         />
+
+                        {/* Before Image with clipPath */}
                         <div
                           className="pointer-events-none absolute inset-0"
                           style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
                         >
                           <img
                             src={currentItem.beforeURL}
-                            alt="Before: original image with sparkle"
+                            alt="Before: original with watermark"
                             className="absolute inset-0 size-full object-contain"
                             style={{ transform: `scale(${zoom})` }}
                           />
                         </div>
 
-                        {/* Vertical Divider Line with handle */}
+                        {/* Draggable Divider Line & Handle */}
                         <div
                           className="absolute inset-y-0 z-10 w-0.5 bg-[#d0f471] shadow-[0_0_16px_#d0f471]"
                           style={{ left: `${sliderPos}%` }}
@@ -1174,7 +1171,7 @@ export default function GeminiImageWatermarkRemoverPage() {
                           <button
                             type="button"
                             aria-label="Drag before and after comparison"
-                            className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-[#10241e] bg-white text-[#10241e] shadow-[0_8px_25px_rgba(0,0,0,0.5)] transition-transform duration-150 hover:scale-110 active:scale-95"
+                            className="absolute left-1/2 top-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-[#10241e] bg-white text-[#10241e] shadow-[0_8px_25px_rgba(0,0,0,0.5)] transition-transform duration-150 hover:scale-110 active:scale-95"
                             onPointerDown={(event) => {
                               isDraggingSlider.current = true;
                               event.currentTarget.setPointerCapture(event.pointerId);
@@ -1190,76 +1187,121 @@ export default function GeminiImageWatermarkRemoverPage() {
 
                         {/* Corner Badges */}
                         <span
-                          className="gemini-before-badge absolute left-3.5 top-3.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-md select-none pointer-events-none"
-                          style={{ color: "#FFFFFF", backgroundColor: "rgba(0, 0, 0, 0.75)" }}
+                          className="gemini-before-badge absolute left-3.5 top-3.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-md select-none pointer-events-none"
+                          style={{ color: "#FFFFFF", backgroundColor: "rgba(0, 0, 0, 0.8)" }}
                         >
                           Before · Original
                         </span>
                         <span
-                          className="gemini-after-badge absolute right-3.5 top-3.5 rounded-full bg-[#d0f471] px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#10241e] shadow-md select-none pointer-events-none"
+                          className="gemini-after-badge absolute right-3.5 top-3.5 rounded-full bg-[#d0f471] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#10241e] shadow-md select-none pointer-events-none"
                           style={{ color: "#10241e", backgroundColor: "#d0f471" }}
                         >
                           After · Local Result
                         </span>
                       </div>
 
-                      {/* Bottom Toolbar */}
-                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
+                      {/* Slider Toolbar (Zoom Out, %, Zoom In, Reset, Fullscreen) */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
-                            className="gemini-icon-button inline-flex items-center justify-center size-9 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-[#E8EFE9] hover:text-white transition-all cursor-pointer shadow-sm"
+                            className="inline-flex items-center justify-center size-8 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer shadow-sm"
                             onClick={() => setZoom((value) => Math.max(1, value - 0.1))}
                             aria-label="Zoom out"
                             title="Zoom out"
-                            style={{ color: "#E8EFE9" }}
+                            style={{ color: "#FFFFFF" }}
                           >
-                            <ZoomOut className="size-4" style={{ color: "#E8EFE9" }} />
+                            <ZoomOut className="size-3.5" style={{ color: "#FFFFFF" }} />
                           </button>
                           <span
-                            className="gemini-zoom-text min-w-14 text-center text-xs font-mono font-bold"
+                            className="min-w-12 text-center text-xs font-mono font-bold"
                             style={{ color: "#FFFFFF" }}
                           >
                             {Math.round(zoom * 100)}%
                           </span>
                           <button
                             type="button"
-                            className="gemini-icon-button inline-flex items-center justify-center size-9 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-[#E8EFE9] hover:text-white transition-all cursor-pointer shadow-sm"
+                            className="inline-flex items-center justify-center size-8 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer shadow-sm"
                             onClick={() => setZoom((value) => Math.min(2.5, value + 0.1))}
                             aria-label="Zoom in"
                             title="Zoom in"
-                            style={{ color: "#E8EFE9" }}
+                            style={{ color: "#FFFFFF" }}
                           >
-                            <ZoomIn className="size-4" style={{ color: "#E8EFE9" }} />
+                            <ZoomIn className="size-3.5" style={{ color: "#FFFFFF" }} />
                           </button>
                           <button
                             type="button"
-                            className="gemini-icon-button inline-flex items-center justify-center size-9 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-[#E8EFE9] hover:text-white transition-all cursor-pointer shadow-sm"
+                            className="inline-flex items-center justify-center size-8 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer shadow-sm"
                             onClick={() => {
                               setZoom(1);
                               setSliderPos(50);
                             }}
                             aria-label="Reset comparison"
                             title="Reset comparison & zoom"
-                            style={{ color: "#E8EFE9" }}
+                            style={{ color: "#FFFFFF" }}
                           >
-                            <RotateCcw className="size-4" style={{ color: "#E8EFE9" }} />
+                            <RotateCcw className="size-3.5" style={{ color: "#FFFFFF" }} />
                           </button>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                          onClick={() => setFullscreen(true)}
+                          style={{ color: "#FFFFFF" }}
+                        >
+                          <Maximize2 className="size-3.5" style={{ color: "#FFFFFF" }} />
+                          <span style={{ color: "#FFFFFF" }}>Fullscreen</span>
+                        </button>
+                      </div>
+
+                      {/* Download & Replace Buttons */}
+                      <div className="space-y-2.5 pt-2 border-t border-white/10">
+                        <div className="flex flex-wrap gap-2.5">
                           <button
                             type="button"
-                            className="gemini-secondary-button inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-[#FFFFFF] hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
-                            onClick={() => setFullscreen(true)}
-                            style={{ color: "#FFFFFF" }}
+                            onClick={() => downloadCleanImage(currentItem, "png")}
+                            className="flex-1 rounded-2xl bg-[#d0f471] hover:bg-[#dbff83] text-[#10241e] px-5 py-3.5 font-bold text-sm sm:text-base inline-flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer"
+                            style={{ color: "#10241e", backgroundColor: "#d0f471" }}
                           >
-                            <Maximize2 className="size-4" style={{ color: "#FFFFFF" }} />
-                            <span style={{ color: "#FFFFFF" }}>Fullscreen</span>
+                            <Download className="size-4 text-[#10241e]" style={{ color: "#10241e" }} />
+                            <span style={{ color: "#10241e", fontWeight: "700" }}>Download PNG</span>
                           </button>
                           <button
                             type="button"
-                            className="gemini-secondary-button gemini-remove-button inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-rose-400/30 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                            onClick={() => downloadCleanImage(currentItem, "jpeg")}
+                            className="rounded-2xl border border-white/25 bg-white hover:bg-white/90 text-[#10241e] px-5 py-3.5 font-bold text-sm sm:text-base shadow-xs transition-colors cursor-pointer"
+                            style={{ color: "#10241e", backgroundColor: "#ffffff" }}
+                          >
+                            <span style={{ color: "#10241e", fontWeight: "700" }}>JPEG</span>
+                          </button>
+                        </div>
+
+                        {items.filter((item) => item.afterURL).length > 1 && (
+                          <button
+                            type="button"
+                            onClick={downloadAllImages}
+                            className="w-full rounded-2xl border border-white/20 bg-white/10 hover:bg-white/20 text-white px-4 py-3 font-bold text-xs shadow-xs transition-colors cursor-pointer inline-flex items-center justify-center gap-2"
+                            style={{ color: "#FFFFFF" }}
+                          >
+                            <Download className="size-3.5 text-white" />
+                            <span>Download All ({items.filter((item) => item.afterURL).length}) Clean Images</span>
+                          </button>
+                        )}
+
+                        <div className="flex items-center justify-between pt-1">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
+                            style={{ color: "#FFFFFF" }}
+                          >
+                            <RotateCcw className="size-3.5 text-white" style={{ color: "#FFFFFF" }} />
+                            <span style={{ color: "#FFFFFF" }}>Replace Image</span>
+                          </button>
+
+                          <button
+                            type="button"
                             onClick={() => {
                               const newItems = items.filter((item) => item.id !== currentItem.id);
                               setItems(newItems);
@@ -1267,27 +1309,14 @@ export default function GeminiImageWatermarkRemoverPage() {
                                 setCurrentIndex(Math.max(0, newItems.length - 1));
                               }
                             }}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-400/30 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-sm"
                             style={{ color: "#fca5a5" }}
                           >
-                            <X className="size-4" style={{ color: "#fca5a5" }} />
+                            <X className="size-3.5" style={{ color: "#fca5a5" }} />
                             <span style={{ color: "#fca5a5" }}>Remove</span>
                           </button>
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    <div className="gemini-original-preview relative mx-auto aspect-video max-h-[65vh] overflow-hidden rounded-2xl bg-[#091712]">
-                      <img
-                        src={currentItem.beforeURL}
-                        alt="Original uploaded image preview"
-                        className="absolute inset-0 size-full object-contain"
-                      />
-                      <span
-                        className="gemini-before-badge absolute left-3.5 top-3.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-md"
-                        style={{ color: "#FFFFFF", backgroundColor: "rgba(0,0,0,0.75)" }}
-                      >
-                        Before · Original
-                      </span>
                     </div>
                   )}
                 </div>

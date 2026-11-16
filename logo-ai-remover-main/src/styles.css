@@ -4308,3 +4308,39 @@ button[class*="bg-[#10241e]"] .text-white {
 .gemini-page .gemini-workspace .gemini-zoom-text {
   color: #FFFFFF !important;
 }
+
+
+/* Strict contrast overrides for Gemini Workspace */
+.gemini-workspace h2,
+.gemini-workspace h3,
+.gemini-workspace p,
+.gemini-workspace div {
+  color: #FFFFFF;
+}
+
+.gemini-workspace button {
+  color: #FFFFFF !important;
+}
+
+.gemini-workspace button svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+.gemini-workspace button[style*="#d0f471"],
+.gemini-workspace button[style*="208, 244, 113"],
+.gemini-workspace button[style*="#d0f471"] *,
+.gemini-workspace button[style*="208, 244, 113"] * {
+  color: #10241e !important;
+  stroke: #10241e !important;
+}
+
+.gemini-workspace .gemini-after-badge {
+  color: #10241e !important;
+  background-color: #d0f471 !important;
+}
+
+.gemini-workspace .gemini-before-badge {
+  color: #FFFFFF !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
