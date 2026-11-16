@@ -108,23 +108,23 @@ button.gemini-scan-button:disabled * {
 }
 
 /* ==========================================================================
-   Image Workspace (#10241e dark forest-green container) - Strict Contrast
+   Image Workspace (#000000 pure black container) - Strict Contrast
    ========================================================================== */
 .gemini-workspace {
-  color: #e8efe9 !important;
-}
-.gemini-workspace h2 {
+  background-color: #000000 !important;
   color: #FFFFFF !important;
 }
+.gemini-workspace h2,
+.gemini-workspace h3,
 .gemini-workspace p {
-  color: #E8EFE9 !important;
+  color: #FFFFFF !important;
 }
 .gemini-workspace .gemini-kicker {
-  color: #C4D0C8 !important;
+  color: #d0f471 !important;
 }
 .gemini-workspace .gemini-dimensions,
 .gemini-workspace .gemini-dimensions * {
-  color: #C4D0C8 !important;
+  color: #FFFFFF !important;
 }
 .gemini-workspace .gemini-dimensions .text-\[\#d0f471\] {
   color: #d0f471 !important;
@@ -133,11 +133,11 @@ button.gemini-scan-button:disabled * {
 /* Badges inside slider */
 .gemini-workspace .gemini-before-badge {
   color: #FFFFFF !important;
-  background-color: rgba(0, 0, 0, 0.75) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
 }
 .gemini-workspace .gemini-after-badge {
-  color: #10241e !important;
+  color: #000000 !important;
   background-color: #d0f471 !important;
 }
 
@@ -149,19 +149,19 @@ button.gemini-scan-button:disabled * {
 /* Toolbar Buttons (ZoomOut, ZoomIn, Reset, Fullscreen) */
 .gemini-workspace .gemini-icon-button,
 button.gemini-icon-button {
-  color: #E8EFE9 !important;
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+  background-color: #27272a !important;
+  border-color: #52525b !important;
 }
 .gemini-workspace .gemini-icon-button svg,
 button.gemini-icon-button svg {
-  color: #E8EFE9 !important;
-  stroke: #E8EFE9 !important;
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .gemini-workspace .gemini-icon-button:hover,
 button.gemini-icon-button:hover {
   color: #FFFFFF !important;
-  background-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: #3f3f46 !important;
   border-color: #d0f471 !important;
 }
 .gemini-workspace .gemini-icon-button:hover svg,
@@ -173,8 +173,8 @@ button.gemini-icon-button:hover svg {
 .gemini-workspace .gemini-secondary-button,
 button.gemini-secondary-button {
   color: #FFFFFF !important;
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: #27272a !important;
+  border-color: #52525b !important;
 }
 .gemini-workspace .gemini-secondary-button svg,
 button.gemini-secondary-button svg {
@@ -184,16 +184,16 @@ button.gemini-secondary-button svg {
 .gemini-workspace .gemini-secondary-button:hover,
 button.gemini-secondary-button:hover {
   color: #FFFFFF !important;
-  background-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: #3f3f46 !important;
   border-color: #d0f471 !important;
 }
 
 /* Remove Button */
 .gemini-workspace .gemini-remove-button,
 button.gemini-remove-button {
-  color: #fca5a5 !important;
-  background-color: rgba(239, 68, 68, 0.18) !important;
-  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #fee2e2 !important;
+  background-color: #450a0a !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
 }
 .gemini-workspace .gemini-remove-button svg,
 button.gemini-remove-button svg {
@@ -203,7 +203,7 @@ button.gemini-remove-button svg {
 .gemini-workspace .gemini-remove-button:hover,
 button.gemini-remove-button:hover {
   color: #FFFFFF !important;
-  background-color: rgba(239, 68, 68, 0.35) !important;
+  background-color: #7f1d1d !important;
   border-color: #ef4444 !important;
 }
 .gemini-workspace .gemini-remove-button:hover svg,
@@ -214,13 +214,13 @@ button.gemini-remove-button:hover svg {
 
 /* Slider Handle */
 .gemini-workspace .gemini-compare button {
-  color: #10241e !important;
+  color: #000000 !important;
   background-color: #ffffff !important;
-  border-color: #10241e !important;
+  border-color: #000000 !important;
 }
 .gemini-workspace .gemini-compare button svg {
-  color: #10241e !important;
-  stroke: #10241e !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 /*
@@ -4311,6 +4311,10 @@ button[class*="bg-[#10241e]"] .text-white {
 
 
 /* Strict contrast overrides for Gemini Workspace */
+.gemini-workspace {
+  background-color: #000000 !important;
+}
+
 .gemini-workspace h2,
 .gemini-workspace h3,
 .gemini-workspace p,
@@ -4331,16 +4335,28 @@ button[class*="bg-[#10241e]"] .text-white {
 .gemini-workspace button[style*="208, 244, 113"],
 .gemini-workspace button[style*="#d0f471"] *,
 .gemini-workspace button[style*="208, 244, 113"] * {
-  color: #10241e !important;
-  stroke: #10241e !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+.gemini-workspace button[style*="#FFFFFF"],
+.gemini-workspace button[style*="#ffffff"],
+.gemini-workspace button[style*="#FFFFFF"] *,
+.gemini-workspace button[style*="#ffffff"] * {
+  color: #000000 !important;
+}
+
+.gemini-workspace button[style*="#450a0a"],
+.gemini-workspace button[style*="#450a0a"] * {
+  color: #fee2e2 !important;
 }
 
 .gemini-workspace .gemini-after-badge {
-  color: #10241e !important;
+  color: #000000 !important;
   background-color: #d0f471 !important;
 }
 
 .gemini-workspace .gemini-before-badge {
   color: #FFFFFF !important;
-  background-color: rgba(0, 0, 0, 0.8) !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
 }
