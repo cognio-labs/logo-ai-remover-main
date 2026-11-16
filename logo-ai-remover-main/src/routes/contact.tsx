@@ -2,6 +2,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { BrandLogo } from "@/components/site/BrandLogo";
 import {
   Mail,
   Send,
@@ -175,20 +176,8 @@ export default function ContactPage() {
           {/* Left Column: Trust Info & Direct Contact */}
           <div className="lg:col-span-5 space-y-6">
             <div className="rounded-3xl border border-[#10241e]/15 bg-white p-8 sm:p-10 shadow-xl space-y-6">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/creative-suite/bellix_mark.png"
-                  alt="Bellix.us Logo"
-                  className="size-11 object-contain"
-                />
-                <div>
-                  <h2 className="text-2xl font-bold text-[#10241e] leading-none">
-                    Bellix<span className="text-[#18362d]">.us</span>
-                  </h2>
-                  <p className="text-[10px] font-extrabold tracking-widest text-[#18362d] uppercase mt-1">
-                    LUXURY AI STUDIO
-                  </p>
-                </div>
+              <div className="flex items-center">
+                <BrandLogo href="/" size="lg" variant="dark" />
               </div>
 
               <p className="text-sm text-[#37433d] leading-relaxed">

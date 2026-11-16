@@ -435,27 +435,28 @@ export async function processWithGeminiEngine(
   const doc = documentFor(frame);
   const engineWindow = windowFor(frame);
 
-  // Allow complete watermark footprint removal across all frames including complex backgrounds
-  engineWindow.__gwrVideoOverrideAllowLowConfidence = true;
+  // Diffusion/footprint polish destroys scene texture. Keep calibrated inverse
+  // compositing and the runtime's checked original-frame temporal reconstruction.
+  engineWindow.__gwrVideoOverrideAllowLowConfidence = false;
   engineWindow.__gwrVideoOverrideAdaptiveAlpha = true;
-  engineWindow.__gwrVideoOverrideDenoiseBackend = "canvas-footprint-polish";
-  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 1;
-  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 1.2;
+  engineWindow.__gwrVideoOverrideDenoiseBackend = "none";
+  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 0;
+  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 0;
   engineWindow.__gwrVideoOverrideBitrate = 20_000_000;
 
   // Mirror direct input state into the iframe form
   try {
     const allowLowInput = doc.getElementById("allowLowConfidence") as HTMLInputElement | null;
-    if (allowLowInput) allowLowInput.checked = true;
+    if (allowLowInput) allowLowInput.checked = false;
     const denoiseInput = doc.getElementById("denoiseBackend") as HTMLSelectElement | null;
     if (denoiseInput) {
-      denoiseInput.value = "canvas-footprint-polish";
+      denoiseInput.value = "none";
       denoiseInput.dispatchEvent(new engineWindow.Event("change", { bubbles: true }));
     }
     const edgeInput = doc.getElementById("edgeDenoiseStrength") as HTMLInputElement | null;
-    if (edgeInput) edgeInput.value = "1";
+    if (edgeInput) edgeInput.value = "0";
     const residualInput = doc.getElementById("residualCleanup") as HTMLInputElement | null;
-    if (residualInput) residualInput.value = "1.2";
+    if (residualInput) residualInput.value = "0";
     const bitrateInput = doc.getElementById("videoBitrateMbps") as HTMLInputElement | null;
     if (bitrateInput) {
       bitrateInput.value = "20";

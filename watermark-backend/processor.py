@@ -13,6 +13,14 @@ ROI_W = 0.20
 ROI_H = 0.15
 
 
+def frame_transform(matrix, origin):
+    """Convert a crop-local affine mapping into full-frame coordinates."""
+    result = matrix.copy()
+    offset = np.asarray(origin, dtype=result.dtype)
+    result[:, 2] += offset - result[:, :2] @ offset
+    return result
+
+
 def get_roi(width, height, roi_w=ROI_W, roi_h=ROI_H):
     rw = max(40, int(round(width * roi_w)))
     rh = max(30, int(round(height * roi_h)))
@@ -282,15 +290,25 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
         effective_alpha = measured_alpha
 
     # Read all frames into memory (if reasonable) or frame batches
+    # Bound the existing full-frame implementation instead of exhausting RAM.
+    if total * first.nbytes > 1024 * 1024 * 1024:
+        cap.release()
+        raise RuntimeError("Video exceeds the current 1 GiB decoding budget. Use a shorter clip.")
     frames = [first]
     while True:
         ok, f = cap.read()
         if not ok:
             break
         frames.append(f)
+        if len(frames) * first.nbytes > 1024 * 1024 * 1024:
+            cap.release()
+            raise RuntimeError("Video exceeds the current decoding memory budget.")
         if len(frames) % 20 == 0:
             report(min(20, int(len(frames) * 20 / total)), len(frames), "Reading and analyzing video frames")
     cap.release()
+
+    if len(frames) != total:
+        raise RuntimeError(f"Incomplete decode: expected {total} frames, received {len(frames)}.")
 
     bx, by, bw, bh = box
     cx_wm = bx + bw / 2.0
@@ -339,9 +357,27 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
     ff = subprocess.Popen(command, stdin=subprocess.PIPE)
 
     donor_covered_count = 0
+    from local_reconstruction import reconstruct_smooth
+    tracked_box = box
+    smooth_frames = 0
+    uncertain_tracking = []
     try:
         for i in range(len(frames)):
             target_f = frames[i]
+            detected = detect_target(target_f, tracked_box)
+            if detected is None:
+                detected = detect_target(target_f)
+            if detected is not None:
+                tracked_box = detected
+                smooth = reconstruct_smooth(target_f, detected)
+                if smooth is not None:
+                    ff.stdin.write(smooth[0].tobytes())
+                    smooth_frames += 1
+                    report(20 + int((i + 1) * 78 / len(frames)), i + 1,
+                           f"Reconstructing frame {i + 1}/{len(frames)}")
+                    continue
+            else:
+                uncertain_tracking.append(i)
             target_crop = target_f[y0:y1, x0:x1].copy()
 
             # High-fidelity unblending with edge refinement
@@ -414,6 +450,7 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
                     if disp < 2.5:
                         continue
 
+                    M = frame_transform(M, (track_x0, track_y0))
                     warped_other = cv2.warpAffine(other_f, M, (w, h), flags=cv2.INTER_LINEAR)
                     warped_wm = (
                         cv2.warpAffine(
@@ -476,8 +513,13 @@ def remove_watermark(src: str, dst: str, progress_cb=None, manual_box=None, alph
         raise RuntimeError("Video encoding failed.")
 
     quality = {
+        "visual_quality_verified": False,
+        "review_required": True,
+        "warning": "Estimated alpha reconstruction may retain shadow or contour artifacts; donor coverage is not visual verification.",
         "method": "temporal-motion-compensated-and-unblend",
         "frames": len(frames),
+        "smooth_context_reconstruction_frames": smooth_frames,
+        "uncertain_tracking_frames": uncertain_tracking,
         "donor_coverage_frames": donor_covered_count,
         "donor_coverage_pct": round(donor_covered_count / max(1, len(frames)) * 100, 1),
     }

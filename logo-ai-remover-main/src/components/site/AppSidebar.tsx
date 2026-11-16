@@ -184,27 +184,20 @@ export function AppSidebar() {
             className="flex items-center gap-2.5 min-w-0 group cursor-pointer"
             title="Bellix.us Home"
           >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 shadow-xs group-hover:border-rose-400 transition-colors">
-              <img
-                src="/creative-suite/bellix_mark.png"
-                alt="Bellix Labs"
-                className="size-6 object-contain drop-shadow-[0_2px_8px_rgba(225,29,72,0.3)]"
-              />
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-baseline leading-none">
-                  <span className="text-[15px] font-black tracking-tight text-gray-950 font-sans">
-                    Bellix
-                  </span>
-                  <span className="text-[15px] font-black text-[#E11D48] tracking-tight ml-0.5">
-                    Labs
-                  </span>
-                </div>
-                <span className="text-[9px] font-bold tracking-[0.18em] text-gray-400 uppercase mt-0.5 truncate">
-                  AI Studio
-                </span>
+            {isCollapsed ? (
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 shadow-xs group-hover:border-rose-400 transition-colors">
+                <img
+                  src="/brand/bellix-ribbon-icon.png"
+                  alt="Bellix.us"
+                  className="size-6 object-contain drop-shadow-[0_2px_8px_rgba(225,29,72,0.3)]"
+                />
               </div>
+            ) : (
+              <img
+                src="/brand/bellix-logo-dark.png"
+                alt="Bellix.us — Luxury AI Studio"
+                className="h-8 w-auto object-contain"
+              />
             )}
           </Link>
 
