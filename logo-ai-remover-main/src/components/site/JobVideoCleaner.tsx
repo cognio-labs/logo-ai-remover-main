@@ -652,7 +652,7 @@ export function JobVideoCleaner() {
 
       <iframe
         ref={engineFrameRef}
-        src="/gwr-engine/video-preview.html?v=20261113_upstream_remove_sync"
+        src="/gwr-engine/video-preview.html?v=20261116_complete_ghost_removal"
         title="Local Gemini video processing engine"
         aria-hidden="true"
         tabIndex={-1}

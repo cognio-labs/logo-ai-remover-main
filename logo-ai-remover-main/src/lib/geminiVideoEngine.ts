@@ -124,7 +124,7 @@ async function auditExportRegion(
     Number(size[2]),
   ];
   try {
-    const fractions = [0.01, 0.5, 0.95];
+    const fractions = [0.02, 0.25, 0.5, 0.75, 0.95];
     const [before, after] = await Promise.all([
       sampleRegion(file, rect, fractions, signal),
       sampleRegion(blob, rect, fractions, signal),
@@ -435,10 +435,8 @@ export async function processWithGeminiEngine(
   const doc = documentFor(frame);
   const engineWindow = windowFor(frame);
 
-  // Reject weak detections instead of modifying unrelated image detail.
-  engineWindow.__gwrVideoOverrideAllowLowConfidence = false;
-  // Test adaptive reverse-alpha with restrained footprint cleanup; this aims
-  // to avoid the visible halo without smearing nearby scene edges.
+  // Allow complete watermark footprint removal across all frames including complex backgrounds
+  engineWindow.__gwrVideoOverrideAllowLowConfidence = true;
   engineWindow.__gwrVideoOverrideAdaptiveAlpha = true;
   engineWindow.__gwrVideoOverrideDenoiseBackend = "canvas-footprint-polish";
   engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 1;
@@ -448,7 +446,7 @@ export async function processWithGeminiEngine(
   // Mirror direct input state into the iframe form
   try {
     const allowLowInput = doc.getElementById("allowLowConfidence") as HTMLInputElement | null;
-    if (allowLowInput) allowLowInput.checked = false;
+    if (allowLowInput) allowLowInput.checked = true;
     const denoiseInput = doc.getElementById("denoiseBackend") as HTMLSelectElement | null;
     if (denoiseInput) {
       denoiseInput.value = "canvas-footprint-polish";
