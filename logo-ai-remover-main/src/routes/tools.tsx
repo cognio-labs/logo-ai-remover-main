@@ -39,15 +39,6 @@ const DEFAULT_TOOLS = [
     creditCost: 1,
   },
   {
-    id: "pdf-cleaner",
-    title: "PDF Watermark Remover",
-    desc: "Clean supported PDF documents with structural background layer removal while keeping vector fonts crisp.",
-    to: "/pdf-watermark-remover",
-    image: "/creative-suite/pdf_cleaner_blueprint.jpg",
-    enabled: true,
-    creditCost: 1,
-  },
-  {
     id: "image-watermark",
     title: "Image Watermark Remover",
     desc: "Remove unwanted marks, logos, and timestamps from supported images with seamless neural inpainting.",

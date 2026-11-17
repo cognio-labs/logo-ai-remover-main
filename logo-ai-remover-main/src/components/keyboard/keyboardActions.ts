@@ -39,11 +39,11 @@ export const SHORTCUT_ACTIONS: Record<string, ShortcutAction> = {
     route: "/gemini-video-watermark-remover",
   },
   p: {
-    id: "pdf",
+    id: "photo",
     key: "P",
-    name: "PDF Cleaner",
-    description: "Clean watermarks and stamps from PDF documents",
-    route: "/pdf-watermark-remover",
+    name: "Gemini Sparkle Cleaner",
+    description: "Clean corner sparkle watermarks from Gemini photos",
+    route: "/gemini-image-watermark-remover",
   },
   enter: {
     id: "enter",

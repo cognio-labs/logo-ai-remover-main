@@ -38,7 +38,7 @@ export const studioAssets = {
 };
 export const studioTools = [
   { name: "Background", path: "/background-remover", icon: Scissors },
-  { name: "PDF cleaner", path: "/pdf-watermark-remover", icon: FileText },
+  { name: "Gemini Sparkle", path: "/gemini-image-watermark-remover", icon: Sparkles },
   { name: "Video cleaner", path: "/gemini-video-watermark-remover", icon: ScanLine },
 ] as const;
 
@@ -341,8 +341,8 @@ export function WorkflowCards() {
             </Link>
 
             <Link
-              to="/pdf-watermark-remover"
-              title="PDF Cleaner: Remove stamps, logos & confidential text"
+              to="/gemini-image-watermark-remover"
+              title="Gemini Sparkle Cleaner: Remove corner AI marks"
               className="absolute rounded-xl group cursor-pointer"
               style={{ left: "27.6%", top: "42.5%", width: "4.6%", height: "10.5%" }}
             >
@@ -868,10 +868,10 @@ const TOOL_FEATURES = [
     accent: "from-orange-500 to-amber-600",
   },
   {
-    icon: FileText,
-    name: "PDF Cleaner",
-    desc: "Remove CONFIDENTIAL stamps, logos & watermarks from any PDF.",
-    path: "/pdf-watermark-remover",
+    icon: Sparkles,
+    name: "Gemini Sparkle Cleaner",
+    desc: "100% clean Gemini AI corner sparkle watermark removal from images.",
+    path: "/gemini-image-watermark-remover",
     accent: "from-sky-500 to-blue-600",
   },
   {
@@ -966,8 +966,8 @@ const HERO_FAN_CARDS: HeroFanCard[] = [
   {
     id: "fan-6",
     title: "Dark Fantasy Knight",
-    tag: "PDF Cleaner",
-    path: "/pdf-watermark-remover",
+    tag: "Gemini Sparkle",
+    path: "/gemini-image-watermark-remover",
     image: "/creative-suite/genify_hero/card_6_knight.jpg",
     zIndex: 20,
     yOffset: "translate-y-2 sm:translate-y-2.5 md:translate-y-3",

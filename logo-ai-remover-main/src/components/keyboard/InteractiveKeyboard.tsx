@@ -246,10 +246,10 @@ export function InteractiveKeyboard({
       desc: "Clean Gemini & Veo video watermarks",
     },
     {
-      label: "PDF Watermark Cleaner",
+      label: "Gemini Sparkle Cleaner",
       shortcut: "P",
-      route: "/pdf-watermark-remover",
-      desc: "Clean document stamps & logos",
+      route: "/gemini-image-watermark-remover",
+      desc: "Remove Gemini image corner sparkle",
     },
     {
       label: "Instant Inpaint Studio",

@@ -12,7 +12,6 @@ import {
   Sparkles,
   Clock,
   PlusCircle,
-  FileText,
 } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 
@@ -54,13 +53,6 @@ export const NAVBAR_NAV_ITEMS: NavItem[] = [
     path: "/gemini-video-watermark-remover",
     icon: ScanLine,
     desc: "Remove Gemini & Veo marks",
-  },
-  {
-    name: "PDF Watermark",
-    shortName: "PDF Watermark",
-    path: "/pdf-watermark-remover",
-    icon: FileText,
-    desc: "Remove marks from PDF documents",
   },
   {
     name: "Contact",

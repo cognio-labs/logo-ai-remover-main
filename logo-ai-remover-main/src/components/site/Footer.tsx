@@ -56,10 +56,10 @@ export function Footer() {
             </Link>
 
             <Link
-              to="/pdf-watermark-remover"
+              to="/gemini-image-watermark-remover"
               className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-base font-bold text-white bg-[#142e25] hover:bg-[#1c3f33] border border-[#d0f471]/30 backdrop-blur-md shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
-              Remove PDF Watermark
+              Gemini Image Cleaner
             </Link>
           </div>
         </div>
@@ -151,14 +151,6 @@ export function Footer() {
                   className="hover:text-[#d0f471] transition-colors"
                 >
                   Gemini Video Watermark Remover
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/pdf-watermark-remover"
-                  className="hover:text-[#d0f471] transition-colors"
-                >
-                  PDF Watermark Remover
                 </Link>
               </li>
               <li>

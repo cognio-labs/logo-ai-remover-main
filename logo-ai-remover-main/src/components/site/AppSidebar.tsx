@@ -12,7 +12,6 @@ import {
   Home,
   Scissors,
   Sparkles,
-  FileText,
   ScanLine,
   LayoutGrid,
   Clock,
@@ -112,9 +111,9 @@ export const SIDEBAR_NAV_ITEMS = [
     icon: Scissors,
   },
   {
-    name: "PDF cleaner",
-    path: "/pdf-watermark-remover",
-    icon: FileText,
+    name: "Gemini Sparkle",
+    path: "/gemini-image-watermark-remover",
+    icon: Sparkles,
   },
   {
     name: "Video cleaner",

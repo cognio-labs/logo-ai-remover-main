@@ -53,14 +53,14 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     description: "Deep neural inpainting eliminating logos and stamps across photos seamlessly.",
   },
   {
-    id: "pdf-watermark-remover",
-    title: "PDF Watermark Remover",
-    link: "/pdf-watermark-remover",
+    id: "gemini-sparkle-cleaner",
+    title: "Gemini Sparkle Cleaner",
+    link: "/gemini-image-watermark-remover",
     thumbnail: "/creative-suite/pdf_cleaner_blueprint.jpg",
-    badge: "Vector Lossless",
-    category: "Document Restoration",
+    badge: "100% Crisp",
+    category: "Image Restoration",
     description:
-      "Deterministic PDF stream parser removing background watermarks without rasterizing.",
+      "Precision corner sparkle watermark removal from Google Gemini generated photos.",
   },
 
   // --- ROW 2: Generative Inpainting & Visual Restoration ---
@@ -96,7 +96,7 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
   {
     id: "vector-reconstruct",
     title: "Vector & Typography Reconstruction",
-    link: "/pdf-watermark-remover",
+    link: "/gemini-image-watermark-remover",
     thumbnail: "/creative-suite/vector_typography.jpg",
     badge: "Lossless Paths",
     category: "Vector Synthesis",
@@ -126,7 +126,7 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
   {
     id: "schema-clean",
     title: "Document Schema & Watermark Purge",
-    link: "/pdf-watermark-remover",
+    link: "/gemini-image-watermark-remover",
     thumbnail: "/creative-suite/document_schema_clean.jpg",
     badge: "100% Vector",
     category: "Font & Vector Intact",

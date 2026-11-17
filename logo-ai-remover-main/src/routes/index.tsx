@@ -274,7 +274,7 @@ const toolsGroupA: ToolItem[] = [
   { title: "AI Video Watermark Remover", descriptor: "Gemini & Veo", promise: "Frame-by-frame restoration", icon: Film, href: "/gemini-video-watermark-remover" },
   { title: "Gemini Sparkle Watermark Remover", descriptor: "Corner Sparkle", promise: "Exact 15.6% AI restoration", icon: Sparkles, href: "/gemini-image-watermark-remover" },
   { title: "AI Background Remover", descriptor: "Instant Alpha", promise: "BiRefNet neural cutout", icon: Scissors, href: "/background-remover" },
-  { title: "PDF Watermark Remover", descriptor: "Vector Lossless", promise: "Document restoration", icon: FileText, href: "/pdf-watermark-remover" },
+  { title: "4K AI Photo Upscaler & Cleaner", descriptor: "Ultra HD", promise: "Neural texture enhancement", icon: Sparkles, href: "/gemini-image-watermark-remover" },
   { title: "4K Neural Frame Interpolator", descriptor: "60 FPS Boost", promise: "RIFE flow synthesis", icon: Clapperboard, href: "/video-enhancer" },
   { title: "Vector & Typography Reconstruction", descriptor: "Lossless Paths", promise: "Vector synthesis", icon: Type, href: "/tools" },
   { title: "Cinematic HDR Color Grading", descriptor: "HDR 10-Bit", promise: "Neural colorimetry", icon: Sparkles, href: "/tools" },
@@ -282,7 +282,7 @@ const toolsGroupA: ToolItem[] = [
 ];
 
 const toolsGroupB: ToolItem[] = [
-  { title: "Document Schema & Watermark Purge", descriptor: "100% Vector", promise: "Font & vector intact", icon: FileImage, href: "/pdf-watermark-remover" },
+  { title: "High-Resolution Image Restoration", descriptor: "Sub-Pixel Clean", promise: "Zero residual artifacts", icon: FileImage, href: "/gemini-image-watermark-remover" },
   { title: "Neural Texture Synthesizer", descriptor: "Sub-Pixel Detail", promise: "Deep neural fill", icon: Layers, href: "/tools" },
   { title: "Ultra-Fast GPU Cloud Processing", descriptor: "NVIDIA H100", promise: "High-throughput cluster", icon: Cloud, href: "/tools" },
   { title: "Zero-Retention Privacy Vault", descriptor: "256-Bit SSL", promise: "Transient in-memory", icon: LockKeyhole, href: "/tools" },

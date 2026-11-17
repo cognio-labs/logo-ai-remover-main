@@ -994,11 +994,7 @@ export default function BackgroundRemoverPage() {
 
     if (isPdf) {
       setInlineError({
-        message: `PDF document detected ("${rawFile.name || "document"}"). Remove watermarks from PDFs with our document tool.`,
-        action: {
-          label: "Open PDF Remover",
-          to: "/pdf-watermark-remover",
-        },
+        message: `PDF document detected ("${rawFile.name || "document"}"). Background remover supports image formats (PNG, JPG, WebP).`,
       });
       return;
     }
