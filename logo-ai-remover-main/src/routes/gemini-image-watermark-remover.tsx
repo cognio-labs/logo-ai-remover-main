@@ -5,6 +5,7 @@ import { useUserStore } from "@/lib/userStore";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback, useId } from "react";
 import Link from "next/link";
+import { removeWatermarkFromImageDataSync } from "@pilio/gemini-watermark-remover/image-data";
 import {
   Sparkles,
   Upload,
@@ -81,149 +82,50 @@ function calcRect(W: number, H: number, boxPct: number, offsetPct: number): Corn
 }
 
 /**
- * High-fidelity edge-blend inpainting with Laplace/Poisson relaxation
- * and sensor grain matching. Leaves no plastic blur.
+ * Targeted Gemini sparkle removal that performs inverse alpha unblending
+ * ONLY on the watermark star pixels.
+ * NEVER alters background pixels outside the star footprint, eliminating
+ * dark boxes, smudges, and blur shadows completely.
  */
-function inpaintCanvas(g: CanvasRenderingContext2D, W: number, H: number, R: CornerRect): void {
-  const rx = R.x,
-    ry = R.y,
-    rw = R.w,
-    rh = R.h;
-  const ex = Math.max(0, rx - 1),
-    ey = Math.max(0, ry - 1);
-  const ex2 = Math.min(W, rx + rw + 1),
-    ey2 = Math.min(H, ry + rh + 1);
-  const ew = ex2 - ex,
-    eh = ey2 - ey;
-  const ix = rx - ex,
-    iy = ry - ey;
+function cleanTargetedSparkle(g: CanvasRenderingContext2D, W: number, H: number, R: CornerRect): void {
+  const rx = Math.max(0, Math.min(W - 1, Math.round(R.x)));
+  const ry = Math.max(0, Math.min(H - 1, Math.round(R.y)));
+  const rw = Math.max(1, Math.min(W - rx, Math.round(R.w)));
+  const rh = Math.max(1, Math.min(H - ry, Math.round(R.h)));
 
-  const id = g.getImageData(ex, ey, ew, eh);
-  const d = id.data;
-  const mean = [0, 0, 0];
-  let cnt = 0;
-
-  for (let y = 0; y < eh; y++) {
-    for (let x = 0; x < ew; x++) {
-      if (x >= ix && x < ix + rw && y >= iy && y < iy + rh) continue;
-      const p = (y * ew + x) * 4;
-      mean[0] += d[p];
-      mean[1] += d[p + 1];
-      mean[2] += d[p + 2];
-      cnt++;
-    }
-  }
-  if (!cnt) return;
-  mean[0] /= cnt;
-  mean[1] /= cnt;
-  mean[2] /= cnt;
-
-  const hasL = ix >= 1,
-    hasR = ix + rw < ew,
-    hasT = iy >= 1,
-    hasB = iy + rh < eh;
-
-  function px(X: number, Y: number, ch: number) {
-    return d[(Y * ew + X) * 4 + ch];
-  }
-  function L(t: number, ch: number) {
-    return hasL ? px(ix - 1, iy + t, ch) : hasR ? px(ix + rw, iy + t, ch) : mean[ch];
-  }
-  function Rr(t: number, ch: number) {
-    return hasR ? px(ix + rw, iy + t, ch) : hasL ? px(ix - 1, iy + t, ch) : mean[ch];
-  }
-  function T(u: number, ch: number) {
-    return hasT ? px(ix + u, iy - 1, ch) : hasB ? px(ix + u, iy + rh, ch) : mean[ch];
-  }
-  function B(u: number, ch: number) {
-    return hasB ? px(ix + u, iy + rh, ch) : hasT ? px(ix + u, iy - 1, ch) : mean[ch];
-  }
-
-  const v = new Float32Array(rw * rh * 3);
-  const du = Math.max(1, rw - 1),
-    dt = Math.max(1, rh - 1);
-
-  for (let c = 0; c < 3; c++) {
-    const TL = (T(0, c) + L(0, c)) / 2;
-    const TR = (T(rw - 1, c) + Rr(0, c)) / 2;
-    const BL = (B(0, c) + L(rh - 1, c)) / 2;
-    const BR = (B(rw - 1, c) + Rr(rh - 1, c)) / 2;
-
-    for (let y = 0; y < rh; y++) {
-      for (let x = 0; x < rw; x++) {
-        const u = x / du,
-          t = y / dt;
-        v[(y * rw + x) * 3 + c] =
-          (1 - u) * L(y, c) +
-          u * Rr(y, c) +
-          (1 - t) * T(x, c) +
-          t * B(x, c) -
-          ((1 - u) * (1 - t) * TL +
-            u * (1 - t) * TR +
-            (1 - u) * t * BL +
-            u * t * BR);
-      }
-    }
-  }
-
-  let a0 = 0,
-    a1 = 0,
-    a2 = 0,
-    k = 0;
-  function nb(nx: number, ny: number) {
-    let j: number, X: number, Y: number;
-    if (nx >= 0 && nx < rw && ny >= 0 && ny < rh) {
-      j = (ny * rw + nx) * 3;
-      a0 += v[j];
-      a1 += v[j + 1];
-      a2 += v[j + 2];
-      k++;
-    } else {
-      X = ix + nx;
-      Y = iy + ny;
-      if (X >= 0 && X < ew && Y >= 0 && Y < eh) {
-        j = (Y * ew + X) * 4;
-        a0 += d[j];
-        a1 += d[j + 1];
-        a2 += d[j + 2];
-        k++;
-      }
-    }
-  }
-
-  const iters = Math.min(60, Math.max(16, Math.round((rw + rh) / 6)));
-  for (let it = 0; it < iters; it++) {
-    for (let y = 0; y < rh; y++) {
-      for (let x = 0; x < rw; x++) {
-        a0 = a1 = a2 = 0;
-        k = 0;
-        nb(x - 1, y);
-        nb(x + 1, y);
-        nb(x, y - 1);
-        nb(x, y + 1);
-        if (k) {
-          const i = (y * rw + x) * 3;
-          v[i] = a0 / k;
-          v[i + 1] = a1 / k;
-          v[i + 2] = a2 / k;
-        }
-      }
-    }
-  }
+  const imgData = g.getImageData(rx, ry, rw, rh);
+  const d = imgData.data;
+  const cx = (rw - 1) / 2;
+  const cy = (rh - 1) / 2;
+  const radX = Math.max(1, rw / 2);
+  const radY = Math.max(1, rh / 2);
 
   for (let y = 0; y < rh; y++) {
     for (let x = 0; x < rw; x++) {
-      const i2 = (y * rw + x) * 3;
-      const q = ((iy + y) * ew + (ix + x)) * 4;
-      const n = (Math.random() - 0.5) * 4; // Faint sensor grain
-      d[q] = Math.max(0, Math.min(255, v[i2] + n));
-      d[q + 1] = Math.max(0, Math.min(255, v[i2 + 1] + n));
-      d[q + 2] = Math.max(0, Math.min(255, v[i2 + 2] + n));
+      const dx = Math.abs(x - cx) / radX;
+      const dy = Math.abs(y - cy) / radY;
+      // 4-pointed Gemini sparkle astroid shape
+      const r = Math.pow(dx, 0.67) + Math.pow(dy, 0.67);
+      if (r > 1.05) {
+        // Outside the sparkle: 100% background! Untouched!
+        continue;
+      }
+      // Calibrated alpha decay from center (0.52 peak opacity) towards edges
+      const alpha = 0.52 * Math.max(0, 1 - Math.pow(r / 1.05, 1.4));
+      if (alpha <= 0.01) continue;
+
+      const p = (y * rw + x) * 4;
+      for (let c = 0; c < 3; c++) {
+        const val = (d[p + c] - alpha * 255) / (1 - alpha);
+        d[p + c] = Math.max(0, Math.min(255, Math.round(val)));
+      }
     }
   }
 
-  g.putImageData(id, ex, ey);
+  g.putImageData(imgData, rx, ry);
 }
+
+const inpaintCanvas = cleanTargetedSparkle;
 
 function generateLoupes(
   aCanvas: HTMLCanvasElement,
@@ -608,8 +510,31 @@ export default function GeminiImageWatermarkRemoverPage() {
       // Draw original
       g.drawImage(item.canvas, 0, 0);
 
-      // The image path is intentionally local: the original canvas never leaves this tab.
-      inpaintCanvas(g, W, H, R);
+      let cleaned = false;
+      try {
+        const imgData = g.getImageData(0, 0, W, H);
+        const res = removeWatermarkFromImageDataSync(imgData, { adaptiveMode: "auto" });
+        if (res?.meta?.applied && res.imageData) {
+          g.putImageData(res.imageData as ImageData, 0, 0);
+          cleaned = true;
+          if (res.meta.position) {
+            R = {
+              x: Math.max(0, Math.round(res.meta.position.x)),
+              y: Math.max(0, Math.round(res.meta.position.y)),
+              w: Math.max(12, Math.round(res.meta.position.width)),
+              h: Math.max(12, Math.round(res.meta.position.height)),
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("Automated watermark detection fallback:", err);
+      }
+
+      // If automated detection was skipped or user manually adjusted, use targeted unblending
+      if (!cleaned) {
+        cleanTargetedSparkle(g, W, H, R);
+      }
+
       const blob = await new Promise<Blob | null>((resolve) => afterCanvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("Could not encode image for processing.");
       const afterURL = URL.createObjectURL(blob);
