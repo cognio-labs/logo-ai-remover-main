@@ -244,9 +244,14 @@ export function JobVideoCleaner() {
     try {
       // 1. Try Python FastAPI backend first if available
       let usedBackend = false;
+      const videoApiBase =
+        process.env.NEXT_PUBLIC_VIDEO_API ||
+        process.env.NEXT_PUBLIC_API_URL ||
+        "http://localhost:5000";
+
       try {
-        const backendHealth = await fetch("http://localhost:5000/health", {
-          signal: AbortSignal.timeout(1200),
+        const backendHealth = await fetch(`${videoApiBase}/health`, {
+          signal: AbortSignal.timeout(1500),
         }).catch(() => null);
 
         if (backendHealth && backendHealth.ok) {
@@ -254,7 +259,7 @@ export function JobVideoCleaner() {
           const formData = new FormData();
           formData.append("file", file);
 
-          const uploadRes = await fetch("http://localhost:5000/api/video/process", {
+          const uploadRes = await fetch(`${videoApiBase}/api/video/process`, {
             method: "POST",
             body: formData,
             signal: controller.signal,
@@ -268,7 +273,7 @@ export function JobVideoCleaner() {
               await new Promise((r) => setTimeout(r, 600));
               if (controller.signal.aborted) break;
 
-              const stRes = await fetch(`http://localhost:5000/api/video/status/${jobId}`, {
+              const stRes = await fetch(`${videoApiBase}/api/video/status/${jobId}`, {
                 signal: controller.signal,
               });
               if (!stRes.ok) break;
@@ -282,7 +287,7 @@ export function JobVideoCleaner() {
               } else if (st.state === "done") {
                 setProgress(99);
                 setStatusMsg("Downloading clean video...");
-                const dlRes = await fetch(`http://localhost:5000/api/video/download/${jobId}`, {
+                const dlRes = await fetch(`${videoApiBase}/api/video/download/${jobId}`, {
                   signal: controller.signal,
                 });
                 if (dlRes.ok) {

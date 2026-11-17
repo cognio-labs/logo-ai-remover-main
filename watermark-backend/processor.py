@@ -121,7 +121,7 @@ def detect_video_watermark_region(sample_frames: list[np.ndarray]) -> tuple[int,
     else:
         cx, cy = cx_base, cy_base
 
-    box_sz = int(round(star_sz * 1.40))
+    box_sz = int(round(star_sz * 1.65))
     bx = max(0, min(W - box_sz, cx - box_sz // 2))
     by = max(0, min(H - box_sz, cy - box_sz // 2))
     return bx, by, box_sz, box_sz
@@ -173,74 +173,65 @@ def clean_frame_watermark(
     if ph < 8 or pw < 8:
         return frame, patch, cur_box
 
-    # 1. Sample boundary pixels to compute local background color & luminance
+    # 1. Sample clean boundary pixels to compute background color & reference noise
     border_mask = np.zeros((ph, pw), dtype=bool)
-    border_mask[:3, :] = True
-    border_mask[-3:, :] = True
-    border_mask[:, :3] = True
-    border_mask[:, -3:] = True
+    border_mask[:6, :] = True
+    border_mask[-6:, :] = True
+    border_mask[:, :6] = True
+    border_mask[:, -6:] = True
 
     bg_bgr = np.median(patch[border_mask], axis=0)
     bg_lum = 0.114 * bg_bgr[0] + 0.587 * bg_bgr[1] + 0.299 * bg_bgr[2]
 
-    patch_lum = 0.114 * patch[:, :, 0].astype(float) + 0.587 * patch[:, :, 1].astype(float) + 0.299 * patch[:, :, 2].astype(float)
-    diff_lum = patch_lum - bg_lum
+    patch_gray = cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY)
+    diff_lum = patch_gray.astype(float) - bg_lum
 
     # 2. Distance from center of current patch
-    py_grid, px_grid = np.mgrid[:ph, :pw]
-    dist_c = np.sqrt((px_grid - pw / 2.0) ** 2 + (py_grid - ph / 2.0) ** 2)
-    max_radius = min(pw, ph) * 0.48
+    cy, cx = ph // 2, pw // 2
+    yy, xx = np.mgrid[:ph, :pw]
+    dist_c = np.hypot(xx - cx, yy - cy)
+    radius = max(bw, bh) * 0.44
 
     # 3. Detect White Sparkle Core + Dark Contrast Halo/Shadow
-    sparkle_mask = (diff_lum > 10) & (dist_c <= max_radius)
-    halo_mask = (diff_lum < -7) & (dist_c <= max_radius * 1.15)
+    # Capture all deviations (both white sparkle core/arms and dark halo/shadow)
+    presence = ((diff_lum > 2.5) | (diff_lum < -2.5)) & (dist_c <= radius * 1.30)
+    mask = np.zeros((ph, pw), dtype=np.uint8)
+    mask[presence] = 255
 
-    cleaned_patch = patch.astype(np.float32)
+    # Close all morphological gaps so no internal edge or ghost outline is unmasked
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    # Guarantee solid core coverage so zero center residue remains
+    cv2.circle(mask, (cx, cy), int(radius * 0.82), 255, -1)
+    # Dilate into pristine background to eliminate all antialiased fringes
+    mask = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)), iterations=2)
 
-    # 4. Calibrated Inverse Alpha Unblending
-    # Positive sparkle core: C_bg = (C_wm - alpha * 255) / (1 - alpha)
-    pos_alpha = np.clip(diff_lum / 255.0 * 1.25, 0.0, 0.88)
-    for c in range(3):
-        unblended = (cleaned_patch[:, :, c] - pos_alpha * 255.0) / np.maximum(1.0 - pos_alpha, 0.08)
-        cleaned_patch[:, :, c] = np.where(sparkle_mask, unblended, cleaned_patch[:, :, c])
+    # 4. Content-Aware Inpainting (Navier-Stokes + Telea weighted combination)
+    inp_telea = cv2.inpaint(patch, mask, 3, cv2.INPAINT_TELEA)
+    inp_ns = cv2.inpaint(patch, mask, 3, cv2.INPAINT_NS)
+    inpainted = cv2.addWeighted(inp_telea, 0.60, inp_ns, 0.40, 0)
 
-    # Dark halo / shadow unblending: C_bg = C_wm / (1 - alpha_dark)
-    dark_alpha = np.clip((-diff_lum) / max(bg_lum, 1.0) * 0.90, 0.0, 0.35)
-    for c in range(3):
-        unblended_halo = cleaned_patch[:, :, c] / np.maximum(1.0 - dark_alpha, 0.10)
-        cleaned_patch[:, :, c] = np.where(halo_mask, unblended_halo, cleaned_patch[:, :, c])
+    # 5. Measure and synthesize matching background texture & sensor noise (No plastic blur)
+    border_gray = patch_gray[border_mask].astype(float)
+    blur_border = cv2.GaussianBlur(patch_gray, (5, 5), 0)[border_mask].astype(float)
+    noise_std = np.std(border_gray - blur_border)
+    noise = np.random.normal(0, max(0.5, min(noise_std * 0.85, 2.5)), patch.shape)
+    inp_textured = np.clip(inpainted.astype(float) + noise, 0, 255).astype(np.uint8)
 
-    cleaned_patch = np.clip(cleaned_patch, 0, 255).astype(np.uint8)
+    # 6. Smooth subpixel Gaussian feather blend
+    feather = cv2.GaussianBlur(mask.astype(float) / 255.0, (7, 7), 2.0)[:, :, None]
+    clean_patch = (inp_textured.astype(float) * feather + patch.astype(float) * (1.0 - feather)).astype(np.uint8)
 
-    # 5. Fine boundary refinement using Navier-Stokes with matched sensor grain
-    core_mask = (sparkle_mask | halo_mask).astype(np.uint8) * 255
-    if cv2.countNonZero(core_mask) > 10:
-        core_dilated = cv2.dilate(core_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
-        inpainted = cv2.inpaint(cleaned_patch, core_dilated, 2.0, cv2.INPAINT_NS)
-
-        # Match camera sensor noise (+/- 1.2 std dev)
-        noise = np.random.normal(0, 1.2, cleaned_patch.shape)
-        inpainted = np.clip(inpainted.astype(float) + noise, 0, 255).astype(np.uint8)
-
-        # Retain 65% exact unblended detail + 35% smooth Navier-Stokes context
-        final_patch = cv2.addWeighted(cleaned_patch, 0.65, inpainted, 0.35, 0)
-    else:
-        final_patch = cleaned_patch
-
-    # 6. Temporal stabilization against previous frame patch (prevents micro-flicker)
-    if prev_patch is not None and prev_patch.shape == final_patch.shape:
-        # Check motion difference in surrounding border
+    # 7. Temporal stabilization against previous frame patch (prevents micro-flicker)
+    if prev_patch is not None and prev_patch.shape == clean_patch.shape:
         border_diff = np.mean(np.abs(patch[border_mask].astype(float) - prev_patch[border_mask].astype(float)))
         if border_diff < 4.0:
-            # Low motion: smooth temporal blend (15% previous frame)
-            final_patch = cv2.addWeighted(final_patch, 0.85, prev_patch, 0.15, 0)
+            clean_patch = cv2.addWeighted(clean_patch, 0.88, prev_patch, 0.12, 0)
         elif border_diff < 8.0:
-            # Moderate motion: 8% blend
-            final_patch = cv2.addWeighted(final_patch, 0.92, prev_patch, 0.08, 0)
+            clean_patch = cv2.addWeighted(clean_patch, 0.94, prev_patch, 0.06, 0)
 
     out_frame = frame.copy()
-    out_frame[fy0:fy1, fx0:fx1] = final_patch
-    return out_frame, final_patch, cur_box
+    out_frame[fy0:fy1, fx0:fx1] = clean_patch
+    return out_frame, clean_patch, cur_box
 
 
 def remove_watermark(
