@@ -435,31 +435,42 @@ export async function processWithGeminiEngine(
   const doc = documentFor(frame);
   const engineWindow = windowFor(frame);
 
-  // Diffusion/footprint polish destroys scene texture. Keep calibrated inverse
-  // compositing and the runtime's checked original-frame temporal reconstruction.
+  // High-performance calibrated inverse compositing + bilateral residual cleanup
+  // + temporal inter-frame stabilization for ultra-fast, smooth, blur-free exports.
   engineWindow.__gwrVideoOverrideAllowLowConfidence = false;
   engineWindow.__gwrVideoOverrideAdaptiveAlpha = true;
-  engineWindow.__gwrVideoOverrideDenoiseBackend = "none";
-  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 0;
-  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 0;
-  engineWindow.__gwrVideoOverrideBitrate = 20_000_000;
+  engineWindow.__gwrVideoOverrideDenoiseBackend = "canvas-temporal-stabilize";
+  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 0.25;
+  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 1.35;
+  engineWindow.__gwrVideoOverrideHighQualityCleanup = true;
+  engineWindow.__gwrVideoOverrideBitrate = 25_000_000;
 
   // Mirror direct input state into the iframe form
   try {
     const allowLowInput = doc.getElementById("allowLowConfidence") as HTMLInputElement | null;
     if (allowLowInput) allowLowInput.checked = false;
+    const hqInput = doc.getElementById("highQualityCleanup") as HTMLInputElement | null;
+    if (hqInput) hqInput.checked = true;
+    const adaptiveAlphaInput = doc.getElementById("adaptiveAlpha") as HTMLInputElement | null;
+    if (adaptiveAlphaInput) adaptiveAlphaInput.checked = true;
     const denoiseInput = doc.getElementById("denoiseBackend") as HTMLSelectElement | null;
     if (denoiseInput) {
-      denoiseInput.value = "none";
+      denoiseInput.value = "canvas-temporal-stabilize";
       denoiseInput.dispatchEvent(new engineWindow.Event("change", { bubbles: true }));
     }
     const edgeInput = doc.getElementById("edgeDenoiseStrength") as HTMLInputElement | null;
-    if (edgeInput) edgeInput.value = "0";
+    if (edgeInput) {
+      edgeInput.value = "0.25";
+      edgeInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
+    }
     const residualInput = doc.getElementById("residualCleanup") as HTMLInputElement | null;
-    if (residualInput) residualInput.value = "0";
+    if (residualInput) {
+      residualInput.value = "1.35";
+      residualInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
+    }
     const bitrateInput = doc.getElementById("videoBitrateMbps") as HTMLInputElement | null;
     if (bitrateInput) {
-      bitrateInput.value = "20";
+      bitrateInput.value = "25";
       bitrateInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
     }
   } catch (syncErr) {
