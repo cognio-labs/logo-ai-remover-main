@@ -687,50 +687,69 @@ export default function GeminiImageWatermarkRemoverPage() {
       if (!newItems.length) return;
       setItems((prev) => [...prev, ...newItems]);
       setCurrentIndex(items.length);
-      toast.success(`${newItems.length} image(s) ready. Click Scan & Clean Image to process.`);
+      toast.success(`${newItems.length} image(s) ready. Click "Remove Watermark Now" to process.`);
 
     },
     [items.length]
   );
 
-  const processPendingImages = useCallback(async () => {
-    const pending = items.filter((item) => !item.afterURL || item.key !== `${sizePct}|${marginPct}`);
-    if (!pending.length || isProcessing) return;
+  const runScan = useCallback(
+    async (targetItem?: ImageItem) => {
+      const target = targetItem || currentItem;
+      const pending = target
+        ? [target]
+        : items.filter((item) => !item.afterURL || item.key !== `${sizePct}|${marginPct}`);
+      if (!pending.length || isProcessing) return;
 
-    setIsProcessing(true);
-    setScanStage(0);
-    setScanProgress(4);
-    try {
-      const stages = [
-        "Loading original image",
-        "Analyzing image dimensions",
-        "Detecting selected unwanted visual artifacts",
-        "Applying image restoration",
-        "Generating final preview",
-      ];
-      const startedAt = Date.now();
-      for (let stage = 0; stage < stages.length; stage++) {
-        setScanStage(stage);
-        setScanProgress(Math.round((stage / stages.length) * 78) + 8);
-        await new Promise((resolve) => setTimeout(resolve, stage === 2 ? 1250 : 850));
+      setIsProcessing(true);
+      setScanStage(0);
+      setScanProgress(12);
+
+      try {
+        const stages = [
+          "Loading original image",
+          "Analyzing image dimensions",
+          "Detecting watermark artifacts",
+          "Applying corner restoration",
+          "Generating final preview",
+        ];
+
+        // Smooth scanning steps (fast & responsive ~1s total)
+        for (let stage = 0; stage < stages.length; stage++) {
+          setScanStage(stage);
+          setScanProgress(Math.round(((stage + 1) / stages.length) * 88));
+          await new Promise((resolve) => setTimeout(resolve, stage === 2 ? 280 : 200));
+        }
+
+        for (const item of pending) {
+          const processed = await processItem(item, sizePct, marginPct);
+          setItems((prev) =>
+            prev.map((candidate) => (candidate.id === item.id ? processed : candidate))
+          );
+        }
+
+        setScanStage(4);
+        setScanProgress(100);
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        toast.success(
+          pending.length > 1
+            ? `${pending.length} image(s) cleaned successfully!`
+            : "Gemini watermark removed successfully!"
+        );
+      } catch (error) {
+        console.error("Image processing failed:", error);
+        toast.error(
+          error instanceof Error ? error.message : "Image processing failed. Please try again."
+        );
+      } finally {
+        setIsProcessing(false);
+        setScanProgress(0);
       }
-      for (const item of pending) {
-        const processed = await processItem(item, sizePct, marginPct);
-        setItems((prev) => prev.map((candidate) => (candidate.id === item.id ? processed : candidate)));
-      }
-      const remaining = Math.max(0, 5000 - (Date.now() - startedAt));
-      if (remaining) await new Promise((resolve) => setTimeout(resolve, remaining));
-      setScanStage(4);
-      setScanProgress(100);
-      toast.success(`${pending.length} image(s) cleaned successfully.`);
-    } catch (error) {
-      console.error("Image processing failed:", error);
-      toast.error(error instanceof Error ? error.message : "Image processing failed. Please try again.");
-    } finally {
-      setIsProcessing(false);
-      setScanProgress(0);
-    }
-  }, [items, isProcessing, processItem, sizePct, marginPct]);
+    },
+    [currentItem, items, isProcessing, processItem, sizePct, marginPct]
+  );
+
+  const processPendingImages = runScan;
 
   // Clipboard paste listener
   useEffect(() => {
@@ -1031,17 +1050,19 @@ export default function GeminiImageWatermarkRemoverPage() {
                         <button
                           type="button"
                           onClick={() => runScan(currentItem)}
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#d0f471] hover:bg-[#dbff83] text-black font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+                          disabled={isProcessing}
+                          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#d0f471] hover:bg-[#dbff83] text-black font-extrabold text-xs sm:text-sm shadow-lg hover:shadow-[0_0_20px_rgba(208,244,113,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                           style={{ backgroundColor: "#d0f471", color: "#000000" }}
                         >
-                          <Sparkles className="size-4 text-black" style={{ color: "#000000" }} />
-                          <span style={{ color: "#000000", fontWeight: "700" }}>Scan & Clean Image</span>
+                          <Sparkles className="size-4 text-black fill-black" style={{ color: "#000000" }} />
+                          <span style={{ color: "#000000", fontWeight: "800" }}>Remove Watermark Now</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                          disabled={isProcessing}
+                          className="inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-white font-bold text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                           style={{ backgroundColor: "#27272a", color: "#FFFFFF" }}
                         >
                           <RotateCcw className="size-3.5 text-white" style={{ color: "#FFFFFF" }} />
@@ -1057,7 +1078,7 @@ export default function GeminiImageWatermarkRemoverPage() {
                               setCurrentIndex(Math.max(0, newItems.length - 1));
                             }
                           }}
-                          className="ml-auto inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 hover:text-white font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm"
+                          className="ml-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-3 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 hover:text-white font-bold text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                           style={{ backgroundColor: "#450a0a", color: "#fee2e2" }}
                         >
                           <X className="size-3.5 text-red-300" style={{ color: "#fca5a5" }} />
