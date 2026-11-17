@@ -560,12 +560,6 @@ export function WorkflowCards() {
                     >
                       Video
                     </Link>
-                    <Link
-                      to="/pdf-watermark-remover"
-                      className="px-2 py-1 rounded-md bg-rose-50 text-rose-600 text-[11px] font-semibold hover:bg-rose-100"
-                    >
-                      PDF
-                    </Link>
                   </div>
                 </div>
 
