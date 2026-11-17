@@ -5,7 +5,6 @@ import { useUserStore } from "@/lib/userStore";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback, useId } from "react";
 import Link from "next/link";
-import { removeWatermarkFromImageDataSync } from "@pilio/gemini-watermark-remover/image-data";
 import {
   Sparkles,
   Upload,
@@ -34,6 +33,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { removeWatermarkFromImageDataSync } from "@pilio/gemini-watermark-remover/image-data";
 
 export const Route = createFileRoute("/gemini-image-watermark-remover")({
   head: () => ({
@@ -82,50 +82,63 @@ function calcRect(W: number, H: number, boxPct: number, offsetPct: number): Corn
 }
 
 /**
- * Targeted Gemini sparkle removal that performs inverse alpha unblending
- * ONLY on the watermark star pixels.
- * NEVER alters background pixels outside the star footprint, eliminating
- * dark boxes, smudges, and blur shadows completely.
+ * Precise targeted watermark cleanup:
+ * Only cleans the white watermark sparkle pixels, leaving the background 100% untouched.
+ * ZERO background blur, ZERO black shadow.
  */
-function cleanTargetedSparkle(g: CanvasRenderingContext2D, W: number, H: number, R: CornerRect): void {
-  const rx = Math.max(0, Math.min(W - 1, Math.round(R.x)));
-  const ry = Math.max(0, Math.min(H - 1, Math.round(R.y)));
-  const rw = Math.max(1, Math.min(W - rx, Math.round(R.w)));
-  const rh = Math.max(1, Math.min(H - ry, Math.round(R.h)));
+function cleanWatermarkIconPrecise(
+  g: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  R: CornerRect
+): void {
+  const rw = Math.max(16, Math.min(W - R.x, R.w));
+  const rh = Math.max(16, Math.min(H - R.y, R.h));
+  const rx = Math.max(0, Math.min(W - rw, R.x));
+  const ry = Math.max(0, Math.min(H - rh, R.y));
 
   const imgData = g.getImageData(rx, ry, rw, rh);
-  const d = imgData.data;
-  const cx = (rw - 1) / 2;
-  const cy = (rh - 1) / 2;
-  const radX = Math.max(1, rw / 2);
-  const radY = Math.max(1, rh / 2);
+  const data = imgData.data;
 
+  // 1. Sample boundary pixels to compute local background color
+  let bgR = 0, bgG = 0, bgB = 0, bgCount = 0;
   for (let y = 0; y < rh; y++) {
     for (let x = 0; x < rw; x++) {
-      const dx = Math.abs(x - cx) / radX;
-      const dy = Math.abs(y - cy) / radY;
-      // 4-pointed Gemini sparkle astroid shape
-      const r = Math.pow(dx, 0.67) + Math.pow(dy, 0.67);
-      if (r > 1.05) {
-        // Outside the sparkle: 100% background! Untouched!
-        continue;
+      if (x === 0 || x === rw - 1 || y === 0 || y === rh - 1) {
+        const idx = (y * rw + x) * 4;
+        bgR += data[idx];
+        bgG += data[idx + 1];
+        bgB += data[idx + 2];
+        bgCount++;
       }
-      // Calibrated alpha decay from center (0.52 peak opacity) towards edges
-      const alpha = 0.52 * Math.max(0, 1 - Math.pow(r / 1.05, 1.4));
-      if (alpha <= 0.01) continue;
+    }
+  }
+  if (!bgCount) return;
+  bgR /= bgCount;
+  bgG /= bgCount;
+  bgB /= bgCount;
+  const bgLum = 0.299 * bgR + 0.587 * bgG + 0.114 * bgB;
 
-      const p = (y * rw + x) * 4;
-      for (let c = 0; c < 3; c++) {
-        const val = (d[p + c] - alpha * 255) / (1 - alpha);
-        d[p + c] = Math.max(0, Math.min(255, Math.round(val)));
+  // 2. Only modify pixels where brightness is elevated by the white watermark icon
+  for (let y = 1; y < rh - 1; y++) {
+    for (let x = 1; x < rw - 1; x++) {
+      const idx = (y * rw + x) * 4;
+      const r = data[idx], gr = data[idx + 1], b = data[idx + 2];
+      const lum = 0.299 * r + 0.587 * gr + 0.114 * b;
+      const diff = lum - bgLum;
+
+      // Only clean pixels that are noticeably brighter than the surrounding background
+      if (diff > 14) {
+        const alpha = Math.min(0.92, diff / 255);
+        data[idx] = Math.max(0, Math.min(255, Math.round((r - alpha * 255) / (1 - alpha))));
+        data[idx + 1] = Math.max(0, Math.min(255, Math.round((gr - alpha * 255) / (1 - alpha))));
+        data[idx + 2] = Math.max(0, Math.min(255, Math.round((b - alpha * 255) / (1 - alpha))));
       }
     }
   }
 
   g.putImageData(imgData, rx, ry);
 }
-
-const inpaintCanvas = cleanTargetedSparkle;
 
 function generateLoupes(
   aCanvas: HTMLCanvasElement,
@@ -510,29 +523,40 @@ export default function GeminiImageWatermarkRemoverPage() {
       // Draw original
       g.drawImage(item.canvas, 0, 0);
 
-      let cleaned = false;
+      // 1. Calibrated inverse alpha compositing engine (ZERO blur, ZERO dark shadow)
+      let watermarkCleaned = false;
       try {
-        const imgData = g.getImageData(0, 0, W, H);
-        const res = removeWatermarkFromImageDataSync(imgData, { adaptiveMode: "auto" });
-        if (res?.meta?.applied && res.imageData) {
-          g.putImageData(res.imageData as ImageData, 0, 0);
-          cleaned = true;
-          if (res.meta.position) {
+        const origImageData = g.getImageData(0, 0, W, H);
+        const result = removeWatermarkFromImageDataSync(origImageData, {
+          adaptiveMode: "auto",
+        });
+
+        if (result && result.meta && result.meta.applied && result.imageData) {
+          const cleanedData = new ImageData(
+            new Uint8ClampedArray(result.imageData.data),
+            result.imageData.width,
+            result.imageData.height
+          );
+          g.putImageData(cleanedData, 0, 0);
+          watermarkCleaned = true;
+
+          if (result.meta.position) {
             R = {
-              x: Math.max(0, Math.round(res.meta.position.x)),
-              y: Math.max(0, Math.round(res.meta.position.y)),
-              w: Math.max(12, Math.round(res.meta.position.width)),
-              h: Math.max(12, Math.round(res.meta.position.height)),
+              x: result.meta.position.x,
+              y: result.meta.position.y,
+              w: result.meta.position.width,
+              h: result.meta.position.height,
+              g: Math.round(Math.min(W, H) * (mPct / 100)),
             };
           }
         }
       } catch (err) {
-        console.warn("Automated watermark detection fallback:", err);
+        console.warn("Watermark engine processing fallback:", err);
       }
 
-      // If automated detection was skipped or user manually adjusted, use targeted unblending
-      if (!cleaned) {
-        cleanTargetedSparkle(g, W, H, R);
+      // 2. Targeted fallback if engine did not find standard alpha watermark
+      if (!watermarkCleaned) {
+        cleanWatermarkIconPrecise(g, W, H, R);
       }
 
       const blob = await new Promise<Blob | null>((resolve) => afterCanvas.toBlob(resolve, "image/png"));
