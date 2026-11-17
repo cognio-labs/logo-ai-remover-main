@@ -233,44 +233,112 @@ export function JobVideoCleaner() {
       return;
     }
     const engineFrame = engineFrameRef.current;
-    if (!engineFrame) {
-      toast.error("The local video engine is still loading. Please try again.");
-      return;
-    }
-
     const controller = new AbortController();
     processingControllerRef.current = controller;
     setIsProcessing(true);
     setIsError(false);
     setErrorDetails(null);
-    setProgress(1);
-    setStatusMsg("Loading verified local engineâ€¦");
+    setProgress(2);
+    setStatusMsg("Initializing high-fidelity watermark removal...");
 
     try {
-      assertBrowserVideoSupport();
+      // 1. Try Python FastAPI backend first if available
+      let usedBackend = false;
+      try {
+        const backendHealth = await fetch("http://localhost:5000/health", {
+          signal: AbortSignal.timeout(1200),
+        }).catch(() => null);
 
-      const result = await processWithGeminiEngine(
-        engineFrame,
-        file,
-        (event: GeminiVideoProgress) => {
-          if (controller.signal.aborted || processingControllerRef.current !== controller) return;
-          setProgress(Math.min(99, Math.max(1, Math.round(event.progress * 100))));
-          setStatusMsg(event.message);
-        },
-        controller.signal,
-      );
+        if (backendHealth && backendHealth.ok) {
+          setStatusMsg("Uploading video to AI processing engine...");
+          const formData = new FormData();
+          formData.append("file", file);
 
-      controller.signal.throwIfAborted();
+          const uploadRes = await fetch("http://localhost:5000/api/video/process", {
+            method: "POST",
+            body: formData,
+            signal: controller.signal,
+          });
 
-      const blobUrl = URL.createObjectURL(result.blob);
-      setOutputExt("mp4");
-      setCleanUrl(blobUrl);
-      setDownloadUrl(blobUrl);
-      setIsDone(true);
-      // Frame completion verifies export, not visual watermark removal.
-      setProgress(99);
-      setStatusMsg("Processing complete. Review the result before downloading.");
-      toast.success("Video export is ready to review.");
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            const jobId = uploadData.job_id;
+
+            while (!controller.signal.aborted) {
+              await new Promise((r) => setTimeout(r, 600));
+              if (controller.signal.aborted) break;
+
+              const stRes = await fetch(`http://localhost:5000/api/video/status/${jobId}`, {
+                signal: controller.signal,
+              });
+              if (!stRes.ok) break;
+
+              const st = await stRes.json();
+              if (st.state === "processing") {
+                setProgress(Math.min(98, Math.max(5, st.progress || 10)));
+                if (st.log_tail && st.log_tail.length) {
+                  setStatusMsg(st.log_tail[st.log_tail.length - 1]);
+                }
+              } else if (st.state === "done") {
+                setProgress(99);
+                setStatusMsg("Downloading clean video...");
+                const dlRes = await fetch(`http://localhost:5000/api/video/download/${jobId}`, {
+                  signal: controller.signal,
+                });
+                if (dlRes.ok) {
+                  const blob = await dlRes.blob();
+                  const blobUrl = URL.createObjectURL(blob);
+                  setOutputExt("mp4");
+                  setCleanUrl(blobUrl);
+                  setDownloadUrl(blobUrl);
+                  setIsDone(true);
+                  setProgress(100);
+                  setStatusMsg("Processing complete. Video is 100% clean and ready.");
+                  toast.success("Video export is ready to review.");
+                  usedBackend = true;
+                  break;
+                }
+              } else if (st.state === "error") {
+                throw new Error(st.error || "Video processing failed on backend");
+              }
+            }
+          }
+        }
+      } catch (backendErr) {
+        if (controller.signal.aborted) return;
+        console.warn("Backend pipeline error or offline, falling back to local engine:", backendErr);
+      }
+
+      if (!usedBackend) {
+        if (!engineFrame) {
+          toast.error("The local video engine is still loading. Please try again.");
+          return;
+        }
+
+        assertBrowserVideoSupport();
+
+        const result = await processWithGeminiEngine(
+          engineFrame,
+          file,
+          (event: GeminiVideoProgress) => {
+            if (controller.signal.aborted || processingControllerRef.current !== controller) return;
+            setProgress(Math.min(99, Math.max(1, Math.round(event.progress * 100))));
+            setStatusMsg(event.message);
+          },
+          controller.signal,
+        );
+
+        controller.signal.throwIfAborted();
+
+        const blobUrl = URL.createObjectURL(result.blob);
+        setOutputExt("mp4");
+        setCleanUrl(blobUrl);
+        setDownloadUrl(blobUrl);
+        setIsDone(true);
+        setProgress(99);
+        setStatusMsg("Processing complete. Review the result before downloading.");
+        toast.success("Video export is ready to review.");
+      }
 
       try {
         useUserStore.getState().addJob({
@@ -280,7 +348,7 @@ export function JobVideoCleaner() {
           quality: "Original resolution",
           credits_used: 0,
           file_url: origUrl,
-          result_url: blobUrl,
+          result_url: cleanUrl || "",
         });
       } catch {
         // Non-critical local history update.
