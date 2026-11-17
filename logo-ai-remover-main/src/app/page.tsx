@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import HomePage from "@/routes/index";
 
-export const metadata: Metadata = {
-  title: "Bellix.us — AI Background Remover, Image & Video Enhancer",
-  description:
-    "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
-};
+export const metadata = pageMetadata(
+  "/",
+  "AI Image & Video Editing Tools",
+  "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+  true,
+);
 
 export default function Page() {
   return <HomePage />;
 }
-

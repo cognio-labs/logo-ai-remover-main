@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import FaqPage from "@/routes/faq";
 
-export const metadata: Metadata = {
-  title: "FAQ — Background Removal, Watermark & PDF Tool Help | Bellix.us",
-  description:
-    "Find answers to common questions about Bellix.us tools — how background removal works, supported file formats, credit usage, and step-by-step guides for each AI tool.",
-};
+export const metadata = pageMetadata(
+  "/faq",
+  "Image & Video Editing Help",
+  "Get help choosing Bellix tools for background removal and supported watermark cleanup. Review format requirements and output limitations.",
+  true,
+);
 
 export default function Page() {
   return <FaqPage />;
 }
-

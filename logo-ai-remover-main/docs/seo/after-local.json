@@ -1,0 +1,3080 @@
+{
+  "date": "2026-11-17T11:19:44.829Z",
+  "base": "http://localhost:5681",
+  "notes": "Raw complete HTTP HTML; first network chunk is transport-dependent, not a guaranteed React shell boundary. Browser DOM and field metrics require separate measurement.",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/",
+      "fetchMs": 77,
+      "bytes": 40274,
+      "title": "AI Image &amp; Video Editing Tools | Bellix",
+      "description": "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds and Clean Supported Watermarks"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Choose your editing tool"
+        },
+        {
+          "level": "h2",
+          "text": "Review before exporting"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/pdf-watermark-remover",
+        "/tools",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/video-enhancer",
+      "status": 307,
+      "finalStatus": 200,
+      "hops": [
+        {
+          "status": 307,
+          "from": "http://localhost:5681/video-enhancer",
+          "to": "http://localhost:5681/"
+        }
+      ],
+      "destination": "http://localhost:5681/",
+      "fetchMs": 16,
+      "bytes": 40274,
+      "title": "AI Image &amp; Video Editing Tools | Bellix",
+      "description": "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds and Clean Supported Watermarks"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Choose your editing tool"
+        },
+        {
+          "level": "h2",
+          "text": "Review before exporting"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/pdf-watermark-remover",
+        "/tools",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/video",
+      "status": 308,
+      "finalStatus": 200,
+      "hops": [
+        {
+          "status": 308,
+          "from": "http://localhost:5681/video",
+          "to": "http://localhost:5681/gemini-video-watermark-remover"
+        }
+      ],
+      "destination": "http://localhost:5681/gemini-video-watermark-remover",
+      "fetchMs": 50,
+      "bytes": 122730,
+      "title": "Gemini &amp; Veo Video Watermark Remover | Bellix",
+      "description": "Clean supported visible Gemini and Veo sparkle marks locally in your browser. Upload an original video up to 100 MB and review the exported MP4.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/gemini-video-watermark-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Gemini and Veo Video Watermarks Online"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        },
+        {
+          "level": "h2",
+          "text": "See a real video cleanup result"
+        },
+        {
+          "level": "h2",
+          "text": "Remove the visible mark while keeping the full frame and smooth motion"
+        },
+        {
+          "level": "h3",
+          "text": "Restore the marked area frame by frame"
+        },
+        {
+          "level": "h3",
+          "text": "Supports 7 formats, videos up to 15 seconds"
+        },
+        {
+          "level": "h3",
+          "text": "Private local processing"
+        },
+        {
+          "level": "h3",
+          "text": "Full-frame aware cleanup"
+        },
+        {
+          "level": "h2",
+          "text": "Remove a Gemini video watermark in 3 steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload your clip"
+        },
+        {
+          "level": "h3",
+          "text": "Mark and clean the logo"
+        },
+        {
+          "level": "h3",
+          "text": "Download the result"
+        },
+        {
+          "level": "h2",
+          "text": "Questions before you start"
+        },
+        {
+          "level": "h2",
+          "text": "Discover Inspirations"
+        },
+        {
+          "level": "h4",
+          "text": "Cool Puppy Sunglasses"
+        },
+        {
+          "level": "h4",
+          "text": "Astronaut in Floral Cave"
+        },
+        {
+          "level": "h4",
+          "text": "Baseball Batter Motion"
+        },
+        {
+          "level": "h4",
+          "text": "Cyberpunk VR Visor"
+        },
+        {
+          "level": "h4",
+          "text": "Pastel Flower Portrait"
+        },
+        {
+          "level": "h4",
+          "text": "Pop Art Mouth Logo"
+        },
+        {
+          "level": "h4",
+          "text": "Neon Studio Headphones"
+        },
+        {
+          "level": "h4",
+          "text": "Classic B&amp;W Editorial"
+        },
+        {
+          "level": "h4",
+          "text": "Futuristic Sports Car"
+        },
+        {
+          "level": "h4",
+          "text": "Glassmorphism UI Concept"
+        },
+        {
+          "level": "h4",
+          "text": "Architectural Villa Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Anime City Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Liquid Splash Cosmetics"
+        },
+        {
+          "level": "h4",
+          "text": "Fantasy Dragon Castle"
+        },
+        {
+          "level": "h4",
+          "text": "Vibrant Typography Poster"
+        },
+        {
+          "level": "h4",
+          "text": "Vintage Cinema Color Grading"
+        },
+        {
+          "level": "h4",
+          "text": "Isometric Smart Home"
+        },
+        {
+          "level": "h4",
+          "text": "Geometric Brand Identity"
+        },
+        {
+          "level": "h4",
+          "text": "Cybernetic Android Robot"
+        },
+        {
+          "level": "h4",
+          "text": "Bioluminescent Jellyfish"
+        },
+        {
+          "level": "h4",
+          "text": "Claymation Retro Drive"
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/tools",
+        "/pdf-watermark-remover",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Gemini and Veo video cleanup",
+              "url": "https://www.bellix.us/gemini-video-watermark-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "The browser engine accepts MP4, MOV, WebM, and MKV files up to 100 MB. Chrome or Edge with compatible video codecs is required. Output is re-encoded MP4."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "Gemini and Veo video cleanup",
+                  "item": "https://www.bellix.us/gemini-video-watermark-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/upscale",
+      "status": 307,
+      "finalStatus": 200,
+      "hops": [
+        {
+          "status": 307,
+          "from": "http://localhost:5681/upscale",
+          "to": "http://localhost:5681/"
+        }
+      ],
+      "destination": "http://localhost:5681/",
+      "fetchMs": 11,
+      "bytes": 40274,
+      "title": "AI Image &amp; Video Editing Tools | Bellix",
+      "description": "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds and Clean Supported Watermarks"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Choose your editing tool"
+        },
+        {
+          "level": "h2",
+          "text": "Review before exporting"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/pdf-watermark-remover",
+        "/tools",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/tools",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/tools",
+      "fetchMs": 16,
+      "bytes": 34991,
+      "title": "Online Image &amp; Video Tools | Bellix",
+      "description": "Choose Bellix background removal, Gemini image and video cleanup, or PDF watermark cleanup. Find the right tool for your source file.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/tools",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "AI Tools Directory"
+        },
+        {
+          "level": "h2",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h2",
+          "text": "Image Watermark Remover"
+        },
+        {
+          "level": "h2",
+          "text": "Gemini Video Watermark Remover"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/remove/image",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/remove/video",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/remove/video",
+      "fetchMs": 19,
+      "bytes": 38680,
+      "title": "Video Logo Cleanup Workspace | Bellix",
+      "description": "Review supported visible logo cleanup for your video. Processing depends on service availability and the source file.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/remove/video",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove AI Logos From Videos"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/remove/image",
+      "status": 308,
+      "finalStatus": 200,
+      "hops": [
+        {
+          "status": 308,
+          "from": "http://localhost:5681/remove/image",
+          "to": "http://localhost:5681/gemini-image-watermark-remover"
+        }
+      ],
+      "destination": "http://localhost:5681/gemini-image-watermark-remover",
+      "fetchMs": 53,
+      "bytes": 79823,
+      "title": "Gemini Image Watermark Remover | Bellix",
+      "description": "Clean supported visible Gemini sparkle marks from PNG, JPG, and WebP images up to 25 MB. Review the restored corner before exporting.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/gemini-image-watermark-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Take the sparkle off your Gemini images."
+        },
+        {
+          "level": "h3",
+          "text": "Drop Gemini images here"
+        },
+        {
+          "level": "h2",
+          "text": "Before and after, frame by frame."
+        },
+        {
+          "level": "h3",
+          "text": "Alpine Lake Reflection"
+        },
+        {
+          "level": "h3",
+          "text": "Editorial Studio Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Liquid Emerald Caustic"
+        },
+        {
+          "level": "h3",
+          "text": "Architectural Twilight Villa"
+        },
+        {
+          "level": "h3",
+          "text": "Astronaut Floral Cavern"
+        },
+        {
+          "level": "h3",
+          "text": "Cyberpunk Neon Rain"
+        },
+        {
+          "level": "h3",
+          "text": "Desert Dune Crest"
+        },
+        {
+          "level": "h3",
+          "text": "Pacific Ocean Swells"
+        },
+        {
+          "level": "h2",
+          "text": "Three moves, no account."
+        },
+        {
+          "level": "h3",
+          "text": "Add your images"
+        },
+        {
+          "level": "h3",
+          "text": "Aim the box"
+        },
+        {
+          "level": "h3",
+          "text": "Save the clean copy"
+        },
+        {
+          "level": "h2",
+          "text": "What stays on your side."
+        },
+        {
+          "level": "h3",
+          "text": "Nothing is uploaded"
+        },
+        {
+          "level": "h3",
+          "text": "Same pixels out"
+        },
+        {
+          "level": "h3",
+          "text": "No account, no stamp"
+        },
+        {
+          "level": "h3",
+          "text": "Clear about limits"
+        },
+        {
+          "level": "h4",
+          "text": "Use it on images you created or have the legal right to edit."
+        },
+        {
+          "level": "h2",
+          "text": "Questions people ask first."
+        },
+        {
+          "level": "h2",
+          "text": "Got an image with the corner mark?"
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/tools",
+        "/pdf-watermark-remover",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Gemini image watermark cleanup",
+              "url": "https://www.bellix.us/gemini-image-watermark-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "PNG, JPEG, and WebP files up to 25 MB are accepted. This tool processes supported visible sparkle marks in the browser."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "Gemini image watermark cleanup",
+                  "item": "https://www.bellix.us/gemini-image-watermark-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "status": 307,
+      "finalStatus": 200,
+      "hops": [
+        {
+          "status": 307,
+          "from": "http://localhost:5681/pricing",
+          "to": "http://localhost:5681/"
+        }
+      ],
+      "destination": "http://localhost:5681/",
+      "fetchMs": 10,
+      "bytes": 40274,
+      "title": "AI Image &amp; Video Editing Tools | Bellix",
+      "description": "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds and Clean Supported Watermarks"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Choose your editing tool"
+        },
+        {
+          "level": "h2",
+          "text": "Review before exporting"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/pdf-watermark-remover",
+        "/tools",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/pdf-watermark-remover",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/pdf-watermark-remover",
+      "fetchMs": 16,
+      "bytes": 43816,
+      "title": "PDF Watermark Cleanup | Bellix",
+      "description": "Try PDF watermark cleanup for documents you own or may edit. Review each output page; results depend on how the watermark is stored.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/pdf-watermark-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "A clean PDF, without rebuilding the page."
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/tools",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "PDF watermark cleanup",
+              "url": "https://www.bellix.us/pdf-watermark-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "The document studio limits PDFs to 50 MB and 25 pages. PDF processing requires the document service to be available."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "PDF watermark cleanup",
+                  "item": "https://www.bellix.us/pdf-watermark-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/how-it-works",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/how-it-works",
+      "fetchMs": 16,
+      "bytes": 51032,
+      "title": "How to Use Bellix Tools",
+      "description": "Choose a Bellix tool, select a supported file, review the processed result, and export. Learn about limitations before editing your media.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/how-it-works",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "How Bellix.us Restores Every Frame"
+        },
+        {
+          "level": "h2",
+          "text": "The 4-Stage Spatio-Temporal Pipeline"
+        },
+        {
+          "level": "h4",
+          "text": "Sub-Pixel Watermark Localization"
+        },
+        {
+          "level": "h4",
+          "text": "Bidirectional Optical Flow Tracking"
+        },
+        {
+          "level": "h4",
+          "text": "Contextual Latent Diffusion Inpainting"
+        },
+        {
+          "level": "h4",
+          "text": "4K / 8K Super-Resolution Pass"
+        },
+        {
+          "level": "h3",
+          "text": "Sub-Pixel Watermark Localization"
+        },
+        {
+          "level": "h2",
+          "text": "Inspect the Reconstruction Quality"
+        },
+        {
+          "level": "h2",
+          "text": "Supported Media Formats"
+        },
+        {
+          "level": "h3",
+          "text": "Pro Tips for Flawless Results"
+        },
+        {
+          "level": "h4",
+          "text": "1. Upload Highest Native Resolution"
+        },
+        {
+          "level": "h4",
+          "text": "2. Continuous Frame Continuity"
+        },
+        {
+          "level": "h2",
+          "text": "Experience the neural difference"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/history",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/history",
+      "fetchMs": 14,
+      "bytes": 36969,
+      "title": "Project History | Bellix",
+      "description": "Review your Bellix editing history on this device.",
+      "robots": "noindex, follow",
+      "canonical": "https://www.bellix.us/history",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Project History"
+        },
+        {
+          "level": "h3",
+          "text": "No project files found"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/gemini-video-watermark-remover",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/gemini-video-watermark-remover",
+      "fetchMs": 7,
+      "bytes": 122730,
+      "title": "Gemini &amp; Veo Video Watermark Remover | Bellix",
+      "description": "Clean supported visible Gemini and Veo sparkle marks locally in your browser. Upload an original video up to 100 MB and review the exported MP4.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/gemini-video-watermark-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Gemini and Veo Video Watermarks Online"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        },
+        {
+          "level": "h2",
+          "text": "See a real video cleanup result"
+        },
+        {
+          "level": "h2",
+          "text": "Remove the visible mark while keeping the full frame and smooth motion"
+        },
+        {
+          "level": "h3",
+          "text": "Restore the marked area frame by frame"
+        },
+        {
+          "level": "h3",
+          "text": "Supports 7 formats, videos up to 15 seconds"
+        },
+        {
+          "level": "h3",
+          "text": "Private local processing"
+        },
+        {
+          "level": "h3",
+          "text": "Full-frame aware cleanup"
+        },
+        {
+          "level": "h2",
+          "text": "Remove a Gemini video watermark in 3 steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload your clip"
+        },
+        {
+          "level": "h3",
+          "text": "Mark and clean the logo"
+        },
+        {
+          "level": "h3",
+          "text": "Download the result"
+        },
+        {
+          "level": "h2",
+          "text": "Questions before you start"
+        },
+        {
+          "level": "h2",
+          "text": "Discover Inspirations"
+        },
+        {
+          "level": "h4",
+          "text": "Cool Puppy Sunglasses"
+        },
+        {
+          "level": "h4",
+          "text": "Astronaut in Floral Cave"
+        },
+        {
+          "level": "h4",
+          "text": "Baseball Batter Motion"
+        },
+        {
+          "level": "h4",
+          "text": "Cyberpunk VR Visor"
+        },
+        {
+          "level": "h4",
+          "text": "Pastel Flower Portrait"
+        },
+        {
+          "level": "h4",
+          "text": "Pop Art Mouth Logo"
+        },
+        {
+          "level": "h4",
+          "text": "Neon Studio Headphones"
+        },
+        {
+          "level": "h4",
+          "text": "Classic B&amp;W Editorial"
+        },
+        {
+          "level": "h4",
+          "text": "Futuristic Sports Car"
+        },
+        {
+          "level": "h4",
+          "text": "Glassmorphism UI Concept"
+        },
+        {
+          "level": "h4",
+          "text": "Architectural Villa Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Anime City Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Liquid Splash Cosmetics"
+        },
+        {
+          "level": "h4",
+          "text": "Fantasy Dragon Castle"
+        },
+        {
+          "level": "h4",
+          "text": "Vibrant Typography Poster"
+        },
+        {
+          "level": "h4",
+          "text": "Vintage Cinema Color Grading"
+        },
+        {
+          "level": "h4",
+          "text": "Isometric Smart Home"
+        },
+        {
+          "level": "h4",
+          "text": "Geometric Brand Identity"
+        },
+        {
+          "level": "h4",
+          "text": "Cybernetic Android Robot"
+        },
+        {
+          "level": "h4",
+          "text": "Bioluminescent Jellyfish"
+        },
+        {
+          "level": "h4",
+          "text": "Claymation Retro Drive"
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/tools",
+        "/pdf-watermark-remover",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Gemini and Veo video cleanup",
+              "url": "https://www.bellix.us/gemini-video-watermark-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "The browser engine accepts MP4, MOV, WebM, and MKV files up to 100 MB. Chrome or Edge with compatible video codecs is required. Output is re-encoded MP4."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "Gemini and Veo video cleanup",
+                  "item": "https://www.bellix.us/gemini-video-watermark-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/gemini-image-watermark-remover",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/gemini-image-watermark-remover",
+      "fetchMs": 7,
+      "bytes": 79823,
+      "title": "Gemini Image Watermark Remover | Bellix",
+      "description": "Clean supported visible Gemini sparkle marks from PNG, JPG, and WebP images up to 25 MB. Review the restored corner before exporting.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/gemini-image-watermark-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Take the sparkle off your Gemini images."
+        },
+        {
+          "level": "h3",
+          "text": "Drop Gemini images here"
+        },
+        {
+          "level": "h2",
+          "text": "Before and after, frame by frame."
+        },
+        {
+          "level": "h3",
+          "text": "Alpine Lake Reflection"
+        },
+        {
+          "level": "h3",
+          "text": "Editorial Studio Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Liquid Emerald Caustic"
+        },
+        {
+          "level": "h3",
+          "text": "Architectural Twilight Villa"
+        },
+        {
+          "level": "h3",
+          "text": "Astronaut Floral Cavern"
+        },
+        {
+          "level": "h3",
+          "text": "Cyberpunk Neon Rain"
+        },
+        {
+          "level": "h3",
+          "text": "Desert Dune Crest"
+        },
+        {
+          "level": "h3",
+          "text": "Pacific Ocean Swells"
+        },
+        {
+          "level": "h2",
+          "text": "Three moves, no account."
+        },
+        {
+          "level": "h3",
+          "text": "Add your images"
+        },
+        {
+          "level": "h3",
+          "text": "Aim the box"
+        },
+        {
+          "level": "h3",
+          "text": "Save the clean copy"
+        },
+        {
+          "level": "h2",
+          "text": "What stays on your side."
+        },
+        {
+          "level": "h3",
+          "text": "Nothing is uploaded"
+        },
+        {
+          "level": "h3",
+          "text": "Same pixels out"
+        },
+        {
+          "level": "h3",
+          "text": "No account, no stamp"
+        },
+        {
+          "level": "h3",
+          "text": "Clear about limits"
+        },
+        {
+          "level": "h4",
+          "text": "Use it on images you created or have the legal right to edit."
+        },
+        {
+          "level": "h2",
+          "text": "Questions people ask first."
+        },
+        {
+          "level": "h2",
+          "text": "Got an image with the corner mark?"
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/tools",
+        "/pdf-watermark-remover",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Gemini image watermark cleanup",
+              "url": "https://www.bellix.us/gemini-image-watermark-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "PNG, JPEG, and WebP files up to 25 MB are accepted. This tool processes supported visible sparkle marks in the browser."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "Gemini image watermark cleanup",
+                  "item": "https://www.bellix.us/gemini-image-watermark-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/features",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/features",
+      "fetchMs": 16,
+      "bytes": 110810,
+      "title": "Image &amp; Video Tool Features | Bellix",
+      "description": "Explore background removal and supported visible watermark cleanup. Learn which Bellix tool fits your image, video, or document.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/features",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Interactive Studio Controls"
+        },
+        {
+          "level": "h2",
+          "text": "Designed for Creators Who Demand Perfection"
+        },
+        {
+          "level": "h2",
+          "text": "Temporal Consistency"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us vs Alternative Solutions"
+        },
+        {
+          "level": "h3",
+          "text": "0.4s"
+        },
+        {
+          "level": "h3",
+          "text": "60 FPS"
+        },
+        {
+          "level": "h3",
+          "text": "8K"
+        },
+        {
+          "level": "h3",
+          "text": "99.9%"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to enhance your media?"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/faq",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/faq",
+      "fetchMs": 13,
+      "bytes": 42281,
+      "title": "Image &amp; Video Editing Help | Bellix",
+      "description": "Get help choosing Bellix tools for background removal and supported watermark cleanup. Review format requirements and output limitations.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/faq",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "How can we help you today?"
+        },
+        {
+          "level": "h2",
+          "text": "Still have questions?"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/contact",
+      "fetchMs": 40,
+      "bytes": 43738,
+      "title": "Contact Bellix Support",
+      "description": "Contact Bellix with questions about image and video editing tools. Include the tool name and a description of the issue.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/contact",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Let&#x27;s Create Something Amazing Together"
+        },
+        {
+          "level": "h2",
+          "text": "Send us a Message"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/clear-corner",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/clear-corner",
+      "fetchMs": 15,
+      "bytes": 37963,
+      "title": "ClearCorner Video Cleanup | Bellix",
+      "description": "Review supported Gemini sparkle video cleanup with ClearCorner. Test an original export and inspect the result before use.",
+      "robots": "noindex, follow",
+      "canonical": "https://www.bellix.us/clear-corner",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Take the sparkle off your Gemini videos."
+        },
+        {
+          "level": "h2",
+          "text": "Aim, check, save."
+        },
+        {
+          "level": "h3",
+          "text": "Shape the clean-up."
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/background-remover",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/background-remover",
+      "fetchMs": 17,
+      "bytes": 124939,
+      "title": "Image Background Remover | Bellix",
+      "description": "Remove image backgrounds for product photos and portraits. Upload a photo, review the cutout, and export a transparent PNG with Bellix.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/background-remover",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds in 5 Seconds Free"
+        },
+        {
+          "level": "h3",
+          "text": "Drop your image here"
+        },
+        {
+          "level": "h4",
+          "text": "BACKGROUND OPTIONS"
+        },
+        {
+          "level": "h2",
+          "text": "Watch Bellix AI Matting in Real-Time 60 FPS"
+        },
+        {
+          "level": "h3",
+          "text": "Luxury Product &amp; Glass Refraction"
+        },
+        {
+          "level": "h3",
+          "text": "Fluffy Puppy &amp; Kitten Whisker Matting"
+        },
+        {
+          "level": "h3",
+          "text": "Fashion Model &amp; Bustling Cafe Street"
+        },
+        {
+          "level": "h4",
+          "text": "Authentic AI Output Guarantee"
+        },
+        {
+          "level": "h2",
+          "text": "See the Difference"
+        },
+        {
+          "level": "h3",
+          "text": "Original"
+        },
+        {
+          "level": "h3",
+          "text": "Transparent background"
+        },
+        {
+          "level": "h3",
+          "text": "New background"
+        },
+        {
+          "level": "h3",
+          "text": "Endless possibilities"
+        },
+        {
+          "level": "h2",
+          "text": "Stunning Results on Hair, Fur &amp; Complex Edges"
+        },
+        {
+          "level": "h3",
+          "text": "Exotic Supercar Silhouette"
+        },
+        {
+          "level": "h3",
+          "text": "High-Top Sneaker Edge Isolation"
+        },
+        {
+          "level": "h3",
+          "text": "Studio Model Hair Matting"
+        },
+        {
+          "level": "h3",
+          "text": "Fluffy Pet Fur &amp; Whisker Details"
+        },
+        {
+          "level": "h2",
+          "text": "One Tool. Endless Possibilities."
+        },
+        {
+          "level": "h3",
+          "text": "Individuals &amp; Creators"
+        },
+        {
+          "level": "h3",
+          "text": "E-Commerce &amp; Marketplaces"
+        },
+        {
+          "level": "h3",
+          "text": "Photographers &amp; Studios"
+        },
+        {
+          "level": "h3",
+          "text": "Marketers &amp; Designers"
+        },
+        {
+          "level": "h3",
+          "text": "Developers &amp; Enterprise"
+        },
+        {
+          "level": "h2",
+          "text": "Remove Backgrounds in 3 Steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload or Paste Image"
+        },
+        {
+          "level": "h3",
+          "text": "AI Isolates Subject"
+        },
+        {
+          "level": "h3",
+          "text": "Customize &amp; Download"
+        },
+        {
+          "level": "h2",
+          "text": "Integrate Background Removal in 1 Line of Code"
+        },
+        {
+          "level": "h2",
+          "text": "Everything You Need to Know"
+        },
+        {
+          "level": "h2",
+          "text": "Make Every Image Ready to Use in 5 Seconds."
+        },
+        {
+          "level": "h2",
+          "text": "Supported files and requirements"
+        },
+        {
+          "level": "h2",
+          "text": "How to use this tool"
+        },
+        {
+          "level": "h2",
+          "text": "When to use it"
+        },
+        {
+          "level": "h2",
+          "text": "What to check before downloading"
+        },
+        {
+          "level": "h2",
+          "text": "Common questions"
+        },
+        {
+          "level": "h3",
+          "text": "Will every file produce a usable result?"
+        },
+        {
+          "level": "h3",
+          "text": "What does it cost?"
+        },
+        {
+          "level": "h3",
+          "text": "How is my file handled?"
+        },
+        {
+          "level": "h2",
+          "text": "Related tools"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "#trust-showcase-section",
+        "/background-remover/sample-images",
+        "/tools",
+        "/pdf-watermark-remover",
+        "mailto:bellixus062@gmail.com",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebApplication",
+              "name": "Image background removal",
+              "url": "https://www.bellix.us/background-remover",
+              "applicationCategory": "MultimediaApplication",
+              "operatingSystem": "Web browser",
+              "description": "The uploader enforces a 35 MB image limit. Use PNG, JPEG, or WebP for broad browser compatibility. Export PNG to retain transparency; JPEG needs a background."
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://www.bellix.us/"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Tools",
+                  "item": "https://www.bellix.us/tools"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": "Image background removal",
+                  "item": "https://www.bellix.us/background-remover"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/background-remover/sample-images",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/background-remover/sample-images",
+      "fetchMs": 16,
+      "bytes": 89130,
+      "title": "Background Removal Sample Images | Bellix",
+      "description": "Explore sample images for trying Bellix background removal.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/background-remover/sample-images",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "See Our Background Remover in Action"
+        },
+        {
+          "level": "h2",
+          "text": "Made for More Than Portraits"
+        },
+        {
+          "level": "h3",
+          "text": "Editorial Studio Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Executive Business Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Outdoor Sunlight Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Curly Hair Fashion Model"
+        },
+        {
+          "level": "h3",
+          "text": "Cashmere Coat Studio Fashion"
+        },
+        {
+          "level": "h3",
+          "text": "Natural Beauty Close-Up"
+        },
+        {
+          "level": "h3",
+          "text": "Casual Streetwear Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Creative Designer Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Athletic Fitness Model"
+        },
+        {
+          "level": "h3",
+          "text": "Modern Professional at Work"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to Remove Your Background?"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/api-reference",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/api-reference",
+      "fetchMs": 14,
+      "bytes": 41129,
+      "title": "Bellix API Information",
+      "description": "Review Bellix API information. Confirm endpoint availability, authentication, and usage terms before planning an integration.",
+      "robots": "noindex, follow",
+      "canonical": "https://www.bellix.us/api-reference",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Automate Inpainting with our Robust API"
+        },
+        {
+          "level": "h2",
+          "text": "Core Endpoints Reference"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "/pricing",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/affiliate",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/affiliate",
+      "fetchMs": 14,
+      "bytes": 42926,
+      "title": "Bellix Partnerships",
+      "description": "Explore Bellix partnership information. Confirm current programme availability and terms with the team before participating.",
+      "robots": "noindex, follow",
+      "canonical": "https://www.bellix.us/affiliate",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Earn 30% Lifetime Recurring Commission"
+        },
+        {
+          "level": "h2",
+          "text": "Calculate Your Earning Potential"
+        },
+        {
+          "level": "h3",
+          "text": "$ 702 / mo"
+        },
+        {
+          "level": "h3",
+          "text": "$ 8,424 / yr"
+        },
+        {
+          "level": "h4",
+          "text": "30% Lifetime Recurring"
+        },
+        {
+          "level": "h4",
+          "text": "60-Day Cookie Window"
+        },
+        {
+          "level": "h4",
+          "text": "Monthly Reliable Payouts"
+        },
+        {
+          "level": "h4",
+          "text": "Creator Asset Kit"
+        },
+        {
+          "level": "h2",
+          "text": "How the Partner Program Works"
+        },
+        {
+          "level": "h4",
+          "text": "Join Free"
+        },
+        {
+          "level": "h4",
+          "text": "Share Link"
+        },
+        {
+          "level": "h4",
+          "text": "Track Sales"
+        },
+        {
+          "level": "h4",
+          "text": "Get Paid"
+        },
+        {
+          "level": "h3",
+          "text": "Apply for Partner Access"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "finalStatus": 200,
+      "hops": [],
+      "destination": "http://localhost:5681/about",
+      "fetchMs": 13,
+      "bytes": 41146,
+      "title": "About Bellix",
+      "description": "Learn about Bellix, an online studio for image background removal and supported visible watermark cleanup.",
+      "robots": "index, follow",
+      "canonical": "https://www.bellix.us/about",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "Empowering Creators with Flawless Visual Freedom"
+        },
+        {
+          "level": "h2",
+          "text": "Our Mission"
+        },
+        {
+          "level": "h2",
+          "text": "The Technology"
+        },
+        {
+          "level": "h2",
+          "text": "What We Stand For"
+        },
+        {
+          "level": "h3",
+          "text": "Uncompromising Fidelity"
+        },
+        {
+          "level": "h3",
+          "text": "Instant Browser Workflows"
+        },
+        {
+          "level": "h3",
+          "text": "Privacy &amp; Security"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to experience true visual clarity?"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/seo-missing-page-check",
+      "status": 404,
+      "finalStatus": 404,
+      "hops": [],
+      "destination": "http://localhost:5681/seo-missing-page-check",
+      "fetchMs": 18,
+      "bytes": 32882,
+      "title": "Bellix.us — AI Creative Studio",
+      "description": "Explore Bellix tools for image background removal and supported image, video, and PDF watermark cleanup.",
+      "robots": "noindex",
+      "headings": [
+        {
+          "level": "h1",
+          "text": "404"
+        },
+        {
+          "level": "h2",
+          "text": "Page not found"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": true,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "mailto:bellixus062@gmail.com",
+        "/pdf-watermark-remover",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://www.bellix.us/#organization",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/"
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.bellix.us/#website",
+              "name": "Bellix",
+              "url": "https://www.bellix.us/",
+              "publisher": {
+                "@id": "https://www.bellix.us/#organization"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

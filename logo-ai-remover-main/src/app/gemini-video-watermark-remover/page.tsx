@@ -1,13 +1,21 @@
-import type { Metadata } from "next";
+import { ToolDetails } from "@/components/site/ToolDetails";
+import { ToolMeasurement } from "@/components/site/ToolMeasurement";
+import { pageMetadata } from "@/lib/seo";
 import GeminiVideoRemoverPage from "@/routes/gemini-video-watermark-remover";
 
-export const metadata: Metadata = {
-  title: "Gemini Video Watermark Remover — Browser Local | Bellix.us",
-  description:
-    "Remove supported visible Gemini and Veo sparkle marks with browser-local reverse-alpha processing. Upload an original export to start automatically.",
-};
+export const metadata = pageMetadata(
+  "/gemini-video-watermark-remover",
+  "Gemini & Veo Video Watermark Remover",
+  "Clean supported visible Gemini and Veo sparkle marks locally in your browser. Upload an original video up to 100 MB and review the exported MP4.",
+  true,
+);
 
 export default function Page() {
-  return <GeminiVideoRemoverPage />;
+  return (
+    <>
+      <ToolMeasurement tool="gemini-video-watermark-remover" />
+      <GeminiVideoRemoverPage />
+      <ToolDetails tool="gemini-video-watermark-remover" />
+    </>
+  );
 }
-

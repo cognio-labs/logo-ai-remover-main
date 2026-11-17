@@ -1,0 +1,106 @@
+{
+  "date": "2026-11-17T11:20:11.712Z",
+  "localPages": 23,
+  "sitemapVerified": 13,
+  "checks": "node scripts/seo-verify.mjs: zero errors",
+  "homepage": {
+    "path": "/",
+    "status": 200,
+    "finalStatus": 200,
+    "hops": [],
+    "destination": "http://localhost:5681/",
+    "fetchMs": 77,
+    "bytes": 40274,
+    "title": "AI Image &amp; Video Editing Tools | Bellix",
+    "description": "Remove image backgrounds and clean supported Gemini image, video, and PDF watermarks with Bellix. Choose a tool and review your result.",
+    "robots": "index, follow",
+    "canonical": "https://www.bellix.us",
+    "headings": [
+      {
+        "level": "h1",
+        "text": "Remove Image Backgrounds and Clean Supported Watermarks"
+      },
+      {
+        "level": "h2",
+        "text": "Breathtaking dynamic range."
+      },
+      {
+        "level": "h2",
+        "text": "Choose your editing tool"
+      },
+      {
+        "level": "h2",
+        "text": "Review before exporting"
+      },
+      {
+        "level": "h2",
+        "text": "Make something worth a second look."
+      },
+      {
+        "level": "h2",
+        "text": "Bellix.us"
+      },
+      {
+        "level": "h4",
+        "text": "Products"
+      },
+      {
+        "level": "h4",
+        "text": "Resources"
+      },
+      {
+        "level": "h4",
+        "text": "Get Updates"
+      }
+    ],
+    "firstChunkHasH1": true,
+    "completeHasH1": true,
+    "links": [
+      "/",
+      "/background-remover",
+      "/gemini-image-watermark-remover",
+      "/gemini-video-watermark-remover",
+      "/contact",
+      "/history",
+      "#final-cta",
+      "#tools",
+      "#showcase",
+      "/pdf-watermark-remover",
+      "/tools",
+      "mailto:bellixus062@gmail.com",
+      "/how-it-works",
+      "/features",
+      "/faq",
+      "/api-reference",
+      "/affiliate"
+    ],
+    "structuredData": [
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://www.bellix.us/#organization",
+            "name": "Bellix",
+            "url": "https://www.bellix.us/"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://www.bellix.us/#website",
+            "name": "Bellix",
+            "url": "https://www.bellix.us/",
+            "publisher": {
+              "@id": "https://www.bellix.us/#organization"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "blocked": [
+    "GSC subscription",
+    "analytics/consent configuration",
+    "mobile full processing QA",
+    "field CWV"
+  ]
+}

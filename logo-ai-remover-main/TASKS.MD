@@ -46,3 +46,9 @@ Completing this documentation setup does not complete the product backlog.
 
 - Video cleanup remains incomplete: the exact cartoon MP4 has now been tested end to end (240 frames, original AAC audio preserved), but NS inpainting smears floor detail and the output detector still flags frames 0 and 63. Resolve reconstruction quality and canceled Chrome save downloads. Validate VFR/rotation and large target jumps before wider claims.
 - [ ] **VIDEO-QUALITY: Full-video visual review.** Inspect real Gemini/Veo source and processed MP4 frame by frame, including moving marks, scene cuts, audio sync, and download reliability. The single-box UI and frame progress do not prove complete watermark removal.
+
+## 2026-11-17 SEO follow-up
+- [ ] Complete production/mobile tool processing and download QA; collect comparable mobile lab and CrUX data.
+- [ ] Confirm real pricing, retention, authentication and general cleanup capabilities; audit remaining legacy marketing claims.
+- [ ] Connect authorized Search Console/analytics, consent-aware event adapter, and non-video completion/failure instrumentation.
+- [ ] Review docs/seo/PROGRAMME.md and CONTENT-DRAFTS.md; supply owned examples before publication.

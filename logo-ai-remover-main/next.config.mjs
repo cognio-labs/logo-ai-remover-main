@@ -35,6 +35,12 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/:path*",
+        has: [{ type: "host", value: "bellix.us" }],
+        destination: "https://www.bellix.us/:path*",
+        permanent: true,
+      },
+      {
         source: "/admin",
         destination: "/",
         permanent: false,

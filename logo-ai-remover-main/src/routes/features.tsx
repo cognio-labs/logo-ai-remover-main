@@ -207,12 +207,12 @@ export default function FeaturesPage() {
             <span>State-of-the-Art Neural Features</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
+          <h2 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
             Designed for Creators Who Demand{" "}
             <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
               Perfection
             </span>
-          </h1>
+          </h2>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
             Explore the advanced neural models powering Bellix.us. From spatio-temporal video

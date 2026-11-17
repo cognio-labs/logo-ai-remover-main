@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Tools from "@/routes/tools";
 
-export const metadata: Metadata = {
-  title: "All AI Tools — Background Remover, PDF Cleaner & More | Bellix.us",
-  description:
-    "Browse all Bellix.us AI tools: background remover, image watermark remover, PDF cleaner, and video watermark remover. All free to try.",
-};
+export const metadata = pageMetadata(
+  "/tools",
+  "Online Image & Video Tools",
+  "Choose Bellix background removal, Gemini image and video cleanup, or PDF watermark cleanup. Find the right tool for your source file.",
+  true,
+);
 
 export default function Page() {
   return <Tools />;
 }
-

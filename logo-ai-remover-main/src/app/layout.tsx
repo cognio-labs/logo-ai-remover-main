@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "@/styles.css";
 import { AppShell } from "@/components/layout/AppShell";
 
@@ -19,10 +20,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.bellix.us"),
   title: {
     default: "Bellix.us — AI Creative Studio",
-    template: "%s | Bellix.us",
+    template: "%s | Bellix",
   },
   description:
-    "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
+    "Explore Bellix tools for image background removal and supported image, video, and PDF watermark cleanup.",
   authors: [{ name: "Bellix.us" }],
   openGraph: {
     siteName: "Bellix.us",
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     url: "https://www.bellix.us/",
     title: "Bellix.us — AI Creative Studio",
     description:
-      "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
+      "Explore Bellix tools for image background removal and supported image, video, and PDF watermark cleanup.",
     images: [
       {
         url: "/og-image.jpg",
@@ -42,10 +43,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@bellix_us",
     title: "Bellix.us — AI Creative Studio",
     description:
-      "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
+      "Explore Bellix tools for image background removal and supported image, video, and PDF watermark cleanup.",
     images: ["/og-image.jpg"],
   },
   icons: {
@@ -62,11 +62,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -76,17 +72,42 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
           rel="stylesheet"
         />
-        <link
-          rel="preload"
-          as="image"
-          href="/bellix-manus/image-1.webp"
-          type="image/webp"
-        />
+        <link rel="preload" as="image" href="/bellix-manus/image-1.webp" type="image/webp" />
       </head>
       <body className="antialiased min-h-screen bg-[#f3f4ee] text-[#10241e]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://www.bellix.us/#organization",
+                  name: "Bellix",
+                  url: "https://www.bellix.us/",
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.bellix.us/#website",
+                  name: "Bellix",
+                  url: "https://www.bellix.us/",
+                  publisher: { "@id": "https://www.bellix.us/#organization" },
+                },
+              ],
+            }),
+          }}
+        />
         <AppShell>{children}</AppShell>
+        <Script
+          id="datafast-analytics"
+          strategy="afterInteractive"
+          defer
+          data-website-id="dfid_V7j5JzvHOdmUgfGYd8ynv"
+          data-domain="www.bellix.us"
+          src="https://datafa.st/js/script.js"
+        />
       </body>
     </html>
   );
 }
-

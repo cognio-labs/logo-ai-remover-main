@@ -1,0 +1,2477 @@
+{
+  "date": "2026-11-17T11:09:14.768Z",
+  "base": "https://www.bellix.us",
+  "notes": "Raw complete HTTP HTML; first network chunk is transport-dependent, not a guaranteed React shell boundary. Browser DOM and field metrics require separate measurement.",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "destination": "https://www.bellix.us/",
+      "fetchMs": 264,
+      "bytes": 81403,
+      "title": "Bellix.us — AI Background Remover, Image &amp; Video Enhancer",
+      "description": "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Create Visuals That Stand Out With Studio-Grade AI"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Flawless execution in every single detail."
+        },
+        {
+          "level": "h3",
+          "text": "Portraits with organic texture"
+        },
+        {
+          "level": "h3",
+          "text": "Crystal caustics &amp; liquid light"
+        },
+        {
+          "level": "h3",
+          "text": "Alpine architectural masterpiece"
+        },
+        {
+          "level": "h2",
+          "text": "All the right tools. One clear point of view."
+        },
+        {
+          "level": "h3",
+          "text": "AI Video Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Gemini Sparkle Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "4K AI Photo Upscaler &amp; Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "4K Neural Frame Interpolator"
+        },
+        {
+          "level": "h3",
+          "text": "Vector &amp; Typography Reconstruction"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic HDR Color Grading"
+        },
+        {
+          "level": "h3",
+          "text": "Audio Temporal &amp; Stem Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "High-Resolution Image Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Neural Texture Synthesizer"
+        },
+        {
+          "level": "h3",
+          "text": "Ultra-Fast GPU Cloud Processing"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Retention Privacy Vault"
+        },
+        {
+          "level": "h3",
+          "text": "8K Neural Drone Stabilizer"
+        },
+        {
+          "level": "h3",
+          "text": "Haute Couture Model &amp; Luxury Couple Studio"
+        },
+        {
+          "level": "h3",
+          "text": "Anime Pet &amp; Character Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Macro Jewelry &amp; Diamond Refiner"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Lux Night Vision Denoising"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic Neural Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Private Media Processing"
+        },
+        {
+          "level": "h2",
+          "text": "From first upload to finished work."
+        },
+        {
+          "level": "h3",
+          "text": "Start with your file"
+        },
+        {
+          "level": "h3",
+          "text": "Choose your finish"
+        },
+        {
+          "level": "h3",
+          "text": "Export with confidence"
+        },
+        {
+          "level": "h2",
+          "text": "Keep the part you love."
+        },
+        {
+          "level": "h2",
+          "text": "More than erasing. Complete texture restoration."
+        },
+        {
+          "level": "h3",
+          "text": "Graduation &amp; studio portraits"
+        },
+        {
+          "level": "h3",
+          "text": "E-commerce &amp; product photography"
+        },
+        {
+          "level": "h3",
+          "text": "Stock previews &amp; 4K wallpapers"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/tools"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/video-enhancer",
+      "status": 200,
+      "destination": "https://www.bellix.us/",
+      "fetchMs": 131,
+      "bytes": 81403,
+      "title": "Bellix.us — AI Background Remover, Image &amp; Video Enhancer",
+      "description": "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Create Visuals That Stand Out With Studio-Grade AI"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Flawless execution in every single detail."
+        },
+        {
+          "level": "h3",
+          "text": "Portraits with organic texture"
+        },
+        {
+          "level": "h3",
+          "text": "Crystal caustics &amp; liquid light"
+        },
+        {
+          "level": "h3",
+          "text": "Alpine architectural masterpiece"
+        },
+        {
+          "level": "h2",
+          "text": "All the right tools. One clear point of view."
+        },
+        {
+          "level": "h3",
+          "text": "AI Video Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Gemini Sparkle Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "4K AI Photo Upscaler &amp; Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "4K Neural Frame Interpolator"
+        },
+        {
+          "level": "h3",
+          "text": "Vector &amp; Typography Reconstruction"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic HDR Color Grading"
+        },
+        {
+          "level": "h3",
+          "text": "Audio Temporal &amp; Stem Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "High-Resolution Image Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Neural Texture Synthesizer"
+        },
+        {
+          "level": "h3",
+          "text": "Ultra-Fast GPU Cloud Processing"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Retention Privacy Vault"
+        },
+        {
+          "level": "h3",
+          "text": "8K Neural Drone Stabilizer"
+        },
+        {
+          "level": "h3",
+          "text": "Haute Couture Model &amp; Luxury Couple Studio"
+        },
+        {
+          "level": "h3",
+          "text": "Anime Pet &amp; Character Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Macro Jewelry &amp; Diamond Refiner"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Lux Night Vision Denoising"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic Neural Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Private Media Processing"
+        },
+        {
+          "level": "h2",
+          "text": "From first upload to finished work."
+        },
+        {
+          "level": "h3",
+          "text": "Start with your file"
+        },
+        {
+          "level": "h3",
+          "text": "Choose your finish"
+        },
+        {
+          "level": "h3",
+          "text": "Export with confidence"
+        },
+        {
+          "level": "h2",
+          "text": "Keep the part you love."
+        },
+        {
+          "level": "h2",
+          "text": "More than erasing. Complete texture restoration."
+        },
+        {
+          "level": "h3",
+          "text": "Graduation &amp; studio portraits"
+        },
+        {
+          "level": "h3",
+          "text": "E-commerce &amp; product photography"
+        },
+        {
+          "level": "h3",
+          "text": "Stock previews &amp; 4K wallpapers"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/tools"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/video",
+      "status": 200,
+      "destination": "https://www.bellix.us/video",
+      "fetchMs": 574,
+      "bytes": 118037,
+      "title": "Gemini Video Watermark Remover — Browser Local | Bellix.us | Bellix.us",
+      "description": "Remove supported visible Gemini and Veo sparkle marks with browser-local reverse-alpha processing. Upload an original export to start automatically.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Remove Gemini and Veo Video Watermarks Online"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        },
+        {
+          "level": "h2",
+          "text": "See a real video cleanup result"
+        },
+        {
+          "level": "h2",
+          "text": "Remove the visible mark while keeping the full frame and smooth motion"
+        },
+        {
+          "level": "h3",
+          "text": "Restore the marked area frame by frame"
+        },
+        {
+          "level": "h3",
+          "text": "Supports 7 formats, videos up to 15 seconds"
+        },
+        {
+          "level": "h3",
+          "text": "Private local processing"
+        },
+        {
+          "level": "h3",
+          "text": "Full-frame aware cleanup"
+        },
+        {
+          "level": "h2",
+          "text": "Remove a Gemini video watermark in 3 steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload your clip"
+        },
+        {
+          "level": "h3",
+          "text": "Mark and clean the logo"
+        },
+        {
+          "level": "h3",
+          "text": "Download the result"
+        },
+        {
+          "level": "h2",
+          "text": "Questions before you start"
+        },
+        {
+          "level": "h2",
+          "text": "Discover Inspirations"
+        },
+        {
+          "level": "h4",
+          "text": "Cool Puppy Sunglasses"
+        },
+        {
+          "level": "h4",
+          "text": "Astronaut in Floral Cave"
+        },
+        {
+          "level": "h4",
+          "text": "Baseball Batter Motion"
+        },
+        {
+          "level": "h4",
+          "text": "Cyberpunk VR Visor"
+        },
+        {
+          "level": "h4",
+          "text": "Pastel Flower Portrait"
+        },
+        {
+          "level": "h4",
+          "text": "Pop Art Mouth Logo"
+        },
+        {
+          "level": "h4",
+          "text": "Neon Studio Headphones"
+        },
+        {
+          "level": "h4",
+          "text": "Classic B&amp;W Editorial"
+        },
+        {
+          "level": "h4",
+          "text": "Futuristic Sports Car"
+        },
+        {
+          "level": "h4",
+          "text": "Glassmorphism UI Concept"
+        },
+        {
+          "level": "h4",
+          "text": "Architectural Villa Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Anime City Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Liquid Splash Cosmetics"
+        },
+        {
+          "level": "h4",
+          "text": "Fantasy Dragon Castle"
+        },
+        {
+          "level": "h4",
+          "text": "Vibrant Typography Poster"
+        },
+        {
+          "level": "h4",
+          "text": "Vintage Cinema Color Grading"
+        },
+        {
+          "level": "h4",
+          "text": "Isometric Smart Home"
+        },
+        {
+          "level": "h4",
+          "text": "Geometric Brand Identity"
+        },
+        {
+          "level": "h4",
+          "text": "Cybernetic Android Robot"
+        },
+        {
+          "level": "h4",
+          "text": "Bioluminescent Jellyfish"
+        },
+        {
+          "level": "h4",
+          "text": "Claymation Retro Drive"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/upscale",
+      "status": 200,
+      "destination": "https://www.bellix.us/",
+      "fetchMs": 75,
+      "bytes": 81403,
+      "title": "Bellix.us — AI Background Remover, Image &amp; Video Enhancer",
+      "description": "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Create Visuals That Stand Out With Studio-Grade AI"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Flawless execution in every single detail."
+        },
+        {
+          "level": "h3",
+          "text": "Portraits with organic texture"
+        },
+        {
+          "level": "h3",
+          "text": "Crystal caustics &amp; liquid light"
+        },
+        {
+          "level": "h3",
+          "text": "Alpine architectural masterpiece"
+        },
+        {
+          "level": "h2",
+          "text": "All the right tools. One clear point of view."
+        },
+        {
+          "level": "h3",
+          "text": "AI Video Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Gemini Sparkle Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "4K AI Photo Upscaler &amp; Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "4K Neural Frame Interpolator"
+        },
+        {
+          "level": "h3",
+          "text": "Vector &amp; Typography Reconstruction"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic HDR Color Grading"
+        },
+        {
+          "level": "h3",
+          "text": "Audio Temporal &amp; Stem Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "High-Resolution Image Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Neural Texture Synthesizer"
+        },
+        {
+          "level": "h3",
+          "text": "Ultra-Fast GPU Cloud Processing"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Retention Privacy Vault"
+        },
+        {
+          "level": "h3",
+          "text": "8K Neural Drone Stabilizer"
+        },
+        {
+          "level": "h3",
+          "text": "Haute Couture Model &amp; Luxury Couple Studio"
+        },
+        {
+          "level": "h3",
+          "text": "Anime Pet &amp; Character Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Macro Jewelry &amp; Diamond Refiner"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Lux Night Vision Denoising"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic Neural Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Private Media Processing"
+        },
+        {
+          "level": "h2",
+          "text": "From first upload to finished work."
+        },
+        {
+          "level": "h3",
+          "text": "Start with your file"
+        },
+        {
+          "level": "h3",
+          "text": "Choose your finish"
+        },
+        {
+          "level": "h3",
+          "text": "Export with confidence"
+        },
+        {
+          "level": "h2",
+          "text": "Keep the part you love."
+        },
+        {
+          "level": "h2",
+          "text": "More than erasing. Complete texture restoration."
+        },
+        {
+          "level": "h3",
+          "text": "Graduation &amp; studio portraits"
+        },
+        {
+          "level": "h3",
+          "text": "E-commerce &amp; product photography"
+        },
+        {
+          "level": "h3",
+          "text": "Stock previews &amp; 4K wallpapers"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/tools"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/tools",
+      "status": 200,
+      "destination": "https://www.bellix.us/tools",
+      "fetchMs": 281,
+      "bytes": 37832,
+      "title": "All AI Tools — Background Remover, PDF Cleaner &amp; More | Bellix.us | Bellix.us",
+      "description": "Browse all Bellix.us AI tools: background remover, image watermark remover, PDF cleaner, and video watermark remover. All free to try.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "AI Tools Directory"
+        },
+        {
+          "level": "h2",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h2",
+          "text": "Image Watermark Remover"
+        },
+        {
+          "level": "h2",
+          "text": "Gemini Video Watermark Remover"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "/remove/image"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/remove/video",
+      "status": 200,
+      "destination": "https://www.bellix.us/remove/video",
+      "fetchMs": 543,
+      "bytes": 41473,
+      "title": "AI Video Logo Remover — Bellix.us | Bellix.us",
+      "description": "Remove visible AI logos from the exact uploaded video with job-isolated frame restoration.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Remove AI Logos From Videos"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/remove/image",
+      "status": 200,
+      "destination": "https://www.bellix.us/remove/image",
+      "fetchMs": 307,
+      "bytes": 34480,
+      "title": "Bellix.us — AI Creative Studio",
+      "description": "Bellix.us is an AI creative studio with tools to remove backgrounds, clean watermarks from images and PDFs, enhance video quality, and upscale photos up to 4K.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": false,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/pricing",
+      "status": 200,
+      "destination": "https://www.bellix.us/",
+      "fetchMs": 82,
+      "bytes": 81403,
+      "title": "Bellix.us — AI Background Remover, Image &amp; Video Enhancer",
+      "description": "Bellix.us is a free AI creative studio. Remove image backgrounds instantly, clean watermarks from photos and PDFs, enhance video quality, and upscale images to 4K — all in one place.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Create Visuals That Stand Out With Studio-Grade AI"
+        },
+        {
+          "level": "h2",
+          "text": "Breathtaking dynamic range."
+        },
+        {
+          "level": "h2",
+          "text": "Flawless execution in every single detail."
+        },
+        {
+          "level": "h3",
+          "text": "Portraits with organic texture"
+        },
+        {
+          "level": "h3",
+          "text": "Crystal caustics &amp; liquid light"
+        },
+        {
+          "level": "h3",
+          "text": "Alpine architectural masterpiece"
+        },
+        {
+          "level": "h2",
+          "text": "All the right tools. One clear point of view."
+        },
+        {
+          "level": "h3",
+          "text": "AI Video Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Gemini Sparkle Watermark Remover"
+        },
+        {
+          "level": "h3",
+          "text": "AI Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "4K AI Photo Upscaler &amp; Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "4K Neural Frame Interpolator"
+        },
+        {
+          "level": "h3",
+          "text": "Vector &amp; Typography Reconstruction"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic HDR Color Grading"
+        },
+        {
+          "level": "h3",
+          "text": "Audio Temporal &amp; Stem Cleaner"
+        },
+        {
+          "level": "h3",
+          "text": "High-Resolution Image Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Neural Texture Synthesizer"
+        },
+        {
+          "level": "h3",
+          "text": "Ultra-Fast GPU Cloud Processing"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Retention Privacy Vault"
+        },
+        {
+          "level": "h3",
+          "text": "8K Neural Drone Stabilizer"
+        },
+        {
+          "level": "h3",
+          "text": "Haute Couture Model &amp; Luxury Couple Studio"
+        },
+        {
+          "level": "h3",
+          "text": "Anime Pet &amp; Character Background Remover"
+        },
+        {
+          "level": "h3",
+          "text": "Macro Jewelry &amp; Diamond Refiner"
+        },
+        {
+          "level": "h3",
+          "text": "Zero-Lux Night Vision Denoising"
+        },
+        {
+          "level": "h3",
+          "text": "Cinematic Neural Restoration"
+        },
+        {
+          "level": "h3",
+          "text": "Private Media Processing"
+        },
+        {
+          "level": "h2",
+          "text": "From first upload to finished work."
+        },
+        {
+          "level": "h3",
+          "text": "Start with your file"
+        },
+        {
+          "level": "h3",
+          "text": "Choose your finish"
+        },
+        {
+          "level": "h3",
+          "text": "Export with confidence"
+        },
+        {
+          "level": "h2",
+          "text": "Keep the part you love."
+        },
+        {
+          "level": "h2",
+          "text": "More than erasing. Complete texture restoration."
+        },
+        {
+          "level": "h3",
+          "text": "Graduation &amp; studio portraits"
+        },
+        {
+          "level": "h3",
+          "text": "E-commerce &amp; product photography"
+        },
+        {
+          "level": "h3",
+          "text": "Stock previews &amp; 4K wallpapers"
+        },
+        {
+          "level": "h2",
+          "text": "Make something worth a second look."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "#final-cta",
+        "#tools",
+        "#showcase",
+        "/tools"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/pdf-watermark-remover",
+      "status": 200,
+      "destination": "https://www.bellix.us/pdf-watermark-remover",
+      "fetchMs": 261,
+      "bytes": 39752,
+      "title": "PDF Watermark Remover — Clean Text, Stamp &amp; Logo Watermarks Free | Bellix.us | Bellix.us",
+      "description": "Remove watermarks, background stamps, drafts, sample text, and logos from PDF documents online for free. Preserves layout, vector quality, and fonts. 100% private.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "A clean PDF, without rebuilding the page."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/how-it-works",
+      "status": 200,
+      "destination": "https://www.bellix.us/how-it-works",
+      "fetchMs": 576,
+      "bytes": 53938,
+      "title": "How It Works — AI Background Removal &amp; Watermark Cleaning | Bellix.us | Bellix.us",
+      "description": "Learn how Bellix.us AI tools work: background removal with edge matting, watermark detection and inpainting, and video frame reconstruction — step by step.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "How Bellix.us Restores Every Frame"
+        },
+        {
+          "level": "h2",
+          "text": "The 4-Stage Spatio-Temporal Pipeline"
+        },
+        {
+          "level": "h4",
+          "text": "Sub-Pixel Watermark Localization"
+        },
+        {
+          "level": "h4",
+          "text": "Bidirectional Optical Flow Tracking"
+        },
+        {
+          "level": "h4",
+          "text": "Contextual Latent Diffusion Inpainting"
+        },
+        {
+          "level": "h4",
+          "text": "4K / 8K Super-Resolution Pass"
+        },
+        {
+          "level": "h3",
+          "text": "Sub-Pixel Watermark Localization"
+        },
+        {
+          "level": "h2",
+          "text": "Inspect the Reconstruction Quality"
+        },
+        {
+          "level": "h2",
+          "text": "Supported Media Formats"
+        },
+        {
+          "level": "h3",
+          "text": "Pro Tips for Flawless Results"
+        },
+        {
+          "level": "h4",
+          "text": "1. Upload Highest Native Resolution"
+        },
+        {
+          "level": "h4",
+          "text": "2. Continuous Frame Continuity"
+        },
+        {
+          "level": "h2",
+          "text": "Experience the neural difference"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/history",
+      "status": 200,
+      "destination": "https://www.bellix.us/history",
+      "fetchMs": 571,
+      "bytes": 40176,
+      "title": "Project History — Bellix.us | Bellix.us",
+      "description": "Browse, search and re-download all your processed images, videos and upscaled assets.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Project History"
+        },
+        {
+          "level": "h3",
+          "text": "No project files found"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/gemini-video-watermark-remover",
+      "status": 200,
+      "destination": "https://www.bellix.us/gemini-video-watermark-remover",
+      "fetchMs": 35,
+      "bytes": 118078,
+      "title": "Gemini Video Watermark Remover — Browser Local | Bellix.us | Bellix.us",
+      "description": "Remove supported visible Gemini and Veo sparkle marks with browser-local reverse-alpha processing. Upload an original export to start automatically.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Remove Gemini and Veo Video Watermarks Online"
+        },
+        {
+          "level": "h3",
+          "text": "Drop a Gemini or Veo video"
+        },
+        {
+          "level": "h2",
+          "text": "See a real video cleanup result"
+        },
+        {
+          "level": "h2",
+          "text": "Remove the visible mark while keeping the full frame and smooth motion"
+        },
+        {
+          "level": "h3",
+          "text": "Restore the marked area frame by frame"
+        },
+        {
+          "level": "h3",
+          "text": "Supports 7 formats, videos up to 15 seconds"
+        },
+        {
+          "level": "h3",
+          "text": "Private local processing"
+        },
+        {
+          "level": "h3",
+          "text": "Full-frame aware cleanup"
+        },
+        {
+          "level": "h2",
+          "text": "Remove a Gemini video watermark in 3 steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload your clip"
+        },
+        {
+          "level": "h3",
+          "text": "Mark and clean the logo"
+        },
+        {
+          "level": "h3",
+          "text": "Download the result"
+        },
+        {
+          "level": "h2",
+          "text": "Questions before you start"
+        },
+        {
+          "level": "h2",
+          "text": "Discover Inspirations"
+        },
+        {
+          "level": "h4",
+          "text": "Cool Puppy Sunglasses"
+        },
+        {
+          "level": "h4",
+          "text": "Astronaut in Floral Cave"
+        },
+        {
+          "level": "h4",
+          "text": "Baseball Batter Motion"
+        },
+        {
+          "level": "h4",
+          "text": "Cyberpunk VR Visor"
+        },
+        {
+          "level": "h4",
+          "text": "Pastel Flower Portrait"
+        },
+        {
+          "level": "h4",
+          "text": "Pop Art Mouth Logo"
+        },
+        {
+          "level": "h4",
+          "text": "Neon Studio Headphones"
+        },
+        {
+          "level": "h4",
+          "text": "Classic B&amp;W Editorial"
+        },
+        {
+          "level": "h4",
+          "text": "Futuristic Sports Car"
+        },
+        {
+          "level": "h4",
+          "text": "Glassmorphism UI Concept"
+        },
+        {
+          "level": "h4",
+          "text": "Architectural Villa Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Anime City Sunset"
+        },
+        {
+          "level": "h4",
+          "text": "Liquid Splash Cosmetics"
+        },
+        {
+          "level": "h4",
+          "text": "Fantasy Dragon Castle"
+        },
+        {
+          "level": "h4",
+          "text": "Vibrant Typography Poster"
+        },
+        {
+          "level": "h4",
+          "text": "Vintage Cinema Color Grading"
+        },
+        {
+          "level": "h4",
+          "text": "Isometric Smart Home"
+        },
+        {
+          "level": "h4",
+          "text": "Geometric Brand Identity"
+        },
+        {
+          "level": "h4",
+          "text": "Cybernetic Android Robot"
+        },
+        {
+          "level": "h4",
+          "text": "Bioluminescent Jellyfish"
+        },
+        {
+          "level": "h4",
+          "text": "Claymation Retro Drive"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/gemini-image-watermark-remover",
+      "status": 200,
+      "destination": "https://www.bellix.us/gemini-image-watermark-remover",
+      "fetchMs": 273,
+      "bytes": 75456,
+      "title": "Gemini Image Watermark Remover — ClearCorner | Bellix.us | Bellix.us",
+      "description": "Remove visible Google Gemini sparkle watermarks from AI photos and art in seconds. 100% private in-browser canvas processing. Free, batch support, original 4K/8K resolution preserved.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Take the sparkle off your Gemini images."
+        },
+        {
+          "level": "h3",
+          "text": "Drop Gemini images here"
+        },
+        {
+          "level": "h2",
+          "text": "Before and after, frame by frame."
+        },
+        {
+          "level": "h3",
+          "text": "Alpine Lake Reflection"
+        },
+        {
+          "level": "h3",
+          "text": "Editorial Studio Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Liquid Emerald Caustic"
+        },
+        {
+          "level": "h3",
+          "text": "Architectural Twilight Villa"
+        },
+        {
+          "level": "h3",
+          "text": "Astronaut Floral Cavern"
+        },
+        {
+          "level": "h3",
+          "text": "Cyberpunk Neon Rain"
+        },
+        {
+          "level": "h3",
+          "text": "Desert Dune Crest"
+        },
+        {
+          "level": "h3",
+          "text": "Pacific Ocean Swells"
+        },
+        {
+          "level": "h2",
+          "text": "Three moves, no account."
+        },
+        {
+          "level": "h3",
+          "text": "Add your images"
+        },
+        {
+          "level": "h3",
+          "text": "Aim the box"
+        },
+        {
+          "level": "h3",
+          "text": "Save the clean copy"
+        },
+        {
+          "level": "h2",
+          "text": "What stays on your side."
+        },
+        {
+          "level": "h3",
+          "text": "Nothing is uploaded"
+        },
+        {
+          "level": "h3",
+          "text": "Same pixels out"
+        },
+        {
+          "level": "h3",
+          "text": "No account, no stamp"
+        },
+        {
+          "level": "h3",
+          "text": "Clear about limits"
+        },
+        {
+          "level": "h4",
+          "text": "Use it on images you created or have the legal right to edit."
+        },
+        {
+          "level": "h2",
+          "text": "Questions people ask first."
+        },
+        {
+          "level": "h2",
+          "text": "Got an image with the corner mark?"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/features",
+      "status": 200,
+      "destination": "https://www.bellix.us/features",
+      "fetchMs": 304,
+      "bytes": 113745,
+      "title": "AI Tool Features — Background Remover, Image &amp; Video Cleaner | Bellix.us | Bellix.us",
+      "description": "Explore all Bellix.us AI tool features: smart edge matting for background removal, brush-based watermark inpainting, PDF layer cleaning, and video frame reconstruction.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Interactive Studio Controls"
+        },
+        {
+          "level": "h1",
+          "text": "Designed for Creators Who Demand Perfection"
+        },
+        {
+          "level": "h2",
+          "text": "Temporal Consistency"
+        },
+        {
+          "level": "h2",
+          "text": "Bellix.us vs Alternative Solutions"
+        },
+        {
+          "level": "h3",
+          "text": "0.4s"
+        },
+        {
+          "level": "h3",
+          "text": "60 FPS"
+        },
+        {
+          "level": "h3",
+          "text": "8K"
+        },
+        {
+          "level": "h3",
+          "text": "99.9%"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to enhance your media?"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/faq",
+      "status": 200,
+      "destination": "https://www.bellix.us/faq",
+      "fetchMs": 588,
+      "bytes": 45170,
+      "title": "FAQ — Background Removal, Watermark &amp; PDF Tool Help | Bellix.us | Bellix.us",
+      "description": "Find answers to common questions about Bellix.us tools — how background removal works, supported file formats, credit usage, and step-by-step guides for each AI tool.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "How can we help you today?"
+        },
+        {
+          "level": "h2",
+          "text": "Still have questions?"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/contact",
+      "status": 200,
+      "destination": "https://www.bellix.us/contact",
+      "fetchMs": 280,
+      "bytes": 46734,
+      "title": "Contact Us — 24/7 Creator Support &amp; Inquiries | Bellix.us | Bellix.us",
+      "description": "Have a question, a project idea, or need help with our AI tools? Contact the Bellix.us team 24/7 at bellixus062@gmail.com. We respond within hours.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Let&#x27;s Create Something Amazing Together"
+        },
+        {
+          "level": "h2",
+          "text": "Send us a Message"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/clear-corner",
+      "status": 200,
+      "destination": "https://www.bellix.us/clear-corner",
+      "fetchMs": 503,
+      "bytes": 40786,
+      "title": "ClearCorner — Gemini Sparkle Video Remover | Bellix.us | Bellix.us",
+      "description": "Remove Gemini sparkle overlays from videos locally in your browser. Keep the original resolution and audio.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Take the sparkle off your Gemini videos."
+        },
+        {
+          "level": "h2",
+          "text": "Aim, check, save."
+        },
+        {
+          "level": "h3",
+          "text": "Shape the clean-up."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/background-remover",
+      "status": 200,
+      "destination": "https://www.bellix.us/background-remover",
+      "fetchMs": 377,
+      "bytes": 120759,
+      "title": "AI Background Remover — Remove Image Background Online Free | Bellix.us | Bellix.us",
+      "description": "Remove image backgrounds automatically in 5 seconds with AI. Free online transparent background maker for e-commerce, portraits, signatures &amp; products. 100% free cutout tool.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Remove Image Backgrounds in 5 Seconds Free"
+        },
+        {
+          "level": "h3",
+          "text": "Drop your image here"
+        },
+        {
+          "level": "h4",
+          "text": "BACKGROUND OPTIONS"
+        },
+        {
+          "level": "h2",
+          "text": "Watch Bellix AI Matting in Real-Time 60 FPS"
+        },
+        {
+          "level": "h3",
+          "text": "Luxury Product &amp; Glass Refraction"
+        },
+        {
+          "level": "h3",
+          "text": "Fluffy Puppy &amp; Kitten Whisker Matting"
+        },
+        {
+          "level": "h3",
+          "text": "Fashion Model &amp; Bustling Cafe Street"
+        },
+        {
+          "level": "h4",
+          "text": "Authentic AI Output Guarantee"
+        },
+        {
+          "level": "h2",
+          "text": "See the Difference"
+        },
+        {
+          "level": "h3",
+          "text": "Original"
+        },
+        {
+          "level": "h3",
+          "text": "Transparent background"
+        },
+        {
+          "level": "h3",
+          "text": "New background"
+        },
+        {
+          "level": "h3",
+          "text": "Endless possibilities"
+        },
+        {
+          "level": "h2",
+          "text": "Stunning Results on Hair, Fur &amp; Complex Edges"
+        },
+        {
+          "level": "h3",
+          "text": "Exotic Supercar Silhouette"
+        },
+        {
+          "level": "h3",
+          "text": "High-Top Sneaker Edge Isolation"
+        },
+        {
+          "level": "h3",
+          "text": "Studio Model Hair Matting"
+        },
+        {
+          "level": "h3",
+          "text": "Fluffy Pet Fur &amp; Whisker Details"
+        },
+        {
+          "level": "h2",
+          "text": "One Tool. Endless Possibilities."
+        },
+        {
+          "level": "h3",
+          "text": "Individuals &amp; Creators"
+        },
+        {
+          "level": "h3",
+          "text": "E-Commerce &amp; Marketplaces"
+        },
+        {
+          "level": "h3",
+          "text": "Photographers &amp; Studios"
+        },
+        {
+          "level": "h3",
+          "text": "Marketers &amp; Designers"
+        },
+        {
+          "level": "h3",
+          "text": "Developers &amp; Enterprise"
+        },
+        {
+          "level": "h2",
+          "text": "Remove Backgrounds in 3 Steps"
+        },
+        {
+          "level": "h3",
+          "text": "Upload or Paste Image"
+        },
+        {
+          "level": "h3",
+          "text": "AI Isolates Subject"
+        },
+        {
+          "level": "h3",
+          "text": "Customize &amp; Download"
+        },
+        {
+          "level": "h2",
+          "text": "Integrate Background Removal in 1 Line of Code"
+        },
+        {
+          "level": "h2",
+          "text": "Everything You Need to Know"
+        },
+        {
+          "level": "h2",
+          "text": "Make Every Image Ready to Use in 5 Seconds."
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "#trust-showcase-section",
+        "/background-remover/sample-images"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/background-remover/sample-images",
+      "status": 200,
+      "destination": "https://www.bellix.us/background-remover/sample-images",
+      "fetchMs": 539,
+      "bytes": 92201,
+      "title": "Background Removal Examples &amp; Sample Results | Bellix | Bellix.us",
+      "description": "Explore before-and-after samples of AI background removal across portraits, products, animals, cars, and graphics.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "See Our Background Remover in Action"
+        },
+        {
+          "level": "h2",
+          "text": "Made for More Than Portraits"
+        },
+        {
+          "level": "h3",
+          "text": "Editorial Studio Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Executive Business Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Outdoor Sunlight Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Curly Hair Fashion Model"
+        },
+        {
+          "level": "h3",
+          "text": "Cashmere Coat Studio Fashion"
+        },
+        {
+          "level": "h3",
+          "text": "Natural Beauty Close-Up"
+        },
+        {
+          "level": "h3",
+          "text": "Casual Streetwear Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Creative Designer Portrait"
+        },
+        {
+          "level": "h3",
+          "text": "Athletic Fitness Model"
+        },
+        {
+          "level": "h3",
+          "text": "Modern Professional at Work"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to Remove Your Background?"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/api-reference",
+      "status": 200,
+      "destination": "https://www.bellix.us/api-reference",
+      "fetchMs": 284,
+      "bytes": 43989,
+      "title": "REST API Reference &amp; SDKs — Bellix.us | Bellix.us",
+      "description": "Integrate programmatic AI watermark removal and 4K upscaling into your SaaS, CMS, or video pipeline with the Bellix.us REST API.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Automate Inpainting with our Robust API"
+        },
+        {
+          "level": "h2",
+          "text": "Core Endpoints Reference"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate",
+        "/pricing"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/affiliate",
+      "status": 200,
+      "destination": "https://www.bellix.us/affiliate",
+      "fetchMs": 312,
+      "bytes": 45788,
+      "title": "Affiliate &amp; Partner Program — Bellix.us | Bellix.us",
+      "description": "Earn 30% lifetime recurring commissions by introducing video editors, designers, and creators to Bellix.us.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Earn 30% Lifetime Recurring Commission"
+        },
+        {
+          "level": "h2",
+          "text": "Calculate Your Earning Potential"
+        },
+        {
+          "level": "h3",
+          "text": "$ 702 / mo"
+        },
+        {
+          "level": "h3",
+          "text": "$ 8,424 / yr"
+        },
+        {
+          "level": "h4",
+          "text": "30% Lifetime Recurring"
+        },
+        {
+          "level": "h4",
+          "text": "60-Day Cookie Window"
+        },
+        {
+          "level": "h4",
+          "text": "Monthly Reliable Payouts"
+        },
+        {
+          "level": "h4",
+          "text": "Creator Asset Kit"
+        },
+        {
+          "level": "h2",
+          "text": "How the Partner Program Works"
+        },
+        {
+          "level": "h4",
+          "text": "Join Free"
+        },
+        {
+          "level": "h4",
+          "text": "Share Link"
+        },
+        {
+          "level": "h4",
+          "text": "Track Sales"
+        },
+        {
+          "level": "h4",
+          "text": "Get Paid"
+        },
+        {
+          "level": "h3",
+          "text": "Apply for Partner Access"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "destination": "https://www.bellix.us/about",
+      "fetchMs": 321,
+      "bytes": 44296,
+      "title": "About Bellix.us — AI Creative Studio for Creators | Bellix.us",
+      "description": "Bellix.us is an AI creative studio built to help creators, developers, and businesses clean, restore, and enhance their media. Learn about our tools and values.",
+      "robots": null,
+      "headings": [
+        {
+          "level": "h2",
+          "text": "Bellix.us"
+        },
+        {
+          "level": "h4",
+          "text": "Products"
+        },
+        {
+          "level": "h4",
+          "text": "Resources"
+        },
+        {
+          "level": "h4",
+          "text": "Get Updates"
+        },
+        {
+          "level": "h1",
+          "text": "Empowering Creators with Flawless Visual Freedom"
+        },
+        {
+          "level": "h2",
+          "text": "Our Mission"
+        },
+        {
+          "level": "h2",
+          "text": "The Technology"
+        },
+        {
+          "level": "h2",
+          "text": "What We Stand For"
+        },
+        {
+          "level": "h3",
+          "text": "Uncompromising Fidelity"
+        },
+        {
+          "level": "h3",
+          "text": "Instant Browser Workflows"
+        },
+        {
+          "level": "h3",
+          "text": "Privacy &amp; Security"
+        },
+        {
+          "level": "h2",
+          "text": "Ready to experience true visual clarity?"
+        }
+      ],
+      "firstChunkHasH1": false,
+      "completeHasH1": true,
+      "links": [
+        "/",
+        "/background-remover",
+        "/gemini-image-watermark-remover",
+        "/gemini-video-watermark-remover",
+        "/contact",
+        "/history",
+        "https://instagram.com",
+        "https://twitter.com",
+        "https://linkedin.com",
+        "mailto:bellixus062@gmail.com",
+        "/video-enhancer",
+        "/how-it-works",
+        "/features",
+        "/faq",
+        "/api-reference",
+        "/affiliate"
+      ],
+      "structuredData": []
+    }
+  ]
+}

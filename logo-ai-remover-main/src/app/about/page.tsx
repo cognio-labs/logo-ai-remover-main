@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import AboutPage from "@/routes/about";
 
-export const metadata: Metadata = {
-  title: "About Bellix.us — AI Creative Studio for Creators",
-  description:
-    "Bellix.us is an AI creative studio built to help creators, developers, and businesses clean, restore, and enhance their media. Learn about our tools and values.",
-};
+export const metadata = pageMetadata(
+  "/about",
+  "About Bellix",
+  "Learn about Bellix, an online studio for image background removal and supported visible watermark cleanup.",
+  true,
+);
 
 export default function Page() {
   return <AboutPage />;
 }
-

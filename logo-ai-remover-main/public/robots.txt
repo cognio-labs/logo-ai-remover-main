@@ -1,12 +1,5 @@
-# Allow all search engines to crawl all public pages
 User-agent: *
 Allow: /
-
-# Block admin and private routes from indexing
-Disallow: /admin
-Disallow: /admin/
-Disallow: /history
 Disallow: /api/
 
-# Sitemap location
 Sitemap: https://www.bellix.us/sitemap.xml

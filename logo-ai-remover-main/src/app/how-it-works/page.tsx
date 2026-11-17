@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import HowItWorksPage from "@/routes/how-it-works";
 
-export const metadata: Metadata = {
-  title: "How It Works — AI Background Removal & Watermark Cleaning | Bellix.us",
-  description:
-    "Learn how Bellix.us AI tools work: background removal with edge matting, watermark detection and inpainting, and video frame reconstruction — step by step.",
-};
+export const metadata = pageMetadata(
+  "/how-it-works",
+  "How to Use Bellix Tools",
+  "Choose a Bellix tool, select a supported file, review the processed result, and export. Learn about limitations before editing your media.",
+  true,
+);
 
 export default function Page() {
   return <HowItWorksPage />;
 }
-

@@ -64,14 +64,14 @@ function HeroSection() {
             <span className="eyebrow-pip" /> THE CREATIVE FINISHING STUDIO
           </p>
           <h1>
-            Create Visuals That Stand Out With <em>Studio-Grade AI</em>
+            Remove Image Backgrounds and <em>Clean Supported Watermarks</em>
           </h1>
           <p className="hero-description">
-            One unified creative suite to remove backgrounds, upscale images to 8K, and clean video watermarks with instantaneous precision.
+            Choose background removal or supported Gemini image, video, and PDF watermark cleanup. Review your edited media before exporting.
           </p>
           <div className="hero-actions">
             <a className="button button-lime" href="#final-cta">
-              Start Creating Free <ArrowUpRight size={17} />
+              Choose an Editing Tool <ArrowUpRight size={17} />
             </a>
             <a className="button button-outline-light" href="#tools">
               Explore All Tools <ArrowRight size={17} />
@@ -82,10 +82,10 @@ function HeroSection() {
               <Check size={14} /> Free to start, no card required
             </span>
             <span>
-              <ShieldCheck size={14} /> Private & secure processing
+              <ShieldCheck size={14} /> Review results before use
             </span>
             <span>
-              <Sparkles size={14} /> Full 4K / 8K exports
+              <Sparkles size={14} /> Tool-specific formats and limits
             </span>
           </div>
         </div>
@@ -135,7 +135,7 @@ function HeroSection() {
       </div>
       <div className="hero-bottomline">
         <span>MAKE EVERY DETAIL FEEL INTENTIONAL</span>
-        <a href="#showcase">
+        <a href="#tools">
           Scroll to explore <ArrowDownRight size={15} />
         </a>
       </div>
@@ -640,7 +640,7 @@ function FinalCTASection() {
             Find your tool <ArrowUpRight size={17} />
           </a>
           <span className="cta-reassurance">
-            <Check size={14} /> Start for free in your browser. No software installation, credit card, or account required.
+            <Check size={14} /> Choose a tool to see its supported files and requirements.
           </span>
         </div>
         <div className="cta-stamp" aria-hidden="true">
@@ -662,12 +662,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <HeroSection />
-      <MetricsSection />
-      <ShowcaseSection />
-      <ToolkitSection />
-      <WorkflowSection />
-      <DemoSection />
-      <BenchmarksSection />
+      <section className="toolkit-section" id="tools" style={{ padding: '48px 24px', maxWidth: 1100, margin: 'auto' }}><h2>Choose your editing tool</h2><p>Start with an original file you own or have permission to edit. Each tool has different format and browser requirements.</p><ul><li><Link href="/background-remover">Remove image backgrounds and create transparent PNGs</Link></li><li><Link href="/gemini-image-watermark-remover">Clean visible Gemini image sparkle marks</Link></li><li><Link href="/gemini-video-watermark-remover">Clean supported Gemini and Veo video marks</Link></li><li><Link href="/pdf-watermark-remover">Try PDF watermark cleanup</Link></li></ul><h2>Review before exporting</h2><p>Inspect fine edges, text, faces, and moving subjects. Cleanup can leave artifacts and cannot recover detail absent from the source. Visible-mark cleanup does not remove invisible SynthID.</p><Link href="/tools">Explore the tool directory</Link></section>
       <FinalCTASection />
     </div>
   );

@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ApiReferencePage from "@/routes/api-reference";
 
-export const metadata: Metadata = {
-  title: "REST API Reference & SDKs — Bellix.us",
-  description:
-    "Integrate programmatic AI watermark removal and 4K upscaling into your SaaS, CMS, or video pipeline with the Bellix.us REST API.",
-};
+export const metadata = pageMetadata(
+  "/api-reference",
+  "Bellix API Information",
+  "Review Bellix API information. Confirm endpoint availability, authentication, and usage terms before planning an integration.",
+  false,
+);
 
 export default function Page() {
   return <ApiReferencePage />;
 }
-

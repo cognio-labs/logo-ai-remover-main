@@ -1,4 +1,5 @@
 "use client";
+import { emitToolEvent } from "@/lib/tool-events";
 
 import { useUserStore } from "@/lib/userStore";
 import * as React from "react";
@@ -297,6 +298,7 @@ export function JobVideoCleaner() {
                   setCleanUrl(blobUrl);
                   setDownloadUrl(blobUrl);
                   setIsDone(true);
+                  emitToolEvent("processing_completed", "gemini-video-watermark-remover");
                   setProgress(100);
                   setStatusMsg("Processing complete. Video is 100% clean and ready.");
                   toast.success("Video export is ready to review.");
@@ -311,7 +313,10 @@ export function JobVideoCleaner() {
         }
       } catch (backendErr) {
         if (controller.signal.aborted) return;
-        console.warn("Backend pipeline error or offline, falling back to local engine:", backendErr);
+        console.warn(
+          "Backend pipeline error or offline, falling back to local engine:",
+          backendErr,
+        );
       }
 
       if (!usedBackend) {
@@ -340,6 +345,7 @@ export function JobVideoCleaner() {
         setCleanUrl(blobUrl);
         setDownloadUrl(blobUrl);
         setIsDone(true);
+        emitToolEvent("processing_completed", "gemini-video-watermark-remover");
         setProgress(99);
         setStatusMsg("Processing complete. Review the result before downloading.");
         toast.success("Video export is ready to review.");
@@ -366,6 +372,7 @@ export function JobVideoCleaner() {
       console.error("Video processing failure:", finalErr);
       if (controller.signal.aborted || processingControllerRef.current !== controller) return;
       setIsError(true);
+      emitToolEvent("processing_failed", "gemini-video-watermark-remover");
       setErrorDetails(
         finalErr instanceof Error ? finalErr.message : "Unable to process this video locally.",
       );

@@ -1,13 +1,21 @@
-import type { Metadata } from "next";
+import { ToolDetails } from "@/components/site/ToolDetails";
+import { ToolMeasurement } from "@/components/site/ToolMeasurement";
+import { pageMetadata } from "@/lib/seo";
 import BackgroundRemoverPage from "@/routes/background-remover";
 
-export const metadata: Metadata = {
-  title: "AI Background Remover — Remove Image Background Online Free | Bellix.us",
-  description:
-    "Remove image backgrounds automatically in 5 seconds with AI. Free online transparent background maker for e-commerce, portraits, signatures & products. 100% free cutout tool.",
-};
+export const metadata = pageMetadata(
+  "/background-remover",
+  "Image Background Remover",
+  "Remove image backgrounds for product photos and portraits. Upload a photo, review the cutout, and export a transparent PNG with Bellix.",
+  true,
+);
 
 export default function Page() {
-  return <BackgroundRemoverPage />;
+  return (
+    <>
+      <ToolMeasurement tool="background-remover" />
+      <BackgroundRemoverPage />
+      <ToolDetails tool="background-remover" />
+    </>
+  );
 }
-

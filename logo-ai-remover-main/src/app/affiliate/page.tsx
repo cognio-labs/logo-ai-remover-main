@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import AffiliatePage from "@/routes/affiliate";
 
-export const metadata: Metadata = {
-  title: "Affiliate & Partner Program — Bellix.us",
-  description:
-    "Earn 30% lifetime recurring commissions by introducing video editors, designers, and creators to Bellix.us.",
-};
+export const metadata = pageMetadata(
+  "/affiliate",
+  "Bellix Partnerships",
+  "Explore Bellix partnership information. Confirm current programme availability and terms with the team before participating.",
+  false,
+);
 
 export default function Page() {
   return <AffiliatePage />;
 }
-

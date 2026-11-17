@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/site/Navbar";
@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
           },
         },
-      })
+      }),
   );
 
   const pathname = usePathname() || "/";
@@ -27,15 +27,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {isAdmin ? (
         <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
-          <Suspense fallback={null}>{children}</Suspense>
+          {children}
           <Toaster richColors position="top-right" />
         </div>
       ) : (
         <div className="flex min-h-screen flex-col bg-[#f3f4ee] text-[#10241e] relative">
           <Navbar />
-          <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">
-            <Suspense fallback={null}>{children}</Suspense>
-          </main>
+          <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">{children}</main>
           <Footer />
           <Toaster richColors position="top-right" />
         </div>

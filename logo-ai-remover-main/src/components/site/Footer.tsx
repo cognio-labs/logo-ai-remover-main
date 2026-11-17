@@ -43,7 +43,7 @@ export function Footer() {
           </h2>
 
           <p className="mt-5 max-w-2xl text-base sm:text-lg lg:text-xl text-[#e2ece6] !text-[#e2ece6] font-medium leading-relaxed">
-            Eliminate watermarks, restore micro-textures, and enhance images &amp; videos with zero plastic blur.
+            Remove image backgrounds and clean supported visible watermarks. Review your results before export.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -82,33 +82,6 @@ export function Footer() {
             </p>
 
             <div className="flex items-center gap-3 pt-2">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
-                aria-label="Instagram"
-              >
-                <Instagram className="size-4" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noreferrer"
-                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
-                aria-label="Twitter"
-              >
-                <Twitter className="size-4" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className="size-9 rounded-xl bg-[#142e25] border border-[#d7f3af]/15 flex items-center justify-center text-[#d0f471] hover:bg-[#252525] hover:scale-105 transition-all"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="size-4" />
-              </a>
             </div>
 
             <div className="pt-2 flex items-center gap-2.5">
@@ -155,10 +128,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/video-enhancer"
+                  to="/pdf-watermark-remover"
                   className="hover:text-[#d0f471] transition-colors"
                 >
-                  AI Video Enhancer
+                  PDF Watermark Cleanup
                 </Link>
               </li>
             </ul>

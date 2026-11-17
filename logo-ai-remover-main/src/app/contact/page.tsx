@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ContactPage from "@/routes/contact";
 
-export const metadata: Metadata = {
-  title: "Contact Us — 24/7 Creator Support & Inquiries | Bellix.us",
-  description:
-    "Have a question, a project idea, or need help with our AI tools? Contact the Bellix.us team 24/7 at bellixus062@gmail.com. We respond within hours.",
-};
+export const metadata = pageMetadata(
+  "/contact",
+  "Contact Bellix Support",
+  "Contact Bellix with questions about image and video editing tools. Include the tool name and a description of the issue.",
+  true,
+);
 
 export default function Page() {
   return <ContactPage />;
 }
-
