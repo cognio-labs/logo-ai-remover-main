@@ -52,98 +52,6 @@ function BrandMark() {
   );
 }
 
-// INTERACTIVE PORTRAIT BEFORE/AFTER SLIDER COMPONENT
-function HeroPortraitSlider() {
-  const [sliderPos, setSliderPos] = useState(50);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const [isInteracting, setIsInteracting] = useState(false);
-
-  const updatePosition = (clientX: number) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-    const percent = Math.round((x / rect.width) * 100);
-    setSliderPos(percent);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    updatePosition(e.clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches[0]) updatePosition(e.touches[0].clientX);
-  };
-
-  return (
-    <div className="relative w-full max-w-[500px] lg:max-w-[540px] mx-auto group">
-      {/* Ambient Radial Backlight Glow */}
-      <div className="absolute -inset-6 bg-[radial-gradient(ellipse_at_center,rgba(208,244,113,0.22),transparent_70%)] rounded-3xl blur-3xl pointer-events-none" />
-
-      {/* Main Portrait Card */}
-      <div
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onTouchMove={handleTouchMove}
-        onMouseEnter={() => setIsInteracting(true)}
-        onMouseLeave={() => {
-          setIsInteracting(false);
-          setSliderPos(50);
-        }}
-        className="relative w-full aspect-[4/5] min-h-[520px] sm:min-h-[580px] lg:min-h-[620px] rounded-3xl overflow-hidden border border-[#d7f3af]/30 bg-[#091712] shadow-[0_30px_75px_-12px_rgba(0,0,0,0.95),0_0_40px_rgba(208,244,113,0.2)] select-none cursor-ew-resize transition-transform duration-300 hover:scale-[1.01]"
-      >
-        {/* 'Before' Full Portrait (Left side revealed) */}
-        <img
-          src="/hero-portrait-before.png"
-          alt="Before Background Removal"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-        />
-
-        {/* 'After' Cutout Portrait (Clipped by slider position) */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
-        >
-          <img
-            src="/hero-portrait-after.png"
-            alt="After Background Removal"
-            className="absolute inset-0 w-full h-full object-cover select-none"
-          />
-        </div>
-
-        {/* Center Vertical Divider Line */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(0,0,0,0.8)] pointer-events-none transition-all duration-75"
-          style={{ left: `${sliderPos}%` }}
-        >
-          {/* Circular Slider Handle '< >' */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-10 rounded-full bg-white shadow-[0_4px_20px_rgba(0,0,0,0.6)] flex items-center justify-center text-[#10241e] font-black text-xs select-none border border-black/10">
-            <span className="tracking-tighter">&lt;&gt;</span>
-          </div>
-        </div>
-
-        {/* Top-Left 'Before' Badge */}
-        <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white text-xs font-semibold tracking-wide border border-white/15 shadow-lg pointer-events-none">
-          Before
-        </div>
-
-        {/* Top-Right 'After' Badge */}
-        <div className="absolute top-4 right-4 px-3.5 py-1.5 rounded-full bg-[#122e20]/90 backdrop-blur-md text-[#d0f471] text-xs font-bold tracking-wide border border-[#d0f471]/35 shadow-lg pointer-events-none">
-          After
-        </div>
-
-        {/* Bottom-Right '✓ HD Quality 100% Clean' Badge */}
-        <div className="absolute bottom-5 right-5 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#d0f471] text-[#091712] font-black text-xs sm:text-sm shadow-[0_10px_30px_rgba(208,244,113,0.55)] pointer-events-none border border-white/20">
-          <CheckCircle2 className="size-4 sm:size-5 text-[#091712] stroke-[2.5]" />
-          <div className="flex flex-col leading-tight">
-            <span className="text-[11px] sm:text-xs font-extrabold uppercase tracking-tight">HD Quality</span>
-            <span className="text-[10px] sm:text-[11px] font-bold opacity-85">100% Clean</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // 1. HERO SECTION
 function HeroSection() {
   return (
@@ -151,37 +59,17 @@ function HeroSection() {
       <div className="hero-orbit hero-orbit-one" aria-hidden="true" />
       <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
       <div className="hero-inner">
-        <div className="hero-copy relative">
+        <div className="hero-copy">
           <p className="eyebrow eyebrow-light">
             <span className="eyebrow-pip" /> THE CREATIVE FINISHING STUDIO
           </p>
-          <div className="relative">
-            <h1>
-              Remove Image <br />
-              Backgrounds and <br />
-              <em className="!text-[#d0f471] not-italic font-black text-[#d0f471]">
-                Clean Supported Watermarks
-              </em>
-            </h1>
-            {/* Glowing neon green curved arrow pointing to the comparison card */}
-            <div className="hidden lg:block absolute -right-6 top-1/2 -translate-y-1/2 pointer-events-none drop-shadow-[0_0_12px_rgba(208,244,113,0.7)]">
-              <svg width="68" height="46" viewBox="0 0 68 46" fill="none">
-                <path
-                  d="M 6 38 C 24 34, 46 22, 58 10"
-                  stroke="#d0f471"
-                  strokeWidth="2.8"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M 44 8 L 59 9 L 56 24"
-                  stroke="#d0f471"
-                  strokeWidth="2.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
+          <h1>
+            Remove Image <br />
+            Backgrounds and <br />
+            <em className="!text-[#d0f471] not-italic font-black text-[#d0f471]">
+              Clean Supported Watermarks
+            </em>
+          </h1>
           <p className="hero-description">
             Choose background remover or supported Gemini image, video, and PDF watermark cleanup. Preview your edited media before exporting.
           </p>
@@ -205,8 +93,48 @@ function HeroSection() {
             </span>
           </div>
         </div>
-        <div className="hero-art-wrap flex items-center justify-center">
-          <HeroPortraitSlider />
+        <div className="hero-art-wrap">
+          <div className="hero-art" role="img" aria-label="Cinematic alpine lake and mountains at blue hour">
+            <img
+              src="/bellix-manus/image-1.webp"
+              alt="Cinematic alpine lake and mountain range at blue hour"
+            />
+            <div className="hero-art-topline">
+              <span>
+                <span className="live-dot" /> BELLIX SCENE STUDY
+              </span>
+              <span>01 / 03</span>
+            </div>
+            <div className="hero-art-caption">
+              <div>
+                <span className="image-kicker">LANDSCAPE & SCENE AI</span>
+                <h2>
+                  Breathtaking<br />
+                  dynamic range.
+                </h2>
+              </div>
+              <span className="image-arrow" aria-hidden="true">
+                <ArrowUpRight size={20} />
+              </span>
+            </div>
+            <div className="hero-art-note">
+              <span className="note-icon">
+                <Sparkles size={15} />
+              </span>
+              <span>
+                <strong>Depth, restored</strong>
+                <small>Cinematic color · atmospheric light</small>
+              </span>
+            </div>
+            <div className="hero-image-grain" aria-hidden="true" />
+          </div>
+          <div className="hero-float-tag">
+            <span className="float-tag-icon">
+              <Mountain size={15} />
+            </span>
+            <span>LANDSCAPE / SCENE AI</span>
+          </div>
+          <div className="hero-side-label">BELLIX CREATIVE SYSTEM — 2026</div>
         </div>
       </div>
       <div className="hero-bottomline">
