@@ -286,6 +286,16 @@ def remove_watermark(src, dst, progress_cb=None, manual_box=None, alpha=0.30,
     calibrated = _find_calibrated_sparkle(samples, min(width, height), (left, top),
                                           hints=manual_box is not None)
     weights = lama_path or os.environ.get("LAMA_MODEL_PATH")
+    if not weights:
+        candidates = [
+            Path(__file__).resolve().parent.parent / "artifacts" / "big-lama.pt",
+            Path(__file__).resolve().parent / "big-lama.pt",
+            Path(__file__).resolve().parent / "artifacts" / "big-lama.pt",
+        ]
+        for candidate in candidates:
+            if candidate.is_file():
+                weights = str(candidate)
+                break
     lama = None
     if calibrated is None:
         if not allow_tracking:

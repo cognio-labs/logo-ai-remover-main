@@ -3,7 +3,10 @@ export const dynamic = "force-dynamic";
 export function GET() {
   const configured =
     process.env.VIDEO_WORKER_URL ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
+    process.env.NEXT_PUBLIC_VIDEO_API ||
+    process.env.BACKEND_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://127.0.0.1:5000";
 
   try {
     const url = new URL(configured);
@@ -17,6 +20,6 @@ export function GET() {
     }
     return Response.json({ origin: url.origin }, { headers: { "Cache-Control": "no-store" } });
   } catch {
-    return Response.json({ detail: "The video worker is not configured." }, { status: 503 });
+    return Response.json({ origin: "http://127.0.0.1:5000" }, { headers: { "Cache-Control": "no-store" } });
   }
 }
