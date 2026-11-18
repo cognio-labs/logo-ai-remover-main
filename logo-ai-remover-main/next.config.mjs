@@ -25,12 +25,14 @@ const nextConfig = {
       process.env.VITE_API_URL ||
       "http://127.0.0.1:5000";
 
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendOrigin}/api/:path*`,
-      },
-    ];
+    return {
+      fallback: [
+        {
+          source: "/api/:path*",
+          destination: `${backendOrigin}/api/:path*`,
+        },
+      ],
+    };
   },
   async redirects() {
     return [
@@ -39,16 +41,6 @@ const nextConfig = {
         has: [{ type: "host", value: "bellix.us" }],
         destination: "https://www.bellix.us/:path*",
         permanent: true,
-      },
-      {
-        source: "/admin",
-        destination: "/",
-        permanent: false,
-      },
-      {
-        source: "/pricing",
-        destination: "/",
-        permanent: false,
       },
       {
         source: "/upscale",
