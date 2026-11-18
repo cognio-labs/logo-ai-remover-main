@@ -5,14 +5,19 @@ import { supabase } from "@/lib/supabase";
 import { RecurringBilling } from "./RecurringBilling";
 
 export async function accountFetch(path: string, init: RequestInit = {}) {
-  const { data } = await supabase.auth.getSession();
-  return fetch(path, {
-    ...init,
-    headers: {
-      ...init.headers,
-      ...(data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
-    },
-  });
+  try {
+    const sessionRes = await supabase?.auth?.getSession?.();
+    const session = sessionRes?.data?.session;
+    return fetch(path, {
+      ...init,
+      headers: {
+        ...init.headers,
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+    });
+  } catch {
+    return fetch(path, init);
+  }
 }
 export async function accountApi(path: string, payload?: unknown) {
   const response = await accountFetch(
@@ -62,13 +67,18 @@ export function AccountPanel({ section = "" }: { section?: string }) {
   }, [section, page]);
   useEffect(() => {
     void load();
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session)
-        void accountApi("session", { access_token: session.access_token })
-          .then(() => load())
-          .catch(() => {});
-    });
-    return () => data.subscription.unsubscribe();
+    if (!supabase?.auth?.onAuthStateChange) return;
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+        if (session)
+          void accountApi("session", { access_token: session.access_token })
+            .then(() => load())
+            .catch(() => {});
+      });
+      return () => data?.subscription?.unsubscribe?.();
+    } catch {
+      return;
+    }
   }, [load]);
   async function authenticate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
