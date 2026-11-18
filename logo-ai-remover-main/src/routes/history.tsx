@@ -141,11 +141,10 @@ export default function HistoryPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  tab === t
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${tab === t
                     ? "bg-[#10241e] text-[#d0f471] font-bold shadow-sm"
                     : "text-[#37433d] hover:text-[#10241e] font-medium"
-                }`}
+                  }`}
               >
                 {t}
               </button>
@@ -218,13 +217,12 @@ export default function HistoryPage() {
                     {/* Status badge top left */}
                     <div className="absolute top-3 left-3">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
-                          item.status === "completed"
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${item.status === "completed"
                             ? "bg-green-600 text-white"
                             : item.status === "processing"
-                            ? "bg-yellow-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
+                              ? "bg-yellow-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
                       >
                         {item.status === "completed" && <CheckCircle2 className="size-3" />}
                         {item.status === "failed" && <AlertCircle className="size-3" />}
