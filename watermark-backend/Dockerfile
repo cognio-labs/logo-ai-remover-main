@@ -5,7 +5,7 @@
 # Deployable to Railway, Render, Fly.io, or any Linux VPS.
 # =============================================================================
 
-FROM python:3.11-slim
+FROM python:3.11-slim-trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1

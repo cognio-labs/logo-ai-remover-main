@@ -106,15 +106,13 @@
   pointer-events: none;
 }
 
-.drift-wall__tile.is-active .drift-wall__caption,
-.drift-wall__tile:hover .drift-wall__caption {
+.drift-wall__tile.is-active .drift-wall__caption {
   opacity: 1;
   transform: translateY(0);
 }
 
 .drift-wall__tile.is-active .drift-wall__inner,
-.drift-wall__tile:focus-visible .drift-wall__inner,
-.drift-wall__tile:hover .drift-wall__inner {
+.drift-wall__tile:focus-visible .drift-wall__inner {
   opacity: 1;
   transform: translateZ(var(--dw-lift));
   border-color: #38bdf8;

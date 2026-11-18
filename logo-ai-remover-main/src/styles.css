@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "./studio.css";
 @import "./home-editorial.css";
+@import "./home-tool-guides.css";
+@import "./surface-contrast.css";
+
+@custom-variant hover (&:not(*));
 
 /* Gemini Sparkle image workspace — scoped to /gemini-image-watermark-remover */
 .gemini-scroll-progress { position: fixed; inset: 0 auto auto 0; z-index: 100; height: 3px; background: #d0f471; box-shadow: 0 0 12px rgba(208,244,113,.7); transition: width .12s ease-out; pointer-events: none; }
@@ -13,7 +17,6 @@
 .gemini-icon-button, .gemini-secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; border: 1px solid rgba(255,255,255,.16); border-radius: .8rem; background: rgba(255,255,255,.08); color: white; transition: background .2s ease, border-color .2s ease, transform .2s ease; }
 .gemini-icon-button { width: 2.2rem; height: 2.2rem; }
 .gemini-secondary-button { padding: .65rem .85rem; font-size: .75rem; font-weight: 700; }
-.gemini-icon-button:hover, .gemini-secondary-button:hover { border-color: #d0f471; background: rgba(208,244,113,.14); transform: translateY(-1px); }
 @media (max-width: 640px) { .gemini-scroll-progress { height: 2px; } .gemini-compare { aspect-ratio: 4 / 5; } }
 @media (prefers-reduced-motion: reduce) { .gemini-scroll-progress, .gemini-icon-button, .gemini-secondary-button { transition: none; } .gemini-scan-beam { animation: none; top: 50%; } }
 
@@ -36,16 +39,6 @@ button.gemini-upper-button * {
   color: #d0f471 !important;
   stroke: #d0f471 !important;
 }
-.gemini-page .gemini-upper-button:hover,
-button.gemini-upper-button:hover {
-  color: #dbff83 !important;
-  background-color: #18362d !important;
-}
-.gemini-page .gemini-upper-button:hover *,
-button.gemini-upper-button:hover * {
-  color: #dbff83 !important;
-  stroke: #dbff83 !important;
-}
 
 /* Download PNG Button */
 .gemini-page .gemini-download-button,
@@ -58,16 +51,6 @@ button.gemini-download-button * {
   color: #d0f471 !important;
   stroke: #d0f471 !important;
 }
-.gemini-page .gemini-download-button:hover,
-button.gemini-download-button:hover {
-  color: #dbff83 !important;
-  background-color: #18362d !important;
-}
-.gemini-page .gemini-download-button:hover *,
-button.gemini-download-button:hover * {
-  color: #dbff83 !important;
-  stroke: #dbff83 !important;
-}
 
 /* Secondary Download Buttons (JPEG, Download All) */
 .gemini-page .gemini-download-secondary,
@@ -75,10 +58,6 @@ button.gemini-download-secondary {
   color: #10241e !important;
   background-color: #ffffff !important;
   border: 1px solid rgba(16, 36, 30, 0.2) !important;
-}
-.gemini-page .gemini-download-secondary:hover,
-button.gemini-download-secondary:hover {
-  background-color: #f3f4ee !important;
 }
 
 /* Scan & Clean Image Button */
@@ -90,10 +69,6 @@ button.gemini-scan-button {
 .gemini-page .gemini-scan-button *,
 button.gemini-scan-button * {
   color: #10241e !important;
-}
-.gemini-page .gemini-scan-button:hover,
-button.gemini-scan-button:hover {
-  background-color: #dbff83 !important;
 }
 .gemini-page .gemini-scan-button:disabled,
 button.gemini-scan-button:disabled {
@@ -158,17 +133,6 @@ button.gemini-icon-button svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.gemini-workspace .gemini-icon-button:hover,
-button.gemini-icon-button:hover {
-  color: #FFFFFF !important;
-  background-color: #3f3f46 !important;
-  border-color: #d0f471 !important;
-}
-.gemini-workspace .gemini-icon-button:hover svg,
-button.gemini-icon-button:hover svg {
-  color: #FFFFFF !important;
-  stroke: #FFFFFF !important;
-}
 
 .gemini-workspace .gemini-secondary-button,
 button.gemini-secondary-button {
@@ -180,12 +144,6 @@ button.gemini-secondary-button {
 button.gemini-secondary-button svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.gemini-workspace .gemini-secondary-button:hover,
-button.gemini-secondary-button:hover {
-  color: #FFFFFF !important;
-  background-color: #3f3f46 !important;
-  border-color: #d0f471 !important;
 }
 
 /* Remove Button */
@@ -199,17 +157,6 @@ button.gemini-remove-button {
 button.gemini-remove-button svg {
   color: #fca5a5 !important;
   stroke: #fca5a5 !important;
-}
-.gemini-workspace .gemini-remove-button:hover,
-button.gemini-remove-button:hover {
-  color: #FFFFFF !important;
-  background-color: #7f1d1d !important;
-  border-color: #ef4444 !important;
-}
-.gemini-workspace .gemini-remove-button:hover svg,
-button.gemini-remove-button:hover svg {
-  color: #FFFFFF !important;
-  stroke: #FFFFFF !important;
 }
 
 /* Slider Handle */
@@ -440,10 +387,10 @@ button.gemini-remove-button:hover svg {
   }
 
   /* Ensure text inside lime buttons is always high contrast dark */
-  [class*="bg-[#d0f471]"] {
+  .bg-\[\#d0f471\] {
     color: #091712 !important;
   }
-  [class*="bg-[#d0f471]"] * {
+  .bg-\[\#d0f471\] * {
     color: #091712 !important;
   }
 
@@ -487,12 +434,7 @@ button.gemini-remove-button:hover svg {
 }
 
 @utility glass-hover {
-  transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
-  &:hover {
-    transform: translateY(-4px);
-    border-color: #10241e;
-    box-shadow: 0 20px 44px -10px rgba(16, 36, 30, 0.12);
-  }
+  transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1)
 }
 
 @utility gradient-text {
@@ -709,13 +651,6 @@ button.btn-primary,
   box-shadow: 0 4px 14px rgba(208, 244, 113, 0.4) !important;
 }
 
-.btn-primary:hover,
-.button-lime:hover {
-  background-color: #dbff83 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(208, 244, 113, 0.5) !important;
-}
-
 /* Secondary Action Buttons: Forest Green with White Text */
 .btn-secondary,
 .button-forest {
@@ -727,12 +662,6 @@ button.btn-primary,
   padding: 0.85rem 2.2rem !important;
   font-size: 1.05rem !important;
   transition: all 0.2s ease !important;
-}
-
-.btn-secondary:hover,
-.button-forest:hover {
-  background-color: #18362d !important;
-  transform: translateY(-2px) !important;
 }
 
 /* Shadows: Subtle soft studio elevation */
@@ -901,9 +830,6 @@ button.btn-primary,
   justify-content: center;
   flex-direction: column;
   cursor: pointer;
-}
-.upload-panel:hover {
-  border-color: #bcbcb8;
 }
 .upload-art {
   display: flex;
@@ -2526,7 +2452,6 @@ button.btn-primary,
   cursor: pointer;
   transition: 0.22s;
 }
-.up-presets button:hover,
 .up-presets button.active {
   border-color: #ff9ab9;
   background: #fff5f8;
@@ -2664,11 +2589,6 @@ button.btn-primary,
   font-size: 11px;
   box-shadow: 0 8px 17px #f7256830;
 }
-.up-primary:hover,
-.up-start:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 11px 22px #f7256840;
-}
 .up-primary svg,
 .up-secondary svg,
 .up-start svg {
@@ -2750,9 +2670,6 @@ button.btn-primary,
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s;
-}
-.up-change-btn:hover {
-  background: rgba(255, 255, 255, 0.38);
 }
 .up-dropzone > img {
   position: absolute;
@@ -2857,11 +2774,6 @@ button.btn-primary,
   box-shadow: 0 15px 45px rgba(20, 20, 40, 0.06);
   transition: 0.25s;
 }
-.up-showcase:hover {
-  transform: translateY(-5px);
-  border-color: #f5a5bd;
-  box-shadow: 0 20px 47px rgba(247, 37, 104, 0.13);
-}
 .up-compare {
   position: relative;
   min-height: 100%;
@@ -2877,10 +2789,6 @@ button.btn-primary,
   object-fit: cover;
   display: block;
   transition: transform 0.35s;
-}
-.up-showcase:hover .up-compare > img,
-.up-showcase:hover .up-before img {
-  transform: scale(1.018);
 }
 .up-before {
   position: absolute;
@@ -3137,9 +3045,6 @@ button.btn-primary,
   line-height: 1.35;
   transition: color 0.2s;
 }
-.up-faq-btn:hover span {
-  color: var(--pink);
-}
 .up-faq-btn i {
   width: 36px;
   height: 36px;
@@ -3154,10 +3059,6 @@ button.btn-primary,
   flex: 0 0 36px;
   transition: all 0.25s;
   font-style: normal;
-}
-.up-faq-btn:hover i {
-  background: #ffe5ee;
-  transform: scale(1.05);
 }
 .up-faq-btn.open i {
   transform: rotate(45deg);
@@ -3434,10 +3335,6 @@ button.btn-primary,
   cursor: pointer;
   transition: all 0.2s;
 }
-.up-hero-change-btn:hover {
-  background: rgba(247, 37, 104, 0.92);
-  border-color: #f72568;
-}
 .up-result-meta {
   background: #fff5f8;
   border: 1px solid #f7d2e0;
@@ -3469,11 +3366,6 @@ button.btn-primary,
   gap: 6px;
   transition: all 0.2s;
   margin-top: 2px;
-}
-.up-reset-btn:hover {
-  background: #fff5f8;
-  border-color: #f72568;
-  color: #f72568;
 }
 
 /* Rebuilt Image Uploader and Visible Preview System */
@@ -3578,12 +3470,6 @@ button.btn-primary,
   transition: all 0.18s;
   flex-shrink: 0;
 }
-.up-remove-btn:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
-  color: #dc2626;
-  transform: scale(1.08);
-}
 .up-preview-canvas {
   flex: 1;
   min-height: 165px;
@@ -3609,9 +3495,6 @@ button.btn-primary,
   border-radius: 8px;
   box-shadow: 0 4px 22px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
-}
-.up-preview-canvas:hover .uploaded-image {
-  transform: scale(1.02);
 }
 .up-preview-footer {
   display: flex;
@@ -3647,11 +3530,6 @@ button.btn-primary,
   cursor: pointer;
   transition: all 0.2s;
 }
-.up-change-image-btn:hover {
-  background: #ffe4e6;
-  border-color: #f43f5e;
-  color: #be123c;
-}
 .up-empty-dropzone {
   display: flex;
   flex-direction: column;
@@ -3675,7 +3553,6 @@ button.btn-primary,
   margin-bottom: 12px;
   transition: transform 0.25s ease;
 }
-.up-uploader-card:hover .up-upload-icon-animated,
 .up-uploader-card.active-drag .up-upload-icon-animated {
   transform: scale(1.08) translateY(-2px);
 }
@@ -3713,10 +3590,6 @@ button.btn-primary,
   cursor: pointer;
   box-shadow: 0 6px 16px rgba(247, 37, 104, 0.28);
   transition: all 0.2s;
-}
-.up-primary-upload-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(247, 37, 104, 0.4);
 }
 
 .up-click-hint {
@@ -3802,11 +3675,6 @@ button.btn-primary,
 .animate-marquee-scroll-right {
   animation: marquee-scroll-right 52s linear infinite;
   will-change: transform;
-}
-
-.creative-marquee-wrapper:hover .animate-marquee-scroll-left,
-.creative-marquee-wrapper:hover .animate-marquee-scroll-right {
-  animation-play-state: paused;
 }
 
 html {
@@ -4068,8 +3936,8 @@ body {
 .btn-lime,
 button.bg-\[\#d0f471\],
 a.bg-\[\#d0f471\],
-[class*="bg-[#d0f471]"],
-[class*="bg-[#dbff83]"] {
+.bg-\[\#d0f471\],
+.bg-\[\#dbff83\] {
   background-color: #d0f471 !important;
   color: #071A13 !important;
   font-weight: 700 !important;
@@ -4080,8 +3948,8 @@ a.bg-\[\#d0f471\],
 .btn-lime *,
 button.bg-\[\#d0f471\] *,
 a.bg-\[\#d0f471\] *,
-[class*="bg-[#d0f471]"] *,
-[class*="bg-[#dbff83]"] * {
+.bg-\[\#d0f471\] *,
+.bg-\[\#dbff83\] * {
   color: #071A13 !important;
   stroke: #071A13 !important;
 }
@@ -4139,76 +4007,6 @@ footer .button-outline {
 footer .button-outline * {
   color: #ffffff !important;
   stroke: #ffffff !important;
-}
-
-/* 2. HEADING VISIBILITY ACROSS ALL LIGHT & DARK CONTAINERS */
-
-/* Dark Sections: hero, footer, dark-section, studio-end */
-.hero,
-.tools-section,
-.dark-section,
-.studio-hero,
-.studio-end,
-footer,
-[class*="bg-[#091712]"],
-[class*="bg-[#10241e]"],
-[class*="bg-[#142e25]"] {
-  color: #ebf2e5;
-}
-
-.hero h1,
-.hero h2,
-.hero h3,
-.hero h4,
-.tools-section h2,
-.tools-section h3,
-.dark-section h1,
-.dark-section h2,
-.dark-section h3,
-.studio-end h2,
-footer h1,
-footer h2,
-footer h3,
-footer h4,
-[class*="bg-[#091712]"] h1,
-[class*="bg-[#091712]"] h2,
-[class*="bg-[#091712]"] h3,
-[class*="bg-[#10241e]"] h1,
-[class*="bg-[#10241e]"] h2,
-[class*="bg-[#10241e]"] h3,
-[class*="bg-[#142e25]"] h1,
-[class*="bg-[#142e25]"] h2,
-[class*="bg-[#142e25]"] h3 {
-  color: #ffffff !important;
-}
-
-/* Emphasized Serif Spans in Dark Headings */
-.hero h1 em,
-.tools-section h2 em,
-.dark-section h2 em,
-footer h2 em {
-  color: #d0f471 !important;
-}
-
-/* Light Sections: default headings */
-.curated-section h2,
-.workflow-section h2,
-.demo-section h2,
-.benchmark-section h2,
-.faq-section h2,
-.steps-section h2,
-body:not(.dark) h1:not(.hero h1):not([class*="text-white"]),
-body:not(.dark) h2:not(.hero h2):not(.tools-section h2):not(footer h2):not([class*="text-white"]),
-body:not(.dark) h3:not([class*="text-white"]):not(.hero *):not(footer *) {
-  color: #10241e;
-}
-
-/* 3. PARAGRAPHS & SUBTEXTS */
-.hero p,
-.tools-section p,
-.dark-section p,
-footer p {
-  color: #ebf2e5cc;
 }
 
 /* 4. PREVENT INVISIBLE / TRANSPARENT TEXT BUGS */
@@ -4359,3 +4157,4 @@ button[class*="bg-[#10241e]"] .text-white {
   color: #FFFFFF !important;
   background-color: rgba(0, 0, 0, 0.9) !important;
 }
+

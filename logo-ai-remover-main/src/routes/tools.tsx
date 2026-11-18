@@ -1,8 +1,7 @@
 "use client";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -59,41 +58,8 @@ const DEFAULT_TOOLS = [
 ];
 
 export default function Tools() {
-  const [toolsList, setToolsList] = useState(DEFAULT_TOOLS);
+  const [toolsList] = useState(DEFAULT_TOOLS);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    async function loadLiveTools() {
-      try {
-        const { data: dbTools, error } = await supabase.from("tools").select("*");
-        if (!error && dbTools && dbTools.length > 0) {
-          setToolsList((prev) =>
-            prev.map((tool) => {
-              const matched = dbTools.find(
-                (t) =>
-                  t.id === tool.id ||
-                  t.slug === tool.id ||
-                  tool.title.toLowerCase().includes(t.name.toLowerCase().split(" ")[0])
-              );
-              if (matched) {
-                return {
-                  ...tool,
-                  title: matched.name,
-                  desc: matched.description || tool.desc,
-                  enabled: matched.enabled ?? true,
-                  creditCost: matched.credit_cost ?? tool.creditCost,
-                };
-              }
-              return tool;
-            })
-          );
-        }
-      } catch (err) {
-        console.warn("Using fallback tools configuration:", err);
-      }
-    }
-    loadLiveTools();
-  }, []);
 
   const filtered = toolsList.filter(
     (t) =>

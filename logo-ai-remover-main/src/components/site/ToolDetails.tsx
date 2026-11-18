@@ -19,7 +19,7 @@ const details = {
   "gemini-video-watermark-remover": {
     name: "Gemini and Veo video cleanup",
     limits:
-      "The browser engine accepts MP4, MOV, WebM, and MKV files up to 100 MB. Chrome or Edge with compatible video codecs is required. Output is re-encoded MP4.",
+      "The video worker accepts MP4, MOV, WebM and MKV files up to 500 MB. Output is re-encoded MP4.",
     use: "Cleaning supported visible sparkle marks from original Gemini or Veo exports",
     caution:
       "Review the entire clip, including motion and audio. Re-encoding can change pixels outside the mark. This does not remove invisible SynthID.",
@@ -97,9 +97,11 @@ export function ToolDetails({ tool }: { tool: keyof typeof details }) {
       </p>
       <h3>How is my file handled?</h3>
       <p>
-        {tool.startsWith("gemini-")
-          ? "The supported cleanup engine runs in your browser. Avoid assuming this is a site-wide zero-retention guarantee."
-          : "Review the selected workflow before using confidential media. This page does not promise zero retention for backend processing."}
+        {tool === "gemini-video-watermark-remover"
+          ? "The video worker deletes the upload after processing and keeps the exported MP4 available for 15 minutes."
+          : tool === "gemini-image-watermark-remover"
+            ? "The image cleanup engine runs in your browser."
+            : "Review the selected workflow before using confidential media."}
       </p>
       <h2>Related tools</h2>
       <ul>

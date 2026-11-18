@@ -247,7 +247,7 @@ const VIDEO_FAQS = [
   {
     question: "Can I upload my own video?",
     answer:
-      "Yes. Choose an MP4, MOV, WebM, AVI, MPG, MPEG, or MKV clip up to 15 seconds. The uploader checks the file before processing starts.",
+      "Choose an MP4, MOV, WebM or MKV clip up to 500 MB.",
   },
   {
     question: "Will the output keep the original quality?",
@@ -291,26 +291,28 @@ export default function GeminiVideoRemoverPage() {
   return (
     <div className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-24">
       {/* 1. HERO & UPLOAD SECTION */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#f3f4ee]">
-        <div className="mx-auto max-w-5xl text-center space-y-6">
+      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#091712] text-white border-b border-[#d7f3af]/15 overflow-hidden">
+        {/* Atmospheric 4K Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
+        <div className="relative mx-auto max-w-5xl text-center space-y-6 z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-[#10241e]/15 shadow-md">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
             <img src="/gemini-logo.png" alt="Gemini" className="size-4 object-contain" />
-            <span className="text-xs sm:text-sm font-bold text-[#10241e] tracking-wide">
-              Browser-local Gemini & Veo watermark cleanup
+            <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wide">
+              Gemini & Veo visible sparkle cleanup
             </span>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#10241e] tracking-tight leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.08]">
             Remove Gemini and Veo Video{" "}
-            <span className="text-[#10241e] underline decoration-[#d0f471] decoration-4">
+            <span className="text-white underline decoration-[#d0f471] decoration-4 font-bold">
               Watermarks Online
             </span>
           </h1>
 
           {/* Subheading */}
-          <p className="max-w-3xl mx-auto text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed">
+          <p className="max-w-3xl mx-auto text-lg sm:text-2xl text-white/95 font-medium leading-relaxed">
             Remove supported visible sparkle marks from your original Gemini or Veo export.
             Processing starts as soon as you choose a video.
           </p>
@@ -373,7 +375,7 @@ export default function GeminiVideoRemoverPage() {
           <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-xs">
               <img src="/gemini-logo.png" alt="Gemini Logo" className="size-3.5" />
-              <span className="text-xs font-bold text-[#10241e]">Frame-Perfect Gemini Removal</span>
+              <span className="text-xs font-bold text-[#10241e]">Fixed sparkle matte</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-bold text-[#10241e] tracking-tight">
               Remove the visible mark while keeping the full frame and smooth motion
@@ -387,19 +389,19 @@ export default function GeminiVideoRemoverPage() {
                 icon: ShieldCheck,
                 title: "Restore the marked area frame by frame",
                 desc: "Detect visible Gemini and Veo marks across adjacent frames while aiming to keep motion, color, and texture consistent.",
-                badge: "Frame-by-frame AI",
+                badge: "Reverse alpha blending",
               },
               {
                 icon: FileVideo,
-                title: "Supports 7 formats, videos up to 15 seconds",
-                desc: "Upload MP4, MOV, WebM, AVI, MPG, MPEG, or MKV. High-speed encoding delivers clean MP4 exports.",
-                badge: "7 Formats supported",
+                title: "Full-length video processing",
+                desc: "Upload MP4, MOV, WebM or MKV and export an MP4 at source resolution.",
+                badge: "4 upload formats",
               },
               {
                 icon: Monitor,
-                title: "Private local processing",
-                desc: "Your media stays safe in browser memory and local execution pipelines. Keep this tab open until full export completes.",
-                badge: "100% Private",
+                title: "Dedicated video worker",
+                desc: "The worker deletes the upload after processing and keeps the result available for 15 minutes.",
+                badge: "Temporary storage",
               },
               {
                 icon: Crop,
@@ -448,7 +450,7 @@ export default function GeminiVideoRemoverPage() {
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mb-3">Upload your clip</h3>
               <p className="text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
-                Choose an MP4, MOV, WebM, AVI, MPG, MPEG, or MKV file up to 15 seconds.
+                Choose an MP4, MOV, WebM or MKV file up to 500 MB.
               </p>
             </div>
 
@@ -462,8 +464,8 @@ export default function GeminiVideoRemoverPage() {
               </span>
               <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mb-3">Mark and clean the logo</h3>
               <p className="text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
-                Place the editor box over the logo, adjust padding, and start the local FFmpeg
-                cleanup. Auto-detect can suggest a starting area.
+                The worker detects the sparkle automatically. Use Manual position to point it at the
+                sparkle if automatic detection misses.
               </p>
             </div>
 

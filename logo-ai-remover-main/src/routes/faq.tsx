@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { PinkButton } from "@/components/site/PinkButton";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -73,36 +72,11 @@ export default function FaqPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const [allFaqs, setAllFaqs] = useState(DEFAULT_FAQS);
+  const [allFaqs] = useState(DEFAULT_FAQS);
 
   // Support form state
   const [ticketEmail, setTicketEmail] = useState("");
   const [ticketMsg, setTicketMsg] = useState("");
-
-  useEffect(() => {
-    async function loadLiveFaqs() {
-      try {
-        const { data: dbFaqs, error } = await supabase
-          .from("faq_items")
-          .select("*")
-          .eq("active", true)
-          .order("order_num");
-
-        if (!error && dbFaqs && dbFaqs.length > 0) {
-          setAllFaqs(
-            dbFaqs.map((f) => ({
-              category: f.category || "General",
-              q: f.question,
-              a: f.answer,
-            }))
-          );
-        }
-      } catch (err) {
-        console.warn("Using default FAQs:", err);
-      }
-    }
-    loadLiveFaqs();
-  }, []);
 
   const categories = [
     "All",

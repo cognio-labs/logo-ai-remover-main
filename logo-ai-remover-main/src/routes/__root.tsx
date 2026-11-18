@@ -180,19 +180,10 @@ function MainAppLayout() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAdmin = pathname.startsWith("/admin");
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isAdmin ? (
-        <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
-          <Outlet />
-          <Toaster richColors position="top-right" />
-        </div>
-      ) : (
-        <MainAppLayout />
-      )}
+      <MainAppLayout />
     </QueryClientProvider>
   );
 }

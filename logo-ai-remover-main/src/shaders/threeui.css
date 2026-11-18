@@ -1284,7 +1284,6 @@ img.sunset-valley-fallback {
 /* :hover is carried alongside the proximity flag so the glass still lands when
    the spring is off — reduced motion, a coarse pointer, a narrow viewport */
 .atd-modern__item[data-dock-near="true"],
-.atd-modern__item:hover,
 .atd-modern__item:focus-visible {
   color: #f4f5f9;
   border-color: rgba(255, 255, 255, 0.055);
@@ -1340,11 +1339,6 @@ img.sunset-valley-fallback {
   color: #a7abba;
 }
 
-.atd-modern__ghost:hover {
-  color: #f0f1f6;
-  background: rgba(255, 255, 255, 0.06);
-}
-
 .atd-modern__cta {
   display: inline-flex;
   gap: var(--atd-gap);
@@ -1370,13 +1364,6 @@ img.sunset-valley-fallback {
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.atd-modern__cta:hover {
-  box-shadow:
-    0 16px 32px -14px rgba(150, 175, 255, 1),
-    inset 0 -1px rgba(0, 0, 0, 0.16);
-  transform: translateY(-1px);
 }
 
 .atd-modern__stage {
@@ -1577,11 +1564,6 @@ img.sunset-valley-fallback {
   cursor: pointer;
 }
 
-.atd-retro__cta:hover {
-  color: #1a1030;
-  background: #f9c74f;
-}
-
 .atd-retro__readout {
   position: absolute;
   bottom: clamp(30px, 4.2cqw, 74px);
@@ -1762,13 +1744,6 @@ img.sunset-valley-fallback {
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.atd-glass__cta:hover {
-  box-shadow:
-    0 16px 34px -14px rgba(255, 255, 255, 0.75),
-    inset 0 -1px rgba(0, 0, 0, 0.16);
-  transform: translateY(-1px);
 }
 
 .atd-modern .animated-top-dock-component__caption,

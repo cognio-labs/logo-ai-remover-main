@@ -267,9 +267,6 @@
   align-items: center;
   gap: 10px;
 }
-.admin-sidebar nav a:hover {
-  background: #ffffff0d;
-}
 .admin-sidebar nav a[aria-current="page"] {
   background: #b4e96c;
   color: #143921;
@@ -376,9 +373,6 @@
 .admin-workspace table td {
   font-size: 12px;
   color: #3e5746;
-}
-.admin-workspace table tbody tr:hover {
-  background: #f8fbf5;
 }
 .admin-workspace textarea,
 .admin-workspace input,

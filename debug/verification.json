@@ -1,0 +1,50 @@
+{
+  "park": {
+    "previous": {
+      "stream_metadata_match": true,
+      "frame_timing_match": true,
+      "audio_packets_match": true,
+      "rotation_match": true,
+      "decoded_frames": 240,
+      "median_sparkle_edge_response_before": 0.1853,
+      "median_sparkle_edge_response_after": 0.0,
+      "p95_absolute_edge_response_after": 0.0091,
+      "mean_outside_box_channel_error_after_encoding": 0.993
+    },
+    "lama": {
+      "stream_metadata_match": true,
+      "frame_timing_match": true,
+      "audio_packets_match": true,
+      "rotation_match": true,
+      "decoded_frames": 240,
+      "median_sparkle_edge_response_before": 0.1853,
+      "median_sparkle_edge_response_after": 0.0049,
+      "p95_absolute_edge_response_after": 0.0079,
+      "mean_outside_box_channel_error_after_encoding": 0.988
+    }
+  },
+  "pets": {
+    "previous": {
+      "stream_metadata_match": true,
+      "frame_timing_match": true,
+      "audio_packets_match": true,
+      "rotation_match": true,
+      "decoded_frames": 240,
+      "median_sparkle_edge_response_before": 0.1707,
+      "median_sparkle_edge_response_after": 0.0128,
+      "p95_absolute_edge_response_after": 0.0248,
+      "mean_outside_box_channel_error_after_encoding": 0.8
+    },
+    "lama": {
+      "stream_metadata_match": true,
+      "frame_timing_match": true,
+      "audio_packets_match": true,
+      "rotation_match": true,
+      "decoded_frames": 240,
+      "median_sparkle_edge_response_before": 0.1707,
+      "median_sparkle_edge_response_after": 0.0082,
+      "p95_absolute_edge_response_after": 0.0201,
+      "mean_outside_box_channel_error_after_encoding": 0.795
+    }
+  }
+}

@@ -1497,24 +1497,26 @@ export default function BackgroundRemoverPage() {
       {/* 1. HERO SECTION */}
       <section
         id="upload-studio-section"
-        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-[#f3f4ee]"
+        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-[#091712] text-white border-b border-[#d7f3af]/15"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Atmospheric 4K Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           {/* Header Title & Pitch */}
           <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-bold text-[#10241e] mb-4 shadow-sm px-4 py-1.5">
-              <Sparkles className="size-3.5 text-[#E11D48]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-[#d0f471] mb-4 shadow-sm px-4 py-1.5">
+              <Sparkles className="size-3.5 text-[#d0f471]" />
               <span>100% AUTOMATIC &amp; FREE BACKGROUND REMOVER</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#10241e] tracking-tight leading-[1.08]">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.08]">
               Remove Image Backgrounds{" "}
-              <span className="text-[#10241e] underline decoration-[#d0f471] decoration-4 font-bold">
+              <span className="text-white underline decoration-[#d0f471] decoration-4 font-bold">
                 in 5 Seconds Free
               </span>
             </h1>
 
-            <p className="mt-4 text-lg sm:text-2xl text-[#37433d] leading-relaxed max-w-3xl mx-auto font-normal">
+            <p className="mt-4 text-lg sm:text-2xl text-white/95 leading-relaxed max-w-3xl mx-auto font-medium">
               Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and
               complex product silhouettes with sub-pixel edge matting.
             </p>
@@ -1522,11 +1524,11 @@ export default function BackgroundRemoverPage() {
             <div className="mt-5 flex items-center justify-center gap-3">
               <Link
                 href="/gemini-image-watermark-remover"
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white hover:bg-[#e9ece4] text-[#10241e] text-sm font-semibold border border-[#10241e]/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer backdrop-blur-md"
               >
-                <Play className="size-3 text-[#E11D48] fill-[#E11D48]" />
-                <span>remove gemini logo only 3 sec (60 FPS)</span>
-                <ArrowRight className="size-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                <Play className="size-3 text-[#d0f471] fill-[#d0f471]" />
+                <span className="text-zinc-200">remove gemini logo only 3 sec (60 FPS)</span>
+                <ArrowRight className="size-3 text-[#d0f471] group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
           </div>

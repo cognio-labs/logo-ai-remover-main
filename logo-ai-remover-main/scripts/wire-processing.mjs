@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+let p='src/components/site/JobVideoCleaner.tsx',s=fs.readFileSync(p,'utf8');
+s=s.replace('import { useUserStore }','import { accountFetch } from "@/components/account/AccountPanel";\nimport { useUserStore }');
+s=s.replace('const [file, setFile]','const accountRequestKey = useRef<string | null>(null);\n  const [file, setFile]');
+s=s.replace('setFile(f);','setFile(f);\n      accountRequestKey.current = crypto.randomUUID();');
+s=s.replace('"http://localhost:5000"','""').replace('`${videoApiBase}/health`','`${videoApiBase}/api/health`');
+s=s.replace('formData.append("file", file);','formData.append("file", file);\n          formData.append("request_key", accountRequestKey.current || (accountRequestKey.current = crypto.randomUUID()));');
+s=s.replaceAll('await fetch(`${videoApiBase}/api/video/','await accountFetch(`${videoApiBase}/api/video/');
+s=s.replace('          if (uploadRes.ok) {','          if (!uploadRes.ok) { const problem = await uploadRes.json().catch(()=>({})); throw new Error(problem.detail || "Processing authorization failed"); }\n          if (uploadRes.ok) {');
+const start=s.indexOf('      if (!usedBackend) {'),end=s.indexOf('\n      try {\n        useUserStore',start);
+if(start<0||end<0)throw new Error('Video workflow changed; inspect before patching');
+s=s.slice(0,start)+'      if (!usedBackend) throw new Error("Account processing is unavailable. Sign in and check your credits, or retry when the processing service is ready.");\n'+s.slice(end);
+s=s.replace('Processing complete. Video is 100% clean and ready.','Processing complete. Review the result before downloading.').replace('Backend pipeline error or offline, falling back to local engine:','Account video processing unavailable:');
+fs.writeFileSync(p,s);
+p='src/lib/pdfApi.ts';s=fs.readFileSync(p,'utf8');s='import { accountFetch } from "@/components/account/AccountPanel";\n'+s;s=s.replaceAll('await fetch(','await accountFetch(');fs.writeFileSync(p,s);

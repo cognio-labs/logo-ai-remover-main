@@ -1,29 +1,15 @@
 # Bellix.us
 
-## Browser-local Gemini/Veo video cleanup
+The Next.js Gemini video cleaner uses a dedicated FastAPI worker. See the
+[video cleaner setup, calibration, and QA guide](../watermark-backend/VIDEO_CLEANER.md).
 
-Open `/video` (or `/gemini-video-watermark-remover`) in Chrome or Edge. Select an
-original MP4, MOV, WebM, or MKV file up to 100 MB; detection and processing start
-automatically. The page uses the bundled, MIT-licensed
-`@pilio/gemini-watermark-remover` WebCodecs/MediaBunny engine and calibrated alpha
-maps. It rejects low-confidence matches and leaves the original file unchanged.
-The uploader and live processing status use one video box. After export, a
-draggable before/after player compares the original with the processed MP4 at
-the same playback position. During processing the source picture and frame counts are hidden. The engine
-processes every decoded source frame, including clips with more than 500 frames;
-it does not invent extra frames for shorter clips. Its frame count is only an
-estimate, so export validation checks MP4 decoding, duration, dimensions, and
-sampled watermark-region changes instead of demanding an exact estimate match.
-The processing progress is replaced by a review state after export because these
-checks do not verify perfect visual cleanup.
-Review the full result before use: no watermark removal method can guarantee a
-perfect result for every frame or unsupported mark.
-The exported MP4 is re-encoded, so pixel identity outside the mark cannot be
-promised in the downloaded video. See `THIRD_PARTY_VIDEO_ENGINE.md` for credits.
+## Gemini/Veo video cleanup
 
-For a larger clip, use the upstream CLI locally after installing its optional
-Playwright dependency and browser. Test on your own original Veo export before
-relying on output quality. This route does not remove invisible SynthID.
+Open `/gemini-video-watermark-remover` and select an MP4, MOV, WebM or MKV clip
+up to 500 MB. The browser uploads directly to the configured
+worker. When processing completes, use the comparison slider to inspect the
+result before downloading. If automatic detection misses, use **Manual
+position** to draw a small box around a visible mark.
 
 Browser-based media cleanup, upscaling, video enhancement, background removal and PDF tools. Public site: <https://www.bellix.us/>.
 

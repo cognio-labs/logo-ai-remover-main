@@ -33,7 +33,7 @@ export const Route = createFileRoute("/history")({
   component: HistoryPage,
 });
 
-const TABS = ["All", "Images", "Videos", "Background", "PDF"] as const;
+const TABS = ["All", "Images", "Videos", "Background"] as const;
 
 export default function HistoryPage() {
   const { jobs, deleteJob } = useUserStore();
@@ -46,8 +46,7 @@ export default function HistoryPage() {
         tab === "All" ||
         (tab === "Images" && item.file_type === "image") ||
         (tab === "Videos" && item.file_type === "video") ||
-        (tab === "Background" && item.file_type === "background-remover") ||
-        (tab === "PDF" && item.file_type === "pdf");
+        (tab === "Background" && item.file_type === "background-remover");
 
       const matchSearch = item.file_name.toLowerCase().includes(search.toLowerCase());
       return matchTab && matchSearch;

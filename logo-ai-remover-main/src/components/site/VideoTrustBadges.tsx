@@ -11,7 +11,7 @@ function LaurelBranch({ className = "" }: { className?: string }) {
     <svg
       viewBox="0 0 36 68"
       fill="currentColor"
-      className={`h-12 w-6 sm:h-14 sm:w-7 md:h-16 md:w-8 shrink-0 select-none text-[#1E293B] ${className}`}
+      className={`h-12 w-6 sm:h-14 sm:w-7 md:h-16 md:w-8 shrink-0 select-none text-[#d0f471] ${className}`}
       aria-hidden="true"
     >
       {/* Stem arc */}
@@ -57,8 +57,8 @@ function TrustBadgeItem({ icon, line1, line2 }: TrustBadgeItemProps) {
 
       {/* Center Icon & Text */}
       <div className="flex flex-col items-center justify-center text-center px-1">
-        <div className="text-[#1E293B] mb-2 flex items-center justify-center">{icon}</div>
-        <div className="text-[#0F172A] font-bold text-xs sm:text-sm md:text-[15px] leading-snug tracking-tight whitespace-nowrap">
+        <div className="text-[#d0f471] mb-2 flex items-center justify-center">{icon}</div>
+        <div className="text-white font-bold text-xs sm:text-sm md:text-[15px] leading-snug tracking-tight whitespace-nowrap drop-shadow-sm">
           <div>{line1}</div>
           <div>{line2}</div>
         </div>
@@ -73,28 +73,26 @@ function TrustBadgeItem({ icon, line1, line2 }: TrustBadgeItemProps) {
 export function VideoTrustBadges({ className = "" }: { className?: string }) {
   return (
     <section
-      aria-label="Privacy and Processing Guarantees"
+      aria-label="Video processing details"
       className={`w-full py-8 sm:py-10 my-4 ${className}`}
     >
       <div className="mx-auto max-w-5xl px-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 md:gap-10 lg:gap-14 items-center justify-items-center">
-          {/* Badge 1: 100% Local Processing */}
           <TrustBadgeItem
-            icon={<ShieldCheck className="size-7 sm:size-8 stroke-[1.9] text-[#1E293B]" />}
-            line1="100% Local"
-            line2="Processing"
+            icon={<ShieldCheck className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
+            line1="Dedicated"
+            line2="Video Worker"
           />
 
-          {/* Badge 2: Zero Data Retention */}
           <TrustBadgeItem
-            icon={<Zap className="size-7 sm:size-8 stroke-[1.9] text-[#1E293B]" />}
-            line1="Zero Data"
-            line2="Retention"
+            icon={<Zap className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
+            line1="Temporary"
+            line2="Output Storage"
           />
 
           {/* Badge 3: Open Source Pipeline */}
           <TrustBadgeItem
-            icon={<CheckCircle2 className="size-7 sm:size-8 stroke-[1.9] text-[#1E293B]" />}
+            icon={<CheckCircle2 className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
             line1="Open Source"
             line2="Pipeline"
           />

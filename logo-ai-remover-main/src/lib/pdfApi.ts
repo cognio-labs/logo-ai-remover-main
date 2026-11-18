@@ -1,3 +1,4 @@
+const accountFetch = (url: string, init?: RequestInit) => fetch(url, init);
 export interface DetectedRegion {
   x: number;
   y: number;
@@ -126,7 +127,7 @@ export async function uploadPdfDocument(file: File, jobId?: string): Promise<Pdf
   form.append("file", file);
   if (jobId) form.append("jobId", jobId);
 
-  const res = await fetch(apiPdfUrl("/api/pdf/upload"), {
+  const res = await accountFetch(apiPdfUrl("/api/pdf/upload"), {
     method: "POST",
     body: form,
   });
@@ -137,14 +138,14 @@ export async function detectPdfWatermarks(
   jobId: string,
   page: number = 1,
 ): Promise<PdfDetectResponse> {
-  const res = await fetch(apiPdfUrl(`/api/pdf/detect/${encodeURIComponent(jobId)}?page=${page}`), {
+  const res = await accountFetch(apiPdfUrl(`/api/pdf/detect/${encodeURIComponent(jobId)}?page=${page}`), {
     method: "POST",
   });
   return parse<PdfDetectResponse>(res);
 }
 
 export async function analyzePdfDocument(jobId: string): Promise<PdfAnalysisResponse> {
-  const res = await fetch(apiPdfUrl(`/api/pdf/analyze/${encodeURIComponent(jobId)}`), {
+  const res = await accountFetch(apiPdfUrl(`/api/pdf/analyze/${encodeURIComponent(jobId)}`), {
     method: "POST",
   });
   return parse<PdfAnalysisResponse>(res);
@@ -169,7 +170,7 @@ export async function processPdfDocument(
     form.append("manualRegions", JSON.stringify(options.manualRegions));
   }
 
-  const res = await fetch(apiPdfUrl(`/api/pdf/process/${encodeURIComponent(jobId)}`), {
+  const res = await accountFetch(apiPdfUrl(`/api/pdf/process/${encodeURIComponent(jobId)}`), {
     method: "POST",
     body: form,
   });
@@ -177,14 +178,14 @@ export async function processPdfDocument(
 }
 
 export async function getPdfStatus(jobId: string): Promise<PdfStatusResponse> {
-  const res = await fetch(apiPdfUrl(`/api/pdf/status/${encodeURIComponent(jobId)}`), {
+  const res = await accountFetch(apiPdfUrl(`/api/pdf/status/${encodeURIComponent(jobId)}`), {
     cache: "no-store",
   });
   return parse<PdfStatusResponse>(res);
 }
 
 export async function getPdfResult(jobId: string): Promise<PdfResultResponse> {
-  const res = await fetch(apiPdfUrl(`/api/pdf/result/${encodeURIComponent(jobId)}`), {
+  const res = await accountFetch(apiPdfUrl(`/api/pdf/result/${encodeURIComponent(jobId)}`), {
     cache: "no-store",
   });
   return parse<PdfResultResponse>(res);

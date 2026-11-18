@@ -36,3 +36,12 @@ Dockerfile
 *.md
 LICENSE
 
+# Local configuration and QA media
+.env
+.env.*
+*.mp4
+*.avi
+*.mov
+*.webm
+test_images/
+

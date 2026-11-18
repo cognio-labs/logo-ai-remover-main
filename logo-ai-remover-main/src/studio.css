@@ -195,10 +195,6 @@
     transform 0.2s,
     box-shadow 0.2s;
 }
-.studio-cta-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(225, 29, 72, 0.48);
-}
 
 .studio-cta-ghost {
   display: inline-flex;
@@ -216,11 +212,6 @@
     background 0.2s,
     border-color 0.2s,
     transform 0.2s;
-}
-.studio-cta-ghost:hover {
-  background: #252525;
-  border-color: #404040;
-  transform: translateY(-1px);
 }
 
 /* Checks */
@@ -429,13 +420,6 @@
   color: #4b5563;
   transition: all 0.22s;
 }
-.studio-tool-chip:hover {
-  background: linear-gradient(135deg, #e11d48, #ff2e63);
-  color: white;
-  border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.3);
-}
 .studio-tool-chip svg {
   transition: color 0.22s;
 }
@@ -480,14 +464,6 @@
   background: linear-gradient(135deg, rgba(225, 29, 72, 0.04) 0%, rgba(255, 46, 99, 0.02) 100%);
   transition: opacity 0.25s;
 }
-.studio-tool-card-v2:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 50px rgba(225, 29, 72, 0.14);
-  border-color: #fda4af;
-}
-.studio-tool-card-v2:hover::before {
-  opacity: 1;
-}
 
 .studio-tool-icon {
   width: 48px;
@@ -519,10 +495,6 @@
   transition:
     color 0.22s,
     transform 0.22s;
-}
-.studio-tool-card-v2:hover .studio-tool-arrow {
-  color: #e11d48;
-  transform: translate(2px, -2px);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -579,10 +551,6 @@
     background 0.2s,
     transform 0.2s;
   min-height: 46px;
-}
-.studio-button:hover {
-  background: #345662;
-  transform: translateY(-2px);
 }
 .studio-button:disabled {
   opacity: 0.45;
@@ -747,13 +715,6 @@
   cursor: pointer;
 }
 
-.studio-clean-banner-btn:hover {
-  background: #1e4a42;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(22, 56, 50, 0.35);
-  color: #ffffff;
-}
-
 /* ─── MOBILE-ONLY IMAGE PANEL ─── */
 /* Desktop: hidden (background-image handles it) */
 .studio-clean-banner-mobile-img {
@@ -878,10 +839,6 @@
     transform 0.2s,
     box-shadow 0.2s;
   box-shadow: 0 18px 50px -35px #9d2b582d;
-}
-.studio-gallery-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 55px -32px #e11d4866;
 }
 .studio-gallery-card > img {
   height: 275px;
@@ -1046,7 +1003,6 @@
   color: #536572;
   transition: all 0.18s;
 }
-.studio-nav-links a:hover,
 .studio-nav-links a[data-status="active"] {
   background: #fff1f2;
   color: #e11d48;
@@ -1090,10 +1046,6 @@
   color: #536572;
   transition: all 0.18s;
 }
-.studio-nav-menu-trigger:hover {
-  background: #fff1f2;
-  color: #e11d48;
-}
 .studio-nav-menu-panel {
   display: none;
   position: absolute;
@@ -1122,10 +1074,6 @@
   color: #374151;
   transition: background 0.15s;
   border: 0;
-}
-.studio-nav-menu-panel a:hover {
-  background: #fdf0f3;
-  color: #e11d48;
 }
 .studio-nav-menu-panel a span {
   flex: 1;
@@ -1173,10 +1121,6 @@
   text-decoration: none;
   border: 0;
 }
-.studio-nav-panel-item:hover {
-  background: #fdf0f3;
-  color: #e11d48;
-}
 .studio-nav-panel-icon {
   width: 32px;
   height: 32px;
@@ -1191,10 +1135,6 @@
     background 0.15s,
     color 0.15s;
 }
-.studio-nav-panel-item:hover .studio-nav-panel-icon {
-  background: #ffe4ea;
-  color: #e11d48;
-}
 .studio-nav-panel-copy strong {
   display: block;
   font-size: 12px;
@@ -1207,16 +1147,10 @@
   color: #9ca3af;
   margin-top: 1px;
 }
-.studio-nav-panel-item:hover .studio-nav-panel-copy strong {
-  color: #e11d48;
-}
 .studio-nav-panel-arrow {
   color: #d1d5db;
   flex-shrink: 0;
   transition: color 0.15s;
-}
-.studio-nav-panel-item:hover .studio-nav-panel-arrow {
-  color: #e11d48;
 }
 .studio-nav-panel-footer {
   border-top: 1px solid #f3e8ec;
@@ -1234,9 +1168,6 @@
   padding: 6px 10px;
   border-radius: 7px;
   transition: background 0.15s;
-}
-.studio-nav-panel-footer a:hover {
-  background: #fdf0f3;
 }
 
 /* Mobile nav enhancements */
@@ -1261,9 +1192,6 @@
   color: #374151;
   text-decoration: none;
   transition: background 0.15s;
-}
-.studio-nav-mobile-tool:hover {
-  background: #fdf0f3;
 }
 .studio-nav-mobile-tool span {
   flex: 1;

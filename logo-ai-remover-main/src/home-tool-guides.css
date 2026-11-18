@@ -1,0 +1,103 @@
+.home-tool-guides {
+  padding: clamp(3.5rem, 9vw, 7rem) 1.25rem;
+  background: #eef2e7;
+  color: #10241e;
+  scroll-margin-top: 6rem;
+}
+
+.home-tool-guides-inner {
+  max-width: 70rem;
+  margin-inline: auto;
+}
+
+.home-tool-guides h2 {
+  margin: 0 0 2rem;
+  font-size: clamp(2.1rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+
+.home-tool-guide {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 1.4rem;
+  padding: 0.7rem;
+  border: 1px solid #c4d0bd;
+  border-radius: 1.45rem;
+  background: #fafcf6;
+}
+
+.home-tool-guide:nth-of-type(even) {
+  grid-template-columns: 1fr 1.12fr;
+}
+
+.home-tool-guide:nth-of-type(even) .home-tool-guide-image {
+  order: 1;
+}
+
+.home-tool-guide-image {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #18362d;
+}
+
+.home-tool-guide-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+
+.home-tool-guide-copy {
+  padding: clamp(1.15rem, 4vw, 3.3rem);
+}
+
+.home-tool-guide-copy h3 {
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.55rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.home-tool-guide-copy p {
+  margin: 0;
+  color: #3a5146;
+}
+
+.home-tool-guide-copy ol {
+  margin: 1rem 0 1.4rem;
+  padding-inline-start: 1.25rem;
+  list-style: decimal;
+  line-height: 1.7;
+}
+
+.home-tool-guide-link {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.7rem;
+  background: #10241e;
+  color: #f5ffdf;
+  font-weight: 700;
+}
+
+.home-tool-guide-link:focus-visible {
+  outline: 2px solid #10241e;
+  outline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  .home-tool-guide,
+  .home-tool-guide:nth-of-type(even) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-tool-guide:nth-of-type(even) .home-tool-guide-image {
+    order: 0;
+  }
+}

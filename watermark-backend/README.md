@@ -1,6 +1,6 @@
 # 🎬 Bellix Labs — Real FFmpeg Video Watermark Remover Backend
 
-High-performance Python backend powered by FastAPI and the real system `ffmpeg` binary. Performs mathematical reverse alpha unblending for Google Gemini / Veo watermarked videos with zero AI distortion, preserving 100% original video resolution, framerate, and audio track.
+FastAPI and FFmpeg worker for visible Gemini/Veo sparkle restoration. See [Gemini video cleaner](VIDEO_CLEANER.md) for the Next.js integration, calibration tools, and QA checks.
 
 > **Note:** This backend requires the real `ffmpeg` binary and must be deployed to a persistent container service (Railway, Render, Fly.io, or VPS). It must **NOT** be deployed to serverless hosts like Vercel or Netlify.
 
@@ -52,14 +52,14 @@ docker run -p 8000:8000 bellix-watermark-backend
 4. Railway will automatically detect the `Dockerfile` and expose `${PORT}`.
 5. Set Environment Variables:
    - `CORS_ORIGINS`: `https://bellix.us,https://www.bellix.us`
-6. Copy the generated Railway URL (e.g. `https://xxx.up.railway.app`) and set it in your frontend as `NEXT_PUBLIC_API_URL`.
+6. Copy the generated Railway URL (e.g. `https://xxx.up.railway.app`) and set it in your frontend as `VIDEO_WORKER_URL`.
 
 ### 2. Render
 1. Create a **New Web Service** from your GitHub repo.
 2. Select **Docker** environment (or set Root Directory to `watermark-backend`).
 3. Add Environment Variables:
    - `CORS_ORIGINS`: `https://bellix.us,https://www.bellix.us`
-4. Deploy service and set public URL in frontend.
+4. Deploy the service and set `VIDEO_WORKER_URL` in Vercel.
 
 ### 3. Fly.io
 ```bash
@@ -87,13 +87,14 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ### `POST /api/video/process` (multipart/form-data)
 - **Parameters:**
   - `file`: Video file (`video/mp4`, `video/webm`, `video/quicktime`, etc., up to 500 MB, duration $\le 120$ s).
-  - `size_pct`: Corner box width % (float, default `7.0`).
-  - `dist_pct`: Distance from right/bottom corner % (float, default `4.0`).
-  - `alpha`: Watermark opacity calibration (float `0.10` to `0.90`, default `0.30`).
+  - `request_key`: Unique UUID for the upload attempt.
+  - `manual_box`: Optional JSON array with normalized display coordinates `[x, y, width, height]`.
 - **Response:**
   ```json
   { "job_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
   ```
+
+Send the returned token as the `X-Video-Job-Token` header for status, download, and delete.
 
 ### `GET /api/video/status/{job_id}`
 - **Response:**
@@ -107,7 +108,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
   ```
 
 ### `GET /api/video/download/{job_id}`
-Streams the pristine clean MP4 file (`<original-name>-clean.mp4`) with attachment headers.
+Streams the processed MP4 file (`<original-name>-clean.mp4`) with attachment headers.
 
 ### `DELETE /api/video/{job_id}`
 Deletes job workspace and temporary artifacts immediately.

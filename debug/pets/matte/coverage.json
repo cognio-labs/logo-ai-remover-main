@@ -1,0 +1,11 @@
+{
+  "previous": {
+    "supported_alpha_pixels": 883,
+    "residual_mask_pixels": 580
+  },
+  "lama": {
+    "supported_alpha_pixels": 883,
+    "residual_mask_pixels": 2851
+  },
+  "interpretation": "The sample frames did not support extra signed alpha above 0.8%. The soft LaMa mask covers the wider residual footprint."
+}

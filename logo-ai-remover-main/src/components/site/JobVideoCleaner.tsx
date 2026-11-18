@@ -1,6 +1,7 @@
 "use client";
 import { emitToolEvent } from "@/lib/tool-events";
 
+import { accountFetch } from "@/components/account/AccountPanel";
 import { useUserStore } from "@/lib/userStore";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -22,12 +23,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
-import {
-  assertBrowserVideoSupport,
-  cancelGeminiEngine,
-  processWithGeminiEngine,
-  type GeminiVideoProgress,
-} from "@/lib/geminiVideoEngine";
+type Point = [number, number];
+type Selection = [number, number, number, number];
 
 const ACCEPT = "video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm,.mkv";
 
@@ -39,15 +36,19 @@ function fmt(t: number): string {
 }
 
 export function JobVideoCleaner() {
+  const accountRequestKey = useRef<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [outputExt, setOutputExt] = useState<string>("mp4");
 
-  const engineFrameRef = useRef<HTMLIFrameElement>(null);
   const processingControllerRef = useRef<AbortController | null>(null);
+
+  const [manual, setManual] = useState(false);
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [videoRatio, setVideoRatio] = useState(0);
+  const [previewError, setPreviewError] = useState(false);
+  const selectionStart = useRef<Point | null>(null);
 
   const [dragOver, setDragOver] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -95,25 +96,30 @@ export function JobVideoCleaner() {
         toast.error("Please choose an MP4, WebM, MOV or MKV video.");
         return;
       }
-      if (f.size > 100 * 1024 * 1024) {
+      if (f.size > 500 * 1024 * 1024) {
         toast.error(
-          "Browser mode supports files up to 100 MB. Use the local CLI for larger videos.",
+          "Choose a video smaller than 500 MB.",
         );
         return;
       }
 
       processingControllerRef.current?.abort();
-      cancelGeminiEngine(engineFrameRef.current);
+      processingControllerRef.current = null;
+      selectionStart.current = null;
 
       if (origUrl) URL.revokeObjectURL(origUrl);
       if (cleanUrl) URL.revokeObjectURL(cleanUrl);
 
       const url = URL.createObjectURL(f);
       setFile(f);
+      accountRequestKey.current = crypto.randomUUID();
       setOrigUrl(url);
       setCleanUrl(null);
-      setDownloadUrl(null);
-      setOutputExt("mp4");
+      setManual(false);
+      setSelection(null);
+      setVideoRatio(0);
+      setPreviewError(false);
+      setIsMuted(true);
       setIsDone(false);
       setIsProcessing(false);
       setIsError(false);
@@ -122,7 +128,7 @@ export function JobVideoCleaner() {
       setCurrentTime(0);
       setSeekValue(0);
       setIsPlaying(false);
-      setStatusMsg("Starting local watermark detectionâ€¦");
+      setStatusMsg("Preparing video upload");
     },
     [cleanUrl, origUrl],
   );
@@ -206,14 +212,14 @@ export function JobVideoCleaner() {
     pauseBoth();
     processingControllerRef.current?.abort();
     processingControllerRef.current = null;
-    cancelGeminiEngine(engineFrameRef.current);
     if (origUrl) URL.revokeObjectURL(origUrl);
     if (cleanUrl) URL.revokeObjectURL(cleanUrl);
     setFile(null);
     setOrigUrl(null);
     setCleanUrl(null);
-    setDownloadUrl(null);
-    setOutputExt("mp4");
+    setManual(false);
+    setSelection(null);
+    setVideoRatio(0);
     setIsDone(false);
     setIsProcessing(false);
     setProgress(0);
@@ -225,131 +231,67 @@ export function JobVideoCleaner() {
     setErrorDetails(null);
   };
 
-  // Browser-local WebCodecs + MediaBunny processing via the official MIT runtime.
-  const handleProcess = async () => {
-    if (!file || !origUrl) return;
-    // The engine has one mutable job slot. A second call would revoke the
-    // first job's blob URL while its result is being validated.
-    if (processingControllerRef.current && !processingControllerRef.current.signal.aborted) {
-      return;
-    }
-    const engineFrame = engineFrameRef.current;
+  const handleProcess = async (position?: Selection) => {
+    if (!file || !origUrl || processingControllerRef.current) return;
     const controller = new AbortController();
+    const { signal } = controller;
     processingControllerRef.current = controller;
     setIsProcessing(true);
     setIsError(false);
     setErrorDetails(null);
     setProgress(2);
-    setStatusMsg("Initializing high-fidelity watermark removal...");
+    setStatusMsg("Connecting to the video worker");
 
     try {
-      // 1. Try Python FastAPI backend first if available
-      let usedBackend = false;
-      const videoApiBase =
-        process.env.NEXT_PUBLIC_VIDEO_API ||
-        process.env.NEXT_PUBLIC_API_URL ||
-        "http://localhost:5000";
+      const config = await fetch("/api/video-worker", { signal, cache: "no-store" });
+      const worker = await config.json();
+      if (!config.ok || !worker.origin) {
+        throw new Error(worker.detail || "The video worker is unavailable.");
+      }
+      setStatusMsg("Uploading video");
+      const form = new FormData();
+      form.append("file", file);
+      form.append("request_key", accountRequestKey.current ?? crypto.randomUUID());
+      if (position) form.append("manual_box", JSON.stringify(position));
+      const response = await accountFetch(`${worker.origin}/api/video/process`, {
+        method: "POST",
+        body: form,
+        signal,
+      });
+      const job = await response.json().catch(() => null);
+      if (!response.ok || !job?.job_id) {
+        throw new Error(job?.detail || "The worker could not accept the video.");
+      }
+      if (!job.job_token) throw new Error("This worker requires the current video cleaner release.");
 
-      try {
-        const backendHealth = await fetch(`${videoApiBase}/health`, {
-          signal: AbortSignal.timeout(1500),
-        }).catch(() => null);
-
-        if (backendHealth && backendHealth.ok) {
-          setStatusMsg("Uploading video to AI processing engine...");
-          const formData = new FormData();
-          formData.append("file", file);
-
-          const uploadRes = await fetch(`${videoApiBase}/api/video/process`, {
-            method: "POST",
-            body: formData,
-            signal: controller.signal,
-          });
-
-          if (uploadRes.ok) {
-            const uploadData = await uploadRes.json();
-            const jobId = uploadData.job_id;
-
-            while (!controller.signal.aborted) {
-              await new Promise((r) => setTimeout(r, 600));
-              if (controller.signal.aborted) break;
-
-              const stRes = await fetch(`${videoApiBase}/api/video/status/${jobId}`, {
-                signal: controller.signal,
-              });
-              if (!stRes.ok) break;
-
-              const st = await stRes.json();
-              if (st.state === "processing") {
-                setProgress(Math.min(98, Math.max(5, st.progress || 10)));
-                if (st.log_tail && st.log_tail.length) {
-                  setStatusMsg(st.log_tail[st.log_tail.length - 1]);
-                }
-              } else if (st.state === "done") {
-                setProgress(99);
-                setStatusMsg("Downloading clean video...");
-                const dlRes = await fetch(`${videoApiBase}/api/video/download/${jobId}`, {
-                  signal: controller.signal,
-                });
-                if (dlRes.ok) {
-                  const blob = await dlRes.blob();
-                  const blobUrl = URL.createObjectURL(blob);
-                  setOutputExt("mp4");
-                  setCleanUrl(blobUrl);
-                  setDownloadUrl(blobUrl);
-                  setIsDone(true);
-                  emitToolEvent("processing_completed", "gemini-video-watermark-remover");
-                  setProgress(100);
-                  setStatusMsg("Processing complete. Video is 100% clean and ready.");
-                  toast.success("Video export is ready to review.");
-                  usedBackend = true;
-                  break;
-                }
-              } else if (st.state === "error") {
-                throw new Error(st.error || "Video processing failed on backend");
-              }
-            }
-          }
-        }
-      } catch (backendErr) {
-        if (controller.signal.aborted) return;
-        console.warn(
-          "Backend pipeline error or offline, falling back to local engine:",
-          backendErr,
-        );
+      const jobId = encodeURIComponent(job.job_id);
+      const options = { signal, headers: { "X-Video-Job-Token": job.job_token } };
+      while (true) {
+        await new Promise((resolve) => setTimeout(resolve, 750));
+        signal.throwIfAborted();
+        const statusResponse = await accountFetch(`${worker.origin}/api/video/status/${jobId}`, options);
+        if (!statusResponse.ok) throw new Error("The worker could not retrieve this job.");
+        const status = await statusResponse.json();
+        if (status.state === "error") throw new Error(status.error || "Video processing failed.");
+        if (status.state === "done") break;
+        setProgress(Math.min(98, Math.max(5, status.progress || 0)));
+        setStatusMsg(status.state === "queued" ? "Waiting for a processing slot" : "Restoring the watermark area");
       }
 
-      if (!usedBackend) {
-        if (!engineFrame) {
-          toast.error("The local video engine is still loading. Please try again.");
-          return;
-        }
-
-        assertBrowserVideoSupport();
-
-        const result = await processWithGeminiEngine(
-          engineFrame,
-          file,
-          (event: GeminiVideoProgress) => {
-            if (controller.signal.aborted || processingControllerRef.current !== controller) return;
-            setProgress(Math.min(99, Math.max(1, Math.round(event.progress * 100))));
-            setStatusMsg(event.message);
-          },
-          controller.signal,
-        );
-
-        controller.signal.throwIfAborted();
-
-        const blobUrl = URL.createObjectURL(result.blob);
-        setOutputExt("mp4");
-        setCleanUrl(blobUrl);
-        setDownloadUrl(blobUrl);
-        setIsDone(true);
-        emitToolEvent("processing_completed", "gemini-video-watermark-remover");
-        setProgress(99);
-        setStatusMsg("Processing complete. Review the result before downloading.");
-        toast.success("Video export is ready to review.");
-      }
+      setProgress(99);
+      setStatusMsg("Downloading processed MP4");
+      const result = await accountFetch(`${worker.origin}/api/video/download/${jobId}`, options);
+      if (!result.ok) throw new Error("The worker could not download this MP4.");
+      const blob = await result.blob();
+      signal.throwIfAborted();
+      if (!blob.size) throw new Error("The worker returned an empty MP4.");
+      setCleanUrl(URL.createObjectURL(blob));
+      setManual(false);
+      setIsDone(true);
+      setProgress(100);
+      setStatusMsg("Processing complete. Review the result before downloading.");
+      emitToolEvent("processing_completed", "gemini-video-watermark-remover");
+      toast.success("Video export is ready to review.");
 
       try {
         useUserStore.getState().addJob({
@@ -359,31 +301,49 @@ export function JobVideoCleaner() {
           quality: "Original resolution",
           credits_used: 0,
           file_url: origUrl,
-          result_url: cleanUrl || "",
+          result_url: "",
         });
       } catch {
-        // Non-critical local history update.
+        // The processed MP4 remains available if local history storage fails.
       }
-
       setCurrentTime(0);
       setSeekValue(0);
       setIsPlaying(false);
-    } catch (finalErr) {
-      console.error("Video processing failure:", finalErr);
-      if (controller.signal.aborted || processingControllerRef.current !== controller) return;
+    } catch (error) {
+      if (signal.aborted || processingControllerRef.current !== controller) return;
       setIsError(true);
-      emitToolEvent("processing_failed", "gemini-video-watermark-remover");
-      setErrorDetails(
-        finalErr instanceof Error ? finalErr.message : "Unable to process this video locally.",
-      );
+      setErrorDetails(error instanceof Error ? error.message : "Unable to process this video.");
       setStatusMsg("Processing failed");
-      toast.error("Local video processing failed.");
+      emitToolEvent("processing_failed", "gemini-video-watermark-remover");
+      toast.error("Video processing failed.");
     } finally {
       if (processingControllerRef.current === controller) {
         processingControllerRef.current = null;
         setIsProcessing(false);
       }
     }
+  };
+
+  const selectionPoint = (event: React.PointerEvent<HTMLDivElement>): Point => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clamp = (value: number) => Math.max(0, Math.min(1, value));
+    return [clamp((event.clientX - rect.left) / rect.width), clamp((event.clientY - rect.top) / rect.height)];
+  };
+
+  const updateSelection = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!selectionStart.current) return;
+    const [startX, startY] = selectionStart.current;
+    const [x, y] = selectionPoint(event);
+    setSelection([Math.min(startX, x), Math.min(startY, y), Math.abs(x - startX), Math.abs(y - startY)]);
+  };
+
+  const toggleManual = () => {
+    pauseBoth();
+    setIsPlaying(false);
+    setManual(!manual);
+    setSelection(null);
+    setIsError(false);
+    setErrorDetails(null);
   };
 
   // A new selection starts processing; progress renders do not restart the job.
@@ -431,7 +391,7 @@ export function JobVideoCleaner() {
           </h3>
 
           <p className="mt-3 text-sm sm:text-base text-[#637069] max-w-lg">
-            MP4, MOV, WebM or MKV Â· up to 100 MB. Processing starts automatically when selected.
+            MP4, MOV, WebM or MKV up to 500 MB. Processing starts automatically when selected.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -478,7 +438,7 @@ export function JobVideoCleaner() {
           <div className="mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#637069]">
             <ShieldCheck className="size-4 text-[#10241e]" />
             <span>
-              Local reverse-alpha cleanup Â· output is re-encoded Â· original stays unchanged
+              Reverse-alpha cleanup with MP4 export
             </span>
           </div>
 
@@ -503,7 +463,7 @@ export function JobVideoCleaner() {
   /* -------------------------------------------------------------------------- */
   return (
     <div className="w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left">
-      {isDone && cleanUrl && (
+      {isDone && cleanUrl && !manual && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] px-5 py-4 sm:px-6">
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d0f471] text-[#10241e]">
@@ -520,7 +480,7 @@ export function JobVideoCleaner() {
         </div>
       )}
 
-      {isDone && cleanUrl ? (
+      {isDone && cleanUrl && !manual ? (
         <VideoCompareSlider
           beforeSrc={origUrl}
           afterSrc={cleanUrl}
@@ -534,10 +494,10 @@ export function JobVideoCleaner() {
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-[#10241e]/15 bg-black">
-          <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-black">
+          <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[#10241e]">
             <span className="absolute left-3 top-3 z-10 rounded-full bg-black/85 px-3 py-1 text-xs font-bold text-white">
               {isDone
-                ? "Processed result"
+                ? "Original video"
                 : isProcessing
                   ? "Scanning original video"
                   : "Original video"}
@@ -546,31 +506,63 @@ export function JobVideoCleaner() {
               ref={origVideoRef}
               src={origUrl}
               playsInline
+              muted={isMuted}
+              autoPlay={!manual}
+              loop={isProcessing && !manual}
               preload="auto"
-              className="h-full w-full cursor-pointer bg-black object-contain"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onError={() => setPreviewError(true)}
+              className="h-full w-full cursor-pointer object-contain"
               onClick={togglePlay}
-              onLoadedMetadata={() => setDuration(origVideoRef.current?.duration || 0)}
+              onLoadedMetadata={(event) => {
+                const video = event.currentTarget;
+                setDuration(video.duration);
+                setVideoRatio(video.videoWidth / video.videoHeight);
+                if (manual) video.currentTime = currentTime;
+              }}
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
             />
-            {isProcessing && (
+            {previewError && (
+              <p className="absolute px-5 text-center text-sm text-white">
+                This browser cannot preview the original format. The worker can still process it.
+              </p>
+            )}
+            {manual && videoRatio > 0 && !isProcessing && (
               <div
-                className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black p-6 text-center text-white"
-                role="status"
-                aria-live="polite"
+                className="absolute z-20 touch-none cursor-crosshair"
+                style={{
+                  width: `${Math.min(1, videoRatio / (16 / 9)) * 100}%`,
+                  height: `${Math.min(1, (16 / 9) / videoRatio) * 100}%`,
+                }}
+                onPointerDown={(event) => {
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  selectionStart.current = selectionPoint(event);
+                  updateSelection(event);
+                }}
+                onPointerMove={updateSelection}
+                onPointerUp={(event) => {
+                  updateSelection(event);
+                  selectionStart.current = null;
+                  accountRequestKey.current = crypto.randomUUID();
+                }}
+                onPointerCancel={() => {
+                  selectionStart.current = null;
+                  setSelection(null);
+                }}
               >
-                <div className="mb-4 flex size-16 items-center justify-center rounded-full border border-[#d0f471]/50 bg-[#10241e]">
-                  <div className="size-9 animate-spin rounded-full border-[3px] border-transparent border-t-[#d0f471] motion-reduce:animate-none" />
-                </div>
-                <strong className="text-base sm:text-lg">Scanning and cleaning video</strong>
-                <span className="mt-2 max-w-md text-sm text-white/80">{statusMsg}</span>
-                <div className="mt-5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/25">
+                {selection && (
                   <div
-                    className="h-full rounded-full bg-[#d0f471] transition-[width] duration-200"
-                    style={{ width: `${progress}%` }}
+                    className="pointer-events-none absolute border-2 border-[#d0f471] bg-[#d0f471]/15"
+                    style={{
+                      left: `${selection[0] * 100}%`,
+                      top: `${selection[1] * 100}%`,
+                      width: `${selection[2] * 100}%`,
+                      height: `${selection[3] * 100}%`,
+                    }}
                   />
-                </div>
-                <span className="mt-2 font-mono text-xs text-[#d0f471]">{progress}%</span>
+                )}
               </div>
             )}
           </div>
@@ -578,27 +570,29 @@ export function JobVideoCleaner() {
       )}
       {isProcessing && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-4">
-          <div className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]">
+          <div role="status" className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]">
             <span>{statusMsg}</span>
             <span className="font-mono">{progress}%</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[#10241e]/10">
+          <div
+            role="progressbar"
+            aria-label="Video cleanup progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+            className="h-2 overflow-hidden rounded-full bg-[#10241e]/10"
+          >
             <div
               className="h-full rounded-full bg-[#10241e] transition-[width] duration-200"
               style={{ width: `${progress}%` }}
             />
           </div>
-          {isProcessing && (
-            <p className="mt-2 text-xs text-[#637069]">
-              Processing stays in this Chrome/Edge tab. Keep it open and in the foreground until
-              export completes.
-            </p>
-          )}
+
         </div>
       )}
 
       {/* Playback Control Bar */}
-      {!isDone && (
+      {(!isDone || manual) && (
         <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f3f4ee] rounded-2xl border border-[#10241e]/15">
           <button
             type="button"
@@ -650,7 +644,7 @@ export function JobVideoCleaner() {
           </div>
           <button
             type="button"
-            onClick={() => void handleProcess()}
+            onClick={() => void handleProcess(manual ? selection ?? undefined : undefined)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
           >
             <RotateCcw className="size-3.5" />
@@ -677,14 +671,24 @@ export function JobVideoCleaner() {
           className="inline-flex items-center gap-2 rounded-xl border border-[#10241e]/20 bg-white hover:bg-[#f3f4ee] text-[#10241e] px-5 py-3 text-sm font-bold shadow-xs transition-all cursor-pointer"
         >
           <RotateCcw className="size-4" />
-          {isProcessing ? "Cancel & Reset" : "Reset"}
+          Reset
         </button>
 
-        {!isDone ? (
+        <button
+          type="button"
+          onClick={toggleManual}
+          disabled={isProcessing}
+          aria-pressed={manual}
+          className="inline-flex items-center gap-2 rounded-xl border border-[#10241e]/20 bg-white px-5 py-3 text-sm font-bold text-[#10241e] hover:bg-[#f3f4ee] disabled:opacity-50"
+        >
+          {manual ? "Close manual position" : "Manual position"}
+        </button>
+
+        {!isDone || manual ? (
           <button
             type="button"
-            disabled={isProcessing}
-            onClick={() => void handleProcess()}
+            disabled={isProcessing || (manual && (!selection || selection[2] < .005 || selection[3] < .005 || selection[2] > .35 || selection[3] > .35))}
+            onClick={() => void handleProcess(manual ? selection ?? undefined : undefined)}
             className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
@@ -701,8 +705,8 @@ export function JobVideoCleaner() {
           </button>
         ) : (
           <a
-            href={downloadUrl || "#"}
-            download={`cleaned-${file.name.replace(/\.[^/.]+$/, "")}.${outputExt}`}
+            href={cleanUrl || "#"}
+            download={`cleaned-${file.name.replace(/\.[^/.]+$/, "")}.mp4`}
             className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer"
           >
             <Download className="size-4" />
@@ -711,7 +715,10 @@ export function JobVideoCleaner() {
         )}
       </div>
 
-      {isDone && (
+      {manual && !isProcessing && (
+        <p className="text-xs text-[#637069]">Pause on a clear frame and drag a small box around the entire visible sparkle.</p>
+      )}
+      {isDone && !manual && (
         <p className="text-xs text-[#637069]">
           Review the full result before use. Removal quality depends on whether the detector
           recognizes the watermark.
@@ -730,14 +737,6 @@ export function JobVideoCleaner() {
         }}
       />
 
-      <iframe
-        ref={engineFrameRef}
-        src="/gwr-engine/video-preview.html?v=20261116_complete_ghost_removal"
-        title="Local Gemini video processing engine"
-        aria-hidden="true"
-        tabIndex={-1}
-        className="pointer-events-none fixed left-[-10000px] top-0 h-[720px] w-[1280px] opacity-[0.01]"
-      />
     </div>
   );
 }

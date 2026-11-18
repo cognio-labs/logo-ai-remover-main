@@ -1,11 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthSessionSync } from "@/components/account/AuthSessionSync";
+
+function ScrollToTop() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Immediate scroll to top on any route transition
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [pathname]);
+
+  return null;
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -25,6 +39,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ScrollToTop />
+      <AuthSessionSync />
       {isAdmin ? (
         <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
           {children}

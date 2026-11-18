@@ -52,6 +52,13 @@ ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".webm", ".avi", ".mkv"}
 
 app = Flask(__name__, static_folder=str(STATIC), static_url_path="/static")
+
+@app.before_request
+def block_legacy_unmetered_processing():
+    # This archived Flask deployment has no transactional entitlement integration.
+    # Fail closed; the supported account processor is `uvicorn main:app`.
+    if request.method != "OPTIONS" and request.path not in ("/", "/health", "/api/health"):
+        return jsonify({"error": "Use the authenticated FastAPI account processor"}), 410
 app.config["MAX_CONTENT_LENGTH"] = max(
     500 * 1024 * 1024,  # 500 MB for video
     MAX_IMAGE_FILE_BYTES * MAX_BATCH_IMAGES + 4 * 1024 * 1024,

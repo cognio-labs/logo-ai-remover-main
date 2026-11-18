@@ -66,15 +66,15 @@ function HeroSection() {
           <h1>
             Remove Image <br />
             Backgrounds and <br />
-            <em className="!text-[#d0f471] not-italic font-black text-[#d0f471]">
+            <em className="!text-white not-italic font-bold text-white">
               Clean Supported Watermarks
             </em>
           </h1>
-          <p className="hero-description">
-            Choose background remover or supported Gemini image, video, and PDF watermark cleanup. Preview your edited media before exporting.
+          <p className="hero-description !text-white/95">
+            Choose background remover or supported Gemini image and video watermark cleanup. Preview your edited media before exporting.
           </p>
           <div className="hero-actions">
-            <Link className="button button-lime cursor-pointer font-bold" href="/background-remover">
+            <Link className="button button-lime cursor-pointer font-bold" href="/#tools">
               Choose an Editing Tool <ArrowRight size={17} />
             </Link>
             <Link className="button button-outline-light cursor-pointer font-medium" href="/tools">
@@ -624,6 +624,63 @@ function BenchmarksSection() {
 }
 
 // 8. FINAL CLOSING CTA SECTION
+const toolGuides = [
+  {
+    id: "background-remover",
+    title: "Remove an image background",
+    description: "Isolate a product, person or object for listings, graphics and layouts.",
+    image: "/tool-guides/background.webp",
+    alt: "Amber perfume bottle shown in a forest-green set and isolated on a pale background",
+    steps: ["Upload a PNG, JPG or WebP.", "Preview the cutout and refine the edges.", "Download a transparent PNG."],
+    action: "Open Background Remover",
+  },
+  {
+    id: "gemini-image-watermark-remover",
+    title: "Clean a Gemini image",
+    description: "Remove a supported visible sparkle from an original Gemini image.",
+    image: "/tool-guides/image.webp",
+    alt: "An ivory villa among olive trees in a split-view image",
+    steps: ["Upload the original Gemini image.", "Run cleanup and inspect the corner.", "Download the processed image."],
+    action: "Open Gemini Image Cleaner",
+  },
+  {
+    id: "gemini-video-watermark-remover",
+    title: "Clean a Gemini or Veo video",
+    description: "Remove a supported visible sparkle and compare both videos at the same playback position.",
+    image: "/tool-guides/video.webp",
+    alt: "Cinematic comparison stills of a blue car driving through a pine forest",
+    steps: ["Upload the original video.", "Review the original and processed sides in the player.", "Download the processed MP4."],
+    action: "Open Video Cleaner",
+  },
+];
+
+function HomeToolGuides() {
+  return (
+    <section className="home-tool-guides" id="tools" aria-labelledby="home-tool-guides-title">
+      <div className="home-tool-guides-inner">
+        <h2 id="home-tool-guides-title">Choose your editing tool</h2>
+        {toolGuides.map(({ id, title, description, image, alt, steps, action }) => (
+          <section key={id} aria-labelledby={id + "-guide"} className="home-tool-guide">
+            <div className="home-tool-guide-image">
+              <img src={image} alt={alt} width={960} height={600} loading="lazy" decoding="async" />
+            </div>
+            <div className="home-tool-guide-copy">
+              <h3 id={id + "-guide"}>{title}</h3>
+              <p>{description}</p>
+              <ol>
+                {steps.map((step) => <li key={step}>{step}</li>)}
+              </ol>
+              <Link className="home-tool-guide-link" href={`/${id}`}>
+                {action} <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function FinalCTASection() {
   return (
     <section className="final-cta" id="final-cta">
@@ -640,7 +697,7 @@ function FinalCTASection() {
             <em>worth a second look.</em>
           </h2>
           <p>Clear the watermark. Keep 100% of the image.</p>
-          <Link className="button button-lime" href="/background-remover">
+          <Link className="button button-lime" href="/#tools">
             Find your tool <ArrowUpRight size={17} />
           </Link>
           <span className="cta-reassurance">
@@ -666,7 +723,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <HeroSection />
-      <section className="toolkit-section" id="tools" style={{ padding: '48px 24px', maxWidth: 1100, margin: 'auto' }}><h2>Choose your editing tool</h2><p>Start with an original file you own or have permission to edit. Each tool has different format and browser requirements.</p><ul><li><Link href="/background-remover">Remove image backgrounds and create transparent PNGs</Link></li><li><Link href="/gemini-image-watermark-remover">Clean visible Gemini image sparkle marks</Link></li><li><Link href="/gemini-video-watermark-remover">Clean supported Gemini and Veo video marks</Link></li></ul><h2>Review before exporting</h2><p>Inspect fine edges, text, faces, and moving subjects. Cleanup can leave artifacts and cannot recover detail absent from the source. Visible-mark cleanup does not remove invisible SynthID.</p><Link href="/tools">Explore the tool directory</Link></section>
+      <HomeToolGuides />
       <FinalCTASection />
     </div>
   );

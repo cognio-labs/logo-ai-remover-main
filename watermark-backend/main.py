@@ -23,11 +23,14 @@ Additional / Legacy Endpoints:
 
 import asyncio
 import collections
+import hmac
 import json
 import logging
+import math
 import os
 import re
 import shutil
+import secrets
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -46,7 +49,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from processor import remove_watermark
-from billing_access import authenticated_user, reserve_video, settle, require_owner
+from billing_access import authenticated_user, reserve_video, settle
 
 # ---------------------------------------------------------------------------
 # Logging configuration
@@ -65,7 +68,6 @@ UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", str(BASE_DIR / "uploads")))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 MAX_UPLOAD_SIZE = 500 * 1024 * 1024  # 500 MB max video upload
-MAX_DURATION_SECONDS = 120.0        # 120 seconds max duration
 RATE_LIMIT_UPLOADS_PER_HOUR = int(os.environ.get("RATE_LIMIT_UPLOADS_PER_HOUR", 10))
 CLEANUP_INTERVAL_SECONDS = 60
 JOB_RETENTION_SECONDS = 15 * 60     # 15 minutes after completion
@@ -142,9 +144,6 @@ async def background_cleanup_loop():
             for job_id, job in list(video_jobs.items()):
                 finished_at = job.get("finished_at")
                 if finished_at and (now - finished_at > JOB_RETENTION_SECONDS):
-                    to_delete.append(job_id)
-                elif not finished_at and (now - job.get("created_at", now) > 3600):
-                    # Timeout uncompleted jobs older than 1 hour
                     to_delete.append(job_id)
 
             for job_id in to_delete:
@@ -250,7 +249,14 @@ async def protect_media(request: Request, call_next):
             raise HTTPException(410, "Use the authenticated account processing endpoint")
         if path.startswith("/api/video/") and path not in ("/api/video/process", "/api/video/detect-frame"):
             job_id = path.rsplit("/", 1)[-1]
-            require_owner(video_jobs.get(job_id), request.state.user_id)
+            job = video_jobs.get(job_id)
+            token = request.headers.get("x-video-job-token", "")
+            owner = request.state.user_id
+            if not job or not (
+                hmac.compare_digest(job["download_token"].encode(), token.encode())
+                or (owner != "local-guest-user" and owner == job["owner_id"])
+            ):
+                raise HTTPException(404, "Job not found")
         # PDF jobs use a private owner sidecar; restart recovery never assigns a new owner.
         if path.startswith("/api/pdf/") and path != "/api/pdf/upload":
             from pdf_api import ROOT
@@ -445,7 +451,7 @@ async def _run_ffmpeg_attempt(cmd: list[str], duration: float, job: dict) -> tup
 
 
 async def _process_video_worker(job_id: str):
-    """Process a video with temporal logo detection and texture-preserving inpainting."""
+    """Process a fixed sparkle matte and retain the source stream timing."""
     job = video_jobs.get(job_id)
     if not job:
         return
@@ -466,12 +472,18 @@ async def _process_video_worker(job_id: str):
                 job["input_path"],
                 job["output_path"],
                 progress_cb=on_progress,
-                alpha=job.get("alpha", 0.30),
+                normalized_box=job["manual_box"],
+                allow_tracking=False,
             )
             if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
                 raise RuntimeError("The watermark-removal pipeline did not produce an output video.")
             output_meta = await _probe_video_file(job["output_path"])
-            if output_meta["width"] != job["width"] or output_meta["height"] != job["height"] or abs(output_meta["duration"] - job["duration"]) > 1:
+            if (
+                output_meta["width"] != job["width"]
+                or output_meta["height"] != job["height"]
+                or output_meta["has_audio"] != job["has_audio"]
+                or abs(output_meta["duration"] - job["duration"]) > 0.15
+            ):
                 raise RuntimeError("Output validation failed")
             await settle(job_id, True)
             job["state"] = "done"
@@ -481,13 +493,15 @@ async def _process_video_worker(job_id: str):
         except Exception as exc:
             logger.exception("[Job %s] Video watermark removal failed.", job_id)
             job["state"] = "error"
-            job["error"] = str(exc)
-            job["log_tail"] = [str(exc)]
+            job["error"] = str(exc) if isinstance(exc, ValueError) else "The worker could not export this video. Check the file and try again."
+            job["log_tail"] = [job["error"]]
             job["finished_at"] = time.time()
             try:
                 await settle(job_id, False, "processing_failed")
             except Exception:
                 logger.error("Credit release pending reconciliation for job %s", job_id)
+        finally:
+            Path(job["input_path"]).unlink(missing_ok=True)
 
 
 @app.post("/api/video/process")
@@ -499,6 +513,7 @@ async def api_video_process(
     dist_pct: float = Form(4.0),
     alpha: float = Form(0.30),
     request_key: str = Form(...),
+    manual_box: str | None = Form(None),
 ):
     """
     POST /api/video/process (multipart/form-data)
@@ -506,9 +521,23 @@ async def api_video_process(
     Validate:
       - content-type starts with video/
       - size <= 500 MB (stream to disk in chunks)
-      - duration <= 120 s (check with ffprobe)
+      - valid positive duration (check with ffprobe)
     Save to per-job temp folder, start background task, return {"job_id": "..."} immediately.
     """
+    selection = None
+    if manual_box is not None:
+        try:
+            selection = json.loads(manual_box)
+            x, y, w, h = selection
+            if (
+                not all(type(n) in (int, float) and math.isfinite(n) for n in (x, y, w, h))
+                or not (0 <= x <= 1 and 0 <= y <= 1 and 0 < w <= 0.35 and 0 < h <= 0.35)
+                or x + w > 1.00001 or y + h > 1.00001
+            ):
+                raise ValueError
+        except (TypeError, ValueError):
+            raise HTTPException(422, "Draw a small box around the visible sparkle.") from None
+
     # 1. Enforce per-IP rate limit
     client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (request.client.host if request.client else "127.0.0.1")
     enforce_ip_rate_limit(client_ip)
@@ -554,13 +583,14 @@ async def api_video_process(
         raise HTTPException(status_code=500, detail="Failed to save uploaded video.")
 
     # 5. Inspect video with ffprobe
-    meta = await _probe_video_file(str(input_path))
-    if meta["duration"] > MAX_DURATION_SECONDS:
+    try:
+        meta = await _probe_video_file(str(input_path))
+    except Exception:
         shutil.rmtree(job_dir, ignore_errors=True)
-        raise HTTPException(
-            status_code=400,
-            detail=f"Video duration ({meta['duration']:.1f}s) exceeds maximum allowed limit of {int(MAX_DURATION_SECONDS)}s.",
-        )
+        raise
+    if not math.isfinite(meta["duration"]) or meta["duration"] <= 0:
+        shutil.rmtree(job_dir, ignore_errors=True)
+        raise HTTPException(400, "The source video has no valid duration.")
 
     # Actual decoded metadata, never browser-supplied dimensions, controls entitlement.
     try:
@@ -569,11 +599,16 @@ async def api_video_process(
         logger.info("Billing reservation bypassed or offline: %s", exc)
         reservation = {"id": job_id, "status": "reserved", "offline": True}
 
-    reserved_id = reservation.get("id") or job_id
+    reserved_id = (None if reservation.get("offline") else reservation.get("id")) or job_id
+    if not re.fullmatch(r"[0-9a-f-]{36}", reserved_id):
+        shutil.rmtree(job_dir, ignore_errors=True)
+        raise HTTPException(502, "The worker received an invalid reservation.")
     if reserved_id in video_jobs:
         shutil.rmtree(job_dir, ignore_errors=True)
-        require_owner(video_jobs[reserved_id], request.state.user_id)
-        return JSONResponse({"job_id": reserved_id})
+        existing = video_jobs[reserved_id]
+        if request.state.user_id == "local-guest-user" or existing["owner_id"] != request.state.user_id:
+            raise HTTPException(404, "Job not found")
+        return JSONResponse({"job_id": reserved_id, "job_token": existing["download_token"]})
 
     # If reserved_id differs from initial job_id, update folder mapping
     if reserved_id != job_id:
@@ -592,6 +627,7 @@ async def api_video_process(
     video_jobs[job_id] = {
         "job_id": job_id,
         "owner_id": request.state.user_id,
+        "download_token": secrets.token_urlsafe(32),
         "state": "queued",  # queued | processing | done | error
         "progress": 0,
         "error": None,
@@ -605,6 +641,7 @@ async def api_video_process(
         "size_pct": float(size_pct),
         "dist_pct": float(dist_pct),
         "alpha": float(alpha),
+        "manual_box": selection,
         "width": meta["width"],
         "height": meta["height"],
         "duration": meta["duration"],
@@ -616,7 +653,7 @@ async def api_video_process(
     background_tasks.add_task(_process_video_worker, job_id)
     logger.info("Accepted video process job %s (duration: %.1fs, %dx%d)", job_id, meta["duration"], meta["width"], meta["height"])
 
-    return JSONResponse(content={"job_id": job_id})
+    return JSONResponse(content={"job_id": job_id, "job_token": video_jobs[job_id]["download_token"]})
 
 
 @app.get("/api/video/status/{job_id}")

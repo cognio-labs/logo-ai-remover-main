@@ -795,43 +795,45 @@ export default function GeminiImageWatermarkRemoverPage() {
   };
 
   return (
-    <div className="gemini-page min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-28 selection:bg-[#d0f471] selection:text-[#091712]">
+    <div className="gemini-page min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-28">
       <div className="gemini-scroll-progress" style={{ width: `${scrollProgress}%` }} aria-hidden="true" />
       {/* ── 1. HERO SECTION & SINGLE WORKSPACE CONTAINER ── */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-transparent">
-        <div className="mx-auto max-w-7xl">
+      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#091712] text-white border-b border-[#d7f3af]/15 overflow-hidden">
+        {/* Atmospheric 4K Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
+        <div className="relative mx-auto max-w-7xl z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Copy (Constant across all states — never changes or sprouts extra cards) */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-sm">
-                <Sparkles className="size-4 text-[#10241e]" />
-                <span className="text-xs sm:text-sm font-bold text-[#10241e] tracking-wider uppercase font-mono">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#d0f471] shadow-sm">
+                <Sparkles className="size-4 text-[#d0f471]" />
+                <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wider uppercase font-mono">
                   ClearCorner • Gemini image cleaner
                 </span>
               </div>
 
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#10241e] leading-[1.06]">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.06]">
                 Take the sparkle off your{" "}
-                <span className="underline decoration-[#d0f471] decoration-wavy decoration-4">
+                <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4">
                   Gemini images.
                 </span>
               </h1>
 
-              <p className="text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
                 Drop in a picture, aim the box at the corner mark, and get a clean copy at the exact same resolution.
                 Preview your image, then process it to remove the corner mark.
               </p>
 
               {/* 3 Value Points */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs">
-                  <CheckCircle2 className="size-4 text-[#10241e]" /> No sign-up required
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <CheckCircle2 className="size-4 text-[#d0f471]" /> No sign-up required
                 </span>
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs">
-                  <Layers className="size-4 text-[#10241e]" /> Batch process images
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <Layers className="size-4 text-[#d0f471]" /> Batch process images
                 </span>
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs">
-                  <ShieldCheck className="size-4 text-[#10241e]" /> Full 4K / 8K original size kept
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <ShieldCheck className="size-4 text-[#d0f471]" /> Full 4K / 8K original size kept
                 </span>
               </div>
             </div>

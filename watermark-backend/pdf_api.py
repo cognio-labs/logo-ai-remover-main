@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import pymupdf
 from PIL import Image, ImageOps
-from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query, UploadFile, Request
 from fastapi.responses import FileResponse, Response
 from pdf_engine import analyze_pdf, clean_pdf, clean_image, detect_pdf, detect_image_watermarks
 
@@ -76,10 +76,11 @@ def get_job(job_id: str):
 
 
 @router.post("/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(request: Request, file: UploadFile = File(...)):
     job_id = str(uuid.uuid4())
     folder = ROOT / job_id
     folder.mkdir(parents=True, exist_ok=True)
+    (folder / '.owner').write_text(request.state.user_id)
 
     filename = Path((file.filename or "document").replace("\\", "/")).name
     orig_ext = Path(filename).suffix.lower()
