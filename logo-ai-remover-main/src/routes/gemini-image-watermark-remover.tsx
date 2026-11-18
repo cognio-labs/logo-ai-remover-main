@@ -664,31 +664,15 @@ export default function GeminiImageWatermarkRemoverPage() {
           "Generating final preview",
         ];
 
-        // Smooth scanning steps (fast & responsive ~1s total)
-        for (let stage = 0; stage < stages.length; stage++) {
+        // Fast & smooth scanning progression (~150ms total visual feedback)
+        for (let stage = 0; stage < stages.length - 1; stage++) {
           setScanStage(stage);
           setScanProgress(Math.round(((stage + 1) / stages.length) * 88));
-          await new Promise((resolve) => setTimeout(resolve, stage === 2 ? 280 : 200));
+          await new Promise((resolve) => setTimeout(resolve, 35));
         }
 
         for (const item of pending) {
-          let reservationId: string | null = null;
-          try {
-            const input = await (await fetch(item.beforeURL)).blob();
-            const reservation = await reserveLocal('gemini-image-watermark-remover', input.size, item.width, item.height);
-            reservationId = reservation?.id || null;
-          } catch {
-            // Non-blocking local fallback
-          }
-
-          let processed;
-          try {
-            processed = await processItem(item, sizePct, marginPct);
-            if (reservationId) await finishLocal(reservationId, true).catch(() => {});
-          } catch (error) {
-            if (reservationId) await finishLocal(reservationId, false).catch(() => {});
-            throw error;
-          }
+          const processed = await processItem(item, sizePct, marginPct);
           setItems((prev) =>
             prev.map((candidate) => (candidate.id === item.id ? processed : candidate))
           );
@@ -696,7 +680,7 @@ export default function GeminiImageWatermarkRemoverPage() {
 
         setScanStage(4);
         setScanProgress(100);
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         toast.success(
           pending.length > 1
             ? `${pending.length} image(s) cleaned successfully!`

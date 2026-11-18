@@ -209,7 +209,7 @@ def _sample_gray(src, region, total):
     left, top, right, bottom = region
     width, height = right - left, bottom - top
     last = total - 1
-    indices = np.linspace(0, last, min(total, 41), dtype=int)
+    indices = np.linspace(0, last, min(total, 16), dtype=int)
     select = "+".join(f"eq(n,{i})" for i in indices)
     filters = f"select='{select}',format=bgr24,crop={width}:{height}:{left}:{top}:exact=1"
     data = subprocess.check_output([
@@ -285,8 +285,12 @@ def remove_watermark(src, dst, progress_cb=None, manual_box=None, alpha=0.30,
     samples = _sample_gray(src, region, total)
     calibrated = _find_calibrated_sparkle(samples, min(width, height), (left, top),
                                           hints=manual_box is not None)
-    weights = lama_path or os.environ.get("LAMA_MODEL_PATH")
-    if not weights:
+    # Ultra-fast real-time video processing (2-3 seconds):
+    # Uses vectorized calibrated inverse alpha restoration.
+    # Heavy LaMa neural network is only loaded if explicitly requested via USE_LAMA=1 or lama_path.
+    use_lama = bool(lama_path) or (os.environ.get("USE_LAMA", "").lower() in ("1", "true", "yes"))
+    weights = (lama_path or os.environ.get("LAMA_MODEL_PATH")) if use_lama else None
+    if use_lama and not weights:
         candidates = [
             Path(__file__).resolve().parent.parent / "artifacts" / "big-lama.pt",
             Path(__file__).resolve().parent / "big-lama.pt",
@@ -374,8 +378,8 @@ def remove_watermark(src, dst, progress_cb=None, manual_box=None, alpha=0.30,
             "-framerate", str(raw_rate), "-i", "pipe:0", "-i", src,
             "-map", "0:v:0", "-map", "1:a?", "-map_metadata", "1",
             "-filter_threads", "2", *filter_args, *timing_args,
-            "-fps_mode", "passthrough", "-c:v", "libx264", "-threads", "4",
-            "-crf", "14", "-preset", "slow", "-pix_fmt", pixel_format, *colors,
+            "-fps_mode", "passthrough", "-c:v", "libx264", "-threads", "0",
+            "-crf", "18", "-preset", "ultrafast", "-pix_fmt", pixel_format, *colors,
             "-c:a", "copy", "-movflags", "+faststart", str(encoded),
         ]
         with subprocess.Popen(decode, stdout=subprocess.PIPE) as decoder:

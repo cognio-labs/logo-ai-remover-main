@@ -131,19 +131,34 @@ export async function removeImageBackground(
 
   try {
     // Dynamically load in-browser neural segmentation
-    if (onProgress) onProgress("Loading in-browser AI model...", 30);
+    if (onProgress) onProgress("Loading AI model...", 30);
     const { removeBackground } = await import("@imgly/background-removal");
 
     if (onProgress) onProgress("Isolating edges & sub-pixel matting...", 55);
 
-    const resultBlob = await removeBackground(imageUrl, {
+    // Ultra-fast configuration: quantized model + WebGPU acceleration when available
+    const config: any = {
+      device: typeof navigator !== "undefined" && "gpu" in navigator ? "gpu" : "cpu",
+      model: "isnet_quint8",
+      output: {
+        format: "image/png",
+        quality: 0.95,
+      },
       progress: (key: string, current: number, total: number) => {
         if (onProgress && total > 0) {
           const pct = Math.min(95, Math.max(35, Math.round((current / total) * 100)));
-          onProgress(`Extracting subject: ${key.split("/").pop() || "segmenting"} (${pct}%)`, pct);
+          onProgress(`Extracting subject (${pct}%)`, pct);
         }
       },
-    });
+    };
+
+    // Race neural removal with a 3.8s timeout so user NEVER experiences slow loading
+    const neuralPromise = removeBackground(imageUrl, config);
+    const timeoutPromise = new Promise<Blob>((_, reject) =>
+      setTimeout(() => reject(new Error("Fast-matting fallback")), 3800)
+    );
+
+    const resultBlob = await Promise.race([neuralPromise, timeoutPromise]);
 
     const resultBlobUrl = URL.createObjectURL(resultBlob);
     const dimensions = await getImageDimensions(resultBlobUrl);
