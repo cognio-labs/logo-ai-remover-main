@@ -204,9 +204,21 @@ function editorReducer(state: InternalState, action: Action): InternalState {
 
     case "SET_ADJUST": {
       const nextAdjust = { ...state.adjust, ...action.payload };
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: nextAdjust,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
       return {
         ...state,
         adjust: nextAdjust,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
       };
     }
 
@@ -229,13 +241,33 @@ function editorReducer(state: InternalState, action: Action): InternalState {
     }
 
     case "RESET_ADJUST": {
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: INITIAL_ADJUST,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
       return {
         ...state,
         adjust: INITIAL_ADJUST,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
       };
     }
 
     case "RESET_ALL": {
+      const newSnapshot: HistorySnapshot = {
+        background: INITIAL_BACKGROUND,
+        shadow: INITIAL_SHADOW,
+        activeFilter: "none",
+        adjust: INITIAL_ADJUST,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
       return {
         ...state,
         background: INITIAL_BACKGROUND,
@@ -243,6 +275,10 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: "none",
         adjust: INITIAL_ADJUST,
         brush: INITIAL_BRUSH,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
       };
     }
 

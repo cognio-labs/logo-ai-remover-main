@@ -37,6 +37,25 @@ export function EditorToolbar({
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
+  // Global keyboard shortcuts (Ctrl+Z / Cmd+Z for Undo, Ctrl+Y / Cmd+Shift+Z for Redo)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (canRedo) redo();
+        } else {
+          if (canUndo) undo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [canUndo, canRedo, undo, redo]);
+
   const handleTabClick = (tab: ActiveTab) => {
     dispatch({ type: "SET_ACTIVE_TAB", payload: tab });
   };
@@ -51,11 +70,11 @@ export function EditorToolbar({
 
   return (
     <div
-      className="relative z-30 flex items-center justify-between px-3 sm:px-6 py-2.5 bg-white border-b border-gray-200 shadow-xs"
+      className="relative z-30 flex flex-col md:flex-row md:items-center justify-between gap-2.5 px-3 sm:px-6 py-2.5 bg-white border-b border-gray-200 shadow-xs"
       style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
     >
-      {/* LEFT: Five Remove.bg / Canva-style Editing Tabs */}
-      <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar">
+      {/* 1. TABS: Five Remove.bg / Canva-style Editing Tabs (Always 100% visible across phones, iPads, laptops) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full md:w-auto py-0.5">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -69,22 +88,22 @@ export function EditorToolbar({
                   toast.info("Canva Design Studio bridge is connected.");
                 }
               }}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap border ${
+              className={`shrink-0 flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
                 isActive
                   ? "shadow-sm scale-102 border-[#2B4B3F]"
-                  : "border-transparent hover:bg-gray-100"
+                  : "border-gray-200/90 bg-gray-50 hover:bg-gray-100"
               }`}
               style={
                 isActive
                   ? { backgroundColor: "#10241E", color: "#d0f471", borderColor: "#2B4B3F" }
-                  : { backgroundColor: "transparent", color: "#37433D" }
+                  : { backgroundColor: "#F3F4F6", color: "#111827" }
               }
             >
               <Icon
-                className="size-3.5"
-                style={{ color: isActive ? "#d0f471" : "#52645D" }}
+                className="size-3.5 shrink-0"
+                style={{ color: isActive ? "#d0f471" : "#374151" }}
               />
-              <span style={{ color: isActive ? "#d0f471" : "#37433D" }} className="font-semibold">
+              <span style={{ color: isActive ? "#d0f471" : "#111827" }} className="font-bold text-xs tracking-tight">
                 {tab.label}
               </span>
             </button>
@@ -92,53 +111,67 @@ export function EditorToolbar({
         })}
       </div>
 
-      {/* RIGHT: Controls (Compare, Undo, Redo, Download Dropdown) */}
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        {/* Divider */}
-        <span className="hidden sm:inline-block h-5 w-[1px] bg-gray-200 mx-1" />
+      {/* 2. CONTROLS: Compare, Undo, Redo, Download Dropdown */}
+      <div className="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto pt-1.5 md:pt-0 border-t md:border-t-0 border-gray-100">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Before / After Split Compare */}
+          <button
+            type="button"
+            onClick={() =>
+              dispatch({ type: "SET_COMPARE", payload: !isCompareActive })
+            }
+            className={`size-8 sm:size-9 rounded-full flex items-center justify-center transition-all cursor-pointer border ${
+              isCompareActive
+                ? "border-[#2B4B3F] bg-[#10241E] text-[#d0f471]"
+                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+            title="Hold or toggle to compare with original"
+          >
+            <Columns2 className="size-4" style={{ color: isCompareActive ? "#d0f471" : "#37433D" }} />
+          </button>
 
-        {/* Before / After Split Compare */}
-        <button
-          type="button"
-          onClick={() =>
-            dispatch({ type: "SET_COMPARE", payload: !isCompareActive })
-          }
-          className={`size-8 rounded-full flex items-center justify-center transition-all cursor-pointer border ${
-            isCompareActive ? "border-[#2B4B3F]" : "border-gray-200 hover:bg-gray-100"
-          }`}
-          style={
-            isCompareActive
-              ? { backgroundColor: "#10241E", color: "#d0f471" }
-              : { backgroundColor: "#FFFFFF", color: "#37433D" }
-          }
-          title="Hold or toggle to compare with original"
-        >
-          <Columns2 className="size-4" style={{ color: isCompareActive ? "#d0f471" : "#37433D" }} />
-        </button>
+          {/* Undo (Left Curved Arrow / Tir) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (canUndo) {
+                undo();
+                toast.success("Action undone");
+              } else {
+                toast.info("No edits to undo yet. Make an edit or change background first!");
+              }
+            }}
+            className={`size-8 sm:size-9 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
+              canUndo
+                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-sm"
+                : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
+            }`}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="size-4" style={{ color: canUndo ? "#d0f471" : "#94A3B8" }} />
+          </button>
 
-        {/* Undo */}
-        <button
-          type="button"
-          onClick={undo}
-          disabled={!canUndo}
-          className="size-8 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-          style={{ backgroundColor: "#FFFFFF", color: "#37433D" }}
-          title="Undo (Ctrl+Z)"
-        >
-          <Undo2 className="size-4" style={{ color: "#37433D" }} />
-        </button>
-
-        {/* Redo */}
-        <button
-          type="button"
-          onClick={redo}
-          disabled={!canRedo}
-          className="size-8 rounded-full flex items-center justify-center border border-gray-200 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-          style={{ backgroundColor: "#FFFFFF", color: "#37433D" }}
-          title="Redo (Ctrl+Y)"
-        >
-          <Redo2 className="size-4" style={{ color: "#37433D" }} />
-        </button>
+          {/* Redo (Right Curved Arrow / Tir) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (canRedo) {
+                redo();
+                toast.success("Action redone");
+              } else {
+                toast.info("No edits to redo.");
+              }
+            }}
+            className={`size-8 sm:size-9 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
+              canRedo
+                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-sm"
+                : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
+            }`}
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo2 className="size-4" style={{ color: canRedo ? "#d0f471" : "#94A3B8" }} />
+          </button>
+        </div>
 
         {/* DOWNLOAD BUTTON WITH EXACT REMOVE.BG POPUP DROPDOWN */}
         <div className="relative" ref={dropdownRef}>

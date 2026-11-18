@@ -34,26 +34,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }),
   );
 
-  const pathname = usePathname() || "/";
-  const isAdmin = pathname.startsWith("/admin");
-
   return (
     <QueryClientProvider client={queryClient}>
       <ScrollToTop />
       <AuthSessionSync />
-      {isAdmin ? (
-        <div className="min-h-screen bg-[#F6F7FB] text-slate-900 flex flex-col font-sans">
-          {children}
-          <Toaster richColors position="top-right" />
-        </div>
-      ) : (
-        <div className="flex min-h-screen flex-col bg-[#f3f4ee] text-[#10241e] relative">
-          <Navbar />
-          <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">{children}</main>
-          <Footer />
-          <Toaster richColors position="top-right" />
-        </div>
-      )}
+      <div className="flex min-h-screen flex-col bg-[#f3f4ee] text-[#10241e] relative overflow-x-hidden w-full max-w-full">
+        <Navbar />
+        <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">{children}</main>
+        <Footer />
+        <Toaster richColors position="top-right" />
+      </div>
     </QueryClientProvider>
   );
 }

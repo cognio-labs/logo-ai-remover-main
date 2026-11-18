@@ -3,7 +3,7 @@ import { useEditor } from "./EditorContext";
 import { PHOTO_FILTERS } from "./backgroundData";
 
 export function EditorCanvas() {
-  const { state } = useEditor();
+  const { state, dispatch } = useEditor();
   const {
     originalImageUrl,
     cutoutImageUrl,
@@ -195,6 +195,7 @@ export function EditorCanvas() {
     if (isDrawing) {
       setIsDrawing(false);
       drawMainCanvas();
+      dispatch({ type: "PUSH_HISTORY" });
     }
   };
 
