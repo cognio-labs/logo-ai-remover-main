@@ -100,6 +100,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <AppShell>{children}</AppShell>
         <Script
+          id="crisp-chat-widget"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.$crisp=[];window.CRISP_WEBSITE_ID="39649944-fdcc-4448-816d-815d7d342b41";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`,
+          }}
+        />
+        <Script
           id="datafast-analytics"
           strategy="afterInteractive"
           defer
