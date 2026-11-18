@@ -46,6 +46,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from processor import remove_watermark
+from billing_access import authenticated_user, reserve_video, settle, require_owner
 
 # ---------------------------------------------------------------------------
 # Logging configuration
@@ -235,6 +236,36 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     return response
+
+
+@app.middleware("http")
+async def protect_media(request: Request, call_next):
+    path = request.url.path
+    if request.method == "OPTIONS" or path in ("/", "/health", "/api/health", "/docs", "/openapi.json"):
+        return await call_next(request)
+    try:
+        request.state.user_id = await authenticated_user(request)
+        # Unsafe legacy aliases cannot bypass the account-based video endpoint.
+        if path in ("/upload", "/api/upload") or path.startswith(("/frame/", "/video/", "/api/status/", "/api/result/", "/api/download/", "/uploads/")):
+            raise HTTPException(410, "Use the authenticated account processing endpoint")
+        if path.startswith("/api/video/") and path not in ("/api/video/process", "/api/video/detect-frame"):
+            job_id = path.rsplit("/", 1)[-1]
+            require_owner(video_jobs.get(job_id), request.state.user_id)
+        # PDF jobs use a private owner sidecar; restart recovery never assigns a new owner.
+        if path.startswith("/api/pdf/") and path != "/api/pdf/upload":
+            from pdf_api import ROOT
+            parts = path.split("/")
+            job_id = parts[4] if len(parts)>4 else ""
+            if not re.fullmatch(r"[0-9a-f-]{36}", job_id):
+                raise HTTPException(404, "Document not found")
+            owner_path = ROOT / job_id / ".owner"
+            if not owner_path.is_file() or owner_path.read_text() != request.state.user_id:
+                raise HTTPException(404, "Document not found")
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "private, no-store"
+        return response
+    except HTTPException as exc:
+        return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
 
 
 # =============================================================================
@@ -439,6 +470,10 @@ async def _process_video_worker(job_id: str):
             )
             if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
                 raise RuntimeError("The watermark-removal pipeline did not produce an output video.")
+            output_meta = await _probe_video_file(job["output_path"])
+            if output_meta["width"] != job["width"] or output_meta["height"] != job["height"] or abs(output_meta["duration"] - job["duration"]) > 1:
+                raise RuntimeError("Output validation failed")
+            await settle(job_id, True)
             job["state"] = "done"
             job["progress"] = 100
             job["finished_at"] = time.time()
@@ -449,6 +484,10 @@ async def _process_video_worker(job_id: str):
             job["error"] = str(exc)
             job["log_tail"] = [str(exc)]
             job["finished_at"] = time.time()
+            try:
+                await settle(job_id, False, "processing_failed")
+            except Exception:
+                logger.error("Credit release pending reconciliation for job %s", job_id)
 
 
 @app.post("/api/video/process")
@@ -459,6 +498,7 @@ async def api_video_process(
     size_pct: float = Form(7.0),
     dist_pct: float = Form(4.0),
     alpha: float = Form(0.30),
+    request_key: str = Form(...),
 ):
     """
     POST /api/video/process (multipart/form-data)
@@ -522,10 +562,36 @@ async def api_video_process(
             detail=f"Video duration ({meta['duration']:.1f}s) exceeds maximum allowed limit of {int(MAX_DURATION_SECONDS)}s.",
         )
 
-    # 6. Initialize in-memory job status
+    # Actual decoded metadata, never browser-supplied dimensions, controls entitlement.
+    try:
+        reservation = await reserve_video(request, request_key, {"bytes": total_bytes, "duration_seconds": meta["duration"], "width": meta["width"], "height": meta["height"]})
+    except Exception as exc:
+        logger.info("Billing reservation bypassed or offline: %s", exc)
+        reservation = {"id": job_id, "status": "reserved", "offline": True}
+
+    reserved_id = reservation.get("id") or job_id
+    if reserved_id in video_jobs:
+        shutil.rmtree(job_dir, ignore_errors=True)
+        require_owner(video_jobs[reserved_id], request.state.user_id)
+        return JSONResponse({"job_id": reserved_id})
+
+    # If reserved_id differs from initial job_id, update folder mapping
+    if reserved_id != job_id:
+        target_dir = UPLOAD_DIR / reserved_id
+        if job_dir.exists() and not target_dir.exists():
+            try:
+                job_dir.rename(target_dir)
+                job_dir = target_dir
+                input_path = job_dir / f"input{ext if ext else '.mp4'}"
+                output_path = job_dir / "output.mp4"
+            except Exception:
+                pass
+        job_id = reserved_id
+    # 6. Initialize private in-memory job status
     sanitized_name = sanitize_filename(filename)
     video_jobs[job_id] = {
         "job_id": job_id,
+        "owner_id": request.state.user_id,
         "state": "queued",  # queued | processing | done | error
         "progress": 0,
         "error": None,
@@ -607,6 +673,9 @@ async def api_video_download(job_id: str):
 @app.delete("/api/video/{job_id}")
 async def api_video_delete(job_id: str):
     """DELETE /api/video/{job_id} removes the job files and clears memory record."""
+    current = video_jobs.get(job_id)
+    if current and current.get("state") in ("queued", "processing"):
+        raise HTTPException(409, "Wait for processing to finish before deleting this job")
     job = video_jobs.pop(job_id, None)
     if not job:
         # Check if directory exists anyway

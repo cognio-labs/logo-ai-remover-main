@@ -49,6 +49,7 @@ import {
 import { getDownloadUrl, type QualityMode, type ExportFormat } from "@/lib/backgroundApi";
 import { handleEditInCanva, CANVA_TERMS_URL } from "@/lib/canvaIntegration";
 import { useUserStore } from "@/lib/userStore";
+import { reserveLocal, finishLocal } from '@/lib/account-processing';
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { RemoveBgStudioEditor } from "@/components/studio/editor/RemoveBgStudioEditor";
@@ -1176,10 +1177,7 @@ export default function BackgroundRemoverPage() {
   }, [status]);
 
   const executeRemoval = async (imageUrl: string, file: File) => {
-    // 100% Free AI Tool - Never block for credits
-    try {
-      deductCredit();
-    } catch { }
+    let accountJob: string | undefined;
 
     // Abort any in-flight request
     if (abortControllerRef.current) {
@@ -1191,6 +1189,8 @@ export default function BackgroundRemoverPage() {
     setStage("Removing background...");
 
     try {
+      const reservation = await reserveLocal('background-remover', file.size).catch(() => null);
+      accountJob = reservation?.id || null;
       const res = await removeImageBackground(
         imageUrl,
         bgType,
@@ -1198,7 +1198,7 @@ export default function BackgroundRemoverPage() {
         "luxury-studio",
       );
 
-      // Instant transition (<1s) - immediately show clean transparent cutout
+      if (accountJob) await finishLocal(accountJob, true).catch(() => {});
       setCutoutResult(res);
       setStatus("success");
 
@@ -1224,6 +1224,7 @@ export default function BackgroundRemoverPage() {
 
       toast.success("Background removed successfully!");
     } catch (err: any) {
+      if(accountJob) await finishLocal(accountJob,false).catch(()=>{});
       if (err?.name === "AbortError") {
         console.log("Background removal was cancelled by user.");
         return;
@@ -1519,14 +1520,14 @@ export default function BackgroundRemoverPage() {
             </p>
 
             <div className="mt-5 flex items-center justify-center gap-3">
-              <a
-                href="#trust-showcase-section"
+              <Link
+                href="/gemini-image-watermark-remover"
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white hover:bg-[#e9ece4] text-[#10241e] text-sm font-semibold border border-[#10241e]/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer"
               >
                 <Play className="size-3 text-[#E11D48] fill-[#E11D48]" />
                 <span>remove gemini logo only 3 sec (60 FPS)</span>
                 <ArrowRight className="size-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-              </a>
+              </Link>
             </div>
           </div>
 

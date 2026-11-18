@@ -1,6 +1,7 @@
 "use client";
 
 import { useUserStore } from "@/lib/userStore";
+import { reserveLocal, finishLocal } from '@/lib/account-processing';
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback, useId } from "react";
@@ -671,7 +672,23 @@ export default function GeminiImageWatermarkRemoverPage() {
         }
 
         for (const item of pending) {
-          const processed = await processItem(item, sizePct, marginPct);
+          let reservationId: string | null = null;
+          try {
+            const input = await (await fetch(item.beforeURL)).blob();
+            const reservation = await reserveLocal('gemini-image-watermark-remover', input.size, item.width, item.height);
+            reservationId = reservation?.id || null;
+          } catch {
+            // Non-blocking local fallback
+          }
+
+          let processed;
+          try {
+            processed = await processItem(item, sizePct, marginPct);
+            if (reservationId) await finishLocal(reservationId, true).catch(() => {});
+          } catch (error) {
+            if (reservationId) await finishLocal(reservationId, false).catch(() => {});
+            throw error;
+          }
           setItems((prev) =>
             prev.map((candidate) => (candidate.id === item.id ? processed : candidate))
           );
