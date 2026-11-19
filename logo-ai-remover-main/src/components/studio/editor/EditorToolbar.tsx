@@ -74,7 +74,7 @@ export function EditorToolbar({
       style={{ backgroundColor: "#FFFFFF", borderColor: "#E5E7EB" }}
     >
       {/* 1. TABS: Five Remove.bg / Canva-style Editing Tabs (Always 100% visible across phones, iPads, laptops) */}
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full md:w-auto py-0.5">
+      <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full md:w-auto py-0.5 touch-pan-x">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -88,7 +88,7 @@ export function EditorToolbar({
                   toast.info("Canva Design Studio bridge is connected.");
                 }
               }}
-              className={`shrink-0 flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
+              className={`shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
                 isActive
                   ? "shadow-sm scale-102 border-[#2B4B3F]"
                   : "border-gray-200/90 bg-gray-50 hover:bg-gray-100"
@@ -101,9 +101,9 @@ export function EditorToolbar({
             >
               <Icon
                 className="size-3.5 shrink-0"
-                style={{ color: isActive ? "#d0f471" : "#374151" }}
+                style={{ color: isActive ? "#d0f471" : "#111827" }}
               />
-              <span style={{ color: isActive ? "#d0f471" : "#111827" }} className="font-bold text-xs tracking-tight">
+              <span style={{ color: isActive ? "#d0f471" : "#111827" }} className="font-bold text-[11px] sm:text-xs tracking-tight">
                 {tab.label}
               </span>
             </button>
@@ -143,12 +143,12 @@ export function EditorToolbar({
             }}
             className={`size-8 sm:size-9 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
               canUndo
-                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-sm"
-                : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
+                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-md"
+                : "bg-white border-[#10241E]/15 text-[#37433D]/60 hover:text-[#10241E] hover:bg-gray-100/80 shadow-2xs"
             }`}
             title="Undo (Ctrl+Z)"
           >
-            <Undo2 className="size-4" style={{ color: canUndo ? "#d0f471" : "#94A3B8" }} />
+            <Undo2 className="size-4" style={{ color: canUndo ? "#d0f471" : "#37433D" }} />
           </button>
 
           {/* Redo (Right Curved Arrow / Tir) */}
@@ -164,12 +164,12 @@ export function EditorToolbar({
             }}
             className={`size-8 sm:size-9 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
               canRedo
-                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-sm"
-                : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
+                ? "bg-[#10241E] border-[#2B4B3F] text-[#d0f471] hover:scale-105 shadow-md"
+                : "bg-white border-[#10241E]/15 text-[#37433D]/60 hover:text-[#10241E] hover:bg-gray-100/80 shadow-2xs"
             }`}
             title="Redo (Ctrl+Y)"
           >
-            <Redo2 className="size-4" style={{ color: canRedo ? "#d0f471" : "#94A3B8" }} />
+            <Redo2 className="size-4" style={{ color: canRedo ? "#d0f471" : "#37433D" }} />
           </button>
         </div>
 

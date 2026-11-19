@@ -1,0 +1,16 @@
+{
+  "method": "calibrated-inverse-alpha",
+  "frames_processed": 24,
+  "total_frames": 24,
+  "width": 1280,
+  "height": 720,
+  "fps": 24.0,
+  "elapsed_seconds": 0.53,
+  "watermark_box": [
+    1134,
+    574,
+    56,
+    56
+  ],
+  "rotation": 0
+}

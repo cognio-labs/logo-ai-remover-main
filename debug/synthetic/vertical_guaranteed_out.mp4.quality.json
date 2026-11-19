@@ -1,0 +1,15 @@
+{
+  "method": "guaranteed-crop-and-scale",
+  "mode": "guaranteed",
+  "crop_ratio": 0.08,
+  "original_size": [
+    720,
+    1280
+  ],
+  "scaled_size": [
+    720,
+    1280
+  ],
+  "trace_free": true,
+  "elapsed_seconds": 1.34
+}

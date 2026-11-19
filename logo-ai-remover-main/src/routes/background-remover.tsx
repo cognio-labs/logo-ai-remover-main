@@ -384,6 +384,21 @@ function ShowcaseSlider({
     }
   };
 
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    if (e.touches[0]) updatePos(e.touches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isDraggingRef.current && e.touches[0]) {
+      updatePos(e.touches[0].clientX);
+    }
+  };
+
+  const onTouchEnd = () => {
+    isDraggingRef.current = false;
+  };
+
   return (
     <div className="rounded-3xl border border-[#10241e]/15 bg-white shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-[#10241e]/40 flex flex-col">
       <div
@@ -403,6 +418,10 @@ function ShowcaseSlider({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
       >
         {/* RIGHT / AFTER: Transparent Checkerboard Background */}
         <div
@@ -507,12 +526,22 @@ function WorkspaceSplitSlider({
     }
   };
 
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches[0]) updatePos(e.touches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches[0]) updatePos(e.touches[0].clientX);
+  };
+
   return (
     <div
       ref={containerRef}
       className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none cursor-ew-resize touch-none"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
     >
       {/* Checkerboard Pattern for Transparent */}
       {bgType === "transparent" && (
@@ -1502,315 +1531,195 @@ export default function BackgroundRemoverPage() {
         {/* Atmospheric 4K Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          {/* Header Title & Pitch */}
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-[#d0f471] mb-4 shadow-sm px-4 py-1.5">
-              <Sparkles className="size-3.5 text-[#d0f471]" />
-              <span>100% AUTOMATIC &amp; FREE BACKGROUND REMOVER</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.08]">
-              Remove Image Backgrounds{" "}
-              <span className="text-white underline decoration-[#d0f471] decoration-4 font-bold">
-                in 5 Seconds Free
-              </span>
-            </h1>
-
-            <p className="mt-4 text-lg sm:text-2xl text-white/95 leading-relaxed max-w-3xl mx-auto font-medium">
-              Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and
-              complex product silhouettes with sub-pixel edge matting.
-            </p>
-
-            <div className="mt-5 flex items-center justify-center gap-3">
-              <Link
-                href="/gemini-image-watermark-remover"
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/20 px-5 py-2 shadow-2xs transition-all hover:scale-102 cursor-pointer backdrop-blur-md"
-              >
-                <Play className="size-3 text-[#d0f471] fill-[#d0f471]" />
-                <span className="text-zinc-200">remove gemini logo only 3 sec (60 FPS)</span>
-                <ArrowRight className="size-3 text-[#d0f471] group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-          </div>
-
           {/* ============================================================== */}
-          {/* STATE 1: UPLOAD SCREEN (Idle state with 2-column card)           */}
+          {/* STATE 1: IDLE HERO (2-COLUMN: Left Heading Copy, Right Upload)  */}
           {/* ============================================================== */}
           {status === "idle" && (
-            <div className="rounded-3xl border border-[#10241e]/15 bg-white shadow-2xl p-6 sm:p-10 max-w-5xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                {/* LEFT SIDE: Large Drag-and-Drop Area */}
-                <div className="lg:col-span-7 flex flex-col justify-center">
-                  <div
-                    onDragEnter={(e) => {
-                      e.preventDefault();
-                      setIsDragging(true);
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setIsDragging(true);
-                    }}
-                    onDragLeave={(e) => {
-                      e.preventDefault();
-                      if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
-                    }}
-                    onDrop={handleDropArea}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`h-[400px] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer relative group ${isDragging
-                        ? "border-[#E11D48] bg-[#FFF5F7] ring-2 ring-[#E11D48]/20 scale-[1.01]"
-                        : "border-[#10241e]/20 hover:border-[#10241e] hover:bg-[#f9faf7] bg-white"
-                      }`}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+              {/* Left Copy (lg:col-span-5) */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#d0f471] shadow-sm">
+                  <Sparkles className="size-4 text-[#d0f471]" />
+                  <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wider uppercase font-mono">
+                    100% Automatic &amp; Free Background Remover
+                  </span>
+                </div>
+
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.06]">
+                  Remove Image Backgrounds{" "}
+                  <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4 font-bold">
+                    in 5 Seconds Free
+                  </span>
+                </h1>
+
+                <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
+                  Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and complex product silhouettes with sub-pixel edge matting.
+                </p>
+
+                {/* 3 Value Points */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                    <CheckCircle2 className="size-4 text-[#d0f471]" /> No sign-up required
+                  </span>
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                    <ShieldCheck className="size-4 text-[#d0f471]" /> 100% Private &amp; secure
+                  </span>
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                    <Zap className="size-4 text-[#d0f471]" /> Sub-pixel AI matting
+                  </span>
+                </div>
+
+                {/* Quick Link Badge */}
+                <div className="pt-2">
+                  <Link
+                    href="/gemini-image-watermark-remover"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/20 shadow-xs transition-all hover:scale-102 cursor-pointer backdrop-blur-md"
                   >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp,image/heic,image/heif,image/avif,image/bmp,image/tiff,image/gif,image/svg+xml,image/*"
-                      className="hidden"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleIncomingFile(file);
-                        e.target.value = "";
-                      }}
-                    />
+                    <Play className="size-3 text-[#d0f471] fill-[#d0f471]" />
+                    <span className="text-zinc-200">remove gemini logo only 3 sec (60 FPS)</span>
+                    <ArrowRight className="size-3 text-[#d0f471]" />
+                  </Link>
+                </div>
+              </div>
 
-                    {/* Inline Error Alert if any */}
-                    {inlineError && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute top-3 inset-x-3 mx-auto max-w-md p-3.5 rounded-2xl bg-rose-50 border border-rose-200/90 text-rose-800 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-lg shadow-rose-500/10 z-20 animate-in fade-in slide-in-from-top-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="size-4 shrink-0 text-[#E11D48]" />
-                          <span className="font-medium text-left leading-relaxed">
-                            {typeof inlineError === "string" ? inlineError : inlineError.message}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                          {typeof inlineError !== "string" && inlineError.action && (
-                            <Link
-                              to={inlineError.action.to}
-                              className="px-3 py-1 rounded-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-semibold text-[11px] shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
-                            >
-                              <span>{inlineError.action.label}</span>
-                              <ArrowRight className="size-3" />
-                            </Link>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setInlineError(null)}
-                            className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
-                            aria-label="Dismiss alert"
-                          >
-                            ✕
-                          </button>
-                        </div>
+              {/* Right: Upload Dropzone Card (lg:col-span-7) */}
+              <div className="lg:col-span-7 w-full">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/heic,image/heif,image/avif,image/bmp,image/tiff,image/gif,image/svg+xml,image/*"
+                  className="hidden"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleIncomingFile(file);
+                    e.target.value = "";
+                  }}
+                />
+
+                <div
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
+                  }}
+                  onDrop={handleDropArea}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative min-h-[440px] sm:min-h-[500px] lg:min-h-[540px] rounded-3xl border-2 border-dashed border-[#10241e]/20 bg-white hover:border-[#10241e] p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-xl group cursor-pointer ${
+                    isDragging ? "border-[#10241e] bg-[#f9faf7] shadow-2xl scale-[1.01]" : ""
+                  }`}
+                >
+                  {/* Viewfinder brackets */}
+                  <div className="absolute inset-4 pointer-events-none border border-transparent">
+                    <div className="absolute top-0 left-0 size-6 border-t-2 border-l-2 border-[#10241e]" />
+                    <div className="absolute top-0 right-0 size-6 border-t-2 border-r-2 border-[#10241e]" />
+                    <div className="absolute bottom-0 left-0 size-6 border-b-2 border-l-2 border-[#10241e]" />
+                    <div className="absolute bottom-0 right-0 size-6 border-b-2 border-r-2 border-[#10241e]" />
+                  </div>
+
+                  {/* Inline Error Alert if any */}
+                  {inlineError && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-4 inset-x-4 mx-auto max-w-md p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2 shadow-lg z-20"
+                    >
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="size-4 shrink-0 text-[#E11D48]" />
+                        <span className="font-medium text-left leading-relaxed">
+                          {typeof inlineError === "string" ? inlineError : inlineError.message}
+                        </span>
                       </div>
-                    )}
-
-                    {/* Pink/Red Circular Upload Icon Button */}
-                    <span
-                      className={`size-24 rounded-3xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-xl mb-4 transition-transform group-hover:scale-110 ${isDragging ? "scale-110 animate-bounce" : ""
-                        }`}
-                    >
-                      <Upload className="size-8" />
-                    </span>
-
-                    <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight">
-                      {isDragging ? "Drop image to upload" : "Drop your image here"}
-                    </h3>
-
-
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fileInputRef.current?.click();
-                      }}
-                      className="mt-4 px-6 py-2.5 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] text-base font-bold shadow-lg px-8 py-3.5 rounded-2xl transition-all cursor-pointer flex items-center gap-2 hover:scale-102"
-                    >
-                      <Upload className="size-4" />
-                      <span>Upload Image</span>
-                    </button>
-
-                    <div className="mt-2.5 flex flex-col sm:flex-row items-center gap-2 text-xs text-gray-400">
-                      <span>or click anywhere to browse</span>
-                      <span className="hidden sm:inline text-gray-300">•</span>
                       <button
                         type="button"
-                        onClick={handleClipboardButtonClick}
-                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#52645D] hover:text-[#10241e] transition-colors underline underline-offset-2 cursor-pointer"
+                        onClick={() => setInlineError(null)}
+                        className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
+                        aria-label="Dismiss alert"
                       >
-                        <Copy className="size-3 text-[#10241e]" />
-                        <span>Paste from Clipboard</span>
+                        ✕
                       </button>
+                    </div>
+                  )}
+
+                  <span className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-lg mb-5 group-hover:scale-105 transition-transform">
+                    <Upload className="size-9 text-[#d0f471]" style={{ color: "#d0f471" }} />
+                  </span>
+
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight" style={{ color: "#10241e" }}>
+                    Drop image here
+                  </h3>
+
+                  <p className="text-base text-[#37433d] mt-2 max-w-sm leading-relaxed" style={{ color: "#37433d" }}>
+                    or paste directly with{" "}
+                    <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
+                      Ctrl+V
+                    </kbd>{" "}
+                    /{" "}
+                    <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
+                      Cmd+V
+                    </kbd>
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className="mt-5 px-7 py-3 rounded-full bg-[#10241e] hover:bg-[#18362d] text-white font-bold text-sm sm:text-base shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
+                    style={{ color: "#FFFFFF", backgroundColor: "#10241e" }}
+                  >
+                    <Upload className="size-4 text-white" style={{ color: "#FFFFFF" }} />
+                    <span style={{ color: "#FFFFFF" }}>Choose image</span>
+                  </button>
+
+                  <span className="mt-4 text-xs font-mono font-medium text-[#637069]" style={{ color: "#637069" }}>
+                    PNG, JPG, WebP and AVIF supported
+                  </span>
+
+                  {/* Sample images */}
+                  <div className="mt-6 pt-5 border-t border-gray-100 w-full max-w-sm">
+                    <p className="text-xs text-[#637069] font-medium mb-3">No image? Try one of these:</p>
+                    <div className="flex items-center justify-center gap-3">
+                      {SHOWCASE_ITEMS.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              const res = await fetch(item.originalImage);
+                              const b = await res.blob();
+                              const f = new File([b], `${item.id}.jpg`, { type: "image/jpeg" });
+                              await handleIncomingFile(f);
+                            } catch {
+                              toast.error("Could not load sample");
+                            }
+                          }}
+                          className="group/thumb relative size-12 rounded-xl overflow-hidden border border-gray-200 hover:border-[#10241e] hover:scale-105 transition-all shadow-xs cursor-pointer"
+                          title={`Try ${item.title}`}
+                        >
+                          <img src={item.originalImage} alt={item.title} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
 
-                {/* RIGHT SIDE: Settings / Options Panel */}
-                <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8 space-y-6">
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                      BACKGROUND OPTIONS
-                    </h4>
-
-                    {/* Mode Selector Tabs */}
-                    <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-[#e9ece4] border border-[#10241e]/15 text-xs font-semibold text-[#10241e] mb-5">
-                      <button
-                        type="button"
-                        onClick={() => setBgType("transparent")}
-                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${bgType === "transparent"
-                            ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
-                            : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
-                          }`}
-                      >
-                        Transparent
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setBgType("color")}
-                        className={`py-2 px-3 rounded-lg transition-all cursor-pointer ${bgType === "color"
-                            ? "bg-[#10241e] text-[#d0f471] shadow-sm font-bold"
-                            : "text-[#37433d] hover:text-[#10241e] hover:bg-white/60 font-semibold"
-                          }`}
-                      >
-                        Solid Color
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled
-                        className="py-2 px-3 rounded-lg opacity-60 cursor-not-allowed flex items-center justify-center gap-1 text-[#637069]"
-                        title="Studio Set is coming soon"
-                      >
-                        <span>Studio Set</span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#dfe3da] text-[#10241e] font-bold">
-                          Soon
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Transparent Description Card */}
-                    {bgType === "transparent" && (
-                      <div className="rounded-xl p-4 bg-[#F8FAFC] border border-gray-200 text-xs space-y-2">
-                        <p className="font-semibold text-gray-800 flex items-center gap-1.5">
-                          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                          <span>32-Bit Transparent PNG</span>
-                        </p>
-                        <p className="text-[#C7C7C7] leading-relaxed font-normal">
-                          Ready to drag straight into Figma, Photoshop, Canva, Illustrator, or web
-                          code with true alpha transparency.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Solid Color Selector */}
-                    {bgType === "color" && (
-                      <div className="space-y-3">
-                        <label className="text-xs font-medium text-gray-700">Choose Solid Color</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {SOLID_COLOR_PRESETS.slice(0, 6).map((c) => (
-                            <button
-                              key={c.hex}
-                              type="button"
-                              onClick={() => handleColorChange(c.hex)}
-                              className={`p-2 rounded-xl border text-left flex flex-col gap-1 transition-all cursor-pointer ${solidColor.toLowerCase() === c.hex.toLowerCase()
-                                  ? "border-[#E11D48] bg-[#FFF5F7] ring-1 ring-[#E11D48]"
-                                  : "border-gray-200 hover:border-gray-300"
-                                }`}
-                            >
-                              <span
-                                className="size-5 rounded-md border border-black/10 shadow-2xs"
-                                style={{ backgroundColor: c.hex }}
-                              />
-                              <span className="text-[11px] font-medium text-white leading-tight">
-                                {c.name}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-3 pt-1">
-                          <input
-                            type="color"
-                            value={solidColor}
-                            onChange={(e) => handleColorChange(e.target.value)}
-                            className="size-8 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
-                          />
-                          <span className="text-xs font-medium text-[#C7C7C7]">
-                            Custom Hex:{" "}
-                            <code className="bg-gray-100 px-1.5 py-0.5 rounded text-white font-normal">
-                              {solidColor}
-                            </code>
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* AI Quality Engine */}
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-between text-xs text-[#C7C7C7] mb-2">
-                        <span className="font-semibold flex items-center gap-1.5 text-gray-700">
-                          <Sliders className="size-3.5 text-[#E11D48]" />
-                          <span>AI Quality Engine</span>
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-[#C7C7C7]">
-                        {(["standard", "fast", "ultra_hd"] as const).map((mode) => (
-                          <button
-                            key={mode}
-                            type="button"
-                            onClick={() => setQualityMode(mode)}
-                            className={`py-2 px-2 rounded-lg border text-center transition-all cursor-pointer ${qualityMode === mode
-                                ? "border-[#E11D48] bg-[#FFF5F7] text-[#E11D48] font-semibold"
-                                : "border-gray-200 hover:border-gray-300 text-gray-700 font-normal"
-                              }`}
-                          >
-                            {mode === "standard"
-                              ? "Balanced"
-                              : mode === "fast"
-                                ? "Fast"
-                                : "Ultra HD"}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom CTA */}
-                  <div className="space-y-3 pt-4 border-t border-gray-100">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full py-3.5 px-5 rounded-full bg-gray-900 hover:bg-black text-white text-xs font-medium shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg"
-                    >
-                      <Upload className="size-4" />
-                      <span>Choose An Image</span>
-                    </button>
-
-                    {/* Trust Micro-Indicators */}
-                    <div className="grid grid-cols-2 gap-2 text-[10.5px] font-normal text-[#C7C7C7] pt-1">
-                      <span className="flex items-center gap-1.5">
-                        <Check className="size-3 text-emerald-500 shrink-0" />
-                        <span>Zero Quality Loss</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <ShieldCheck className="size-3 text-[#E11D48] shrink-0" />
-                        <span>Private &amp; Encrypted</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Zap className="size-3 text-amber-500 shrink-0" />
-                        <span>Sub-Pixel AI Matting</span>
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <ShoppingBag className="size-3 text-blue-500 shrink-0" />
-                        <span>Amazon 100% White</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
+          {/* Compact header for active/processing/result state */}
+          {status !== "idle" && (
+            <div className="text-center max-w-3xl mx-auto mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-[#d0f471] shadow-sm">
+                <Sparkles className="size-3.5 text-[#d0f471]" />
+                <span>AI Background Remover Studio</span>
               </div>
             </div>
           )}
@@ -1819,47 +1728,107 @@ export default function BackgroundRemoverPage() {
           {/* STATE 2: LOADING IN-PLACE SPINNER (NO GHOST MASK, < 1s)        */}
           {/* ============================================================== */}
           {(status === "uploading" || status === "processing") && sourceUrl && (
-            <div className="relative rounded-3xl overflow-hidden border border-gray-200/90 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all">
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-white/90">
-                <div className="flex items-center gap-2 text-xs text-[#C7C7C7]">
-                  <FileImage className="size-4 text-[#E11D48]" />
-                  <span className="font-semibold text-gray-800 truncate max-w-[200px] sm:max-w-xs">
+            <div className="relative rounded-3xl overflow-hidden border border-[#1a3a2a]/60 shadow-2xl bg-[#0a1a12] flex flex-col max-w-4xl mx-auto w-full transition-all">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1a3a2a]/60 bg-[#0d1f17]/90">
+                <div className="flex items-center gap-2 text-xs">
+                  <FileImage className="size-4 text-[#d0f471]" />
+                  <span className="font-semibold text-white/90 truncate max-w-[200px] sm:max-w-xs">
                     {uploadedFile?.name || "cutout.png"}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-[#E11D48] text-[11px] font-medium ml-1">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#d0f471]/10 border border-[#d0f471]/30 text-[#d0f471] text-[11px] font-medium ml-1">
                     <Loader2 className="size-3 animate-spin" />
-                    <span>Removing background...</span>
+                    <span>AI Processing...</span>
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCancelProcessing}
-                  className="text-xs text-gray-400 hover:text-gray-700 transition-colors cursor-pointer underline underline-offset-4"
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
               </div>
 
-              <div className="relative min-h-[380px] sm:min-h-[460px] max-h-[560px] flex items-center justify-center p-6 sm:p-10 select-none overflow-hidden bg-[#f3f4ee]">
-                <div className="absolute inset-0 bg-[#10241e]/85 backdrop-blur-md flex flex-col items-center justify-center z-30 pointer-events-none">
-                  <div className="size-14 sm:size-16 rounded-full bg-[#10241e] shadow-2xl border border-[#d7f3af]/30 flex items-center justify-center mb-3">
-                    <Loader2 className="size-7 sm:size-8 text-[#d0f471] animate-spin" />
-                  </div>
-                  <h4 className="text-xs sm:text-sm font-semibold text-white tracking-tight">
-                    Removing background...
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-[#C7C7C7] mt-0.5">
-                    Creating transparent PNG
-                  </p>
-                </div>
+              {/* Animated Scan Preview */}
+              <div className="relative overflow-hidden select-none" style={{ minHeight: 380, maxHeight: 560 }}>
+                {/* Checkerboard background (the "transparent" area revealed) */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%230d1f17'/%3E%3Crect x='12' width='12' height='12' fill='%23132b1e'/%3E%3Crect y='12' width='12' height='12' fill='%23132b1e'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%230d1f17'/%3E%3C/svg%3E")`,
+                    backgroundSize: "24px 24px",
+                  }}
+                />
+
+                {/* Original image */}
                 {sourceUrl && (
                   <img
                     src={sourceUrl}
                     alt="Original upload"
-                    className="max-h-[420px] max-w-full object-contain filter drop-shadow-md"
+                    className="relative z-10 max-h-[500px] max-w-full object-contain mx-auto block"
+                    style={{ display: "block" }}
                   />
                 )}
+
+                {/* Scanning line overlay — sweeps top to bottom */}
+                <div
+                  className="absolute inset-x-0 z-20 pointer-events-none"
+                  style={{
+                    animation: "bgScanLine 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+                    top: 0,
+                  }}
+                >
+                  {/* The scan line itself */}
+                  <div
+                    style={{
+                      height: 3,
+                      background: "linear-gradient(90deg, transparent 0%, #d0f471 20%, #fff 50%, #d0f471 80%, transparent 100%)",
+                      boxShadow: "0 0 24px 6px rgba(208,244,113,0.7), 0 0 60px 20px rgba(208,244,113,0.25)",
+                    }}
+                  />
+                  {/* Glow trail below line */}
+                  <div
+                    style={{
+                      height: 80,
+                      background: "linear-gradient(to bottom, rgba(208,244,113,0.18) 0%, rgba(208,244,113,0.04) 60%, transparent 100%)",
+                    }}
+                  />
+                </div>
+
+                {/* Dark overlay above the scan line (the "original" area not yet processed) */}
+                <div
+                  className="absolute inset-x-0 top-0 z-15 pointer-events-none"
+                  style={{
+                    animation: "bgScanOverlay 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+                    background: "rgba(10,26,18,0.55)",
+                  }}
+                />
+
+                {/* Stage label */}
+                <div className="absolute bottom-4 inset-x-0 flex justify-center z-30 pointer-events-none">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d1f17]/90 border border-[#d0f471]/30 backdrop-blur-md shadow-xl">
+                    <Sparkles className="size-3.5 text-[#d0f471] animate-pulse" />
+                    <span className="text-xs font-semibold text-[#d0f471]">
+                      {stage || "Analyzing subject..."}
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              {/* CSS keyframes injected via style tag */}
+              <style>{`
+                @keyframes bgScanLine {
+                  0%   { transform: translateY(-10px); opacity: 0; }
+                  5%   { opacity: 1; }
+                  95%  { opacity: 1; }
+                  100% { transform: translateY(600px); opacity: 0; }
+                }
+                @keyframes bgScanOverlay {
+                  0%   { height: 100%; }
+                  100% { height: 0%; }
+                }
+              `}</style>
             </div>
           )}
 

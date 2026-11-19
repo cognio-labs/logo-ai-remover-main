@@ -61,6 +61,7 @@ export function EditorCanvas() {
         mCtx.drawImage(cutout, 0, 0, w, h);
       }
       maskCanvasRef.current = mCanvas;
+      dispatch({ type: "SET_MASK_CANVAS", payload: mCanvas });
       setIsLoaded(true);
     });
 
@@ -172,8 +173,16 @@ export function EditorCanvas() {
   }, [isLoaded, drawMainCanvas]);
 
   // Handle Brush Drawing on Alpha Mask Canvas
+  useEffect(() => {
+    if (state.maskPixels && maskCanvasRef.current) {
+      maskCanvasRef.current.getContext("2d")?.putImageData(state.maskPixels, 0, 0);
+      drawMainCanvas();
+    }
+  }, [state.maskPixels, drawMainCanvas]);
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (activeTab !== "cutout") return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsDrawing(true);
     applyBrush(e);
   };
@@ -195,7 +204,8 @@ export function EditorCanvas() {
     if (isDrawing) {
       setIsDrawing(false);
       drawMainCanvas();
-      dispatch({ type: "PUSH_HISTORY" });
+      const mask = maskCanvasRef.current;
+      dispatch({ type: "PUSH_HISTORY", pixels: mask?.getContext("2d")?.getImageData(0, 0, mask.width, mask.height) });
     }
   };
 
@@ -275,7 +285,6 @@ export function EditorCanvas() {
       className="relative size-full flex items-center justify-center p-2.5 sm:p-4 select-none overflow-hidden"
       onPointerLeave={() => {
         setCursorPos(null);
-        setIsDrawing(false);
       }}
     >
       {/* Aspect Ratio Box */}
@@ -285,6 +294,7 @@ export function EditorCanvas() {
         } ${aspectClass}`}
       >
         <canvas
+          data-background-editor-canvas
           ref={canvasRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}

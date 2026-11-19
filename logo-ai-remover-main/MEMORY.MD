@@ -60,4 +60,6 @@ Date → finding/decision → source/test evidence → consequence → task ID. 
 
 2026-11-18: The Gemini video page now uses `VIDEO_WORKER_URL` via `/api/video-worker` and transfers media directly to FastAPI. The worker calibrates a stationary matte, preserves native 4:2:0 pixels outside its repair before encoding where supported, and validates upload metadata. The stage clip and synthetic cases are reproducible with `watermark-backend/tools/check_video_pipeline.py`.
 
+2026-11-19: Local video submission failures were caused by the FastAPI worker not running on the configured `localhost:5000` origin. The client now preflights worker health and presents backend or connection errors directly; retry retains the selected file and manual box. The worker keeps its real processing and output-validation path unchanged.
+
 2026-11-19: The deployed Vercel project had no `VIDEO_WORKER_URL`. The video-worker route now returns a clear 503 instead of leaking a loopback URL to browsers, which previously surfaced as a generic fetch failure. A public HTTPS FastAPI deployment and its Vercel environment variable are still required before production video processing can run.

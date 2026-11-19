@@ -34,7 +34,7 @@ function InnerEditor({
   // Handle Export of Final Canvas
   const handleDownload = (resolution: "preview" | "max") => {
     // Find canvas element
-    const canvas = document.querySelector("canvas");
+    const canvas = document.querySelector<HTMLCanvasElement>("canvas[data-background-editor-canvas]");
     if (!canvas) {
       toast.error("Canvas element not ready for export");
       return;
@@ -63,16 +63,17 @@ function InnerEditor({
       if (resolution === "preview") {
         // Create scaled 408 x 612 preview
         const previewCanvas = document.createElement("canvas");
-        previewCanvas.width = 408;
-        previewCanvas.height = 612;
+        const scale = Math.min(1, 612 / Math.max(canvas.width, canvas.height));
+        previewCanvas.width = Math.max(1, Math.round(canvas.width * scale));
+        previewCanvas.height = Math.max(1, Math.round(canvas.height * scale));
         const pCtx = previewCanvas.getContext("2d");
         if (pCtx) {
-          pCtx.drawImage(canvas, 0, 0, 408, 612);
+          pCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
           const link = document.createElement("a");
           link.href = previewCanvas.toDataURL("image/png");
           link.download = `bellix-preview-${Date.now()}.png`;
           link.click();
-          toast.success("Free preview downloaded (408×612)");
+          toast.success(`Preview downloaded (${previewCanvas.width}×${previewCanvas.height})`);
         }
       } else {
         // High-res Max export directly from full resolution canvas

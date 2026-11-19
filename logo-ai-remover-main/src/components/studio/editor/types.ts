@@ -65,6 +65,7 @@ export type EditorState = {
   originalImageUrl: string;
   cutoutImageUrl: string;
   maskCanvas: HTMLCanvasElement | null;
+  maskPixels?: ImageData;
   activeTab: ActiveTab;
   isCompareActive: boolean;
   brush: BrushSettings;

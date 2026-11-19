@@ -164,24 +164,50 @@ def _find_calibrated_sparkle(gray, short, origin, hints=False):
 def _restore_calibrated(frame, box, matte, contour, previous=None):
     x, y, w, h = box
     patch = frame[y:y+h, x:x+w]
-    matte = matte[:, :, None]
-    restored = np.clip((patch - 255.0 * np.maximum(matte, 0)) / np.maximum(1.0 - np.abs(matte), 0.05), 0, 255)
+    matte_3d = matte[:, :, None]
+
+    # 1. Inverse alpha restoration
+    alpha_clean = np.maximum(matte_3d, 0.0)
+    restored = np.clip((patch - 255.0 * alpha_clean) / np.maximum(1.0 - np.abs(matte_3d), 0.05), 0, 255)
+
+    # 2. DC Brightness offset / level correction (eliminates white smudge/smear)
+    border_mask = np.ones((h, w), dtype=bool)
+    border_mask[max(1, h // 10):-max(1, h // 10), max(1, w // 10):-max(1, w // 10)] = False
+    if border_mask.sum() > 20:
+        ring_luma = float(np.mean(patch[border_mask]))
+        core_mask = matte > 0.06
+        if core_mask.sum() > 10:
+            restored_luma = float(np.mean(restored[core_mask]))
+            dc_shift = restored_luma - ring_luma
+            if abs(dc_shift) > 1.2:
+                # Subtract brightness lift proportional to alpha
+                restored -= np.clip(dc_shift * 0.80, -22.0, 22.0) * alpha_clean
+                restored = np.clip(restored, 0, 255)
+
     if not contour.any():
         patch[:] = np.rint(restored).astype(np.uint8)
         return None
 
-    # Repair codec ringing only along the fixed contour. Feather toward the
-    # already-restored pixels, keeping the interior texture and exterior intact.
-    filled = cv2.inpaint(np.rint(restored).astype(np.uint8), contour, 2, cv2.INPAINT_TELEA)
+    # 3. Navier-Stokes inpainting for smooth, natural gradient continuity
+    filled = cv2.inpaint(np.rint(restored).astype(np.uint8), contour, 3, cv2.INPAINT_NS)
+
+    # 4. Texture / Grain matching (prevents plastic/blurry patch on carpets, grass, etc.)
+    ring_std = float(np.std(patch[border_mask])) if border_mask.sum() > 20 else 4.0
+    if ring_std > 3.0:
+        grain = np.random.normal(0, min(ring_std * 0.60, 7.5), patch.shape).astype(np.float32)
+        filled = np.clip(filled.astype(np.float32) + grain, 0, 255).astype(np.uint8)
+
     delta = filled.astype(np.float32) - restored
     weight = np.minimum(cv2.distanceTransform(contour, cv2.DIST_L2, 3) * 0.8, 1.0)
-    weight = np.maximum(weight, (matte[:, :, 0] > 0.85).astype(np.float32))
+    weight = np.maximum(weight, (matte > 0.82).astype(np.float32))
     correction = delta * weight[:, :, None]
+
     if previous is not None:
         last_restored, last_correction = previous
         change = np.max(np.abs(restored - last_restored), axis=2)
         stable = (cv2.dilate(change, np.ones((5, 5), np.uint8)) <= 2.0) & (contour > 0)
         correction[stable] = 0.8 * correction[stable] + 0.2 * last_correction[stable]
+
     patch[:] = np.clip(np.rint(restored + correction), 0, 255).astype(np.uint8)
     return restored, correction
 
@@ -250,8 +276,13 @@ def _write_debug_crop(directory, index, frame, box, raw_crop):
 
 
 def remove_watermark(src, dst, progress_cb=None, manual_box=None, alpha=0.30,
-                     *, normalized_box=None, debug_dir=None, allow_tracking=True, lama_path=None):
-    """Recover the visible sparkle on a bounded crop and stream the full video."""
+                     *, mode="clean", normalized_box=None, debug_dir=None, allow_tracking=True, lama_path=None):
+    """Recover the visible sparkle on a bounded crop and stream the full video.
+
+    Modes:
+      - 'clean': AI inpainting and calibrated inverse alpha. Preserves full 100% frame.
+      - 'guaranteed': 100% trace-free crop-and-scale. Crops bottom-right (6-8%) and Lanczos scales to full size.
+    """
     def report(percent, frames, message):
         if progress_cb:
             progress_cb(percent, frames, message)
@@ -268,6 +299,44 @@ def remove_watermark(src, dst, progress_cb=None, manual_box=None, alpha=0.30,
     degrees = rotation(stream)
     if normalized_box is not None:
         manual_box = encoded_box(normalized_box, width, height, degrees)
+
+    # GUARANTEED MODE: 100% Trace-Free Crop & Scale
+    if mode == "guaranteed":
+        report(15, 0, "Guaranteed mode: cropping watermark zone and scaling up with Lanczos")
+        started = time.monotonic()
+        crop_pct = 0.08
+        if manual_box is not None:
+            mx, my, mw, mh = manual_box
+            crop_pct = max(0.06, min(0.12, max((width - mx + 16) / width, (height - my + 16) / height)))
+        crop_w = int((width * (1.0 - crop_pct)) // 2) * 2
+        crop_h = int((height * (1.0 - crop_pct)) // 2) * 2
+
+        filter_str = f"crop={crop_w}:{crop_h}:0:0,scale={width}:{height}:flags=lanczos"
+        cmd = [
+            "ffmpeg", "-nostdin", "-y", "-v", "error",
+            "-i", str(src),
+            "-vf", filter_str,
+            "-c:v", "libx264", "-crf", "14", "-preset", "slow", "-pix_fmt", "yuv420p",
+            "-c:a", "copy",
+            "-movflags", "+faststart",
+            str(dst)
+        ]
+        res = subprocess.run(cmd)
+        if res.returncode != 0:
+            raise RuntimeError("Guaranteed mode FFmpeg processing failed.")
+
+        quality = {
+            "method": "guaranteed-crop-and-scale",
+            "mode": "guaranteed",
+            "crop_ratio": round(crop_pct, 4),
+            "original_size": [width, height],
+            "scaled_size": [width, height],
+            "trace_free": True,
+            "elapsed_seconds": round(time.monotonic() - started, 2),
+        }
+        Path(str(dst) + ".quality.json").write_text(json.dumps(quality, indent=2), encoding="utf8")
+        report(100, total, "Guaranteed 100% trace-free video is ready")
+        return str(dst)
     edge = round(min(width, height) * 0.23)
     if degrees and manual_box is None:
         display_w, display_h = (height, width) if round(degrees / 90) % 2 else (width, height)

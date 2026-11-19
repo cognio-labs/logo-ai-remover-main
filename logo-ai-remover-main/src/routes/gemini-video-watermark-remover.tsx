@@ -14,6 +14,8 @@ import {
   Crop,
   Layers,
   Check,
+  CheckCircle2,
+  Zap,
 } from "lucide-react";
 import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
@@ -294,36 +296,56 @@ export default function GeminiVideoRemoverPage() {
       <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#091712] text-white border-b border-[#d7f3af]/15 overflow-hidden">
         {/* Atmospheric 4K Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
-        <div className="relative mx-auto max-w-5xl text-center space-y-6 z-10">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
-            <img src="/gemini-logo.png" alt="Gemini" className="size-4 object-contain" />
-            <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wide">
-              Gemini & Veo visible sparkle cleanup
-            </span>
-          </div>
+        <div className="relative mx-auto max-w-7xl z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Copy (lg:col-span-5) */}
+            <div className="lg:col-span-5 space-y-6 text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
+                <img src="/gemini-logo.png" alt="Gemini" className="size-4 object-contain" />
+                <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wide uppercase font-mono">
+                  Gemini &amp; Veo Video Cleaner
+                </span>
+              </div>
 
-          {/* Main Heading */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.08]">
-            Remove Gemini and Veo Video{" "}
-            <span className="text-white underline decoration-[#d0f471] decoration-4 font-bold">
-              Watermarks Online
-            </span>
-          </h1>
+              {/* Main Heading */}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.06]">
+                Remove Gemini and Veo Video{" "}
+                <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4 font-bold">
+                  Watermarks.
+                </span>
+              </h1>
 
-          {/* Subheading */}
-          <p className="max-w-3xl mx-auto text-lg sm:text-2xl text-white/95 font-medium leading-relaxed">
-            Remove supported visible sparkle marks from your original Gemini or Veo export.
-            Processing starts as soon as you choose a video.
-          </p>
+              {/* Subheading */}
+              <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
+                Remove supported visible sparkle marks from your original Gemini or Veo export.
+                Processing starts as soon as you choose a video.
+              </p>
 
-          {/* Primary Upload Area */}
-          <div className="pt-6 max-w-6xl mx-auto w-full">
-            <JobVideoCleaner />
+              {/* 3 Value Points */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <CheckCircle2 className="size-4 text-[#d0f471]" /> Zero quality loss
+                </span>
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <ShieldCheck className="size-4 text-[#d0f471]" /> 100% Private &amp; secure
+                </span>
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
+                  <Zap className="size-4 text-[#d0f471]" /> Fast AI inpainting
+                </span>
+              </div>
+            </div>
+
+            {/* Right: JobVideoCleaner Upload Area (lg:col-span-7) */}
+            <div className="lg:col-span-7 w-full">
+              <JobVideoCleaner />
+            </div>
           </div>
 
           {/* Trust Guarantees */}
-          <VideoTrustBadges />
+          <div className="mt-12 sm:mt-16 pt-8 border-t border-white/10">
+            <VideoTrustBadges />
+          </div>
         </div>
       </section>
 

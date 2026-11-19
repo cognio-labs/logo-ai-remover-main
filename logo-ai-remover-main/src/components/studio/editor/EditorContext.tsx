@@ -53,13 +53,14 @@ type Action =
   | { type: "SET_ADJUST"; payload: Partial<AdjustSettings> }
   | { type: "RESET_ADJUST" }
   | { type: "RESET_ALL" }
-  | { type: "PUSH_HISTORY" }
+  | { type: "PUSH_HISTORY"; pixels?: ImageData }
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "SET_MASK_CANVAS"; payload: HTMLCanvasElement }
   | { type: "SET_PROCESSING"; payload: boolean };
 
 interface HistorySnapshot {
+  maskPixels?: ImageData;
   background: BackgroundSetting;
   shadow: ShadowSetting;
   activeFilter: string;
@@ -149,6 +150,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: state.shadow,
         activeFilter: state.activeFilter,
         adjust: state.adjust,
+        maskPixels: state.maskPixels,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -169,6 +171,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: nextShadow,
         activeFilter: state.activeFilter,
         adjust: state.adjust,
+        maskPixels: state.maskPixels,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -189,6 +192,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: state.shadow,
         activeFilter: nextFilter,
         adjust: state.adjust,
+        maskPixels: state.maskPixels,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -209,6 +213,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: state.shadow,
         activeFilter: state.activeFilter,
         adjust: nextAdjust,
+        maskPixels: state.maskPixels,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -224,6 +229,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
 
     case "PUSH_HISTORY": {
       const newSnapshot: HistorySnapshot = {
+        maskPixels: action.pixels || state.maskPixels,
         background: state.background,
         shadow: state.shadow,
         activeFilter: state.activeFilter,
@@ -234,6 +240,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         historyStack: newStack,
+        maskPixels: newSnapshot.maskPixels,
         historyIndex: newStack.length - 1,
         canUndo: true,
         canRedo: false,
@@ -289,6 +296,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         background: target.background,
+        maskPixels: state.historyStack.slice(0, prevIdx + 1).reverse().find(s => s.maskPixels)?.maskPixels,
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
@@ -305,6 +313,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         background: target.background,
+        maskPixels: state.historyStack.slice(0, nextIdx + 1).reverse().find(s => s.maskPixels)?.maskPixels,
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
@@ -318,6 +327,11 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         maskCanvas: action.payload,
+        maskPixels: action.payload.getContext("2d")?.getImageData(0, 0, action.payload.width, action.payload.height),
+        historyStack: state.historyStack.map((snapshot, index) => index === 0 ? {
+          ...snapshot,
+          maskPixels: action.payload.getContext("2d")?.getImageData(0, 0, action.payload.width, action.payload.height),
+        } : snapshot),
       };
 
     case "SET_PROCESSING":

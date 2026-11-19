@@ -473,6 +473,7 @@ async def _process_video_worker(job_id: str):
                 job["output_path"],
                 progress_cb=on_progress,
                 normalized_box=job["manual_box"],
+                mode=job.get("mode", "clean"),
                 allow_tracking=False,
             )
             if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
@@ -509,6 +510,7 @@ async def api_video_process(
     background_tasks: BackgroundTasks,
     request: Request,
     file: UploadFile = File(...),
+    mode: str = Form("clean"),
     size_pct: float = Form(7.0),
     dist_pct: float = Form(4.0),
     alpha: float = Form(0.30),
@@ -642,6 +644,7 @@ async def api_video_process(
         "dist_pct": float(dist_pct),
         "alpha": float(alpha),
         "manual_box": selection,
+        "mode": mode.lower() if mode and mode.lower() in ("clean", "guaranteed") else "clean",
         "width": meta["width"],
         "height": meta["height"],
         "duration": meta["duration"],
@@ -732,6 +735,78 @@ async def api_video_delete(job_id: str):
 # =============================================================================
 # Image Inpainting Endpoints (Corner Sparkle for Static Images)
 # =============================================================================
+
+# ============================================================================
+# BACKGROUND REMOVAL — Neural Pipeline (rembg / BiRefNet)
+# ============================================================================
+
+@app.post("/api/background/remove-advanced")
+async def api_background_remove_advanced(
+    image: UploadFile = File(...),
+    model: str = Form("isnet-general-use"),
+):
+    """
+    Advanced AI background removal using rembg (isnet-general-use / BiRefNet).
+    Returns 32-bit RGBA PNG with only the subject visible.
+    
+    Models available:
+    - isnet-general-use  (default, best quality, any image type)
+    - u2net              (fast, general)
+    - u2net_human_seg    (optimized for people)
+    - birefnet-general   (latest BiRefNet, best quality)
+    """
+    data = await image.read()
+    if len(data) > 35 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 35MB)")
+
+    from bg_remover_advanced import remove_background_advanced, ensure_rembg_installed, REMBG_AVAILABLE
+
+    # Auto-install rembg if missing (first run only)
+    if not REMBG_AVAILABLE:
+        logger.info("rembg not found, attempting auto-install...")
+        installed = ensure_rembg_installed()
+        if not installed:
+            logger.warning("rembg unavailable — using OpenCV GrabCut fallback")
+
+    try:
+        result_png = remove_background_advanced(data, model=model)
+        return Response(
+            content=result_png,
+            media_type="image/png",
+            headers={
+                "X-Model": model,
+                "X-Processing": "neural",
+                "Access-Control-Expose-Headers": "X-Model,X-Processing",
+            },
+        )
+    except Exception as exc:
+        logger.error(f"Background removal failed: {exc}")
+        raise HTTPException(status_code=500, detail=f"Background removal failed: {str(exc)}")
+
+
+@app.post("/api/background/install-rembg")
+async def api_install_rembg():
+    """Install rembg package (run once on new deployment)."""
+    from bg_remover_advanced import ensure_rembg_installed, REMBG_AVAILABLE
+    if REMBG_AVAILABLE:
+        return {"status": "already_installed", "rembg": True}
+    success = ensure_rembg_installed()
+    return {"status": "installed" if success else "failed", "rembg": success}
+
+
+@app.get("/api/background/status")
+async def api_background_status():
+    """Check if neural background removal is available."""
+    try:
+        from bg_remover_advanced import REMBG_AVAILABLE
+        return {"rembg_available": REMBG_AVAILABLE, "status": "ready"}
+    except Exception:
+        return {"rembg_available": False, "status": "error"}
+
+
+# ============================================================================
+# GEMINI IMAGE CORNER REMOVAL
+# ============================================================================
 
 @app.post("/api/remove")
 @app.post("/api/gemini-image/clean")

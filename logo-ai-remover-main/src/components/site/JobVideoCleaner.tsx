@@ -25,6 +25,17 @@ import { toast } from "sonner";
 import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
 type Point = [number, number];
 type Selection = [number, number, number, number];
+type WorkerResponse = {
+  detail?: string;
+  error?: string;
+  origin?: string;
+  ok?: boolean;
+  ffmpeg?: boolean;
+  job_id?: string;
+  job_token?: string;
+  state?: string;
+  progress?: number;
+};
 
 const ACCEPT = "video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm,.mkv";
 
@@ -33,6 +44,14 @@ function fmt(t: number): string {
   const m = Math.floor(t / 60);
   const s = Math.floor(t % 60);
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+async function readWorkerResponse(response: Response): Promise<WorkerResponse | null> {
+  return (await response.json().catch(() => null)) as WorkerResponse | null;
+}
+
+function workerError(response: Response, payload: WorkerResponse | null, fallback: string): Error {
+  return new Error(payload?.detail || payload?.error || `${fallback} (HTTP ${response.status}).`);
 }
 
 export function JobVideoCleaner() {
@@ -59,6 +78,7 @@ export function JobVideoCleaner() {
 
   // Processing State
   const [isProcessing, setIsProcessing] = useState(false);
+  const [cleanMode, setCleanMode] = useState<"clean" | "guaranteed">("clean");
   const [isDone, setIsDone] = useState(false);
   const [statusMsg, setStatusMsg] = useState("Ready to process.");
   const [progress, setProgress] = useState(0);
@@ -239,29 +259,39 @@ export function JobVideoCleaner() {
     setErrorDetails(null);
     setProgress(2);
     setStatusMsg("Connecting to the video worker");
+    let workerOrigin: string | null = null;
 
     try {
       const config = await fetch("/api/video-worker", { signal, cache: "no-store" });
-      const worker = (await config.json().catch(() => null)) as {
-        origin?: string;
-        detail?: string;
-      } | null;
+      const worker = await readWorkerResponse(config);
       if (!config.ok || !worker?.origin) {
         throw new Error(worker?.detail || "The video worker is unavailable.");
       }
+      workerOrigin = worker.origin;
+
+      const healthResponse = await accountFetch(`${workerOrigin}/health`, {
+        signal,
+        cache: "no-store",
+      });
+      const health = await readWorkerResponse(healthResponse);
+      if (!healthResponse.ok || !health?.ok || health.ffmpeg !== true) {
+        throw workerError(healthResponse, health, "The video worker is not ready");
+      }
+
       setStatusMsg("Uploading video");
       const form = new FormData();
       form.append("file", file);
       form.append("request_key", accountRequestKey.current ?? crypto.randomUUID());
+      form.append("mode", cleanMode);
       if (position) form.append("manual_box", JSON.stringify(position));
-      const response = await accountFetch(`${worker.origin}/api/video/process`, {
+      const response = await accountFetch(`${workerOrigin}/api/video/process`, {
         method: "POST",
         body: form,
         signal,
       });
-      const job = await response.json().catch(() => null);
+      const job = await readWorkerResponse(response);
       if (!response.ok || !job?.job_id) {
-        throw new Error(job?.detail || "The worker could not accept the video.");
+        throw workerError(response, job, "The worker could not accept the video");
       }
       if (!job.job_token)
         throw new Error("This worker requires the current video cleaner release.");
@@ -272,11 +302,13 @@ export function JobVideoCleaner() {
         await new Promise((resolve) => setTimeout(resolve, 750));
         signal.throwIfAborted();
         const statusResponse = await accountFetch(
-          `${worker.origin}/api/video/status/${jobId}`,
+          `${workerOrigin}/api/video/status/${jobId}`,
           options,
         );
-        if (!statusResponse.ok) throw new Error("The worker could not retrieve this job.");
-        const status = await statusResponse.json();
+        const status = await readWorkerResponse(statusResponse);
+        if (!statusResponse.ok || !status) {
+          throw workerError(statusResponse, status, "The worker could not retrieve this job");
+        }
         if (status.state === "error") throw new Error(status.error || "Video processing failed.");
         if (status.state === "done") break;
         setProgress(Math.min(98, Math.max(5, status.progress || 0)));
@@ -289,8 +321,14 @@ export function JobVideoCleaner() {
 
       setProgress(99);
       setStatusMsg("Downloading processed MP4");
-      const result = await accountFetch(`${worker.origin}/api/video/download/${jobId}`, options);
-      if (!result.ok) throw new Error("The worker could not download this MP4.");
+      const result = await accountFetch(`${workerOrigin}/api/video/download/${jobId}`, options);
+      if (!result.ok) {
+        throw workerError(
+          result,
+          await readWorkerResponse(result),
+          "The worker could not download this MP4",
+        );
+      }
       const blob = await result.blob();
       signal.throwIfAborted();
       if (!blob.size) throw new Error("The worker returned an empty MP4.");
@@ -320,8 +358,14 @@ export function JobVideoCleaner() {
       setIsPlaying(false);
     } catch (error) {
       if (signal.aborted || processingControllerRef.current !== controller) return;
+      const details =
+        error instanceof TypeError && /fetch/i.test(error.message) && workerOrigin
+          ? `The video worker at ${workerOrigin} could not be reached. Check that it is running and reachable, then try again.`
+          : error instanceof Error
+            ? error.message
+            : "Unable to process this video.";
       setIsError(true);
-      setErrorDetails(error instanceof Error ? error.message : "Unable to process this video.");
+      setErrorDetails(details);
       setStatusMsg("Processing failed");
       emitToolEvent("processing_failed", "gemini-video-watermark-remover");
       toast.error("Video processing failed.");
@@ -667,6 +711,57 @@ export function JobVideoCleaner() {
             <RotateCcw className="size-3.5" />
             <span>Try Again</span>
           </button>
+        </div>
+      )}
+
+      {/* Removal Mode Selector: Clean (AI Fill) vs Guaranteed (100% Zero-Trace) */}
+      {(!isDone || manual) && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#f3f4ee] border border-[#10241e]/15 text-left">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#10241e] uppercase tracking-wider">Removal Mode</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                cleanMode === "guaranteed" ? "bg-[#d0f471] text-[#091712]" : "bg-[#10241e] text-white"
+              }`}>
+                {cleanMode === "guaranteed" ? "100% Trace-Free" : "Full Frame AI"}
+              </span>
+            </div>
+            <p className="text-xs text-[#637069]">
+              {cleanMode === "clean"
+                ? "Full 100% frame preserved using neural inpainting. Best for wide scenes."
+                : "Watermark completely removed by cropping 6-8% bottom-right & upscaling with Lanczos sharpness."}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white border border-[#10241e]/15 shadow-xs shrink-0 self-stretch sm:self-auto justify-center">
+            <button
+              type="button"
+              onClick={() => setCleanMode("clean")}
+              disabled={isProcessing}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                cleanMode === "clean"
+                  ? "bg-[#10241e] text-[#d0f471] shadow-xs"
+                  : "text-[#37433d] hover:text-[#10241e] hover:bg-gray-100"
+              }`}
+            >
+              <Sparkles className="size-3.5" />
+              <span>Clean (AI Fill)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCleanMode("guaranteed")}
+              disabled={isProcessing}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                cleanMode === "guaranteed"
+                  ? "bg-[#10241e] text-[#d0f471] shadow-xs"
+                  : "text-[#37433d] hover:text-[#10241e] hover:bg-gray-100"
+              }`}
+            >
+              <ShieldCheck className="size-3.5 text-[#d0f471]" />
+              <span>Guaranteed</span>
+            </button>
+          </div>
         </div>
       )}
 

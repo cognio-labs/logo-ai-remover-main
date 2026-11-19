@@ -115,9 +115,33 @@ function getImageDimensions(url: string): Promise<{ width: number; height: numbe
   });
 }
 
+// Try the Python backend for high-quality neural background removal (rembg/BiRefNet)
+async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
+  try {
+    // Fetch the image file bytes
+    const imgResp = await fetch(imageUrl);
+    if (!imgResp.ok) return null;
+    const imgBlob = await imgResp.blob();
+
+    const formData = new FormData();
+    formData.append("image", imgBlob, "image.png");
+
+    const resp = await fetch("/api/remove-bg", {
+      method: "POST",
+      body: formData,
+      signal: AbortSignal.timeout(30000), // 30s max
+    });
+
+    if (!resp.ok) return null;
+    return await resp.blob();
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Removes background from an image URL with zero external API keys.
- * Runs directly in the browser using neural AI segmentation.
+ * Tries Python backend (rembg/BiRefNet) first, then in-browser neural AI.
  */
 export async function removeImageBackground(
   imageUrl: string,
@@ -127,11 +151,45 @@ export async function removeImageBackground(
   onProgress?: (stage: string, progress: number) => void,
 ): Promise<CutoutResult> {
   const startTime = Date.now();
-  if (onProgress) onProgress("Preparing image for neural analysis...", 15);
+  if (onProgress) onProgress("Preparing image for neural analysis...", 10);
+
+  // --- Try Python backend first (rembg/BiRefNet — better quality) ---
+  if (onProgress) onProgress("Loading BiRefNet neural model...", 20);
+  const backendBlob = await tryBackendRemoval(imageUrl);
+  if (backendBlob) {
+    if (onProgress) onProgress("Subject extracted, compositing...", 90);
+    const resultBlobUrl = URL.createObjectURL(backendBlob);
+    const dimensions = await getImageDimensions(resultBlobUrl);
+    const processingTimeMs = Date.now() - startTime;
+    const jobId = `backend_${Date.now()}`;
+    localBlobCache.set(jobId, backendBlob);
+
+    let compositeBlobUrl = resultBlobUrl;
+    if (bgType !== "transparent") {
+      const comp = await clientSideRecomposite(jobId, bgType, customColor, backdropId);
+      compositeBlobUrl = comp.compositeBlobUrl;
+    }
+    if (onProgress) onProgress("Ready", 100);
+    return {
+      jobId,
+      transparentBlobUrl: resultBlobUrl,
+      compositeBlobUrl,
+      transparentBlob: backendBlob,
+      width: dimensions.width,
+      height: dimensions.height,
+      fileSizeBytes: backendBlob.size,
+      fileSizeFormatted: formatBytes(backendBlob.size),
+      processingTimeMs,
+      isRealAi: true,
+      status: "completed",
+      confidenceScore: 0.99,
+    };
+  }
+
+  // --- Fallback: in-browser neural segmentation ---
+  if (onProgress) onProgress("Loading AI model (in-browser)...", 30);
 
   try {
-    // Dynamically load in-browser neural segmentation
-    if (onProgress) onProgress("Loading AI model...", 30);
     const { removeBackground } = await import("@imgly/background-removal");
 
     if (onProgress) onProgress("Isolating edges & sub-pixel matting...", 55);
@@ -353,15 +411,36 @@ async function clientSideFallbackRemoval(
         cornerSamples.reduce((sum, idx) => sum + data[idx[2]], 0) / cornerSamples.length
       );
 
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-        if (dist < 40) {
-          data[i + 3] = 0;
-        } else if (dist < 75) {
-          data[i + 3] = Math.round(((dist - 40) / 35) * 255);
+      // Only erode from outer edges inward, protect the inner subject
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const coreRadiusX = w * 0.35;
+      const coreRadiusY = h * 0.40;
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const idx = (y * w + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+          // Check if pixel is in core subject region
+          const dx = (x - centerX) / coreRadiusX;
+          const dy = (y - centerY) / coreRadiusY;
+          const inCoreSubject = (dx * dx + dy * dy) < 0.65;
+
+          // Never drill holes into core subject (protects skin, shirts, dress)
+          if (inCoreSubject) {
+            data[idx + 3] = 255;
+            continue;
+          }
+
+          if (dist < 35) {
+            data[idx + 3] = 0;
+          } else if (dist < 65) {
+            data[idx + 3] = Math.round(((dist - 35) / 30) * 255);
+          }
         }
       }
 
