@@ -97,9 +97,7 @@ export function JobVideoCleaner() {
         return;
       }
       if (f.size > 500 * 1024 * 1024) {
-        toast.error(
-          "Choose a video smaller than 500 MB.",
-        );
+        toast.error("Choose a video smaller than 500 MB.");
         return;
       }
 
@@ -244,9 +242,12 @@ export function JobVideoCleaner() {
 
     try {
       const config = await fetch("/api/video-worker", { signal, cache: "no-store" });
-      const worker = await config.json();
-      if (!config.ok || !worker.origin) {
-        throw new Error(worker.detail || "The video worker is unavailable.");
+      const worker = (await config.json().catch(() => null)) as {
+        origin?: string;
+        detail?: string;
+      } | null;
+      if (!config.ok || !worker?.origin) {
+        throw new Error(worker?.detail || "The video worker is unavailable.");
       }
       setStatusMsg("Uploading video");
       const form = new FormData();
@@ -262,20 +263,28 @@ export function JobVideoCleaner() {
       if (!response.ok || !job?.job_id) {
         throw new Error(job?.detail || "The worker could not accept the video.");
       }
-      if (!job.job_token) throw new Error("This worker requires the current video cleaner release.");
+      if (!job.job_token)
+        throw new Error("This worker requires the current video cleaner release.");
 
       const jobId = encodeURIComponent(job.job_id);
       const options = { signal, headers: { "X-Video-Job-Token": job.job_token } };
       while (true) {
         await new Promise((resolve) => setTimeout(resolve, 750));
         signal.throwIfAborted();
-        const statusResponse = await accountFetch(`${worker.origin}/api/video/status/${jobId}`, options);
+        const statusResponse = await accountFetch(
+          `${worker.origin}/api/video/status/${jobId}`,
+          options,
+        );
         if (!statusResponse.ok) throw new Error("The worker could not retrieve this job.");
         const status = await statusResponse.json();
         if (status.state === "error") throw new Error(status.error || "Video processing failed.");
         if (status.state === "done") break;
         setProgress(Math.min(98, Math.max(5, status.progress || 0)));
-        setStatusMsg(status.state === "queued" ? "Waiting for a processing slot" : "Restoring the watermark area");
+        setStatusMsg(
+          status.state === "queued"
+            ? "Waiting for a processing slot"
+            : "Restoring the watermark area",
+        );
       }
 
       setProgress(99);
@@ -327,14 +336,22 @@ export function JobVideoCleaner() {
   const selectionPoint = (event: React.PointerEvent<HTMLDivElement>): Point => {
     const rect = event.currentTarget.getBoundingClientRect();
     const clamp = (value: number) => Math.max(0, Math.min(1, value));
-    return [clamp((event.clientX - rect.left) / rect.width), clamp((event.clientY - rect.top) / rect.height)];
+    return [
+      clamp((event.clientX - rect.left) / rect.width),
+      clamp((event.clientY - rect.top) / rect.height),
+    ];
   };
 
   const updateSelection = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!selectionStart.current) return;
     const [startX, startY] = selectionStart.current;
     const [x, y] = selectionPoint(event);
-    setSelection([Math.min(startX, x), Math.min(startY, y), Math.abs(x - startX), Math.abs(y - startY)]);
+    setSelection([
+      Math.min(startX, x),
+      Math.min(startY, y),
+      Math.abs(x - startX),
+      Math.abs(y - startY),
+    ]);
   };
 
   const toggleManual = () => {
@@ -437,9 +454,7 @@ export function JobVideoCleaner() {
 
           <div className="mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#637069]">
             <ShieldCheck className="size-4 text-[#10241e]" />
-            <span>
-              Reverse-alpha cleanup with MP4 export
-            </span>
+            <span>Reverse-alpha cleanup with MP4 export</span>
           </div>
 
           <input
@@ -534,7 +549,7 @@ export function JobVideoCleaner() {
                 className="absolute z-20 touch-none cursor-crosshair"
                 style={{
                   width: `${Math.min(1, videoRatio / (16 / 9)) * 100}%`,
-                  height: `${Math.min(1, (16 / 9) / videoRatio) * 100}%`,
+                  height: `${Math.min(1, 16 / 9 / videoRatio) * 100}%`,
                 }}
                 onPointerDown={(event) => {
                   event.currentTarget.setPointerCapture(event.pointerId);
@@ -570,7 +585,10 @@ export function JobVideoCleaner() {
       )}
       {isProcessing && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-4">
-          <div role="status" className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]">
+          <div
+            role="status"
+            className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]"
+          >
             <span>{statusMsg}</span>
             <span className="font-mono">{progress}%</span>
           </div>
@@ -587,7 +605,6 @@ export function JobVideoCleaner() {
               style={{ width: `${progress}%` }}
             />
           </div>
-
         </div>
       )}
 
@@ -644,7 +661,7 @@ export function JobVideoCleaner() {
           </div>
           <button
             type="button"
-            onClick={() => void handleProcess(manual ? selection ?? undefined : undefined)}
+            onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
           >
             <RotateCcw className="size-3.5" />
@@ -687,8 +704,16 @@ export function JobVideoCleaner() {
         {!isDone || manual ? (
           <button
             type="button"
-            disabled={isProcessing || (manual && (!selection || selection[2] < .005 || selection[3] < .005 || selection[2] > .35 || selection[3] > .35))}
-            onClick={() => void handleProcess(manual ? selection ?? undefined : undefined)}
+            disabled={
+              isProcessing ||
+              (manual &&
+                (!selection ||
+                  selection[2] < 0.005 ||
+                  selection[3] < 0.005 ||
+                  selection[2] > 0.35 ||
+                  selection[3] > 0.35))
+            }
+            onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
             className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
@@ -716,7 +741,9 @@ export function JobVideoCleaner() {
       </div>
 
       {manual && !isProcessing && (
-        <p className="text-xs text-[#637069]">Pause on a clear frame and drag a small box around the entire visible sparkle.</p>
+        <p className="text-xs text-[#637069]">
+          Pause on a clear frame and drag a small box around the entire visible sparkle.
+        </p>
       )}
       {isDone && !manual && (
         <p className="text-xs text-[#637069]">
@@ -736,7 +763,6 @@ export function JobVideoCleaner() {
           e.target.value = "";
         }}
       />
-
     </div>
   );
 }
