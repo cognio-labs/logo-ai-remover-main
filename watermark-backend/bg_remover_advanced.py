@@ -313,14 +313,11 @@ def select_subject_components(
     if not valid_labels:
         return mask
 
-    # Sort descending by area: the primary subject is the largest connected component
+    # Sort descending by area. For portraits, a face is a stronger subject
+    # anchor than raw component area because a large heading can otherwise win
+    # as the "primary" component.
     valid_labels.sort(key=lambda i: stats[i, cv2.CC_STAT_AREA], reverse=True)
     primary_lbl = valid_labels[0]
-    primary_mask = (labels == primary_lbl).astype(np.uint8) * 255
-
-    logger.debug(f"[COMP_DECISION] Primary subject is Comp {primary_lbl} (area={stats[primary_lbl, cv2.CC_STAT_AREA]})")
-
-    dummy_rgb = img_rgb if img_rgb is not None else np.zeros((height, width, 3), dtype=np.uint8)
     # The segmentation models often return faint, disconnected blobs for
     # typography, logos and decorative lines in the source background.  Those
     # blobs are valid alpha components, but they are not foreground objects.
@@ -339,6 +336,13 @@ def select_subject_components(
         label = int(labels[cy, cx])
         if label > 0:
             face_labels.add(label)
+
+    if face_labels:
+        primary_lbl = max(face_labels, key=lambda i: stats[i, cv2.CC_STAT_AREA])
+    primary_mask = (labels == primary_lbl).astype(np.uint8) * 255
+    logger.debug(f"[COMP_DECISION] Primary subject is Comp {primary_lbl} (area={stats[primary_lbl, cv2.CC_STAT_AREA]})")
+
+    dummy_rgb = img_rgb if img_rgb is not None else np.zeros((height, width, 3), dtype=np.uint8)
     logger.debug(f"[COMP_DECISION] Comp {primary_lbl}: area={stats[primary_lbl, cv2.CC_STAT_AREA]}, decision=KEEP, reason=primary salient subject")
 
     for lbl in range(1, num_labels):
@@ -534,7 +538,9 @@ def remove_background_advanced(
         # Step 2: Mode Detection (BEFORE any face logic!)
         is_design, cards = detect_design_mode_and_cards(img_rgb)
         
-        if is_design and len(cards) >= 2:
+        # Background remover must isolate the subject, not preserve a whole
+        # poster/card. Headings and decorative text are background content.
+        if False and is_design and len(cards) >= 2:
             LAST_MODEL_USED = "design-mode-mask"
             logger.info(f"Processing in DESIGN MODE ({len(cards)} card containers)")
             # Generate clean rounded rectangular mask for all cards
