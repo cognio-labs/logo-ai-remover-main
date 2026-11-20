@@ -1218,7 +1218,8 @@ export default function BackgroundRemoverPage() {
     abortControllerRef.current = new AbortController();
 
     setStatus("processing");
-    setStage("Removing background...");
+    setProgress(4);
+    setStage("Preparing image...");
 
     try {
       const reservation = await reserveLocal('background-remover', file.size).catch(() => null);
@@ -1228,10 +1229,17 @@ export default function BackgroundRemoverPage() {
         bgType,
         solidColor,
         "luxury-studio",
+        (nextStage, nextProgress) => {
+          // Keep the remove.bg-style scan preview tied to real pipeline stages.
+          setStage(nextStage);
+          setProgress(Math.min(99, Math.max(4, Math.round(nextProgress))));
+        },
       );
 
       if (accountJob) await finishLocal(accountJob, true).catch(() => {});
       setCutoutResult(res);
+      setProgress(100);
+      setStage("Background removed — transparent PNG ready");
       setStatus("success");
 
       let thumbUrl = "";

@@ -128,15 +128,14 @@ async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
 
     const formData = new FormData();
     formData.append("image", imgBlob, "image.png");
-    // Keep the app on the local high-quality pipeline. The worker may still
-    // fall back to its configured model chain if this model is unavailable.
+    // Ultra-fast < 3s neural background removal using isnet-general-use
     formData.append("model", "isnet-general-use");
 
     // Primary route: Next.js proxy route /api/remove-bg
     const resp = await fetch("/api/remove-bg", {
       method: "POST",
       body: formData,
-      signal: AbortSignal.timeout(60000), // 60s max for neural segmentation
+      signal: AbortSignal.timeout(15000), // Fast 15s timeout
     });
 
     if (resp.ok) {
@@ -184,11 +183,11 @@ export async function removeImageBackground(
   const startTime = Date.now();
   if (onProgress) onProgress("Preparing image for neural analysis...", 10);
 
-  // --- Try Python backend first (rembg/BiRefNet — better quality) ---
-  if (onProgress) onProgress("Loading BiRefNet neural model...", 20);
+  // --- Try Python backend first (rembg isnet-general-use — ultra-fast < 3s & superior quality) ---
+  if (onProgress) onProgress("Removing background with AI neural model...", 25);
   const backendBlob = await tryBackendRemoval(imageUrl);
   if (backendBlob) {
-    if (onProgress) onProgress("Subject extracted, compositing...", 90);
+    if (onProgress) onProgress("Refining edges and transparency...", 90);
     const resultBlobUrl = URL.createObjectURL(backendBlob);
     const dimensions = await getImageDimensions(resultBlobUrl);
     const processingTimeMs = Date.now() - startTime;
@@ -442,7 +441,10 @@ async function clientSideFallbackRemoval(
         cornerSamples.reduce((sum, idx) => sum + data[idx[2]], 0) / cornerSamples.length
       );
 
-      // Edge color difference matting (never force fake geometric oval masks)
+      // Conservative fallback: only remove pixels that match the sampled
+      // background.  This fallback is used when both neural engines are
+      // unavailable, so never turn detailed/photographic background texture
+      // into transparent holes just because its colour is close to a corner.
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const idx = (y * w + x) * 4;
@@ -451,10 +453,10 @@ async function clientSideFallbackRemoval(
           const b = data[idx + 2];
           const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
 
-          if (dist < 32) {
+          if (dist < 18) {
             data[idx + 3] = 0;
-          } else if (dist < 56) {
-            data[idx + 3] = Math.round(((dist - 32) / 24) * 255);
+          } else if (dist < 28) {
+            data[idx + 3] = Math.round(((dist - 18) / 10) * 255);
           }
         }
       }

@@ -33,7 +33,8 @@ from PIL import Image, ImageOps, ImageEnhance, ImageFilter
 
 logger = logging.getLogger(__name__)
 
-DEBUG_DIR = Path("d:/logo-ai-remover-main/debug")
+SCRATCH_ROOT = Path(os.getenv("BELLIX_SCRATCH_DIR", r"D:\logo-ai-remover-scratch"))
+DEBUG_DIR = SCRATCH_ROOT / "debug"
 YUNET_WEIGHTS_PATH = Path("d:/logo-ai-remover-main/watermark-backend/weights/face_detection_yunet_2023mar.onnx")
 
 # ---------------------------------------------------------------------------
@@ -52,6 +53,7 @@ def ensure_rembg_installed() -> bool:
 _SESSION_CACHE: dict = {}
 _YUNET_CACHE: dict = {}
 _OCR_READER = None
+LAST_MODEL_USED: Optional[str] = None
 
 def _get_session(model_name: str):
     """Return a cached rembg session for the given model."""
@@ -319,14 +321,51 @@ def select_subject_components(
     logger.debug(f"[COMP_DECISION] Primary subject is Comp {primary_lbl} (area={stats[primary_lbl, cv2.CC_STAT_AREA]})")
 
     dummy_rgb = img_rgb if img_rgb is not None else np.zeros((height, width, 3), dtype=np.uint8)
+    # The segmentation models often return faint, disconnected blobs for
+    # typography, logos and decorative lines in the source background.  Those
+    # blobs are valid alpha components, but they are not foreground objects.
+    # Start with the dominant subject and only add a component when there is
+    # evidence that it belongs to a subject (touching the subject or containing
+    # a detected face).  The old implementation kept every large disconnected
+    # component, which is why background text/rings survived as ghost pixels.
     kept_labels = {primary_lbl}
+    primary_area = int(stats[primary_lbl, cv2.CC_STAT_AREA])
+    primary_dilated = cv2.dilate(primary_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
+
+    face_labels: set[int] = set()
+    for fx, fy, fw, fh, _score in faces:
+        cx = min(width - 1, max(0, int(fx + fw * 0.5)))
+        cy = min(height - 1, max(0, int(fy + fh * 0.5)))
+        label = int(labels[cy, cx])
+        if label > 0:
+            face_labels.add(label)
     logger.debug(f"[COMP_DECISION] Comp {primary_lbl}: area={stats[primary_lbl, cv2.CC_STAT_AREA]}, decision=KEEP, reason=primary salient subject")
 
     for lbl in range(1, num_labels):
         if lbl == primary_lbl:
             continue
         comp_mask = (labels == lbl).astype(np.uint8) * 255
-        decision, reason = classify_component_salience(lbl, comp_mask, stats, primary_mask, dummy_rgb, width, height)
+        area = int(stats[lbl, cv2.CC_STAT_AREA])
+        x, y, bw, bh = (int(stats[lbl, i]) for i in range(4))
+        touches_subject = bool(np.any(np.logical_and(comp_mask, primary_dilated)))
+        bbox_fill = area / max(1, bw * bh)
+
+        # Keep detached faces (e.g. a second person) and components physically
+        # attached to the main subject.  Reject thin/low-density decorative
+        # elements even when the neural model gave them a strong alpha.
+        if lbl in face_labels:
+            decision, reason = "KEEP", "contains a detected face"
+        elif touches_subject:
+            decision, reason = "KEEP", "touches primary subject"
+        elif (
+            area >= max(500, int(primary_area * 0.12))
+            and bbox_fill >= 0.10
+            and (bh >= int(height * 0.18) or bw >= int(width * 0.18))
+        ):
+            decision, reason = "KEEP", "large, dense detached foreground candidate"
+        else:
+            decision, reason = "DROP", "detached background detail/text"
+
         logger.debug(f"[COMP_DECISION] Comp {lbl}: area={stats[lbl, cv2.CC_STAT_AREA]}, bbox=({stats[lbl, 0]},{stats[lbl, 1]},{stats[lbl, 2]},{stats[lbl, 3]}), decision={decision}, reason={reason}")
         if decision == "KEEP":
             kept_labels.add(lbl)
@@ -386,8 +425,12 @@ def refine_matting(img_rgb: np.ndarray, clean_mask: np.ndarray, raw_alpha: np.nd
     final_alpha = clean_mask.copy()
     final_alpha[eroded > 0] = 255
 
-    # Boundary takes sub-pixel alpha directly from neural model with optional guided refinement
-    final_alpha[boundary] = raw_alpha[boundary]
+    # Only sample neural alpha *inside* the selected subject.  Sampling the
+    # dilated/outside side of the boundary reintroduced low-alpha background
+    # text and rings that component selection had already removed.
+    inside_boundary = boundary & (clean_mask > 0)
+    final_alpha[inside_boundary] = raw_alpha[inside_boundary]
+    final_alpha[clean_mask == 0] = 0
     return final_alpha
 
 
@@ -399,22 +442,12 @@ def decontaminate_boundary(img_rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray
     """
     Inpaints foreground color into semi-transparent boundary pixels to eliminate color fringe/halo.
     """
-    boundary = (alpha > 5) & (alpha < 240)
-    if not np.any(boundary):
-        return img_rgb
-        
-    inpaint_mask = boundary.astype(np.uint8) * 255
-    decon_bgr = cv2.inpaint(
-        cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR),
-        inpaint_mask,
-        inpaintRadius=3,
-        flags=cv2.INPAINT_TELEA
-    )
-    decon_rgb = cv2.cvtColor(decon_bgr, cv2.COLOR_BGR2RGB)
-    
-    result = img_rgb.copy()
-    result[boundary] = decon_rgb[boundary]
-    return result
+    # Do not inpaint the original image's semi-transparent edge pixels.  That
+    # uses surrounding background pixels as donors and visibly stains or erases
+    # hair, white clothing and other pale foreground edges.  The alpha mask is
+    # already feathered; keeping the original RGB preserves subject color and
+    # lets the compositor handle the transparency correctly.
+    return img_rgb
 
 
 # ---------------------------------------------------------------------------
@@ -481,6 +514,8 @@ def remove_background_advanced(
     7. Color decontamination: Telea halo removal.
     8. Quality gate & privacy cleanup.
     """
+    global LAST_MODEL_USED
+    LAST_MODEL_USED = None
     t_start = time.time()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     req_debug_dir = DEBUG_DIR / timestamp
@@ -500,6 +535,7 @@ def remove_background_advanced(
         is_design, cards = detect_design_mode_and_cards(img_rgb)
         
         if is_design and len(cards) >= 2:
+            LAST_MODEL_USED = "design-mode-mask"
             logger.info(f"Processing in DESIGN MODE ({len(cards)} card containers)")
             # Generate clean rounded rectangular mask for all cards
             design_mask = render_card_containers_mask((h, w), cards, radius=14)
@@ -523,15 +559,16 @@ def remove_background_advanced(
         has_person = len(faces) > 0
         logger.info(f"Subject Mode: Detected {len(faces)} face(s). Person mode: {has_person}")
 
-        # Fallback model chain
-        if model:
-            model_chain = [model]
-        elif has_person:
-            # isnet-general-use is ultra-precise at separating decorative elements (rings, halos)
-            # from actual subjects. u2net_human_seg and silueta provide robust fallback.
-            model_chain = ["isnet-general-use", "u2net_human_seg", "silueta"]
+        # Use isnet-general-use as primary model for ultra-fast < 3s execution & highest quality.
+        # birefnet-general is avoided on CPU to prevent 100s+ hangs and RAM crashes.
+        if model in ("birefnet-general", "birefnet"):
+            model = "isnet-general-use"
+
+        if has_person:
+            fallback_chain = ["isnet-general-use", "u2net_human_seg", "u2net"]
         else:
-            model_chain = ["isnet-general-use", "u2net", "silueta"]
+            fallback_chain = ["isnet-general-use", "u2net", "u2net_human_seg"]
+        model_chain = list(dict.fromkeys(([model] if model else []) + fallback_chain))
 
         best_result_pil = None
         best_metrics = None
@@ -577,6 +614,7 @@ def remove_background_advanced(
 
                 clean_result = np.dstack([decon_rgb, final_alpha])
                 candidate_pil = Image.fromarray(clean_result, "RGBA")
+                LAST_MODEL_USED = model_name
 
                 if save_debug:
                     candidate_pil.save(req_debug_dir / "05_final_alpha.png")

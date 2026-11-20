@@ -71,4 +71,19 @@ logo-ai-remover-main/public/creative-suite/ring_thumb.png
 
 scratch/
 debug/
+/debug/
+/scratch/
+/debug_*.png
+/comp*.png
+/crop*.png
+/face*.png
+/final_*.png
+/gold_*.png
+/headers.txt
+/live_*.png
+/man_*.png
+/orig_*.png
+/slice_*.png
+/user_*.png
+/view_*.png
 logo-ai-remover-main/output/

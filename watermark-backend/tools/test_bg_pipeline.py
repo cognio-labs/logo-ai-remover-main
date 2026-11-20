@@ -34,11 +34,12 @@ from PIL import Image, ImageDraw, ImageFont
 # Add backend directory to sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from bg_remover_advanced import remove_background_advanced
+import bg_remover_advanced
 
 SAMPLES_INPUT_DIR = Path("d:/logo-ai-remover-main/samples/input")
 SAMPLES_EXPECTED_DIR = Path("d:/logo-ai-remover-main/samples/expected")
-COMPARE_DIR = Path("d:/logo-ai-remover-main/debug/compare")
+SCRATCH_ROOT = Path(os.getenv("BELLIX_SCRATCH_DIR", r"D:\logo-ai-remover-scratch"))
+COMPARE_DIR = SCRATCH_ROOT / "debug" / "compare"
 COMPARE_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -216,7 +217,7 @@ def run_benchmark():
 
         # Run pipeline
         t0 = time.time()
-        out_bytes = remove_background_advanced(in_bytes, save_debug=True)
+        out_bytes = bg_remover_advanced.remove_background_advanced(in_bytes, save_debug=True)
         elapsed = time.time() - t0
 
         pil_out = Image.open(io.BytesIO(out_bytes))
@@ -229,6 +230,7 @@ def run_benchmark():
         m = compute_metrics(out_rgba, exp_rgba, in_w, in_h)
         m["name"] = stem
         m["time_s"] = round(elapsed, 2)
+        m["model_used"] = bg_remover_advanced.LAST_MODEL_USED or "fallback/unknown"
         m["status"] = "PASS" if m["iou"] >= 0.95 and m["internal_holes"] == 0 else "FAIL"
 
         # Side-by-side composite
@@ -242,10 +244,10 @@ def run_benchmark():
     print("\n" + "=" * 80)
     print("BENCHMARK SUMMARY TABLE")
     print("=" * 80)
-    print(f"{'Sample':<12} | {'Status':<6} | {'IoU':<8} | {'Holes':<6} | {'Cutoff %':<9} | {'Leftover %':<11} | {'Resolution':<12} | {'Time (s)':<8}")
-    print("-" * 88)
+    print(f"{'Sample':<12} | {'Status':<6} | {'IoU':<8} | {'Holes':<6} | {'Cutoff %':<9} | {'Leftover %':<11} | {'Resolution':<12} | {'Model':<22} | {'Time (s)':<8}")
+    print("-" * 122)
     for r in results:
-        print(f"{r['name']:<12} | {r['status']:<6} | {r['iou']:<8.4f} | {r['internal_holes']:<6} | {r['cutoff_pct']:<9.2f} | {r['leftover_pct']:<11.2f} | {r['out_size']:<12} | {r['time_s']:<8.2f}")
+        print(f"{r['name']:<12} | {r['status']:<6} | {r['iou']:<8.4f} | {r['internal_holes']:<6} | {r['cutoff_pct']:<9.2f} | {r['leftover_pct']:<11.2f} | {r['out_size']:<12} | {r['model_used']:<22} | {r['time_s']:<8.2f}")
     print("=" * 80)
 
     all_pass = all(r["status"] == "PASS" for r in results)

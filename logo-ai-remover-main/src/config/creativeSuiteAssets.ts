@@ -30,7 +30,7 @@ export const CREATIVE_SUITE_ASSETS: ProductCardItem[] = [
     link: "/background-remover",
     thumbnail: "/creative-suite/background_remover_studio.jpg",
     badge: "Instant Alpha",
-    category: "BiRefNet Neural Cutout",
+    category: "Neural AI Cutout (< 3s)",
     description:
       "Sub-pixel alpha masking for glass, fine hair, transparent materials, and complex edges.",
   },

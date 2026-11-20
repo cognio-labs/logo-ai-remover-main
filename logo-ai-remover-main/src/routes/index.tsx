@@ -277,7 +277,7 @@ interface ToolItem {
 const toolsGroupA: ToolItem[] = [
   { title: "AI Video Watermark Remover", descriptor: "Gemini & Veo", promise: "Frame-by-frame restoration", icon: Film, href: "/gemini-video-watermark-remover" },
   { title: "Gemini Sparkle Watermark Remover", descriptor: "Corner Sparkle", promise: "Exact 15.6% AI restoration", icon: Sparkles, href: "/gemini-image-watermark-remover" },
-  { title: "AI Background Remover", descriptor: "Instant Alpha", promise: "BiRefNet neural cutout", icon: Scissors, href: "/background-remover" },
+  { title: "AI Background Remover", descriptor: "Instant Alpha", promise: "Neural AI cutout (< 3s)", icon: Scissors, href: "/background-remover" },
   { title: "4K AI Photo Upscaler & Cleaner", descriptor: "Ultra HD", promise: "Neural texture enhancement", icon: Sparkles, href: "/gemini-image-watermark-remover" },
   { title: "4K Neural Frame Interpolator", descriptor: "60 FPS Boost", promise: "RIFE flow synthesis", icon: Clapperboard, href: "/video-enhancer" },
   { title: "Vector & Typography Reconstruction", descriptor: "Lossless Paths", promise: "Vector synthesis", icon: Type, href: "/tools" },

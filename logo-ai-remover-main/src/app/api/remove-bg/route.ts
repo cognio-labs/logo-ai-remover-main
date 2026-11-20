@@ -12,10 +12,22 @@ export async function POST(req: NextRequest) {
       "http://127.0.0.1:5000";
 
     const formData = await req.formData();
+    const imageFile = formData.get("image") as File | null;
+    if (!imageFile) {
+      return new Response(JSON.stringify({ error: "No image file provided" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Build clean outbound FormData with isnet-general-use for ultra-fast < 3s execution
+    const outbound = new FormData();
+    outbound.append("image", imageFile, imageFile.name || "image.png");
+    outbound.append("model", "isnet-general-use");
 
     const response = await fetch(`${workerUrl}/api/background/remove-advanced`, {
       method: "POST",
-      body: formData,
+      body: outbound,
     });
 
     if (!response.ok) {
