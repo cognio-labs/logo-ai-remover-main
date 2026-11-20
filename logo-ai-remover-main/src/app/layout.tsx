@@ -131,6 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           defer
           data-website-id="dfid_V7j5JzvHOdmUgfGYd8ynv"
           data-domain="www.bellix.us"
+          data-allow-localhost="true"
           src="https://datafa.st/js/script.js"
         />
       </body>

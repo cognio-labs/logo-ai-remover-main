@@ -7,6 +7,7 @@ import {
   CircleDot,
   SlidersHorizontal,
   LayoutGrid,
+  Type,
   Columns2,
   Undo2,
   Redo2,
@@ -65,6 +66,7 @@ export function EditorToolbar({
     { id: "background", label: "Background", icon: ImageIcon },
     { id: "effects", label: "Effects", icon: CircleDot },
     { id: "adjust", label: "Adjust", icon: SlidersHorizontal },
+    { id: "text", label: "Text", icon: Type },
     { id: "design", label: "Design", icon: LayoutGrid },
   ];
 

@@ -146,10 +146,7 @@ export function BackgroundRemoverTrustVideos({
           </div>
 
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#10241e] leading-tight">
-            Watch Bellix AI Matting{" "}
-            <span className="text-[#10241e] underline decoration-[#d0f471] decoration-4 font-bold">
-              in Real-Time 60 FPS
-            </span>
+            Watch Bellix AI Matting in Real-Time 60 FPS
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-[#37433d] leading-relaxed font-normal max-w-2xl mx-auto">

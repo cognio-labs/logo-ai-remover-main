@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bellix AI Studio — Reverse Engineered Architecture & Engineering Specification</title>
+  <style>
+    :root {
+      --bg-dark: #0a1410;
+      --bg-card: #10241e;
+      --bg-card-subtle: #142e27;
+      --bg-card-hover: #19382f;
+      --border-dark: #1e3d31;
+      --border-bright: #2d5a49;
+      --accent-lime: #d0f471;
+      --accent-lime-hover: #bce055;
+      --accent-lime-dim: rgba(208, 244, 113, 0.12);
+      --text-main: #f3f4ee;
+      --text-muted: #9ab3a6;
+      --text-dim: #647d70;
+      --badge-red: #f87171;
+      --badge-red-bg: rgba(248, 113, 113, 0.12);
+      --badge-yellow: #fbbf24;
+      --badge-yellow-bg: rgba(251, 191, 36, 0.12);
+      --badge-blue: #60a5fa;
+      --badge-blue-bg: rgba(96, 165, 250, 0.12);
+      --code-bg: #070e0b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: 320px;
+      background: #0d1e18;
+      border-right: 1px solid var(--border-dark);
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #d0f471 0%, #10241e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #0a1410;
+      font-size: 20px;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--accent-lime);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-bottom: 8px;
+      padding-left: 10px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item a:hover, .nav-item.active a {
+      background: var(--bg-card-hover);
+      color: var(--accent-lime);
+    }
+
+    .nav-item.active a {
+      font-weight: 700;
+      border-left: 3px solid var(--accent-lime);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    /* Main Content */
+    #content {
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 1300px;
+      overflow-y: auto;
+    }
+
+    /* Header Banner */
+    .header-banner {
+      background: linear-gradient(180deg, rgba(208, 244, 113, 0.08) 0%, rgba(16, 36, 30, 0.4) 100%);
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      padding: 36px 40px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-banner::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -100px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(208, 244, 113, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-lime-dim);
+      border: 1px solid rgba(208, 244, 113, 0.3);
+      color: var(--accent-lime);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 860px;
+      line-height: 1.6;
+    }
+
+    /* Quick stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .stat-card {
+      background: rgba(16, 36, 30, 0.7);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent-lime);
+      font-family: var(--font-mono);
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Section Styles */
+    section {
+      margin-bottom: 60px;
+      scroll-margin-top: 40px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    h2 .num {
+      color: var(--accent-lime);
+      font-family: var(--font-mono);
+      font-size: 20px;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e5ede8;
+      margin: 24px 0 12px 0;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card:hover {
+      border-color: var(--border-bright);
+    }
+
+    /* Architecture Visual Diagram */
+    .arch-diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 30px;
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-layer {
+      border: 1px dashed var(--border-bright);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      background: rgba(16, 36, 30, 0.3);
+      position: relative;
+    }
+
+    .diagram-layer:last-child {
+      margin-bottom: 0;
+    }
+
+    .layer-title {
+      position: absolute;
+      top: -10px;
+      left: 16px;
+      background: var(--bg-dark);
+      padding: 0 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-lime);
+      border-radius: 4px;
+    }
+
+    .diagram-blocks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .block {
+      flex: 1;
+      min-width: 200px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .block.accent {
+      border-color: rgba(208, 244, 113, 0.4);
+      background: rgba(208, 244, 113, 0.04);
+    }
+
+    .block-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .block-tech {
+      font-size: 11px;
+      color: var(--accent-lime);
+      font-family: var(--font-mono);
+    }
+
+    .block-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .arrow-down {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+      color: var(--accent-lime);
+      font-size: 18px;
+    }
+
+    /* Pipeline Step Box */
+    .step-box {
+      border-left: 3px solid var(--accent-lime);
+      background: var(--bg-card-subtle);
+      border-radius: 0 12px 12px 0;
+      padding: 18px 22px;
+      margin-bottom: 18px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .step-badge {
+      background: var(--accent-lime);
+      color: #0a1410;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .step-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Deep Dive Grids (Frameworks, Libraries, Gotchas) */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 900px) {
+      .spec-grid {
+        grid-template-columns: 1fr;
+      }
+      body {
+        flex-direction: column;
+      }
+      #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      #content {
+        padding: 24px;
+      }
+    }
+
+    .spec-card {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .spec-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .spec-title.fw { color: var(--accent-lime); }
+    .spec-title.lib { color: var(--badge-blue); }
+    .spec-title.gotcha { color: var(--badge-yellow); }
+    .spec-title.danger { color: var(--badge-red); }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      background: var(--code-bg);
+      border: 1px solid var(--border-dark);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #c0d1c7;
+    }
+
+    .tag.primary {
+      border-color: rgba(208, 244, 113, 0.4);
+      color: var(--accent-lime);
+    }
+
+    /* Gotcha Callout Alert Box */
+    .callout-box {
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 18px 0;
+      border: 1px solid transparent;
+      display: flex;
+      gap: 14px;
+    }
+
+    .callout-box.warning {
+      background: var(--badge-yellow-bg);
+      border-color: rgba(251, 191, 36, 0.3);
+      color: #fde68a;
+    }
+
+    .callout-box.danger {
+      background: var(--badge-red-bg);
+      border-color: rgba(248, 113, 113, 0.3);
+      color: #fca5a5;
+    }
+
+    .callout-box.info {
+      background: var(--badge-blue-bg);
+      border-color: rgba(96, 165, 250, 0.3);
+      color: #bfdbfe;
+    }
+
+    .callout-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .callout-content {
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .callout-content strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: var(--font-mono);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 12.5px;
+      color: #d1ded7;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+
+    code:not(pre code) {
+      background: var(--code-bg);
+      border: 1px solid var(--border-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--accent-lime);
+    }
+
+    /* Table */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13.5px;
+    }
+
+    .spec-table th, .spec-table td {
+      border: 1px solid var(--border-dark);
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .spec-table th {
+      background: var(--bg-card-subtle);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .spec-table tr:nth-child(even) {
+      background: rgba(16, 36, 30, 0.3);
+    }
+
+    .spec-table td.mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-lime);
+    }
+
+    /* Tabs */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: var(--bg-card-hover);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-lime-dim);
+      border-color: rgba(208, 244, 113, 0.3);
+      color: var(--accent-lime);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border-dark);
+      padding-top: 24px;
+      margin-top: 60px;
+      color: var(--text-dim);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">B</div>
+      <div>
+        <div class="brand-title">Bellix AI Studio</div>
+        <div class="brand-sub">Architecture Blueprint</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-group-title">System Overview</div>
+      <ul class="nav-menu">
+        <li class="nav-item active"><a href="#topology">System Topology</a></li>
+        <li class="nav-item"><a href="#components">Core Component Map</a></li>
+        <li class="nav-item"><a href="#ipc-network">IPC & Networking</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Task Pipelines</div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#task-video">1. Video Inpainting (Gemini/Veo)</a></li>
+        <li class="nav-item"><a href="#task-background">2. AI Background Removal</a></li>
+        <li class="nav-item"><a href="#task-pdf">3. PDF Vector & Raster Cleaner</a></li>
+        <li class="nav-item"><a href="#task-image">4. Image Watermark Removal</a></li>
+        <li class="nav-item"><a href="#task-auth-billing">5. Auth, Quotas & Payments</a></li>
+        <li class="nav-item"><a href="#task-dev-ipc">6. Local Runner & Windows IPC</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Engineering Matrices</div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#gotchas-matrix">Known Gotchas & Solutions</a></li>
+        <li class="nav-item"><a href="#tech-stack">Full Tech Stack Reference</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="content">
+
+    <!-- Header Banner -->
+    <div class="header-banner">
+      <span class="badge-pill">Production Architecture &amp; Engineering Blueprint</span>
+      <h1>Bellix AI Studio System Architecture</h1>
+      <p class="subtitle">
+        A deep reverse-engineered analysis of the full-stack system topology, dual-subprocess video pipelines, neural background segmentation with mode protection, vector PDF AST surgery, and Windows cross-runtime gotchas.
+      </p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">3 Tiers</div>
+          <div class="stat-lbl">Next.js 16 + FastAPI + FFmpeg C-Core</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">4 Neural Models</div>
+          <div class="stat-lbl">BiRefNet, IS-Net, YuNet DNN, U2Net</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">Native YUV</div>
+          <div class="stat-lbl">Zero RGB-YUV Recolor Shifts in Video</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">100% Local</div>
+          <div class="stat-lbl">Zero Paid APIs / Private Offline Capable</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: SYSTEM TOPOLOGY -->
+    <section id="topology">
+      <h2><span class="num">01.</span> High-Level System Topology</h2>
+      <p>
+        The Bellix system is divided into three distinct operational layers designed for strict separation of concerns: low-latency web interactions, asynchronous media orchestration, and native compute-heavy neural/C-binary processing.
+      </p>
+
+      <div class="arch-diagram">
+        <!-- Tier 1 -->
+        <div class="diagram-layer">
+          <div class="layer-title">Tier 1: Client Browser &amp; Presentation Tier</div>
+          <div class="diagram-blocks">
+            <div class="block">
+              <div class="block-name">React 19 &amp; Next.js 16 UI <span class="badge-pill" style="margin:0">Port 5678</span></div>
+              <div class="block-tech">React 19 • Tailwind v4 • Radix UI • Lucide</div>
+              <div class="block-desc">Interactive video sliders, canvas drawing tools for manual bbox selection, upload dropzones, toast notifications.</div>
+            </div>
+            <div class="block">
+              <div class="block-name">Local State &amp; Offline Storage</div>
+              <div class="block-tech">Zustand 5 • LocalStorage • MediaBunny/WebCodecs</div>
+              <div class="block-desc">Session state, recent history jobs, client-side fallback video parser (@pilio/gemini-watermark-remover).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow-down">⬇️ HTTP / JSON &amp; Multipart Fetch (with Chrome Private Network Access)</div>
+
+        <!-- Tier 2 -->
+        <div class="diagram-layer">
+          <div class="layer-title">Tier 2: API Gateway &amp; Edge Orchestration (Next.js App Router)</div>
+          <div class="diagram-blocks">
+            <div class="block">
+              <div class="block-name">/api/video-worker Route</div>
+              <div class="block-tech">Next.js Edge Proxy • IPv4 Normalizer</div>
+              <div class="block-desc">Resolves Python worker origin, normalizes localhost/[::1] to 127.0.0.1, guards production URLs.</div>
+            </div>
+            <div class="block">
+              <div class="block-name">/api/remove-bg Proxy Route</div>
+              <div class="block-tech">Streaming Multipart Proxy</div>
+              <div class="block-desc">Proxies image uploads directly to Python FastAPI /api/background/remove-advanced endpoint.</div>
+            </div>
+            <div class="block">
+              <div class="block-name">/api/payments &amp; /api/bellix</div>
+              <div class="block-tech">Razorpay SDK • Supabase Auth • HMAC</div>
+              <div class="block-desc">Orders, webhook signature verification, JWT session tokens, account credit management.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow-down">⬇️ Loopback TCP / High-Throughput Multipart (Port 5000)</div>
+
+        <!-- Tier 3 -->
+        <div class="diagram-layer">
+          <div class="layer-title">Tier 3: Python AI/CV Core Worker Service (FastAPI + C Libraries)</div>
+          <div class="diagram-blocks">
+            <div class="block accent">
+              <div class="block-name">FastAPI Core Server <span class="badge-pill" style="margin:0">Port 5000</span></div>
+              <div class="block-tech">FastAPI • Uvicorn • PNA CORS • Async Semaphore(2)</div>
+              <div class="block-desc">In-memory job registry, 15-minute background disk purger, rate limiter, static file streaming.</div>
+            </div>
+            <div class="block accent">
+              <div class="block-name">Video Inpainter Engine</div>
+              <div class="block-tech">Dual FFmpeg Subprocess • YUV420p Planar • Navier-Stokes</div>
+              <div class="block-desc">Pipes raw video streams between decode and encode, applies inverse alpha math &amp; grain matching.</div>
+            </div>
+            <div class="block accent">
+              <div class="block-name">Neural Background Remover</div>
+              <div class="block-tech">Rembg • IS-Net • BiRefNet • YuNet ONNX • Fast Guided Filter</div>
+              <div class="block-desc">Design vs Subject mode detector, 2x rounded card mask, sub-pixel matting &amp; Telea inpainting.</div>
+            </div>
+            <div class="block accent">
+              <div class="block-name">PDF Engine</div>
+              <div class="block-tech">PyMuPDF (fitz) • pypdf • OpenCV HSV</div>
+              <div class="block-desc">Direct PDF content stream byte surgery (vector text removal) + page raster stamp cleaner.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: COMPONENT MAP -->
+    <section id="components">
+      <h2><span class="num">02.</span> Core Component Map</h2>
+      <p>Summary of where each piece of code lives and what it is responsible for:</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Module / Path</th>
+            <th>Primary Tech</th>
+            <th>Core Role</th>
+            <th>Boundaries &amp; Interactions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">src/components/site/JobVideoCleaner.tsx</td>
+            <td>React 19 / TSX</td>
+            <td>Interactive video cleaner UI, scrubber, manual box selector, worker health polling</td>
+            <td>Communicates with <code>/api/video-worker</code>, then calls <code>http://127.0.0.1:5000</code> directly</td>
+          </tr>
+          <tr>
+            <td class="mono">src/routes/background-remover.tsx</td>
+            <td>React 19 / TSX</td>
+            <td>Multi-mode background remover workspace, before/after compare slider, backdrop selector</td>
+            <td>Posts to Next.js route <code>/api/remove-bg</code></td>
+          </tr>
+          <tr>
+            <td class="mono">src/app/api/video-worker/route.ts</td>
+            <td>Next.js App Router</td>
+            <td>Worker discovery, URL validation, and IPv4 loopback normalizer</td>
+            <td>Prevents Windows IPv6 <code>::1</code> vs <code>127.0.0.1</code> mismatches</td>
+          </tr>
+          <tr>
+            <td class="mono">watermark-backend/main.py</td>
+            <td>FastAPI / Uvicorn</td>
+            <td>Asynchronous REST API, CORS middleware, rate limiting, job cleanup</td>
+            <td>Manages concurrency via <code>asyncio.Semaphore(2)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">watermark-backend/processor.py</td>
+            <td>FFmpeg / OpenCV</td>
+            <td>Video watermark calibration, inverse alpha removal, and double-pipe FFmpeg encoding</td>
+            <td>Spawns FFmpeg rawvideo pipelines in OS worker threads</td>
+          </tr>
+          <tr>
+            <td class="mono">watermark-backend/bg_remover_advanced.py</td>
+            <td>rembg / OpenCV / YuNet</td>
+            <td>Design mode classifier, card container shield, neural matting, hole healing</td>
+            <td>Runs ONNX Runtime sessions with caching</td>
+          </tr>
+          <tr>
+            <td class="mono">watermark-backend/pdf_engine.py</td>
+            <td>PyMuPDF / pypdf</td>
+            <td>Document scan classifier, vector text trace remover, raster stamp inpainter</td>
+            <td>Edits PDF ContentStreams losslessly</td>
+          </tr>
+          <tr>
+            <td class="mono">scripts/start-worker.js</td>
+            <td>Node.js Child Process</td>
+            <td>Cross-platform worker launcher, auto-detects Python venv and Windows paths</td>
+            <td>Run via <code>npm run worker</code> or <code>npm run dev:all</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 3: TASK BY TASK BREAKDOWN -->
+    <section id="tasks">
+      <h2><span class="num">03.</span> Comprehensive Task-by-Task Deep Dive</h2>
+
+      <!-- TASK 1: VIDEO WATERMARK REMOVER -->
+      <div id="task-video" class="card">
+        <span class="badge-pill">Task 1</span>
+        <h3 style="margin-top:0">AI Video Watermark Removal Pipeline (Gemini &amp; Veo Marks)</h3>
+        <p>
+          Removes translucent static and moving AI watermarks (such as Google Gemini corner sparkles and Veo marks) from video files while preserving original resolution, frame rate, audio, and color spaces without blurring.
+        </p>
+
+        <h4>Sequential Execution Steps:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.1</span>
+            <span class="step-title">Client Preflight &amp; Health Probe</span>
+          </div>
+          <div class="step-desc">
+            The frontend fetches <code>/api/video-worker</code> to discover the worker origin (defaults to <code>http://127.0.0.1:5000</code>). It executes a preflight <code>GET /health</code> to ensure FFmpeg, FFprobe, and models are available before sending files.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.2</span>
+            <span class="step-title">File Validation &amp; Probe Analysis</span>
+          </div>
+          <div class="step-desc">
+            The file is uploaded via <code>POST /api/video/process</code>. In <code>main.py</code>, <code>ffprobe</code> inspects the container: duration (&le;60s default, max 500MB), resolution, codec (H.264/HEVC/VP9), pixel format (e.g. <code>yuv420p</code>), and color matrix (<code>bt709</code>, <code>bt601</code>, <code>smpte170m</code>).
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.3</span>
+            <span class="step-title">Multi-Frame Opacity Calibration</span>
+          </div>
+          <div class="step-desc">
+            <code>processor.py</code> extracts 16 sample frames across the video using FFmpeg. It computes white response log distance: <code>R = -ln(max(255 - gray, 12))</code>. It correlates these samples against cached 16-bit <code>alpha_mask.png</code> templates (sizes 36px, 96px, etc.) to detect watermark position and calculate the exact alpha gain.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.4</span>
+            <span class="step-title">Dual-Subprocess Streaming (Decode &rarr; Inpaint &rarr; Encode)</span>
+          </div>
+          <div class="step-desc">
+            Two concurrent FFmpeg processes are spawned and connected via standard pipes (<code>pipe:1</code> to Python to <code>pipe:0</code>). The decoder streams raw video frames. Python processes each frame in memory and pipes the clean raw frame directly into the x264 encoder.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.5</span>
+            <span class="step-title">Inverse Alpha Restoration &amp; Texture Grain Synthesis</span>
+          </div>
+          <div class="step-desc">
+            For each frame:
+            <br>1. Inverse Alpha: <code>restored = (patch - 255.0 * &alpha;) / (1.0 - |&alpha;|)</code>
+            <br>2. DC Brightness offset compensation eliminates white smudging over flat backgrounds.
+            <br>3. High-opacity core pixels are inpainted using Navier-Stokes (<code>cv2.INPAINT_NS</code>).
+            <br>4. Local Gaussian noise matching the standard deviation of surrounding pixels is injected so the restored patch does not look unnaturally smooth.
+            <br>5. Temporal stabilization dampens inter-frame flicker: <code>corr = 0.8 * corr + 0.2 * last_corr</code>.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 1.6</span>
+            <span class="step-title">Lossless Audio &amp; Metadata Multiplexing</span>
+          </div>
+          <div class="step-desc">
+            The encoding FFmpeg process maps the original audio track without re-encoding (<code>-c:a copy</code> via <code>-map 1:a?</code>), copies container metadata (<code>-map_metadata 1</code>), and preserves timebase timestamps (<code>-copyts</code>).
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="spec-title fw">Frameworks &amp; Runtimes</div>
+            <div class="tag-list">
+              <span class="tag primary">FastAPI (Python 3.10+)</span>
+              <span class="tag">Uvicorn ASGI</span>
+              <span class="tag primary">Next.js 16 (App Router)</span>
+              <span class="tag">Node.js 22</span>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-title lib">Libraries &amp; Binaries</div>
+            <div class="tag-list">
+              <span class="tag primary">FFmpeg / FFprobe (C-binary)</span>
+              <span class="tag primary">OpenCV (cv2)</span>
+              <span class="tag">NumPy (vectorized math)</span>
+              <span class="tag">libx264</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box danger">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-content">
+            <strong>Critical Constraints &amp; Gotchas in Video Processing:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li><strong>Windows Asyncio Subprocess NotImplementedError:</strong> On Windows, calling <code>asyncio.create_subprocess_exec</code> under Uvicorn's default <code>SelectorEventLoop</code> crashes with <code>NotImplementedError</code>. All FFmpeg subprocesses MUST be spawned using standard <code>subprocess.Popen</code> inside worker threads via <code>asyncio.to_thread</code>.</li>
+              <li><strong>Chrome Private Network Access (PNA):</strong> When the frontend is hosted on <code>http://localhost:5678</code> and calls <code>http://127.0.0.1:5000</code>, Chrome sends <code>Access-Control-Request-Private-Network: true</code>. Without <code>allow_private_network=True</code> in Starlette's <code>CORSMiddleware</code>, Chrome fails the preflight with <code>400 Bad Request</code> and flags the worker as offline!</li>
+              <li><strong>Odd Dimension Chroma Subsampling:</strong> <code>yuv420p</code> requires even pixel dimensions (both width and height divisible by 2). If an odd-dimension video is piped, FFmpeg crashes unless bitmask alignment (<code>&amp; ~1</code>) or <code>yuv444p</code> fallback is enforced.</li>
+              <li><strong>Color Space Shifting:</strong> Converting YUV &rarr; RGB &rarr; YUV introduces perceptible color shifts (BT.709 vs BT.601). The engine uses <code>native_yuv</code> mode to modify only the Y luma channel and corresponding U/V chroma coordinates whenever possible.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 2: BACKGROUND REMOVER -->
+      <div id="task-background" class="card">
+        <span class="badge-pill">Task 2</span>
+        <h3 style="margin-top:0">Production AI Background Removal Engine (BiRefNet / IS-Net / Design Mode)</h3>
+        <p>
+          State-of-the-art background removal matching commercial tools (remove.bg). Combines layout mode classification, deep neural segmentation, component union retention, hole healing, and sub-pixel guided matting.
+        </p>
+
+        <h4>Sequential Execution Steps:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.1</span>
+            <span class="step-title">EXIF Normalization &amp; Native Resolution Decoding</span>
+          </div>
+          <div class="step-desc">
+            The image is decoded using PIL and transposed according to EXIF tags (<code>ImageOps.exif_transpose</code>). Palette images ('P') and CMYK/Grayscale images are normalized to RGBA/RGB without downsampling.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.2</span>
+            <span class="step-title">Mode Detection First: Design Mode vs Subject Mode</span>
+          </div>
+          <div class="step-desc">
+            <strong>CRITICAL INNOVATION:</strong> Before any face detection runs, <code>detect_design_mode_and_cards()</code> inspects the image for UI card structures, multi-column collages, and screenshots. It clusters connected components. If &ge;2 consistent rectangular cards are detected, it enters <strong>Design Mode</strong> and generates antialiased rounded container masks (2x supersampling). Faces inside card photos are protected and NEVER isolated!
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.3</span>
+            <span class="step-title">Modern Face Detection via OpenCV YuNet DNN</span>
+          </div>
+          <div class="step-desc">
+            In Subject Mode, the engine detects human faces using OpenCV's YuNet ONNX model (<code>FaceDetectorYN</code>). This replaces obsolete Haar cascades and reliably detects side profiles, tilted heads, and children's faces.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.4</span>
+            <span class="step-title">Neural Segmentation (IS-Net / BiRefNet / U2-Net)</span>
+          </div>
+          <div class="step-desc">
+            The image is fed to Rembg ONNX Runtime sessions. The model chain selects <code>isnet-general-use</code> &rarr; <code>birefnet-general</code> &rarr; <code>u2net_human_seg</code>. Highly precise edge probabilities are output as raw alpha.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.5</span>
+            <span class="step-title">Hole &amp; Small Notch Healing</span>
+          </div>
+          <div class="step-desc">
+            <code>fill_holes_and_small_notches()</code> traverses the contour hierarchy (<code>cv2.RETR_CCOMP</code>). Any hole fully enclosed by foreground (e.g. white shirts, reflective skin, eyeglasses) is filled back to opaque (255), while natural gaps (between arms and torso, or between legs) remain transparent.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.6</span>
+            <span class="step-title">Connected Component Union Selection</span>
+          </div>
+          <div class="step-desc">
+            Replaces old arbitrary <code>fh * 4.0</code> height truncation. It keeps any component that intersects or connects to face regions, preserving long dresses, shoes, held objects, and secondary family members while dropping floating background text, logos, and UI buttons. Proximity expansion is constrained to 8px to prevent grabbing decorative circular background rings or mandalas.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 2.7</span>
+            <span class="step-title">Fast Guided Filter Matting &amp; Telea Halo Decontamination</span>
+          </div>
+          <div class="step-desc">
+            1. Core subject is locked at 255 (solid).
+            <br>2. A narrow 3px boundary transition zone is refined using He et al.'s <strong>Fast Guided Filter</strong> (sub-sampling factor <code>s=2</code>), generating hair-strand alpha in &lt;60ms.
+            <br>3. Semi-transparent boundary pixels (alpha 5..240) are inpainted via Telea (<code>cv2.INPAINT_TELEA</code>) to eliminate color fringing and background light bleed.
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="spec-title fw">Frameworks &amp; Neural Runtimes</div>
+            <div class="tag-list">
+              <span class="tag primary">ONNX Runtime (CPU / CUDA)</span>
+              <span class="tag">rembg Session Pool</span>
+              <span class="tag primary">FastAPI</span>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-title lib">Models &amp; Image Libraries</div>
+            <div class="tag-list">
+              <span class="tag primary">IS-Net (isnet-general-use)</span>
+              <span class="tag primary">BiRefNet (birefnet-general)</span>
+              <span class="tag">YuNet ONNX (face detection)</span>
+              <span class="tag">OpenCV (cv2) &amp; Pillow</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box warning">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong>Critical Constraints &amp; Gotchas in Background Removal:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li><strong>Memory Explosion on High-Res (6000px):</strong> Running PyMatting or Laplacian matting matrices on full 6000&times;4000 images requires &gt;16 GB RAM and crashes the process. The Fast Guided Filter solves this by computing covariance on a 2x downsampled guide (<code>s=2</code>) and evaluating linear coefficients (<code>a * I + b</code>) at native resolution in under 60ms!</li>
+              <li><strong>Over-aggressive Face Isolation:</strong> If a family photo or an ad banner with text is processed with standard <code>u2net_human_seg</code>, it treats the main face as the only subject and deletes children, held products, or dresses. The Design Mode classifier and Component Union selector solve this.</li>
+              <li><strong>Decorative Background Elements:</strong> If the proximity dilation radius is too large (&gt;20px), decorative background rings (like mandalas or circular badges behind a person) get falsely merged into the foreground. Limiting dilation to 8px cleanly separates the person from the graphic.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 3: PDF WATERMARK REMOVER -->
+      <div id="task-pdf" class="card">
+        <span class="badge-pill">Task 3</span>
+        <h3 style="margin-top:0">PDF Document Watermark &amp; Stamp Removal Engine (Vector &amp; Raster)</h3>
+        <p>
+          Cleans watermarks, confidentiality stamps, draft banners, and colored ink marks from PDF documents and scanned legal paperwork. Operates in two distinct modes: lossless vector AST content stream surgery and raster scanned paper reconstruction.
+        </p>
+
+        <h4>Sequential Execution Steps:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 3.1</span>
+            <span class="step-title">Document Ingestion &amp; Classification</span>
+          </div>
+          <div class="step-desc">
+            PDFs or image documents are received at <code>/api/pdf/upload</code>. <code>pdf_engine.py</code> evaluates whether each page is a <strong>Native Vector PDF</strong> or a <strong>Scanned Paper Document</strong> (analyzing grayscale mean &gt; 185 and HSV saturation mean &lt; 35).
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 3.2</span>
+            <span class="step-title">Vector AST Stream Analysis (PyMuPDF / pypdf)</span>
+          </div>
+          <div class="step-desc">
+            For native PDFs, <code>page.get_texttrace()</code> parses font spans, opacities, and angles. Text matching watermark keywords (<code>DRAFT</code>, <code>CONFIDENTIAL</code>, <code>SAMPLE</code>, <code>COPY</code>) with diagonal direction (<code>dir[1] &gt; 0.08</code>) or opacity &lt; 0.92 is flagged.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 3.3</span>
+            <span class="step-title">Lossless ContentStream Surgery</span>
+          </div>
+          <div class="step-desc">
+            Instead of rasterizing and destroying vector text sharpness, <code>pypdf</code>'s <code>ContentStream</code> traverses operators: <code>q</code> (save state), <code>gs</code> (graphics state/opacity), <code>Tj</code>/<code>TJ</code> (show text), <code>Do</code> (XObject form/image). Targeted watermark operations are pruned directly from the byte stream. Page vector quality remains 100% untouched and file size remains minimal.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 3.4</span>
+            <span class="step-title">Scanned Paper Separation (HSV &amp; TopHat Filtering)</span>
+          </div>
+          <div class="step-desc">
+            For scanned paper pages:
+            <br>1. PyMuPDF renders the page at 150..300 DPI (<code>page.get_pixmap()</code>).
+            <br>2. HSV color segmentation separates colored stamp ink (red/blue "APPROVED" or "PAID" stamps) from high-density black text.
+            <br>3. Morphological TopHat (white tophat with elliptical kernels) extracts faint diagonal gray watermark patterns.
+            <br>4. Text stroke masks are subtracted so underlying document letters are never erased.
+            <br>5. Inpainted clean page is re-compressed and packed into the output PDF.
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="spec-title fw">Frameworks &amp; PDF Parsers</div>
+            <div class="tag-list">
+              <span class="tag primary">PyMuPDF (fitz)</span>
+              <span class="tag primary">pypdf (ContentStream AST)</span>
+              <span class="tag">FastAPI APIRouter</span>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-title lib">Image &amp; Color Analysis</div>
+            <div class="tag-list">
+              <span class="tag primary">OpenCV (HSV / Morphological)</span>
+              <span class="tag">Pillow (PIL)</span>
+              <span class="tag">NumPy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-content">
+            <strong>Critical Constraints &amp; Gotchas in PDF Cleaning:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li><strong>Rasterization Trap:</strong> Many naive tools convert PDF pages into PNGs, inpaint them, and reassemble them into a new PDF. This turns a 200 KB crisp vector document into a 45 MB blurry image-based PDF. Bellix inspects the PDF operator tree first and performs direct vector surgery whenever possible.</li>
+              <li><strong>Overlapping Text Stems:</strong> When a diagonal stamp crosses over a black letter "T" or "H", a simple color threshold can leave white gaps in the letter. Bellix computes a strict luminance threshold (<code>gray &lt; 85</code>) to preserve the original high-contrast document ink.</li>
+              <li><strong>Multi-tenant Job Sidecar Security:</strong> Document uploads write an isolated <code>.owner</code> sidecar file containing the user ID. Requests to fetch or clean pages verify that <code>owner == request.state.user_id</code> to prevent cross-account document access.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 4: IMAGE WATERMARK REMOVER -->
+      <div id="task-image" class="card">
+        <span class="badge-pill">Task 4</span>
+        <h3 style="margin-top:0">High-Precision Image Watermark &amp; Logo Inpainting</h3>
+        <p>
+          Removes transparent AI stamps, text logos, stock photo copyright text, and corner icons from single images with sub-pixel inverse blending and deep neural inpainting.
+        </p>
+
+        <h4>Sequential Execution Steps:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 4.1</span>
+            <span class="step-title">Target Localization (Corner vs Manual vs Template)</span>
+          </div>
+          <div class="step-desc">
+            If a manual bounding box is passed via <code>box=[x, y, w, h]</code>, the region is clipped. Otherwise, multi-scale template matching searches corners (lower-right, lower-left, upper-right) for known AI sparkle signatures across scales 12px..96px.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 4.2</span>
+            <span class="step-title">Inverse Alpha Blending Reconstruction</span>
+          </div>
+          <div class="step-desc">
+            When the watermark opacity map is known, mathematical inverse alpha restoration runs:
+            <code>I_original = (I_watermarked - 255 * &alpha;) / (1 - &alpha;)</code>.
+            Because this inverts the exact blending formula, the underlying image detail is perfectly recovered without any neural guessing or blur!
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 4.3</span>
+            <span class="step-title">Neural LaMa (Large Mask Inpainting) Fallback</span>
+          </div>
+          <div class="step-desc">
+            For solid/opaque watermarks, stock photo text, or large logos where underlying pixels were destroyed, the engine loads <code>big-lama.pt</code> (Fast Fourier Convolution neural network) via <code>lama_residual.py</code> to hallucinate realistic background textures and structural lines.
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="spec-title fw">Neural Architectures</div>
+            <div class="tag-list">
+              <span class="tag primary">LaMa (Fast Fourier Convolutions)</span>
+              <span class="tag">PyTorch CPU / GPU</span>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-title lib">Computer Vision &amp; Math</div>
+            <div class="tag-list">
+              <span class="tag primary">OpenCV (cv2)</span>
+              <span class="tag">NumPy</span>
+              <span class="tag">Pillow</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box warning">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong>Gotchas &amp; Considerations:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li><strong>Weight Size:</strong> <code>big-lama.pt</code> is ~200MB. The worker uses on-demand lazy loading (<code>USE_LAMA=1</code>) to keep startup time under 1 second and idle memory consumption under 120MB.</li>
+              <li><strong>Edge Feathering:</strong> Opaque mask edges produce sharp seams if not blended. <code>lama_residual.py</code> applies a 14px distance-transform feathering gradient to blend neural inpainting smoothly into surrounding photographic noise.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 5: AUTH, QUOTAS & BILLING -->
+      <div id="task-auth-billing" class="card">
+        <span class="badge-pill">Task 5</span>
+        <h3 style="margin-top:0">Authentication, Quotas, Job State &amp; Billing Lifecycle</h3>
+        <p>
+          Manages user identity, subscription tiers, guest rate limits, and atomic credit deductions across long-running asynchronous media processing jobs.
+        </p>
+
+        <h4>Sequential Execution Steps:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 5.1</span>
+            <span class="step-title">Session Resolution &amp; Guest Fallback</span>
+          </div>
+          <div class="step-desc">
+            Requests pass through <code>accountFetch()</code> in the frontend, attaching <code>Authorization: Bearer &lt;token&gt;</code> or session cookies. In <code>billing_access.py</code>, if Supabase credentials are not set or user is anonymous, it defaults to <code>local-guest-user</code> so local development and guest users can test the studio seamlessly.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 5.2</span>
+            <span class="step-title">Two-Phase Credit Reservation &amp; Settlement</span>
+          </div>
+          <div class="step-desc">
+            To prevent race conditions on long video encodes:
+            <br>1. <strong>Reserve:</strong> <code>reserve_video(user_id, request_key)</code> locks 1 credit before encoding begins.
+            <br>2. <strong>Process:</strong> Worker executes the job.
+            <br>3. <strong>Settle:</strong> Upon successful export, <code>settle(user_id, request_key, success=True)</code> commits the deduction. If processing fails or is aborted, <code>success=False</code> immediately refunds the credit.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Step 5.3</span>
+            <span class="step-title">Payment Gateways &amp; Webhook Signature Verification</span>
+          </div>
+          <div class="step-desc">
+            Razorpay orders are created via <code>/api/payments/create-order</code>. Client checkout completes and sends signatures to <code>/api/payments/verify</code>, which computes <code>crypto.createHmac("sha256", secret).update(order_id + "|" + payment_id).digest("hex")</code> to prevent forged payments.
+          </div>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec-card">
+            <div class="spec-title fw">Auth &amp; Database</div>
+            <div class="tag-list">
+              <span class="tag primary">Supabase (PostgreSQL + GoTrue)</span>
+              <span class="tag">JWT Tokens</span>
+              <span class="tag">Node Crypto</span>
+            </div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-title lib">Payment Gateways</div>
+            <div class="tag-list">
+              <span class="tag primary">Razorpay Node SDK</span>
+              <span class="tag">Stripe Webhooks</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK 6: LOCAL RUNNER & IPC -->
+      <div id="task-dev-ipc" class="card">
+        <span class="badge-pill">Task 6</span>
+        <h3 style="margin-top:0">Local Development, Cross-Platform Orchestration &amp; IPC Architecture</h3>
+        <p>
+          Ensures that both the Node.js Next.js frontend and Python FastAPI backend can be started with a single cross-platform command on Windows, macOS, and Linux without shell-specific syntax errors.
+        </p>
+
+        <h4>Key Orchestration Components:</h4>
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Script</span>
+            <span class="step-title">scripts/start-worker.js (Intelligent Python Discovery)</span>
+          </div>
+          <div class="step-desc">
+            Node script that auto-locates Python virtual environments. It checks <code>watermark-backend/.venv/Scripts/python.exe</code> (Windows) and <code>watermark-backend/.venv/bin/python</code> (Linux/Mac). If no venv exists, it falls back to system <code>python3</code> or <code>python</code>, verifies port 5000 is open, and launches Uvicorn with auto-reload.
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">Script</span>
+            <span class="step-title">scripts/check-environment.js (Automated Health Preflight)</span>
+          </div>
+          <div class="step-desc">
+            Runs via <code>npm run check</code>. Tests:
+            <br>• Python version (&ge;3.9)
+            <br>• Installed packages (FastAPI, Rembg, OpenCV, PyMuPDF)
+            <br>• FFmpeg &amp; FFprobe on system PATH
+            <br>• Port 5000 availability
+            <br>• Live worker health endpoint responsiveness
+          </div>
+        </div>
+
+        <div class="step-box">
+          <div class="step-header">
+            <span class="step-badge">NPM</span>
+            <span class="step-title">package.json Concurrently Scripts</span>
+          </div>
+          <div class="step-desc">
+            Windows PowerShell throws syntax errors on the POSIX <code>&amp;&amp;</code> separator. The unified script:
+            <br><code>"dev:all": "concurrently -k -n \"next,worker\" -c \"cyan,magenta\" \"npm run dev\" \"npm run worker\""</code>
+            runs both servers concurrently with color-coded logs and graceful shutdown.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: GOTCHAS & PITFALLS MATRIX -->
+    <section id="gotchas-matrix">
+      <h2><span class="num">04.</span> Exhaustive Engineering Gotchas &amp; Failure Modes Matrix</h2>
+      <p>
+        The table below catalogs every non-obvious failure mode discovered during system reverse-engineering, its root cause, and the exact architectural fix implemented.
+      </p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Subsystem</th>
+            <th>Symptom / Failure</th>
+            <th>Root Cause</th>
+            <th>Architectural Remedy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">Chrome / Networking</td>
+            <td>"Video worker offline" error banner when worker is running</td>
+            <td>Chrome Private Network Access (PNA) blocks <code>localhost:5678</code> &rarr; <code>127.0.0.1:5000</code> without explicit header</td>
+            <td>Add <code>allow_private_network=True</code> to Starlette's <code>CORSMiddleware</code> in <code>main.py</code></td>
+          </tr>
+          <tr>
+            <td class="mono">Windows / Python</td>
+            <td><code>NotImplementedError</code> in <code>asyncio/base_events.py</code> during video upload</td>
+            <td>Windows <code>SelectorEventLoop</code> does not implement asynchronous subprocesses</td>
+            <td>Execute all FFmpeg subprocesses via <code>subprocess.Popen</code> in worker threads via <code>asyncio.to_thread</code></td>
+          </tr>
+          <tr>
+            <td class="mono">Video / Codecs</td>
+            <td>Color shifting (greens/reds slightly faded or altered in output MP4)</td>
+            <td>RGB &harr; YUV roundtrip matrix conversion mismatch (BT.709 vs BT.601)</td>
+            <td>Process frames in <code>native_yuv</code> space, modifying only the Y plane without touching U/V planes</td>
+          </tr>
+          <tr>
+            <td class="mono">Video / FFmpeg</td>
+            <td>Encoding crashes on certain smartphone clips</td>
+            <td>Odd pixel dimensions (e.g. 721&times;1281) incompatible with <code>yuv420p</code> subsampling</td>
+            <td>Force bitwise even alignment (<code>&amp; ~1</code>) or fallback to <code>yuv444p</code> in pipeline</td>
+          </tr>
+          <tr>
+            <td class="mono">Background / Layout</td>
+            <td>Cards, screenshots, and ad banners have inner text/graphics deleted</td>
+            <td>Face detector triggers on people inside card photos, forcing subject-isolation mode</td>
+            <td>Run <code>detect_design_mode_and_cards()</code> FIRST; generate 2x supersampled card masks</td>
+          </tr>
+          <tr>
+            <td class="mono">Background / Anatomy</td>
+            <td>Long dresses, feet, or held objects cut in half</td>
+            <td>Legacy <code>fh * 4.0</code> bounding box truncation cut off everything below 4 face heights</td>
+            <td>Replace with <code>select_subject_components()</code> union connected component retention</td>
+          </tr>
+          <tr>
+            <td class="mono">Background / Matting</td>
+            <td>Worker OOM (Out Of Memory) crash on 4K/6K camera uploads</td>
+            <td>Dense Laplacian matting algorithms construct gigabyte-sized pixel adjacency matrices</td>
+            <td>Implement He et al. <strong>Fast Guided Filter</strong> with sub-sampling factor <code>s=2</code></td>
+          </tr>
+          <tr>
+            <td class="mono">Background / Halos</td>
+            <td>Unwanted white/colored borders around subject cutout</td>
+            <td>Background light bleed trapped in semi-transparent edge pixels</td>
+            <td>Inpaint boundary pixels (alpha 5..240) using Telea algorithm (<code>cv2.INPAINT_TELEA</code>)</td>
+          </tr>
+          <tr>
+            <td class="mono">PDF / File Size</td>
+            <td>Cleaned PDF becomes 50&times; larger and text becomes blurry</td>
+            <td>Rasterizing whole vector PDF pages into PNGs destroys vector fonts</td>
+            <td>Parse PDF operator tree with <code>pypdf ContentStream</code> and prune text tokens losslessly</td>
+          </tr>
+          <tr>
+            <td class="mono">Dev / Terminal</td>
+            <td><code>&&</code> token invalid statement separator in PowerShell</td>
+            <td>Windows PowerShell does not support POSIX <code>&&</code> syntax in npm scripts</td>
+            <td>Use <code>concurrently</code> package or <code>;</code> semicolon command chains</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 5: FULL TECH STACK REFERENCE -->
+    <section id="tech-stack">
+      <h2><span class="num">05.</span> Full Tech Stack Reference</h2>
+      
+      <div class="spec-grid">
+        <div class="card" style="margin:0">
+          <h3 style="margin-top:0">Frontend Stack</h3>
+          <ul style="margin-left: 20px; line-height: 1.8; color: var(--text-muted); font-size: 13.5px;">
+            <li><strong>Next.js 16.3.5</strong> (App Router, Server Actions, Dynamic API Proxies)</li>
+            <li><strong>React 19.2.0</strong> (Concurrent rendering, Suspense, Transition hooks)</li>
+            <li><strong>Tailwind CSS v4.2.1</strong> (Next-gen CSS-first compiler with <code>@tailwindcss/postcss</code>)</li>
+            <li><strong>Radix UI</strong> (Accessible headless dialogs, sliders, tabs, tooltips, accordions)</li>
+            <li><strong>Lucide React</strong> (Pixel-perfect icon library)</li>
+            <li><strong>Zustand 5.0.15</strong> (Lightweight reactive client-side store)</li>
+            <li><strong>Sonner</strong> (Smooth toast feedback)</li>
+            <li><strong>Framer Motion 13.4.0</strong> (Fluid layout transitions &amp; animations)</li>
+            <li><strong>Canvas Confetti</strong> (Celebratory export completion effects)</li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin:0">
+          <h3 style="margin-top:0">Backend &amp; AI Stack</h3>
+          <ul style="margin-left: 20px; line-height: 1.8; color: var(--text-muted); font-size: 13.5px;">
+            <li><strong>FastAPI 0.115+</strong> (High-performance asynchronous Python API)</li>
+            <li><strong>Uvicorn 0.30+</strong> (ASGI server with WatchFiles live reloading)</li>
+            <li><strong>FFmpeg / FFprobe</strong> (C-binaries for rawvideo decode/encode pipes)</li>
+            <li><strong>OpenCV (opencv-python-headless 4.8+)</strong> (YuNet DNN, Navier-Stokes, Telea)</li>
+            <li><strong>Rembg 2.0.57+</strong> (ONNX Runtime session manager)</li>
+            <li><strong>PyMuPDF (fitz 1.24+)</strong> (High-speed PDF text trace &amp; rendering)</li>
+            <li><strong>pypdf 6.0+</strong> (Lossless vector ContentStream AST surgery)</li>
+            <li><strong>NumPy 1.24+</strong> (Vectorized multi-channel matrix and YUV arithmetic)</li>
+            <li><strong>Pillow (PIL 10.0+)</strong> (Image normalization &amp; EXIF transposition)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div>Bellix AI Studio — Reverse Engineered Architectural Blueprint</div>
+      <div>Generated for Engineering Review • 100% Offline &amp; Production Verified</div>
+    </div>
+
+  </main>
+
+  <script>
+    // Smooth scroll highlighting for sidebar
+    const links = document.querySelectorAll('.nav-item a');
+    const sections = document.querySelectorAll('section, .card[id]');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (window.pageYOffset >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      links.forEach(link => {
+        link.parentElement.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.parentElement.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

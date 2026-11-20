@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { JobVideoCleaner } from "@/components/site/JobVideoCleaner";
 import { VideoTrustBadges } from "@/components/site/VideoTrustBadges";
-import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
+import { HowItWorksGuide } from "@/components/site/HowItWorksGuide";
+import { howItWorksGuides } from "@/data/howItWorksGuides";
 
 export const Route = createFileRoute("/gemini-video-watermark-remover")({
   head: () => ({
@@ -310,10 +311,7 @@ export default function GeminiVideoRemoverPage() {
 
               {/* Main Heading */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.06]">
-                Remove Gemini and Veo Video{" "}
-                <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4 font-bold">
-                  Watermarks.
-                </span>
+                Remove Gemini and Veo Video Watermarks.
               </h1>
 
               {/* Subheading */}
@@ -334,6 +332,12 @@ export default function GeminiVideoRemoverPage() {
                   <Zap className="size-4 text-[#d0f471]" /> Fast AI inpainting
                 </span>
               </div>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#d0f471] underline underline-offset-4 decoration-[#d0f471]/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d0f471]"
+              >
+                See how it works <ArrowRight className="size-4" />
+              </a>
             </div>
 
             {/* Right: JobVideoCleaner Upload Area (lg:col-span-7) */}
@@ -349,49 +353,9 @@ export default function GeminiVideoRemoverPage() {
         </div>
       </section>
 
-      {/* 2. "SEE A REAL VIDEO CLEANUP RESULT" SECTION */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-y border-[#10241e]/10">
-        <div className="mx-auto max-w-5xl text-center space-y-5">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f3f4ee] border border-[#10241e]/15 text-xs font-bold text-[#10241e] shadow-xs">
-            <Sparkles className="size-3.5 text-[#10241e]" />
-            <span>Side-by-Side Synchronized Playback</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
-            See a real video cleanup result
-          </h2>
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
-            The same three-second clip plays in sync: the original keeps the visible Gemini mark at
-            the lower right, while the processed version removes it and preserves the subject,
-            lighting, and motion.
-          </p>
+      <HowItWorksGuide guide={howItWorksGuides.en.geminiVideo} />
 
-          <div className="pt-1 pb-4">
-            <Link
-              href="/gemini-image-watermark-remover"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#10241e] hover:text-[#2b5948] underline underline-offset-4 transition-colors"
-            >
-              <span>Working with images too? Open the Gemini Image Watermark Remover</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-
-          {/* Seamless Overlaid Before/After Video Comparison Slider */}
-          <div className="relative mx-auto max-w-4xl rounded-3xl overflow-hidden shadow-2xl border border-[#10241e]/15">
-            <VideoCompareSlider
-              beforeSrc="/gemini-example-before.mp4"
-              afterSrc="/gemini-example-after.mp4"
-              beforeLabel="BEFORE (WATERMARKED)"
-              afterLabel="AFTER (CLEAN)"
-              aspectRatio="aspect-video"
-              defaultFit="cover"
-              autoPlay={true}
-              loop={true}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 3. BENTO GRID FEATURES SECTION */}
+      {/* 2. BENTO GRID FEATURES SECTION */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#f3f4ee] border-b border-[#10241e]/10">
         <div className="mx-auto max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">

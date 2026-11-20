@@ -6,10 +6,12 @@ import { CutoutTab } from "./tabs/CutoutTab";
 import { BackgroundTab } from "./tabs/BackgroundTab";
 import { EffectsTab } from "./tabs/EffectsTab";
 import { AdjustTab } from "./tabs/AdjustTab";
+import { TextTab } from "./tabs/TextTab";
 import { X, RefreshCw, Sparkles, ExternalLink, Download } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { useUserStore } from "@/lib/userStore";
+import { createThumbnailDataUrl, saveMediaBlob } from "@/lib/historyDb";
 
 interface RemoveBgStudioEditorProps {
   originalImageUrl: string;
@@ -33,6 +35,9 @@ function InnerEditor({
 
   // Handle Export of Final Canvas
   const handleDownload = (resolution: "preview" | "max") => {
+    // Deselect any active text gizmos for pristine export
+    dispatch({ type: "SELECT_TEXT_LAYER", payload: null });
+
     // Find canvas element
     const canvas = document.querySelector<HTMLCanvasElement>("canvas[data-background-editor-canvas]");
     if (!canvas) {
@@ -44,18 +49,23 @@ function InnerEditor({
       const dataUrl = canvas.toDataURL("image/png");
       const fileName = `bellix_clean_bg_${Date.now()}.png`;
 
-      // Save to project history
+      // Save to project history with compact thumbnail and IndexedDB blob
       try {
-        useUserStore.getState().addJob({
-          file_name: fileName,
-          file_type: "background-remover",
-          file_url: dataUrl,
-          result_url: dataUrl,
-          status: "completed",
-          quality: resolution === "max" ? "4K UHD" : "Standard HD",
-          credits_used: 1,
-          processing_time: "1.2s",
-        });
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const thumbUrl = await createThumbnailDataUrl(blob, 320, 0.8);
+          const newJob = useUserStore.getState().addJob({
+            file_name: fileName,
+            file_type: "background-remover",
+            tool_name: "AI Background Remover Studio",
+            thumbnail_url: thumbUrl,
+            status: "completed",
+            quality: resolution === "max" ? "4K UHD" : "Standard HD",
+            credits_used: 1,
+            processing_time: "1.2s",
+          });
+          saveMediaBlob(newJob.id, blob);
+        }, "image/png");
       } catch (e) {
         console.warn("Failed to save to history:", e);
       }
@@ -150,6 +160,8 @@ function InnerEditor({
                   ? "Depth & Lighting Effects"
                   : activeTab === "adjust"
                   ? "Adjustments & Framing"
+                  : activeTab === "text"
+                  ? "Headings & Typography"
                   : "Design & Integrations"}
               </span>
               <button
@@ -168,6 +180,7 @@ function InnerEditor({
               {activeTab === "background" && <BackgroundTab />}
               {activeTab === "effects" && <EffectsTab />}
               {activeTab === "adjust" && <AdjustTab />}
+              {activeTab === "text" && <TextTab />}
               {activeTab === "design" && (
                 <div className="p-5 text-center space-y-3">
                   <div className="size-12 rounded-xl bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] text-white flex items-center justify-center mx-auto shadow-md">

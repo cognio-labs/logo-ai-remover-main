@@ -146,10 +146,7 @@ export default function ContactPage() {
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#10241e] tracking-tight leading-[1.08]">
-            Let's Create Something{" "}
-            <span className="text-[#10241e] underline decoration-[#d0f471] decoration-4 font-serif italic">
-              Amazing Together
-            </span>
+            Let's Create Something Amazing Together
           </h1>
 
           <p className="max-w-2xl mx-auto text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed">

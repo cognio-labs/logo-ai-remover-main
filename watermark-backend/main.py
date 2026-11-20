@@ -31,10 +31,19 @@ import os
 import re
 import shutil
 import secrets
+import subprocess
+import sys
+import threading
 import time
 import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+if sys.platform == "win32":
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        pass
 
 from fastapi import (
     BackgroundTasks,
@@ -222,9 +231,11 @@ if env_origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=default_origins if "*" not in default_origins else ["*"],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_private_network=True,
 )
 
 
@@ -280,12 +291,19 @@ async def protect_media(request: Request, call_next):
 @app.get("/health")
 @app.get("/api/health")
 async def health_check():
-    """Return health status and whether the real ffmpeg binary is available."""
+    """Return health status and whether the real ffmpeg binary & model files are available."""
     ffmpeg_ok = check_ffmpeg_available()
+    ffprobe_ok = bool(shutil.which("ffprobe"))
+    weights_dir = Path(__file__).resolve().parent / "weights"
+    yunet_exists = (weights_dir / "face_detection_yunet_2023mar.onnx").exists()
+    
+    overall_ok = ffmpeg_ok and ffprobe_ok
     return {
-        "ok": True,
+        "ok": overall_ok,
         "ffmpeg": ffmpeg_ok,
-        "status": "ok",
+        "ffprobe": ffprobe_ok,
+        "models": yunet_exists,
+        "status": "healthy" if overall_ok else "degraded",
         "version": "3.5.0",
     }
 
@@ -306,18 +324,24 @@ async def _probe_video_file(file_path: str):
         "-show_streams",
         file_path,
     ]
-    proc = await asyncio.create_subprocess_exec(
-        *cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    stdout, stderr = await proc.communicate()
-    if proc.returncode != 0:
-        err_msg = stderr.decode("utf-8", errors="replace").strip()
+
+    def _run_probe():
+        return subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+
+    res = await asyncio.to_thread(_run_probe)
+    if res.returncode != 0:
+        err_msg = res.stderr.strip()
         raise HTTPException(status_code=400, detail=f"Invalid video file (ffprobe failed): {err_msg}")
 
     try:
-        data = json.loads(stdout.decode("utf-8", errors="replace"))
+        data = json.loads(res.stdout)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse video metadata: {str(e)}")
 
@@ -408,46 +432,58 @@ def _build_reverse_alpha_filter(box: int, x: int, y: int, alpha: float) -> str:
 
 
 async def _run_ffmpeg_attempt(cmd: list[str], duration: float, job: dict) -> tuple[int, list[str]]:
-    """Execute ffmpeg command, stream progress lines from stdout, capture last stderr lines."""
-    proc = await asyncio.create_subprocess_exec(
-        *cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
+    """Execute ffmpeg command, stream progress lines from stdout, capture last stderr lines in a cross-platform thread."""
+    def _exec():
+        stderr_lines = collections.deque(maxlen=30)
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            bufsize=1,
+        )
 
-    stderr_lines = collections.deque(maxlen=30)
+        def read_stderr():
+            try:
+                for line in proc.stderr:
+                    raw_line = line.rstrip()
+                    if raw_line:
+                        stderr_lines.append(raw_line)
+                        job["log_tail"] = list(stderr_lines)[-8:]
+            except Exception:
+                pass
 
-    async def read_stdout():
-        while True:
-            line = await proc.stdout.readline()
-            if not line:
-                break
-            text = line.decode("utf-8", errors="replace").strip()
-            if text.startswith("out_time_us=") or text.startswith("out_time_ms="):
-                val_str = text.split("=")[1]
-                try:
-                    val = int(val_str)
-                    cur_sec = val / 1_000_000.0
-                    if duration > 0:
-                        pct = min(99, max(2, round((cur_sec / duration) * 100)))
-                        job["progress"] = pct
-                except ValueError:
-                    pass
-            elif text == "progress=end":
-                job["progress"] = 99
+        t_err = threading.Thread(target=read_stderr, daemon=True)
+        t_err.start()
 
-    async def read_stderr():
-        while True:
-            line = await proc.stderr.readline()
-            if not line:
-                break
-            raw_line = line.decode("utf-8", errors="replace").rstrip()
-            if raw_line:
-                stderr_lines.append(raw_line)
-                job["log_tail"] = list(stderr_lines)[-8:]
+        try:
+            for line in proc.stdout:
+                text = line.strip()
+                if text.startswith("out_time_us=") or text.startswith("out_time_ms="):
+                    val_str = text.split("=")[1]
+                    try:
+                        val = int(val_str)
+                        cur_sec = val / 1_000_000.0
+                        if duration > 0:
+                            pct = min(99, max(2, round((cur_sec / duration) * 100)))
+                            job["progress"] = pct
+                    except ValueError:
+                        pass
+                elif text == "progress=end":
+                    job["progress"] = 99
+        except Exception:
+            pass
 
-    await asyncio.gather(read_stdout(), read_stderr(), proc.wait())
-    return proc.returncode, list(stderr_lines)
+        proc.wait()
+        try:
+            t_err.join(timeout=2.0)
+        except Exception:
+            pass
+        return proc.returncode, list(stderr_lines)
+
+    return await asyncio.to_thread(_exec)
 
 
 async def _process_video_worker(job_id: str):
@@ -770,6 +806,21 @@ async def api_background_remove_advanced(
 
     try:
         result_png = remove_background_advanced(data, model=model)
+
+        # The background-removal contract is always a real transparent PNG.
+        # Validate the bytes at the boundary so a model/fallback regression
+        # cannot silently return an opaque image to the browser.
+        from io import BytesIO
+        from PIL import Image
+        import numpy as np
+
+        with Image.open(BytesIO(result_png)) as result_image:
+            if result_image.format != "PNG" or result_image.mode != "RGBA":
+                raise ValueError("background remover returned a non-RGBA PNG")
+            alpha = np.asarray(result_image.getchannel("A"))
+            if not np.any(alpha == 0) or not np.any(alpha == 255):
+                raise ValueError("background remover returned an invalid alpha mask")
+
         return Response(
             content=result_png,
             media_type="image/png",
@@ -802,6 +853,41 @@ async def api_background_status():
         return {"rembg_available": REMBG_AVAILABLE, "status": "ready"}
     except Exception:
         return {"rembg_available": False, "status": "error"}
+
+
+# ============================================================================
+# TEXT AND OBJECT REMOVAL PIPELINE
+# ============================================================================
+
+@app.post("/api/image/remove-text")
+async def api_image_remove_text(
+    image: UploadFile = File(...),
+    boxes: str | None = Form(None),
+    mask: UploadFile | None = File(None),
+    auto_detect: bool = Form(False),
+):
+    """
+    Remove text, captions, and objects using bounding boxes or auto-detection.
+    Returns clean inpainted image.
+    """
+    data = await image.read()
+    if len(data) > 35 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 35MB)")
+
+    mask_data = await mask.read() if mask else None
+
+    from text_remover import remove_text_pipeline
+    try:
+        cleaned_bytes = remove_text_pipeline(
+            data,
+            boxes_json=boxes,
+            mask_bytes=mask_data,
+            auto_detect=auto_detect,
+        )
+        return Response(content=cleaned_bytes, media_type="image/png")
+    except Exception as exc:
+        logger.error(f"Text removal failed: {exc}")
+        raise HTTPException(status_code=500, detail=f"Text removal failed: {str(exc)}")
 
 
 # ============================================================================

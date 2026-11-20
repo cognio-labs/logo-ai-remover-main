@@ -47,6 +47,8 @@ export type VideoCompareSliderProps = {
   onPositionChange?: (pos: number) => void;
   /** Keep playback controls below the picture so edge marks remain visible. */
   controlsOutside?: boolean;
+  /** Initial aspect ratio if known beforehand (e.g. from parent component) */
+  initialRatio?: number;
 };
 
 function formatTime(seconds: number): string {
@@ -77,6 +79,7 @@ export function VideoCompareSlider({
   statusBadge,
   onPositionChange,
   controlsOutside = false,
+  initialRatio = 0,
 }: VideoCompareSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const beforeVideoRef = useRef<HTMLVideoElement>(null);
@@ -96,6 +99,14 @@ export function VideoCompareSlider({
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [showControls, setShowControls] = useState<boolean>(true);
   const hideControlsTimer = useRef<number | null>(null);
+  // Auto-detected video aspect ratio (width / height). Initialized with initialRatio if provided.
+  const [detectedRatio, setDetectedRatio] = useState<number>(initialRatio || 0);
+
+  useEffect(() => {
+    if (initialRatio > 0 && detectedRatio === 0) {
+      setDetectedRatio(initialRatio);
+    }
+  }, [initialRatio]);
 
   // 1. Synchronized Play / Pause
   const togglePlay = useCallback(async () => {
@@ -283,14 +294,25 @@ export function VideoCompareSlider({
   return (
     <div
       ref={containerRef}
-      className={`group relative w-full overflow-hidden rounded-2xl sm:rounded-3xl bg-black border border-gray-900 shadow-2xl select-none ${controlsOutside ? "" : aspectRatio} ${className}`}
+      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#10241e] border border-gray-900 shadow-2xl select-none transition-all duration-300 ${
+        detectedRatio > 0 && detectedRatio < 0.95
+          ? "max-w-[380px] sm:max-w-[420px] mx-auto"
+          : "w-full"
+      } ${controlsOutside ? "" : aspectRatio} ${className}`}
       onPointerMove={handlePointerMove}
       onMouseLeave={() => {
         if (isPlaying && !isDraggingSlider.current) setShowControls(false);
       }}
     >
       <div
-        className={`relative w-full overflow-hidden ${controlsOutside ? aspectRatio : "size-full"}`}
+        className={`relative w-full overflow-hidden ${controlsOutside ? "" : "size-full"}`}
+        style={
+          controlsOutside && detectedRatio > 0
+            ? { aspectRatio: `${detectedRatio}`, maxHeight: "85vh" }
+            : controlsOutside
+              ? { aspectRatio: "16/9" }
+              : {}
+        }
       >
         {/* ============================================================== */}
         {/* 1. BOTTOM LAYER: BEFORE (WATERMARKED) VIDEO                     */}
@@ -304,7 +326,13 @@ export function VideoCompareSlider({
           autoPlay={autoPlay}
           preload="auto"
           onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
+          onLoadedMetadata={(e) => {
+            const v = e.currentTarget;
+            setDuration(v.duration || 0);
+            if (v.videoWidth && v.videoHeight) {
+              setDetectedRatio(v.videoWidth / v.videoHeight);
+            }
+          }}
           onEnded={handleEnded}
           className={`absolute inset-0 size-full pointer-events-none transition-all duration-150 ${
             fitMode === "cover" ? "object-cover" : "object-contain"

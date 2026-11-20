@@ -3,6 +3,7 @@ import { emitToolEvent } from "@/lib/tool-events";
 
 import { accountFetch } from "@/components/account/AccountPanel";
 import { useUserStore } from "@/lib/userStore";
+import { saveMediaBlob } from "@/lib/historyDb";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -94,12 +95,25 @@ export function JobVideoCleaner() {
     };
   }, []);
 
-  useEffect(
-    () => () => {
-      if (origUrl) URL.revokeObjectURL(origUrl);
-    },
-    [origUrl],
-  );
+  useEffect(() => {
+    if (!origUrl) return;
+    const testVideo = document.createElement("video");
+    testVideo.preload = "metadata";
+    testVideo.src = origUrl;
+    const onMeta = () => {
+      if (testVideo.videoWidth && testVideo.videoHeight) {
+        setVideoRatio(testVideo.videoWidth / testVideo.videoHeight);
+        setDuration(testVideo.duration || 0);
+      }
+    };
+    testVideo.addEventListener("loadedmetadata", onMeta);
+    testVideo.addEventListener("loadeddata", onMeta);
+    return () => {
+      testVideo.removeEventListener("loadedmetadata", onMeta);
+      testVideo.removeEventListener("loadeddata", onMeta);
+      URL.revokeObjectURL(origUrl);
+    };
+  }, [origUrl]);
 
   useEffect(
     () => () => {
@@ -332,7 +346,8 @@ export function JobVideoCleaner() {
       const blob = await result.blob();
       signal.throwIfAborted();
       if (!blob.size) throw new Error("The worker returned an empty MP4.");
-      setCleanUrl(URL.createObjectURL(blob));
+      const cleanBlobUrl = URL.createObjectURL(blob);
+      setCleanUrl(cleanBlobUrl);
       setManual(false);
       setIsDone(true);
       setProgress(100);
@@ -341,15 +356,17 @@ export function JobVideoCleaner() {
       toast.success("Video export is ready to review.");
 
       try {
-        useUserStore.getState().addJob({
+        const newJob = useUserStore.getState().addJob({
           file_name: file.name,
           file_type: "video",
+          tool_name: "Gemini & Veo Video Cleaner",
           status: "completed",
-          quality: "Original resolution",
+          quality: "Original resolution MP4",
           credits_used: 0,
           file_url: origUrl,
-          result_url: "",
+          result_url: cleanBlobUrl,
         });
+        saveMediaBlob(newJob.id, blob, "video/mp4");
       } catch {
         // The processed MP4 remains available if local history storage fails.
       }
@@ -358,17 +375,22 @@ export function JobVideoCleaner() {
       setIsPlaying(false);
     } catch (error) {
       if (signal.aborted || processingControllerRef.current !== controller) return;
-      const details =
-        error instanceof TypeError && /fetch/i.test(error.message) && workerOrigin
-          ? `The video worker at ${workerOrigin} could not be reached. Check that it is running and reachable, then try again.`
-          : error instanceof Error
-            ? error.message
-            : "Unable to process this video.";
+      const isConnectionError =
+        (error instanceof TypeError && /fetch/i.test(error.message)) ||
+        (error instanceof Error &&
+          /network|refused|failed to fetch|not ready|unavailable|worker/i.test(error.message));
+      
+      const targetWorker = workerOrigin || "http://127.0.0.1:5000";
+      const details = isConnectionError
+        ? `The video worker at ${targetWorker} is not running or reachable. To start it, run: npm run worker (or npm run dev:all)`
+        : error instanceof Error
+          ? error.message
+          : "Unable to process this video.";
       setIsError(true);
       setErrorDetails(details);
       setStatusMsg("Processing failed");
       emitToolEvent("processing_failed", "gemini-video-watermark-remover");
-      toast.error("Video processing failed.");
+      toast.error(isConnectionError ? "Video worker is offline." : "Video processing failed.");
     } finally {
       if (processingControllerRef.current === controller) {
         processingControllerRef.current = null;
@@ -418,7 +440,7 @@ export function JobVideoCleaner() {
   /* -------------------------------------------------------------------------- */
   if (!origUrl || !file) {
     return (
-      <div className="w-full">
+      <div id="gemini-video-upload-card" tabIndex={-1} className="w-full">
         <div
           className={`relative flex min-h-[440px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-16 sm:py-20 text-center transition-all duration-300 ${
             dragOver
@@ -520,8 +542,14 @@ export function JobVideoCleaner() {
   /* -------------------------------------------------------------------------- */
   /* STEP 2: SINGLE VIDEO WORKSPACE                                              */
   /* -------------------------------------------------------------------------- */
+  const isPortrait = videoRatio > 0 && videoRatio < 0.95;
+
   return (
-    <div className="w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left">
+    <div
+      className={`w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left transition-all duration-300 ${
+        isPortrait ? "max-w-xl mx-auto" : "max-w-5xl mx-auto"
+      }`}
+    >
       {isDone && cleanUrl && !manual && (
         <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] px-5 py-4 sm:px-6">
           <div className="flex items-start gap-3">
@@ -545,15 +573,32 @@ export function JobVideoCleaner() {
           afterSrc={cleanUrl}
           beforeLabel="Original"
           afterLabel="Processed"
-          defaultFit="contain"
+          initialRatio={videoRatio}
+          defaultFit="cover"
           autoPlay={false}
           loop={false}
           controlsOutside
           className="border-[#10241e]/15 shadow-none"
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-[#10241e]/15 bg-black">
-          <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[#10241e]">
+        <div
+          className={`overflow-hidden rounded-2xl border border-[#10241e]/15 bg-[#091712] transition-all duration-300 ${
+            isPortrait
+              ? "max-w-[420px] mx-auto shadow-xl"
+              : "w-full"
+          }`}
+        >
+          <div
+            className="relative flex items-center justify-center overflow-hidden bg-[#091712]"
+            style={
+              videoRatio > 0
+                ? {
+                    aspectRatio: `${videoRatio}`,
+                    maxHeight: "75vh",
+                  }
+                : { aspectRatio: "16/9" }
+            }
+          >
             <span className="absolute left-3 top-3 z-10 rounded-full bg-black/85 px-3 py-1 text-xs font-bold text-white">
               {isDone
                 ? "Original video"
@@ -572,13 +617,21 @@ export function JobVideoCleaner() {
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               onError={() => setPreviewError(true)}
-              className="h-full w-full cursor-pointer object-contain"
+              className="h-full w-full cursor-pointer object-cover"
               onClick={togglePlay}
               onLoadedMetadata={(event) => {
                 const video = event.currentTarget;
                 setDuration(video.duration);
-                setVideoRatio(video.videoWidth / video.videoHeight);
+                if (video.videoWidth && video.videoHeight) {
+                  setVideoRatio(video.videoWidth / video.videoHeight);
+                }
                 if (manual) video.currentTime = currentTime;
+              }}
+              onLoadedData={(event) => {
+                const video = event.currentTarget;
+                if (video.videoWidth && video.videoHeight && videoRatio === 0) {
+                  setVideoRatio(video.videoWidth / video.videoHeight);
+                }
               }}
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
@@ -590,11 +643,7 @@ export function JobVideoCleaner() {
             )}
             {manual && videoRatio > 0 && !isProcessing && (
               <div
-                className="absolute z-20 touch-none cursor-crosshair"
-                style={{
-                  width: `${Math.min(1, videoRatio / (16 / 9)) * 100}%`,
-                  height: `${Math.min(1, 16 / 9 / videoRatio) * 100}%`,
-                }}
+                className="absolute inset-0 z-20 touch-none cursor-crosshair"
                 onPointerDown={(event) => {
                   event.currentTarget.setPointerCapture(event.pointerId);
                   selectionStart.current = selectionPoint(event);
@@ -693,24 +742,49 @@ export function JobVideoCleaner() {
         </div>
       )}
 
-      {/* Error Message Box (Clean, friendly, non-technical) */}
+      {/* Error Message Box (Clean, friendly, actionable) */}
       {isError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
-          <div className="flex items-center gap-2.5 text-rose-800 text-sm font-semibold">
-            <AlertTriangle className="size-4 text-rose-600 shrink-0" />
-            <span>
-              {errorDetails ||
-                "Unable to process this video. Please try again or upload a different file."}
-            </span>
+        <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 sm:p-5 flex flex-col gap-3 text-left">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-2.5 text-rose-800 text-sm font-semibold">
+              <AlertTriangle className="size-5 text-rose-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="block font-bold text-rose-900 text-sm">
+                  {errorDetails?.includes("npm run worker")
+                    ? "Video Processing Worker Offline"
+                    : "Processing Error"}
+                </span>
+                <span className="text-xs text-rose-700 font-normal block leading-relaxed">
+                  {errorDetails ||
+                    "Unable to process this video. Please try again or upload a different file."}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              {errorDetails?.includes("npm run worker") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText("npm run worker");
+                    toast.success("Copied 'npm run worker' to clipboard!");
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-rose-300 hover:bg-rose-100 text-rose-900 text-xs font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                  title="Copy command to clipboard"
+                >
+                  <Copy className="size-3.5" />
+                  <span>Copy: npm run worker</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
+              >
+                <RotateCcw className="size-3.5" />
+                <span>Try Again</span>
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
-          >
-            <RotateCcw className="size-3.5" />
-            <span>Try Again</span>
-          </button>
         </div>
       )}
 

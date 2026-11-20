@@ -38,6 +38,8 @@ import {
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
 import { BackgroundRemoverTrustVideos } from "@/components/site/BackgroundRemoverTrustVideos";
+import { HowItWorksGuide } from "@/components/site/HowItWorksGuide";
+import { howItWorksGuides } from "@/data/howItWorksGuides";
 import {
   removeImageBackground,
   recompositeCutout,
@@ -50,6 +52,7 @@ import { getDownloadUrl, type QualityMode, type ExportFormat } from "@/lib/backg
 import { handleEditInCanva, CANVA_TERMS_URL } from "@/lib/canvaIntegration";
 import { useUserStore } from "@/lib/userStore";
 import { reserveLocal, finishLocal } from '@/lib/account-processing';
+import { createThumbnailDataUrl, saveMediaBlob } from "@/lib/historyDb";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { RemoveBgStudioEditor } from "@/components/studio/editor/RemoveBgStudioEditor";
@@ -1219,7 +1222,7 @@ export default function BackgroundRemoverPage() {
 
     try {
       const reservation = await reserveLocal('background-remover', file.size).catch(() => null);
-      accountJob = reservation?.id || null;
+      accountJob = reservation?.id || undefined;
       const res = await removeImageBackground(
         imageUrl,
         bgType,
@@ -1231,9 +1234,17 @@ export default function BackgroundRemoverPage() {
       setCutoutResult(res);
       setStatus("success");
 
-      addJob({
+      let thumbUrl = "";
+      try {
+        thumbUrl = await createThumbnailDataUrl(res.transparentBlobUrl, 320, 0.8);
+      } catch (e) {
+        console.warn("Thumbnail generation error:", e);
+      }
+
+      const newJob = addJob({
         file_name: file.name,
         file_type: "background-remover",
+        tool_name: "AI Background Remover",
         status: "completed",
         quality: `Transparent (${res.width}×${res.height})`,
         credits_used: 1,
@@ -1242,7 +1253,12 @@ export default function BackgroundRemoverPage() {
           : "0.8s",
         file_url: imageUrl,
         result_url: res.transparentBlobUrl,
+        thumbnail_url: thumbUrl,
       });
+
+      if (res.transparentBlob) {
+        saveMediaBlob(newJob.id, res.transparentBlob);
+      }
 
       confetti({
         particleCount: 40,
@@ -1546,10 +1562,7 @@ export default function BackgroundRemoverPage() {
                 </div>
 
                 <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.06]">
-                  Remove Image Backgrounds{" "}
-                  <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4 font-bold">
-                    in 5 Seconds Free
-                  </span>
+                  Remove Image Backgrounds in 5 Seconds Free
                 </h1>
 
                 <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
@@ -1568,8 +1581,6 @@ export default function BackgroundRemoverPage() {
                     <Zap className="size-4 text-[#d0f471]" /> Sub-pixel AI matting
                   </span>
                 </div>
-
-                {/* Quick Link Badge */}
                 <div className="pt-2">
                   <Link
                     href="/gemini-image-watermark-remover"
@@ -1580,6 +1591,12 @@ export default function BackgroundRemoverPage() {
                     <ArrowRight className="size-3 text-[#d0f471]" />
                   </Link>
                 </div>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#d0f471] underline underline-offset-4 decoration-[#d0f471]/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d0f471]"
+                >
+                  See how it works <ArrowRight className="size-4" />
+                </a>
               </div>
 
               {/* Right: Upload Dropzone Card (lg:col-span-7) */}
@@ -1597,6 +1614,8 @@ export default function BackgroundRemoverPage() {
                 />
 
                 <div
+                  id="background-upload-card"
+                  tabIndex={-1}
                   onDragEnter={(e) => {
                     e.preventDefault();
                     setIsDragging(true);
@@ -1900,6 +1919,8 @@ export default function BackgroundRemoverPage() {
           )}
         </div>
       </section>
+
+      <HowItWorksGuide guide={howItWorksGuides.en.background} />
 
       {/* 2. REAL-TIME AI MATTING TRUST VIDEOS (3 REAL-TIME SHOWCASES) */}
       <BackgroundRemoverTrustVideos

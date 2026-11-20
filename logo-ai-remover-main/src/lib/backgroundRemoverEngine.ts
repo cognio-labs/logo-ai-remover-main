@@ -120,21 +120,52 @@ async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
   try {
     // Fetch the image file bytes
     const imgResp = await fetch(imageUrl);
-    if (!imgResp.ok) return null;
+    if (!imgResp.ok) {
+      console.warn("Could not fetch image blob from url:", imageUrl);
+      return null;
+    }
     const imgBlob = await imgResp.blob();
 
     const formData = new FormData();
     formData.append("image", imgBlob, "image.png");
+    // Keep the app on the local high-quality pipeline. The worker may still
+    // fall back to its configured model chain if this model is unavailable.
+    formData.append("model", "isnet-general-use");
 
+    // Primary route: Next.js proxy route /api/remove-bg
     const resp = await fetch("/api/remove-bg", {
       method: "POST",
       body: formData,
-      signal: AbortSignal.timeout(30000), // 30s max
+      signal: AbortSignal.timeout(60000), // 60s max for neural segmentation
     });
 
-    if (!resp.ok) return null;
-    return await resp.blob();
-  } catch {
+    if (resp.ok) {
+      const blob = await resp.blob();
+      if (blob && blob.size > 1000) {
+        return blob;
+      }
+    }
+
+    // Direct fallback for local development if proxy is blocked
+    try {
+      const directResp = await fetch("http://127.0.0.1:5000/api/background/remove-advanced", {
+        method: "POST",
+        body: formData,
+        signal: AbortSignal.timeout(60000),
+      });
+      if (directResp.ok) {
+        const directBlob = await directResp.blob();
+        if (directBlob && directBlob.size > 1000) {
+          return directBlob;
+        }
+      }
+    } catch {
+      // Direct localhost fallback unavailable (normal in production)
+    }
+
+    return null;
+  } catch (err) {
+    console.warn("Backend background removal request failed:", err);
     return null;
   }
 }
@@ -210,10 +241,10 @@ export async function removeImageBackground(
       },
     };
 
-    // Race neural removal with a 3.8s timeout so user NEVER experiences slow loading
+    // Race neural removal with a 15s timeout
     const neuralPromise = removeBackground(imageUrl, config);
     const timeoutPromise = new Promise<Blob>((_, reject) =>
-      setTimeout(() => reject(new Error("Fast-matting fallback")), 3800)
+      setTimeout(() => reject(new Error("In-browser neural matting timeout")), 15000)
     );
 
     const resultBlob = await Promise.race([neuralPromise, timeoutPromise]);
@@ -411,12 +442,7 @@ async function clientSideFallbackRemoval(
         cornerSamples.reduce((sum, idx) => sum + data[idx[2]], 0) / cornerSamples.length
       );
 
-      // Only erode from outer edges inward, protect the inner subject
-      const centerX = w / 2;
-      const centerY = h / 2;
-      const coreRadiusX = w * 0.35;
-      const coreRadiusY = h * 0.40;
-
+      // Edge color difference matting (never force fake geometric oval masks)
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const idx = (y * w + x) * 4;
@@ -425,21 +451,10 @@ async function clientSideFallbackRemoval(
           const b = data[idx + 2];
           const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
 
-          // Check if pixel is in core subject region
-          const dx = (x - centerX) / coreRadiusX;
-          const dy = (y - centerY) / coreRadiusY;
-          const inCoreSubject = (dx * dx + dy * dy) < 0.65;
-
-          // Never drill holes into core subject (protects skin, shirts, dress)
-          if (inCoreSubject) {
-            data[idx + 3] = 255;
-            continue;
-          }
-
-          if (dist < 35) {
+          if (dist < 32) {
             data[idx + 3] = 0;
-          } else if (dist < 65) {
-            data[idx + 3] = Math.round(((dist - 35) / 30) * 255);
+          } else if (dist < 56) {
+            data[idx + 3] = Math.round(((dist - 32) / 24) * 255);
           }
         }
       }

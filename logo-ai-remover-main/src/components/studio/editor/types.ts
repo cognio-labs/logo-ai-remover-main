@@ -1,12 +1,15 @@
-export type ActiveTab = "cutout" | "background" | "effects" | "adjust" | "design" | null;
+export type ActiveTab = "cutout" | "background" | "effects" | "adjust" | "design" | "text" | null;
 
 export type BrushMode = "erase" | "restore";
 
-export type BackgroundSubTab = "magic" | "photo" | "color";
+export type BackgroundSubTab = "magic" | "photo" | "color" | "gradient";
 
 export type BackgroundSetting = {
-  type: "transparent" | "color" | "image";
-  value: string; // hex code or image URL
+  type: "transparent" | "color" | "image" | "gradient";
+  value: string; // hex code, gradient string, or image URL
+  gradient?: string[]; // array of hex colors for linear gradient
+  gradientDirection?: "to bottom" | "to right" | "to bottom right" | "radial";
+  fit?: "cover" | "contain" | "fill";
   blur: number; // 0 to 40px
   blurEnabled: boolean;
 };
@@ -61,6 +64,28 @@ export type ColorItem = {
   badge?: string;
 };
 
+export interface TextLayer {
+  id: string;
+  type: "text";
+  text: string;
+  x: number; // 0 to 100 percentage of canvas width
+  y: number; // 0 to 100 percentage of canvas height
+  fontSize: number; // in px
+  fontFamily: string;
+  fontWeight: string | number; // e.g. "normal" | "bold" | "600" | "800"
+  color: string;
+  align: "left" | "center" | "right";
+  letterSpacing: number; // in px
+  lineHeight: number; // multiplier e.g. 1.2
+  rotation: number; // -180 to 180 degrees
+  opacity: number; // 0 to 1
+  shadowColor?: string;
+  shadowBlur?: number;
+  backgroundColor?: string;
+  padding?: number;
+  borderRadius?: number;
+}
+
 export type EditorState = {
   originalImageUrl: string;
   cutoutImageUrl: string;
@@ -73,6 +98,8 @@ export type EditorState = {
   shadow: ShadowSetting;
   activeFilter: string;
   adjust: AdjustSettings;
+  textLayers: TextLayer[];
+  selectedTextLayerId: string | null;
   canUndo: boolean;
   canRedo: boolean;
   isProcessing: boolean;

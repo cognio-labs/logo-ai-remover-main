@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { deleteMediaBlob, clearAllMediaBlobs } from "./historyDb";
 
 export type UserPlan = "free" | "creator" | "professional";
 export type UserRole = "user" | "admin";
@@ -21,6 +22,8 @@ export interface JobItem {
   file_type: "image" | "video" | "upscale" | "pdf" | "background-remover";
   file_url?: string;
   result_url?: string;
+  thumbnail_url?: string;
+  tool_name?: string;
   status: "queued" | "processing" | "completed" | "failed";
   error_message?: string;
   quality: string;
@@ -45,6 +48,7 @@ interface UserState {
   addJob: (job: Omit<JobItem, "id" | "user_id" | "created_at">) => JobItem;
   updateJob: (id: string, updates: Partial<JobItem>) => void;
   deleteJob: (id: string) => void;
+  clearAllJobs: () => void;
   retryJob: (id: string) => void;
   checkDailyReset: () => void;
 }
@@ -172,9 +176,16 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   deleteJob: (id) => {
+    deleteMediaBlob(id);
     const updatedJobs = get().jobs.filter((j) => j.id !== id);
     set({ jobs: updatedJobs });
     saveState(get().user, get().isLoggedIn, updatedJobs);
+  },
+
+  clearAllJobs: () => {
+    clearAllMediaBlobs();
+    set({ jobs: [] });
+    saveState(get().user, get().isLoggedIn, []);
   },
 
   retryJob: (id) => {

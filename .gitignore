@@ -68,3 +68,7 @@ logo-ai-remover-main/public/creative-suite/ring_thumb.png
 
 .vercel
 /watermark-backend/document_uploads/
+
+scratch/
+debug/
+logo-ai-remover-main/output/

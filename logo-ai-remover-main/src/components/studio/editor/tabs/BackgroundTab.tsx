@@ -320,32 +320,64 @@ export function BackgroundTab() {
         </div>
       )}
 
-      {/* Blur Background Control (Applicable when image or color is selected) */}
+      {/* Blur & Scaling Background Controls (Applicable when image or color is selected) */}
       {background.type !== "transparent" && (
-        <div className="pt-3 border-t border-gray-100 space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-gray-700 flex items-center gap-1.5" style={{ color: "#10241E" }}>
-              <Sliders className="size-3.5 text-gray-500" />
-              <span>Depth of Field (Blur)</span>
-            </span>
-            <span className="font-mono text-gray-500" style={{ color: "#52645D" }}>{background.blur}px</span>
+        <div className="pt-3 border-t border-gray-200 space-y-3">
+          {background.type === "image" && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[#10241E]">Background Scaling</label>
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-100 rounded-xl border border-gray-200 text-xs font-semibold">
+                {(["cover", "contain", "fill"] as const).map((fitMode) => {
+                  const isActive = (background.fit || "cover") === fitMode;
+                  return (
+                    <button
+                      key={fitMode}
+                      type="button"
+                      onClick={() =>
+                        dispatch({
+                          type: "SET_BACKGROUND",
+                          payload: { fit: fitMode },
+                        })
+                      }
+                      className={`py-1.5 capitalize rounded-lg transition-all ${
+                        isActive
+                          ? "bg-white shadow-xs text-[#10241E] font-bold"
+                          : "text-[#52645D] hover:text-[#10241E]"
+                      }`}
+                    >
+                      {fitMode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-gray-700 flex items-center gap-1.5" style={{ color: "#10241E" }}>
+                <Sliders className="size-3.5 text-gray-500" />
+                <span>Depth of Field (Blur)</span>
+              </span>
+              <span className="font-mono text-gray-500" style={{ color: "#52645D" }}>{background.blur}px</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={35}
+              value={background.blur}
+              onChange={(e) =>
+                dispatch({
+                  type: "SET_BACKGROUND",
+                  payload: {
+                    blur: Number(e.target.value),
+                    blurEnabled: Number(e.target.value) > 0,
+                  },
+                })
+              }
+              className="w-full accent-[#10241E] cursor-pointer h-2 bg-gray-200 rounded-lg"
+            />
           </div>
-          <input
-            type="range"
-            min={0}
-            max={35}
-            value={background.blur}
-            onChange={(e) =>
-              dispatch({
-                type: "SET_BACKGROUND",
-                payload: {
-                  blur: Number(e.target.value),
-                  blurEnabled: Number(e.target.value) > 0,
-                },
-              })
-            }
-            className="w-full accent-[#10241E] cursor-pointer h-2 bg-gray-200 rounded-lg"
-          />
         </div>
       )}
     </div>

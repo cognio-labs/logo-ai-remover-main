@@ -7,6 +7,7 @@ import type {
   CropAspect,
   EditorState,
   ShadowSetting,
+  TextLayer,
 } from "./types";
 
 const INITIAL_BRUSH: BrushSettings = {
@@ -18,6 +19,7 @@ const INITIAL_BRUSH: BrushSettings = {
 const INITIAL_BACKGROUND: BackgroundSetting = {
   type: "transparent",
   value: "",
+  fit: "cover",
   blur: 0,
   blurEnabled: false,
 };
@@ -57,7 +59,13 @@ type Action =
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "SET_MASK_CANVAS"; payload: HTMLCanvasElement }
-  | { type: "SET_PROCESSING"; payload: boolean };
+  | { type: "SET_PROCESSING"; payload: boolean }
+  | { type: "SET_CUTOUT_IMAGE"; payload: string }
+  | { type: "ADD_TEXT_LAYER"; payload: TextLayer }
+  | { type: "UPDATE_TEXT_LAYER"; payload: { id: string; updates: Partial<TextLayer> } }
+  | { type: "DELETE_TEXT_LAYER"; payload: string }
+  | { type: "SELECT_TEXT_LAYER"; payload: string | null }
+  | { type: "REORDER_TEXT_LAYERS"; payload: TextLayer[] };
 
 interface HistorySnapshot {
   maskPixels?: ImageData;
@@ -65,6 +73,7 @@ interface HistorySnapshot {
   shadow: ShadowSetting;
   activeFilter: string;
   adjust: AdjustSettings;
+  textLayers: TextLayer[];
 }
 
 interface ContextType {
@@ -85,6 +94,7 @@ function createInitialState(originalUrl: string, cutoutUrl: string): EditorState
     shadow: INITIAL_SHADOW,
     activeFilter: "none",
     adjust: INITIAL_ADJUST,
+    textLayers: [],
   };
 
   return {
@@ -98,6 +108,8 @@ function createInitialState(originalUrl: string, cutoutUrl: string): EditorState
     shadow: INITIAL_SHADOW,
     activeFilter: "none",
     adjust: INITIAL_ADJUST,
+    textLayers: [],
+    selectedTextLayerId: null,
     canUndo: false,
     canRedo: false,
     isProcessing: false,
@@ -151,6 +163,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: state.activeFilter,
         adjust: state.adjust,
         maskPixels: state.maskPixels,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -172,6 +185,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: state.activeFilter,
         adjust: state.adjust,
         maskPixels: state.maskPixels,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -193,6 +207,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: nextFilter,
         adjust: state.adjust,
         maskPixels: state.maskPixels,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -214,6 +229,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: state.activeFilter,
         adjust: nextAdjust,
         maskPixels: state.maskPixels,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -234,6 +250,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: state.shadow,
         activeFilter: state.activeFilter,
         adjust: state.adjust,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -253,6 +270,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: state.shadow,
         activeFilter: state.activeFilter,
         adjust: INITIAL_ADJUST,
+        textLayers: state.textLayers,
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -272,6 +290,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: INITIAL_SHADOW,
         activeFilter: "none",
         adjust: INITIAL_ADJUST,
+        textLayers: [],
       };
       const newStack = state.historyStack.slice(0, state.historyIndex + 1);
       newStack.push(newSnapshot);
@@ -282,6 +301,8 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         activeFilter: "none",
         adjust: INITIAL_ADJUST,
         brush: INITIAL_BRUSH,
+        textLayers: [],
+        selectedTextLayerId: null,
         historyStack: newStack,
         historyIndex: newStack.length - 1,
         canUndo: true,
@@ -300,6 +321,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
+        textLayers: target.textLayers || [],
         historyIndex: prevIdx,
         canUndo: prevIdx > 0,
         canRedo: true,
@@ -317,9 +339,113 @@ function editorReducer(state: InternalState, action: Action): InternalState {
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
+        textLayers: target.textLayers || [],
         historyIndex: nextIdx,
         canUndo: true,
         canRedo: nextIdx < state.historyStack.length - 1,
+      };
+    }
+
+    case "SET_CUTOUT_IMAGE":
+      return {
+        ...state,
+        cutoutImageUrl: action.payload,
+      };
+
+    case "ADD_TEXT_LAYER": {
+      const updatedLayers = [...state.textLayers, action.payload];
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: state.adjust,
+        maskPixels: state.maskPixels,
+        textLayers: updatedLayers,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
+      return {
+        ...state,
+        textLayers: updatedLayers,
+        selectedTextLayerId: action.payload.id,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
+      };
+    }
+
+    case "UPDATE_TEXT_LAYER": {
+      const updatedLayers = state.textLayers.map((layer) =>
+        layer.id === action.payload.id ? { ...layer, ...action.payload.updates } : layer
+      );
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: state.adjust,
+        maskPixels: state.maskPixels,
+        textLayers: updatedLayers,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
+      return {
+        ...state,
+        textLayers: updatedLayers,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
+      };
+    }
+
+    case "DELETE_TEXT_LAYER": {
+      const updatedLayers = state.textLayers.filter((layer) => layer.id !== action.payload);
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: state.adjust,
+        maskPixels: state.maskPixels,
+        textLayers: updatedLayers,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
+      return {
+        ...state,
+        textLayers: updatedLayers,
+        selectedTextLayerId: state.selectedTextLayerId === action.payload ? null : state.selectedTextLayerId,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
+      };
+    }
+
+    case "SELECT_TEXT_LAYER":
+      return {
+        ...state,
+        selectedTextLayerId: action.payload,
+      };
+
+    case "REORDER_TEXT_LAYERS": {
+      const newSnapshot: HistorySnapshot = {
+        background: state.background,
+        shadow: state.shadow,
+        activeFilter: state.activeFilter,
+        adjust: state.adjust,
+        maskPixels: state.maskPixels,
+        textLayers: action.payload,
+      };
+      const newStack = state.historyStack.slice(0, state.historyIndex + 1);
+      newStack.push(newSnapshot);
+      return {
+        ...state,
+        textLayers: action.payload,
+        historyStack: newStack,
+        historyIndex: newStack.length - 1,
+        canUndo: true,
+        canRedo: false,
       };
     }
 

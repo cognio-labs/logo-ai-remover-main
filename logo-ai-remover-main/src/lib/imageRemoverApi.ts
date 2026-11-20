@@ -14,8 +14,8 @@ const API_BASE =
     (import.meta as unknown as Record<string, unknown>).env &&
     ((import.meta as unknown as Record<string, unknown>).env as Record<string, string>)
       .VITE_IMAGE_API_URL) ||
-  (typeof window !== "undefined" && window.location.hostname === "localhost"
-    ? "http://localhost:5000"
+  (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://127.0.0.1:5000"
     : "https://watermark-backend-weld.vercel.app");
 
 export interface ImageJob {

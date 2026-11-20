@@ -35,6 +35,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { removeWatermarkFromImageDataSync } from "@pilio/gemini-watermark-remover/image-data";
+import { HowItWorksGuide } from "@/components/site/HowItWorksGuide";
+import { howItWorksGuides } from "@/data/howItWorksGuides";
 
 export const Route = createFileRoute("/gemini-image-watermark-remover")({
   head: () => ({
@@ -797,10 +799,7 @@ export default function GeminiImageWatermarkRemoverPage() {
               </div>
 
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.06]">
-                Take the sparkle off your{" "}
-                <span className="text-white underline decoration-[#d0f471] decoration-wavy decoration-4">
-                  Gemini images.
-                </span>
+                Take the sparkle off your Gemini images.
               </h1>
 
               <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
@@ -820,6 +819,12 @@ export default function GeminiImageWatermarkRemoverPage() {
                   <ShieldCheck className="size-4 text-[#d0f471]" /> Full 4K / 8K original size kept
                 </span>
               </div>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#d0f471] underline underline-offset-4 decoration-[#d0f471]/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d0f471]"
+              >
+                See how it works <ArrowRight className="size-4" />
+              </a>
             </div>
 
             {/* Right: The SINGLE Upload, Preview, Process & Result Workspace */}
@@ -839,6 +844,8 @@ export default function GeminiImageWatermarkRemoverPage() {
               {/* STATE 1: IDLE (No image selected yet) */}
               {!currentItem && (
                 <div
+                  id="gemini-image-upload-card"
+                  tabIndex={-1}
                   onDragEnter={(e) => {
                     e.preventDefault();
                     setIsDraggingOver(true);
@@ -1288,6 +1295,8 @@ export default function GeminiImageWatermarkRemoverPage() {
           </div>
         </div>
       </section>
+
+      <HowItWorksGuide guide={howItWorksGuides.en.geminiImage} />
 
       {fullscreen && currentItem?.afterURL && (
         <div

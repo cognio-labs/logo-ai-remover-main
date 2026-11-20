@@ -4,7 +4,10 @@
   "sideEffects": false,
   "scripts": {
     "dev": "next dev -p 5678",
-    "backend": "cd ../watermark-backend && python -m uvicorn main:app --host 0.0.0.0 --port 5000",
+    "worker": "node scripts/start-worker.js",
+    "dev:all": "concurrently -k -n \"next,worker\" -c \"cyan,magenta\" \"npm run dev\" \"npm run worker\"",
+    "check": "node scripts/check-environment.js",
+    "backend": "node scripts/start-worker.js",
     "build": "next build",
     "start": "next start -p 5678",
     "vercel-build": "next build",
