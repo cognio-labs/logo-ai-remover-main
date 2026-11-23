@@ -20,10 +20,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Build clean outbound FormData with isnet-general-use for ultra-fast < 3s execution
+    // Let the worker select its configured default; explicit choices survive proxying.
     const outbound = new FormData();
     outbound.append("image", imageFile, imageFile.name || "image.png");
-    outbound.append("model", "isnet-general-use");
+    for (const key of ["model", "image_type"] as const) {
+      const value = formData.get(key);
+      if (typeof value === "string" && value) outbound.append(key, value);
+    }
 
     const response = await fetch(`${workerUrl}/api/background/remove-advanced`, {
       method: "POST",
@@ -41,7 +44,10 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "no-store",
+        "X-Bellix-Model": response.headers.get("X-Bellix-Model") || "unknown",
+        "X-Bellix-Quality-Pass": response.headers.get("X-Bellix-Quality-Pass") || "false",
+        "X-Bellix-Operation": response.headers.get("X-Bellix-Operation") || "neural-background-removal",
       },
     });
   } catch (error: any) {

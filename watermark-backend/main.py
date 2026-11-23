@@ -790,36 +790,34 @@ async def api_video_delete(job_id: str):
 @app.post("/api/background/remove-advanced")
 async def api_background_remove_advanced(
     image: UploadFile = File(...),
-    model: str = Form("isnet-general-use"),
+    model: str = Form(""),
+    image_type: str = Form("auto"),
 ):
     """
-    Advanced AI background removal using rembg with isnet-general-use as primary model (<3s execution).
-    Returns 32-bit RGBA PNG with only the subject visible.
-    
-    Models available:
-    - isnet-general-use  (default, primary ultra-fast & high-quality model, < 3s)
-    - u2net_human_seg    (optimized for people / portraits)
-    - u2net              (fast, general)
+    Mask-only neural inference, original RGB, lossless RGBA PNG.
+    ISNet remains the default/fallback. BiRefNet is explicitly selectable for
+    evaluation; graphics mode preserves authored alpha when it already exists.
+    A structurally valid alpha does not certify visual quality.
     """
     data = await image.read()
     if len(data) > 35 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="File too large (max 35MB)")
 
-    # Normalize birefnet-general to isnet-general-use on CPU to ensure < 3s ultra-fast response
-    if model in ("birefnet-general", "birefnet"):
-        model = "isnet-general-use"
-
-    from bg_remover_advanced import remove_background_advanced, ensure_rembg_installed, REMBG_AVAILABLE
+    from bg_remover_advanced import remove_background_pipeline, ensure_rembg_installed, REMBG_AVAILABLE
 
     # Auto-install rembg if missing (first run only)
     if not REMBG_AVAILABLE:
         logger.info("rembg not found, attempting auto-install...")
         installed = ensure_rembg_installed()
         if not installed:
-            logger.warning("rembg unavailable — using OpenCV GrabCut fallback")
+            raise HTTPException(status_code=503, detail="Neural models unavailable: rembg is not installed.")
 
     try:
-        result_png = remove_background_advanced(data, model=model)
+        if image_type not in {"auto", "portrait", "product", "graphics"}:
+            raise HTTPException(status_code=400, detail="Unsupported image type")
+        if model and model not in {"isnet-general-use", "birefnet-general", "birefnet-general-lite", "u2net"}:
+            raise HTTPException(status_code=400, detail="Unsupported background model")
+        result_png, meta = remove_background_pipeline(data, model=model or None, save_debug=False, image_type=image_type)
 
         # The background-removal contract is always a real transparent PNG.
         # Validate the bytes at the boundary so a model/fallback regression
@@ -832,18 +830,26 @@ async def api_background_remove_advanced(
             if result_image.format != "PNG" or result_image.mode != "RGBA":
                 raise ValueError("background remover returned a non-RGBA PNG")
             alpha = np.asarray(result_image.getchannel("A"))
-            if not np.any(alpha == 0) or not np.any(alpha == 255):
+            if not np.any(alpha == 0) or not np.any(alpha > 0):
                 raise ValueError("background remover returned an invalid alpha mask")
 
         return Response(
             content=result_png,
             media_type="image/png",
             headers={
-                "X-Model": model,
-                "X-Processing": "neural",
-                "Access-Control-Expose-Headers": "X-Model,X-Processing",
+                "X-Model": meta.get("model_used", model or "neural"),
+                "X-Bellix-Model": meta.get("model_used", model or "neural"),
+                "X-Bellix-Fallback-Used": str(meta.get("fallback_used", False)).lower(),
+                "X-Bellix-Quality-Pass": str(meta.get("quality_pass", True)).lower(),
+                "X-Bellix-Latency": f"{meta.get('latency_seconds', 0.0)}s",
+                "X-Bellix-Has-Gradient": str(meta.get("has_gradient_note", False)).lower(),
+                "X-Processing": "existing-alpha" if meta.get("model_used") == "existing-alpha" else "neural",
+                "X-Bellix-Operation": meta.get("operation", "neural-background-removal"),
+                "Access-Control-Expose-Headers": "X-Model,X-Bellix-Model,X-Bellix-Fallback-Used,X-Bellix-Quality-Pass,X-Bellix-Latency,X-Bellix-Has-Gradient,X-Processing,X-Bellix-Operation",
             },
         )
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.error(f"Background removal failed: {exc}")
         raise HTTPException(status_code=500, detail=f"Background removal failed: {str(exc)}")

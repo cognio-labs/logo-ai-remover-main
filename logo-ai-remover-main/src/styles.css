@@ -21,6 +21,69 @@
 @media (prefers-reduced-motion: reduce) { .gemini-scroll-progress, .gemini-icon-button, .gemini-secondary-button { transition: none; } .gemini-scan-beam { animation: none; top: 50%; } }
 
 /* ==========================================================================
+   Processing Dots Loader
+   - Single keyframe with nth-child stagger delays
+   - Exposed --dot-color and --dot-gap custom variables
+   - Frozen at full opacity under prefers-reduced-motion: reduce
+   - Cheap infinite loop (GPU-composited opacity & transform, will-change, zero paint)
+   ========================================================================== */
+.processing-dots {
+  --dot-color: #d0f471;
+  --dot-gap: 4px;
+  --dot-size: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dot-gap, 4px);
+  contain: layout style;
+  vertical-align: middle;
+}
+
+.processing-dots > span {
+  width: var(--dot-size, 5px);
+  height: var(--dot-size, 5px);
+  border-radius: 9999px;
+  background-color: var(--dot-color, currentColor);
+  display: inline-block;
+  will-change: opacity, transform;
+  animation: processingDotPulse 1.2s ease-in-out infinite;
+}
+
+.processing-dots > span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.processing-dots > span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.processing-dots > span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.processing-dots > span:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+@keyframes processingDotPulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateY(0) scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .processing-dots > span {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
    Gemini Sparkle Image Workspace & Hero Contrast Rules (/gemini-image-watermark-remover)
    ========================================================================== */
 

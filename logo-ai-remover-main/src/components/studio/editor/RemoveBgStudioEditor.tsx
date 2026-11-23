@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { useUserStore } from "@/lib/userStore";
 import { createThumbnailDataUrl, saveMediaBlob } from "@/lib/historyDb";
+import { ProcessingDots } from "@/components/ui/ProcessingDots";
 
 interface RemoveBgStudioEditorProps {
   originalImageUrl: string;
@@ -196,11 +197,21 @@ function InnerEditor({
                     <button
                       type="button"
                       onClick={onEditInCanva}
+                      disabled={isCanvaLoading}
                       className="w-full py-2.5 px-4 rounded-full text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                       style={{ backgroundColor: "#10241E", color: "#FFFFFF" }}
                     >
-                      <ExternalLink className="size-3.5 text-[#d0f471]" />
-                      <span style={{ color: "#FFFFFF" }}>Launch Canva Editor</span>
+                      {isCanvaLoading ? (
+                        <>
+                          <span style={{ color: "#FFFFFF" }}>Preparing Canva session</span>
+                          <ProcessingDots color="#d0f471" gap="3px" size="4px" />
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="size-3.5 text-[#d0f471]" />
+                          <span style={{ color: "#FFFFFF" }}>Launch Canva Editor</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>

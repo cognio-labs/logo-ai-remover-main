@@ -37,6 +37,7 @@ import {
   Play,
 } from "lucide-react";
 import { PinkScanLoader } from "@/components/site/PinkScanLoader";
+import { ProcessingDots } from "@/components/ui/ProcessingDots";
 import { BackgroundRemoverTrustVideos } from "@/components/site/BackgroundRemoverTrustVideos";
 import { HowItWorksGuide } from "@/components/site/HowItWorksGuide";
 import { howItWorksGuides } from "@/data/howItWorksGuides";
@@ -1244,7 +1245,7 @@ export default function BackgroundRemoverPage() {
 
       let thumbUrl = "";
       try {
-        thumbUrl = await createThumbnailDataUrl(res.transparentBlobUrl, 320, 0.8);
+        thumbUrl = await createThumbnailDataUrl(res.transparentBlob || res.transparentBlobUrl, 320, 0.8);
       } catch (e) {
         console.warn("Thumbnail generation error:", e);
       }
@@ -1765,7 +1766,8 @@ export default function BackgroundRemoverPage() {
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#d0f471]/10 border border-[#d0f471]/30 text-[#d0f471] text-[11px] font-medium ml-1">
                     <Loader2 className="size-3 animate-spin" />
-                    <span>AI Processing...</span>
+                    <span>AI Processing</span>
+                    <ProcessingDots color="#d0f471" gap="3px" size="4px" />
                   </span>
                 </div>
                 <button
@@ -1834,11 +1836,12 @@ export default function BackgroundRemoverPage() {
 
                 {/* Stage label */}
                 <div className="absolute bottom-4 inset-x-0 flex justify-center z-30 pointer-events-none">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0d1f17]/90 border border-[#d0f471]/30 backdrop-blur-md shadow-xl">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#0d1f17]/90 border border-[#d0f471]/30 backdrop-blur-md shadow-xl">
                     <Sparkles className="size-3.5 text-[#d0f471] animate-pulse" />
                     <span className="text-xs font-semibold text-[#d0f471]">
                       {stage || "Analyzing subject..."}
                     </span>
+                    <ProcessingDots color="#d0f471" gap="3.5px" size="4px" />
                   </div>
                 </div>
               </div>
@@ -1878,47 +1881,55 @@ export default function BackgroundRemoverPage() {
           {/* STATE 4: ERROR SCREEN                                           */}
           {/* ============================================================== */}
           {status === "error" && (
-            <div className="relative rounded-3xl overflow-hidden border border-[#303030] shadow-2xl bg-[#151515] flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
+            <div className="relative rounded-3xl overflow-hidden border border-[#1a3a2a]/60 shadow-2xl bg-[#0a1a12] flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
               {sourceUrl && (
                 <img
                   src={sourceUrl}
                   alt="Original upload"
-                  className="max-h-[500px] max-w-full object-contain filter brightness-40 blur-xs"
+                  className="max-h-[500px] max-w-full object-contain filter brightness-30 blur-xs"
                 />
               )}
 
-              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-6">
-                <div className="max-w-md w-full bg-[#1C1C1C] rounded-2xl p-6 sm:p-8 text-center shadow-2xl border border-[#303030]">
-                  <span className="size-14 rounded-full bg-[#151515] text-[#FF4FA3] flex items-center justify-center mx-auto mb-4 border border-[#303030]">
-                    <AlertTriangle className="size-7" />
+              <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6">
+                <div
+                  className="max-w-md w-full rounded-3xl p-6 sm:p-8 text-center shadow-2xl border"
+                  style={{ backgroundColor: "#0e2419", borderColor: "rgba(208, 244, 113, 0.25)" }}
+                >
+                  <span
+                    className="size-14 rounded-2xl flex items-center justify-center mx-auto mb-4 border"
+                    style={{ backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#f87171" }}
+                  >
+                    <AlertTriangle className="size-7 text-rose-400" />
                   </span>
 
-                  <h3 className="text-xl font-semibold text-white tracking-tight">
-                    We couldn't remove this background.
+                  <h3 className="text-xl font-bold tracking-tight mb-2" style={{ color: "#FFFFFF" }}>
+                    We couldn't remove this background
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#C7C7C7] mt-2 leading-relaxed">
+                  <p className="text-xs sm:text-sm leading-relaxed mb-6" style={{ color: "#b4c7be" }}>
                     {typeof inlineError === "string"
                       ? inlineError
                       : inlineError?.message || "Please try again or upload another image."}
                   </p>
 
-                  <div className="flex items-center justify-center gap-3 mt-6">
+                  <div className="flex items-center justify-center gap-3">
                     <button
                       type="button"
                       onClick={retryRemoval}
-                      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#FF2E63] hover:from-[#BE123C] hover:to-[#E11D48] text-white text-xs sm:text-sm font-semibold shadow-md shadow-[#E11D48]/30 transition-all cursor-pointer flex items-center gap-1.5"
+                      className="px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-2 hover:scale-105 active:scale-95"
+                      style={{ backgroundColor: "#d0f471", color: "#071A13" }}
                     >
-                      <RefreshCw className="size-3.5" />
-                      <span>Try Again</span>
+                      <RefreshCw className="size-4 text-[#071A13]" />
+                      <span className="font-bold text-[#071A13]">Try Again</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={resetToUpload}
-                      className="px-5 py-2.5 rounded-full border border-[#303030] bg-[#151515] hover:bg-[#252525] text-white text-xs sm:text-sm font-medium transition-all cursor-pointer"
+                      className="px-5 py-2.5 rounded-full border text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-white/10"
+                      style={{ backgroundColor: "transparent", borderColor: "rgba(255, 255, 255, 0.25)", color: "#FFFFFF" }}
                     >
-                      Upload Another
+                      <span style={{ color: "#FFFFFF" }}>Upload Another</span>
                     </button>
                   </div>
                 </div>

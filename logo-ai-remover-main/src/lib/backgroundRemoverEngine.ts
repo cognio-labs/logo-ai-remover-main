@@ -6,7 +6,7 @@
  * 2. True 8-bit Alpha Channel (0 <= alpha <= 255)
  * 3. Sub-pixel Edge Matting for hair, fur, and complex product silhouettes
  * 4. High-speed Instant Live Re-compositing (Solid Colors, Studio Backdrops)
- * 5. Smart offline multi-corner canvas fallback if WebAssembly is unavailable
+ * 5. Explicit failure if both neural engines are unavailable
  * 6. High-resolution transparent 32-bit PNG and JPEG exports
  */
 
@@ -116,7 +116,7 @@ function getImageDimensions(url: string): Promise<{ width: number; height: numbe
 }
 
 // Try the Python backend for high-quality neural background removal (rembg/BiRefNet)
-async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
+async function tryBackendRemoval(imageUrl: string, imageType: "auto" | "portrait" | "product" | "graphics" = "auto"): Promise<{ blob: Blob; operation: string } | null> {
   try {
     // Fetch the image file bytes
     const imgResp = await fetch(imageUrl);
@@ -128,20 +128,20 @@ async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
 
     const formData = new FormData();
     formData.append("image", imgBlob, "image.png");
-    // Ultra-fast < 3s neural background removal using isnet-general-use
-    formData.append("model", "isnet-general-use");
+    formData.append("image_type", imageType);
+    // Worker owns model selection; do not force ISNet over its configured model.
 
     // Primary route: Next.js proxy route /api/remove-bg
     const resp = await fetch("/api/remove-bg", {
       method: "POST",
       body: formData,
-      signal: AbortSignal.timeout(15000), // Fast 15s timeout
+      signal: AbortSignal.timeout(120000),
     });
 
     if (resp.ok) {
       const blob = await resp.blob();
-      if (blob && blob.size > 1000) {
-        return blob;
+      if (blob.size > 0 && resp.headers.get("Content-Type")?.includes("image/png")) {
+        return { blob, operation: resp.headers.get("X-Bellix-Operation") || "neural-background-removal" };
       }
     }
 
@@ -154,8 +154,8 @@ async function tryBackendRemoval(imageUrl: string): Promise<Blob | null> {
       });
       if (directResp.ok) {
         const directBlob = await directResp.blob();
-        if (directBlob && directBlob.size > 1000) {
-          return directBlob;
+        if (directBlob.size > 0 && directResp.headers.get("Content-Type")?.includes("image/png")) {
+          return { blob: directBlob, operation: directResp.headers.get("X-Bellix-Operation") || "neural-background-removal" };
         }
       }
     } catch {
@@ -179,15 +179,17 @@ export async function removeImageBackground(
   customColor: string = "#FFFFFF",
   backdropId: string = "luxury-studio",
   onProgress?: (stage: string, progress: number) => void,
+  imageType: "auto" | "portrait" | "product" | "graphics" = "auto",
 ): Promise<CutoutResult> {
   const startTime = Date.now();
   if (onProgress) onProgress("Preparing image for neural analysis...", 10);
 
-  // --- Try Python backend first (rembg isnet-general-use — ultra-fast < 3s & superior quality) ---
+  // Try the configured Python neural worker first.
   if (onProgress) onProgress("Removing background with AI neural model...", 25);
-  const backendBlob = await tryBackendRemoval(imageUrl);
-  if (backendBlob) {
-    if (onProgress) onProgress("Refining edges and transparency...", 90);
+  const backendResult = await tryBackendRemoval(imageUrl, imageType);
+  if (backendResult) {
+    const backendBlob = backendResult.blob;
+    if (onProgress) onProgress("Preparing PNG preview...", 90);
     const resultBlobUrl = URL.createObjectURL(backendBlob);
     const dimensions = await getImageDimensions(resultBlobUrl);
     const processingTimeMs = Date.now() - startTime;
@@ -210,12 +212,18 @@ export async function removeImageBackground(
       fileSizeBytes: backendBlob.size,
       fileSizeFormatted: formatBytes(backendBlob.size),
       processingTimeMs,
-      isRealAi: true,
+      isRealAi: backendResult.operation === "neural-background-removal",
+      warnings: [backendResult.operation === "preserved-existing-transparency"
+        ? "Existing graphics transparency preserved; no AI segmentation performed."
+        : "Inspect the cutout before use; visual quality is unverified."],
       status: "completed",
-      confidenceScore: 0.99,
+
     };
   }
 
+  if (imageType === "graphics") {
+    throw new Error("Graphics processing needs the image worker. Please retry when it is available.");
+  }
   // --- Fallback: in-browser neural segmentation ---
   if (onProgress) onProgress("Loading AI model (in-browser)...", 30);
 
@@ -276,12 +284,12 @@ export async function removeImageBackground(
       processingTimeMs,
       isRealAi: true,
       status: "completed",
-      confidenceScore: 0.98,
+
     };
   } catch (error) {
-    console.warn("Neural in-browser removal error, falling back to smart edge matting:", error);
-    if (onProgress) onProgress("Running smart client-side matting...", 75);
-    return clientSideFallbackRemoval(imageUrl, bgType, customColor, backdropId);
+    console.warn("Neural in-browser removal failed:", error);
+    if (onProgress) onProgress("AI processing failed", 75);
+    throw new Error("AI background removal failed. Please retry; no unprocessed image was returned.");
   }
 }
 
@@ -382,151 +390,6 @@ export async function refineCutoutStrokes(
   return {
     previewUrl: url,
     maskUrl: url,
-  };
-}
-
-/**
- * Fallback client-side segmentation for offline or older browsers
- */
-async function clientSideFallbackRemoval(
-  imageUrl: string,
-  bgType: BackgroundType,
-  customColor: string,
-  backdropId: string,
-): Promise<CutoutResult> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    if (!imageUrl.startsWith("blob:") && !imageUrl.startsWith("data:")) {
-      img.crossOrigin = "anonymous";
-    }
-
-    img.onload = () => {
-      const w = img.naturalWidth || img.width;
-      const h = img.naturalHeight || img.height;
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) {
-        reject(new Error("Canvas context failed"));
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0, w, h);
-      let imgData: ImageData;
-      try {
-        imgData = ctx.getImageData(0, 0, w, h);
-      } catch {
-        resolve(createDirectFallbackResult(img, w, h));
-        return;
-      }
-
-      const data = imgData.data;
-
-      // Sample all 4 corners to detect background color reliably
-      const cornerSamples = [
-        [0, 1, 2], // Top-Left
-        [(w - 1) * 4, (w - 1) * 4 + 1, (w - 1) * 4 + 2], // Top-Right
-        [(h - 1) * w * 4, (h - 1) * w * 4 + 1, (h - 1) * w * 4 + 2], // Bottom-Left
-        [((h - 1) * w + (w - 1)) * 4, ((h - 1) * w + (w - 1)) * 4 + 1, ((h - 1) * w + (w - 1)) * 4 + 2], // Bottom-Right
-      ];
-
-      const bgR = Math.round(
-        cornerSamples.reduce((sum, idx) => sum + data[idx[0]], 0) / cornerSamples.length
-      );
-      const bgG = Math.round(
-        cornerSamples.reduce((sum, idx) => sum + data[idx[1]], 0) / cornerSamples.length
-      );
-      const bgB = Math.round(
-        cornerSamples.reduce((sum, idx) => sum + data[idx[2]], 0) / cornerSamples.length
-      );
-
-      // Conservative fallback: only remove pixels that match the sampled
-      // background.  This fallback is used when both neural engines are
-      // unavailable, so never turn detailed/photographic background texture
-      // into transparent holes just because its colour is close to a corner.
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const idx = (y * w + x) * 4;
-          const r = data[idx];
-          const g = data[idx + 1];
-          const b = data[idx + 2];
-          const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-
-          if (dist < 18) {
-            data[idx + 3] = 0;
-          } else if (dist < 28) {
-            data[idx + 3] = Math.round(((dist - 18) / 10) * 255);
-          }
-        }
-      }
-
-      ctx.putImageData(imgData, 0, 0);
-
-      canvas.toBlob((transBlob) => {
-        if (!transBlob) {
-          resolve(createDirectFallbackResult(img, w, h));
-          return;
-        }
-        const transUrl = URL.createObjectURL(transBlob);
-        const jobId = `local_${Date.now()}`;
-        localBlobCache.set(jobId, transBlob);
-
-        if (bgType !== "transparent") {
-          clientSideRecomposite(jobId, bgType, customColor, backdropId).then((comp) => {
-            resolve({
-              jobId,
-              transparentBlobUrl: transUrl,
-              compositeBlobUrl: comp.compositeBlobUrl,
-              transparentBlob: transBlob,
-              width: w,
-              height: h,
-              fileSizeBytes: transBlob.size,
-              fileSizeFormatted: formatBytes(transBlob.size),
-              isRealAi: false,
-              status: "completed",
-            });
-          });
-        } else {
-          resolve({
-            jobId,
-            transparentBlobUrl: transUrl,
-            compositeBlobUrl: transUrl,
-            transparentBlob: transBlob,
-            width: w,
-            height: h,
-            fileSizeBytes: transBlob.size,
-            fileSizeFormatted: formatBytes(transBlob.size),
-            isRealAi: false,
-            status: "completed",
-          });
-        }
-      }, "image/png");
-    };
-
-    img.onerror = () => reject(new Error("Failed to load image"));
-    img.src = imageUrl;
-  });
-}
-
-function createDirectFallbackResult(img: HTMLImageElement, w: number, h: number): CutoutResult {
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (ctx) ctx.drawImage(img, 0, 0);
-  const url = canvas.toDataURL("image/png");
-  const jobId = `local_${Date.now()}`;
-  return {
-    jobId,
-    transparentBlobUrl: url,
-    compositeBlobUrl: url,
-    width: w,
-    height: h,
-    fileSizeBytes: 1024 * 500,
-    fileSizeFormatted: "500 KB",
-    isRealAi: false,
-    status: "completed",
   };
 }
 

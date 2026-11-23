@@ -15,7 +15,6 @@ import {
   Eye,
   X,
   Wand2,
-  FileText,
   RotateCcw,
   ZoomIn,
   ShieldCheck,
@@ -83,16 +82,6 @@ const TOOL_CONFIGS: Record<string, ToolMeta> = {
     tabLabel: "🎬 Video Cleaner",
     gradient: "from-cyan-500/20 to-blue-500/20",
   },
-  pdf: {
-    name: "PDF Document Studio",
-    shortName: "PDF Studio",
-    icon: FileText,
-    badgeBg: "bg-amber-500/10",
-    badgeText: "text-amber-700",
-    badgeBorder: "border-amber-500/25",
-    tabLabel: "📄 PDF Studio",
-    gradient: "from-amber-500/20 to-orange-500/20",
-  },
   upscale: {
     name: "AI Image Upscaler",
     shortName: "AI Upscaler",
@@ -115,9 +104,6 @@ function getToolConfig(fileType: string, toolName?: string): ToolMeta {
   if (toolName?.toLowerCase().includes("video")) {
     return TOOL_CONFIGS["video"];
   }
-  if (toolName?.toLowerCase().includes("pdf")) {
-    return TOOL_CONFIGS["pdf"];
-  }
   return TOOL_CONFIGS["image"];
 }
 
@@ -126,8 +112,205 @@ const TABS = [
   { id: "background-remover", label: "🪄 Background Remover" },
   { id: "image", label: "✨ Image Cleaner" },
   { id: "video", label: "🎬 Video Cleaner" },
-  { id: "pdf", label: "📄 PDF Studio" },
 ] as const;
+
+function HistoryCard({
+  item,
+  onInspect,
+  onDownload,
+  onDelete,
+}: {
+  item: JobItem;
+  onInspect: (item: JobItem) => void;
+  onDownload: (item: JobItem) => void;
+  onDelete: (id: string, name: string) => void;
+}) {
+  const tool = getToolConfig(item.file_type, item.tool_name);
+  const ToolIcon = tool.icon;
+  const [thumbSrc, setThumbSrc] = useState<string | null>(() => {
+    if (item.thumbnail_url && !item.thumbnail_url.startsWith("blob:")) {
+      return item.thumbnail_url;
+    }
+    return null;
+  });
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    let createdBlobUrl: string | null = null;
+
+    // Load from IndexedDB persistent storage
+    getMediaBlob(item.id).then((blob) => {
+      if (!active) return;
+      if (blob && blob.size > 0) {
+        createdBlobUrl = URL.createObjectURL(blob);
+        setThumbSrc(createdBlobUrl);
+        setHasError(false);
+      } else if (item.thumbnail_url && !item.thumbnail_url.startsWith("blob:")) {
+        setThumbSrc(item.thumbnail_url);
+      }
+    });
+
+    return () => {
+      active = false;
+      if (createdBlobUrl) {
+        URL.revokeObjectURL(createdBlobUrl);
+      }
+    };
+  }, [item.id, item.thumbnail_url]);
+
+  return (
+    <div className="group rounded-3xl bg-white border border-[#10241e]/12 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#10241e]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+      <div>
+        {/* Top Bar inside Card: Tool Badge & Status */}
+        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-[#10241e]/6 bg-[#fbfcf8]">
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${tool.badgeBg} ${tool.badgeText} ${tool.badgeBorder} shadow-2xs`}
+            title={`Processed with ${tool.name}`}
+          >
+            <ToolIcon className="size-3.5 shrink-0" />
+            <span className="truncate max-w-[130px]">{tool.shortName}</span>
+          </span>
+
+          <span
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+              item.status === "completed"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : item.status === "processing"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-rose-50 text-rose-700 border border-rose-200"
+            }`}
+          >
+            {item.status === "completed" ? (
+              <>
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Ready</span>
+              </>
+            ) : item.status === "processing" ? (
+              <>
+                <span className="size-1.5 rounded-full bg-amber-500 animate-spin" />
+                <span>Processing</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="size-3 text-rose-500" />
+                <span>Failed</span>
+              </>
+            )}
+          </span>
+        </div>
+
+        {/* Preview Thumbnail Area */}
+        <div
+          className="relative aspect-[16/10] overflow-hidden border-b border-[#10241e]/8 cursor-pointer group/preview"
+          style={{
+            backgroundColor: "#161c1a",
+            backgroundImage:
+              "linear-gradient(45deg, #222926 25%, transparent 25%), linear-gradient(-45deg, #222926 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222926 75%), linear-gradient(-45deg, transparent 75%, #222926 75%)",
+            backgroundSize: "16px 16px",
+            backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+          }}
+          onClick={() => onInspect(item)}
+        >
+          {thumbSrc && !hasError ? (
+            <img
+              src={thumbSrc}
+              alt={item.file_name}
+              className="size-full object-contain p-2 group-hover/preview:scale-105 transition-transform duration-300"
+              onError={() => setHasError(true)}
+            />
+          ) : (
+            <div
+              className={`size-full flex flex-col items-center justify-center p-4 bg-gradient-to-br ${tool.gradient} text-[#10241e] backdrop-blur-xs`}
+            >
+              <div className="size-12 rounded-2xl bg-white shadow-md flex items-center justify-center mb-2 border border-[#10241e]/10">
+                <ToolIcon className="size-6 text-[#10241e]" />
+              </div>
+              <span className="text-xs font-bold text-[#10241e] drop-shadow-sm text-center">
+                {tool.shortName}
+              </span>
+              <span className="text-[10px] text-[#47574f] font-medium mt-0.5">
+                {item.quality || "Clean Media Ready"}
+              </span>
+            </div>
+          )}
+
+          {/* Hover Overlay with Inspect Button */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onInspect(item);
+              }}
+              className="px-3 py-1.5 rounded-full bg-white text-[#10241e] text-xs font-bold shadow-lg flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer"
+            >
+              <Eye className="size-3.5" />
+              <span>Inspect</span>
+            </button>
+          </div>
+
+          {/* Resolution badge bottom right */}
+          {item.quality && (
+            <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
+              <span className="px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-mono font-bold text-white border border-white/10 shadow-xs">
+                {item.quality}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Metadata Body */}
+        <div className="p-4 space-y-2">
+          <div className="space-y-0.5">
+            <h4
+              className="font-bold text-sm text-[#10241e] truncate"
+              title={item.file_name}
+            >
+              {item.file_name}
+            </h4>
+            <p className="text-[11px] text-[#637069] truncate">
+              Created via {tool.name}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] font-medium text-[#637069] pt-1 border-t border-[#10241e]/6">
+            <span className="inline-flex items-center gap-1">
+              <Clock className="size-3 text-[#10241e]/60" />
+              <span>{new Date(item.created_at).toLocaleDateString()}</span>
+            </span>
+            <span className="font-mono bg-[#f3f4ee] px-2 py-0.5 rounded-md text-[#10241e] text-[10px] font-semibold">
+              {item.processing_time || "Instant"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Action Buttons */}
+      <div className="p-4 pt-0 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onDownload(item)}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs transition-all shadow-xs hover:scale-101 cursor-pointer"
+          style={{ backgroundColor: "#d0f471", color: "#071A13" }}
+          title={`Download ${item.file_name}`}
+        >
+          <Download className="size-4 text-[#071A13]" />
+          <span className="font-bold text-[#071A13]">Download Clean Media</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onDelete(item.id, item.file_name)}
+          className="p-2.5 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
+          title="Remove from history"
+        >
+          <Trash2 className="size-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function HistoryPage() {
   const { jobs, deleteJob, clearAllJobs } = useUserStore();
@@ -135,7 +318,6 @@ export default function HistoryPage() {
   const [search, setSearch] = useState("");
   const [previewItem, setPreviewItem] = useState<JobItem | null>(null);
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
-  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const filtered = useMemo(() => {
     return jobs.filter((item) => {
@@ -200,7 +382,7 @@ export default function HistoryPage() {
 
     // 2. Try URL if available
     const url = item.result_url || item.thumbnail_url || item.file_url;
-    if (url && !failedImages[item.id]) {
+    if (url) {
       try {
         const res = await fetch(url);
         if (res.ok) {
@@ -352,174 +534,15 @@ export default function HistoryPage() {
         ) : (
           /* Grid of Modern Luxury Cards */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((item) => {
-              const tool = getToolConfig(item.file_type, item.tool_name);
-              const ToolIcon = tool.icon;
-              const isImageBroken = failedImages[item.id];
-              const imageSource = !isImageBroken
-                ? item.thumbnail_url || item.result_url || item.file_url
-                : null;
-
-              return (
-                <div
-                  key={item.id}
-                  className="group rounded-3xl bg-white border border-[#10241e]/12 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#10241e]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Top Bar inside Card: Tool Badge & Status */}
-                    <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-[#10241e]/6 bg-[#fbfcf8]">
-                      {/* Tool Badge */}
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${tool.badgeBg} ${tool.badgeText} ${tool.badgeBorder} shadow-2xs`}
-                        title={`Processed with ${tool.name}`}
-                      >
-                        <ToolIcon className="size-3.5 shrink-0" />
-                        <span className="truncate max-w-[130px]">{tool.shortName}</span>
-                      </span>
-
-                      {/* Status Indicator */}
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          item.status === "completed"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : item.status === "processing"
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-rose-50 text-rose-700 border border-rose-200"
-                        }`}
-                      >
-                        {item.status === "completed" ? (
-                          <>
-                            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Ready</span>
-                          </>
-                        ) : item.status === "processing" ? (
-                          <>
-                            <span className="size-1.5 rounded-full bg-amber-500 animate-spin" />
-                            <span>Processing</span>
-                          </>
-                        ) : (
-                          <>
-                            <AlertCircle className="size-3 text-rose-500" />
-                            <span>Failed</span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-
-                    {/* Preview Thumbnail Area */}
-                    <div
-                      className="relative aspect-[16/10] overflow-hidden border-b border-[#10241e]/8 cursor-pointer group/preview"
-                      style={{
-                        backgroundColor: "#161c1a",
-                        backgroundImage:
-                          "linear-gradient(45deg, #222926 25%, transparent 25%), linear-gradient(-45deg, #222926 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222926 75%), linear-gradient(-45deg, transparent 75%, #222926 75%)",
-                        backgroundSize: "16px 16px",
-                        backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-                      }}
-                      onClick={() => setPreviewItem(item)}
-                    >
-                      {imageSource ? (
-                        <img
-                          src={imageSource}
-                          alt={item.file_name}
-                          className="size-full object-contain p-2 group-hover/preview:scale-105 transition-transform duration-300"
-                          onError={() => {
-                            setFailedImages((prev) => ({ ...prev, [item.id]: true }));
-                          }}
-                        />
-                      ) : (
-                        /* Graceful Fallback (Never show broken image icon!) */
-                        <div
-                          className={`size-full flex flex-col items-center justify-center p-4 bg-gradient-to-br ${tool.gradient} text-[#10241e] backdrop-blur-xs`}
-                        >
-                          <div className="size-12 rounded-2xl bg-white shadow-md flex items-center justify-center mb-2 border border-[#10241e]/10">
-                            <ToolIcon className="size-6 text-[#10241e]" />
-                          </div>
-                          <span className="text-xs font-bold text-white drop-shadow-sm text-center">
-                            {tool.shortName}
-                          </span>
-                          <span className="text-[10px] text-white/80 font-medium mt-0.5">
-                            {item.quality || "Clean Media Ready"}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Hover Overlay with Preview Icon */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewItem(item);
-                          }}
-                          className="px-3 py-1.5 rounded-full bg-white text-[#10241e] text-xs font-bold shadow-lg flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer"
-                        >
-                          <Eye className="size-3.5" />
-                          <span>Inspect</span>
-                        </button>
-                      </div>
-
-                      {/* Resolution badge bottom right */}
-                      {item.quality && (
-                        <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
-                          <span className="px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-mono font-bold text-white border border-white/10 shadow-xs">
-                            {item.quality}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Metadata Body */}
-                    <div className="p-4 space-y-2">
-                      <div className="space-y-0.5">
-                        <h4
-                          className="font-bold text-sm text-[#10241e] truncate"
-                          title={item.file_name}
-                        >
-                          {item.file_name}
-                        </h4>
-                        <p className="text-[11px] text-[#637069] truncate">
-                          Created via {tool.name}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] font-medium text-[#637069] pt-1 border-t border-[#10241e]/6">
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="size-3 text-[#10241e]/60" />
-                          <span>{new Date(item.created_at).toLocaleDateString()}</span>
-                        </span>
-                        <span className="font-mono bg-[#f3f4ee] px-2 py-0.5 rounded-md text-[#10241e] text-[10px] font-semibold">
-                          {item.processing_time || "Instant"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer Action Buttons */}
-                  <div className="p-4 pt-0 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleDownload(item)}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs transition-all shadow-xs hover:scale-101 cursor-pointer"
-                      style={{ backgroundColor: "#d0f471", color: "#071A13" }}
-                      title={`Download ${item.file_name}`}
-                    >
-                      <Download className="size-4 text-[#071A13]" />
-                      <span className="font-bold text-[#071A13]">Download Clean Media</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(item.id, item.file_name)}
-                      className="p-2.5 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
-                      title="Remove from history"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {filtered.map((item) => (
+              <HistoryCard
+                key={item.id}
+                item={item}
+                onInspect={setPreviewItem}
+                onDownload={handleDownload}
+                onDelete={handleDelete}
+              />
+            ))}
           </div>
         )}
       </div>

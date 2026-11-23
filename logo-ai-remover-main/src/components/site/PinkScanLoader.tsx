@@ -1,5 +1,6 @@
 import React from "react";
 import { Sparkles, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
+import { ProcessingDots } from "@/components/ui/ProcessingDots";
 
 interface PinkScanLoaderProps {
   progress: number;
@@ -37,6 +38,7 @@ export const PinkScanLoader: React.FC<PinkScanLoaderProps> = ({
         <p className="text-sm font-semibold text-[#18362d] flex items-center justify-center gap-1.5">
           <Zap className="w-4 h-4 text-emerald-600 animate-bounce" />
           <span>{stage || "Analyzing pixels & structure..."}</span>
+          <ProcessingDots color="#059669" gap="3px" size="4px" />
         </p>
       </div>
 
