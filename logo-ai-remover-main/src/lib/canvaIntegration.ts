@@ -67,8 +67,9 @@ export async function handleEditInCanva(
     }
   }
 
-  // 2. High-speed Direct Clipboard + Canva Studio launch (Default Zero-Config Mode)
+  // 2. High-speed Direct Clipboard + Auto Download + Canva Photo Editor launch
   // Copies the genuine 32-bit alpha PNG to system clipboard so the user can paste (Ctrl+V) directly
+  let copiedToClipboard = false;
   try {
     if (typeof window !== "undefined" && navigator?.clipboard?.write) {
       await navigator.clipboard.write([
@@ -76,19 +77,36 @@ export async function handleEditInCanva(
           "image/png": imageBlob,
         }),
       ]);
+      copiedToClipboard = true;
     }
   } catch (clipErr) {
     console.warn("Could not copy directly to clipboard:", clipErr);
   }
 
-  // Open Canva blank canvas in a new tab
-  const canvaUrl = "https://www.canva.com/design?create=true";
+  // Automatically download the transparent PNG so the user has the file ready to drag & drop into Canva
+  try {
+    const dlUrl = URL.createObjectURL(imageBlob);
+    const link = document.createElement("a");
+    link.href = dlUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(dlUrl), 10000);
+  } catch (dlErr) {
+    console.warn("Auto-download for Canva failed:", dlErr);
+  }
+
+  // Open official Canva Photo Editor page (works 100% without 403 Forbidden error, whether logged in or not)
+  const canvaUrl = "https://www.canva.com/photo-editor/";
   window.open(canvaUrl, "_blank", "noopener,noreferrer");
 
   return {
     success: true,
     mode: "clipboard_transfer",
-    message: "Opening Canva! Your transparent cutout is copied to clipboard — press Ctrl+V inside Canva to paste.",
+    message: copiedToClipboard
+      ? "Opening Canva! Cutout is downloaded & copied to clipboard — paste (Ctrl+V) or drop it into Canva."
+      : "Opening Canva! Your transparent cutout has been downloaded — drag and drop it into Canva.",
     designUrl: canvaUrl,
   };
 }

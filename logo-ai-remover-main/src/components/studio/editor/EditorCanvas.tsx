@@ -3,6 +3,8 @@ import { useEditor } from "./EditorContext";
 import { PHOTO_FILTERS } from "./backgroundData";
 import type { TextLayer } from "./types";
 
+const LIGHT_CHECKERBOARD = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23ffffff'/%3E%3Crect x='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect y='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23ffffff'/%3E%3C/svg%3E")`;
+
 export function EditorCanvas() {
   const { state, dispatch } = useEditor();
   const {
@@ -33,6 +35,7 @@ export function EditorCanvas() {
   const [draggedLayerId, setDraggedLayerId] = useState<string | null>(null);
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null);
 
   // Load and cache images
   useEffect(() => {
@@ -56,6 +59,7 @@ export function EditorCanvas() {
       // Initialize mask canvas to track user brush modifications
       const w = cutout.naturalWidth || cutout.width || 800;
       const h = cutout.naturalHeight || cutout.height || 600;
+      setDimensions({ width: w, height: h });
 
       const mCanvas = document.createElement("canvas");
       mCanvas.width = w;
@@ -513,9 +517,16 @@ export function EditorCanvas() {
     >
       {/* Aspect Ratio Box */}
       <div
-        className={`relative max-w-full max-h-[340px] sm:max-h-[380px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg transition-all duration-200 ${
-          background.type === "transparent" ? "checkerboard-pattern" : ""
-        } ${aspectClass}`}
+        className={`relative max-w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-slate-200/60 transition-all duration-200 ${aspectClass}`}
+        style={{
+          aspectRatio:
+            adjust.cropAspect === "free" && dimensions
+              ? `${dimensions.width} / ${dimensions.height}`
+              : undefined,
+          maxHeight: "min(65vh, 460px)",
+          backgroundImage: background.type === "transparent" ? LIGHT_CHECKERBOARD : undefined,
+          backgroundSize: "20px 20px",
+        }}
       >
         <canvas
           data-background-editor-canvas
@@ -523,13 +534,19 @@ export function EditorCanvas() {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className={`max-h-[340px] sm:max-h-[380px] max-w-full object-contain block touch-none ${
+          className={`max-h-[min(65vh,460px)] max-w-full object-contain block touch-none ${
             activeTab === "cutout"
               ? "cursor-crosshair"
               : isDraggingText
               ? "cursor-grabbing"
               : "cursor-default"
           }`}
+          style={{
+            aspectRatio:
+              adjust.cropAspect === "free" && dimensions
+                ? `${dimensions.width} / ${dimensions.height}`
+                : undefined,
+          }}
         />
 
         {/* Interactive Brush Circle Cursor */}

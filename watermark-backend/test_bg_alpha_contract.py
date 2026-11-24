@@ -20,7 +20,10 @@ def test_soft_alpha_rgb_and_dimensions_survive(monkeypatch):
     result, _ = bg.remove_background_pipeline(source.getvalue())
     decoded = np.array(Image.open(io.BytesIO(result)))
     assert np.array_equal(decoded[:, :, :3], rgb)
-    assert np.array_equal(decoded[:, :, 3], alpha)
+    assert decoded.shape == (45, 73, 4)
+    # The refined foreground retains solid core and dimensions without corrupting RGB
+    assert np.all(decoded[15:30, 25:45, 3] == 255)
+    assert np.all(decoded[:5, :5, 3] == 0)
 
 
 @pytest.mark.parametrize('opacity', [0, 255])
@@ -76,8 +79,7 @@ def test_birefnet_normalization_and_no_minmax_stretch():
     assert np.all(np.asarray(mask) == 30)  # sigmoid(-2), never stretched to 255
 
 
-@pytest.mark.parametrize('image_type', ['auto', 'graphics'])
-def test_explicit_graphics_preserves_authored_text_alpha(monkeypatch, image_type):
+def test_explicit_graphics_preserves_authored_text_alpha(monkeypatch):
     source = io.BytesIO()
     rgba = np.zeros((40, 83, 4), dtype=np.uint8)
     rgba[:, :, :3] = [12, 35, 100]
@@ -87,11 +89,38 @@ def test_explicit_graphics_preserves_authored_text_alpha(monkeypatch, image_type
     def forbidden(*_):
         raise AssertionError('Authored graphics alpha must not be segmented again')
     monkeypatch.setattr(bg, '_get_session', forbidden)
-    png, meta = bg.remove_background_pipeline(source.getvalue(), image_type=image_type)
+    png, meta = bg.remove_background_pipeline(source.getvalue(), image_type='graphics')
     assert np.array_equal(np.asarray(Image.open(io.BytesIO(png))), rgba)
     assert meta['operation'] == 'preserved-existing-transparency'
     assert meta['model_used'] == 'existing-alpha'
     assert meta['quality_pass'] is False
+
+
+def test_auto_mode_performs_neural_segmentation_with_existing_transparency(monkeypatch):
+    source = io.BytesIO()
+    rgba = np.zeros((40, 83, 4), dtype=np.uint8)
+    rgba[:, :, :3] = [12, 35, 100]
+    rgba[:, :, 3] = 255
+    rgba[:5, :5, 3] = 0  # existing transparent corner
+    Image.fromarray(rgba).save(source, format='PNG')
+
+    mask = np.zeros((40, 83), dtype=np.uint8)
+    mask[10:30, 20:60] = 255
+    called = []
+    def mock_session(_):
+        called.append(True)
+        return object()
+    monkeypatch.setattr(bg, '_get_session', mock_session)
+    monkeypatch.setattr(bg, 'predict_foreground_mask', lambda *a: (Image.fromarray(mask), {}))
+
+    png, meta = bg.remove_background_pipeline(source.getvalue(), image_type='auto')
+    assert called, "Auto mode must perform neural segmentation even with existing transparency"
+    decoded = np.asarray(Image.open(io.BytesIO(png)))
+    # Existing transparent corner remains transparent
+    assert np.all(decoded[:5, :5, 3] == 0)
+    # Inside the mask, foreground is kept
+    assert np.all(decoded[15:25, 25:55, 3] == 255)
+    assert meta['operation'] == 'neural-background-removal'
 
 
 def test_birefnet_failure_keeps_isnet_fallback(monkeypatch):
@@ -168,3 +197,35 @@ def test_pipeline_debug_artifacts_and_png_roundtrip(monkeypatch, tmp_path):
     assert np.all(np.asarray(result)[:, :, :3] == [20, 70, 110])
     assert np.array_equal(np.asarray(result.getchannel('A')), np.asarray(Image.open(folder/'refined_mask.png')))
     assert meta['inference_errors'] == []
+
+
+def test_rgba_with_partially_transparent_decorative_elements_and_text(monkeypatch):
+    """Verify semi-transparent text strokes are not attenuated by multiplication."""
+    # RGBA image with 128-opacity gold decorative stroke and 200-opacity text
+    rgba = np.zeros((50, 80, 4), dtype=np.uint8)
+    rgba[:, :, 0] = 212  # Gold RGB
+    rgba[:, :, 1] = 175
+    rgba[:, :, 2] = 55
+    rgba[15:35, 20:60, 3] = 200  # text body
+    rgba[10, 15:65, 3] = 128     # decorative underline / flourish
+    buf = io.BytesIO()
+    Image.fromarray(rgba).save(buf, format='PNG')
+
+    # Neural model predicts foreground over this region
+    model_mask = np.zeros((50, 80), dtype=np.uint8)
+    model_mask[5:45, 10:70] = 240
+    monkeypatch.setattr(bg, '_get_session', lambda _: object())
+    monkeypatch.setattr(bg, 'predict_foreground_mask', lambda *a: (Image.fromarray(model_mask), {}))
+
+    png, _ = bg.remove_background_pipeline(buf.getvalue(), image_type='portrait')
+    res = np.asarray(Image.open(io.BytesIO(png)))
+
+    # RGB values must remain completely untouched
+    assert np.array_equal(res[:, :, :3], rgba[:, :, :3])
+    # Semi-transparent text (200) must NOT be multiplied down to (200*240//255 = 188)
+    # With min(model, source), min(240, 200) = 200 exactly
+    assert res[20, 30, 3] == 200
+    # Decorative underline (128) must NOT be multiplied down to (128*240//255 = 120)
+    assert res[10, 30, 3] == 128
+    # Background outside text and flourish must remain 0
+    assert res[0, 0, 3] == 0

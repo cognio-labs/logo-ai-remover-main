@@ -10,6 +10,7 @@ import numpy as np
 from bg_remover_advanced import (
     apply_scdtr_component_refinement,
     detect_native_gradient,
+    fill_holes_and_small_notches,
     remove_background_pipeline,
 )
 from PIL import Image
@@ -110,3 +111,25 @@ def test_face_soft_vote_not_hard_anchor():
     assert np.count_nonzero(clean_mask[:, :120]) == 0, "Text with false face must be rejected"
     # Person on right must be kept
     assert np.count_nonzero(clean_mask[:, 150:]) > 1000, "Real subject must be kept"
+
+
+def test_fill_holes_preserves_letter_counters_and_openings():
+    """Verify fill_holes_and_small_notches heals small noise dropouts but leaves counters open."""
+    mask = np.zeros((200, 200), dtype=np.uint8)
+    # Solid body
+    mask[20:180, 20:180] = 255
+    # 1. Genuine tiny dropout (area ~12px)
+    cv2.circle(mask, (60, 60), 2, 0, -1)
+    # 2. Letter counter / decorative gap (radius 10, area ~314px)
+    cv2.circle(mask, (130, 60), 10, 0, -1)
+    # 3. Arm akimbo gap (30x30 = 900px)
+    mask[100:130, 100:130] = 0
+
+    filled = fill_holes_and_small_notches(mask)
+
+    # Tiny sensor dropout must be healed
+    assert filled[60, 60] == 255, "Tiny noise dropout inside subject must be healed"
+    # Letter counter must NOT be filled solid
+    assert filled[60, 130] == 0, "Letter counter hole must remain open and transparent"
+    # Arm gap must NOT be filled solid
+    assert filled[115, 115] == 0, "Intentional arm gap must remain open and transparent"

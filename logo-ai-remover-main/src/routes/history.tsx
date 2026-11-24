@@ -69,7 +69,7 @@ const TOOL_CONFIGS: Record<string, ToolMeta> = {
     badgeBg: "bg-purple-500/10",
     badgeText: "text-purple-700",
     badgeBorder: "border-purple-500/25",
-    tabLabel: "✨ Image Cleaner",
+    tabLabel: "Image Cleaner",
     gradient: "from-purple-500/20 to-indigo-500/20",
   },
   video: {
@@ -110,7 +110,7 @@ function getToolConfig(fileType: string, toolName?: string): ToolMeta {
 const TABS = [
   { id: "all", label: "All Assets" },
   { id: "background-remover", label: "🪄 Background Remover" },
-  { id: "image", label: "✨ Image Cleaner" },
+  { id: "image", label: "Image Cleaner" },
   { id: "video", label: "🎬 Video Cleaner" },
 ] as const;
 
@@ -173,13 +173,12 @@ function HistoryCard({
           </span>
 
           <span
-            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-              item.status === "completed"
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                : item.status === "processing"
-                  ? "bg-amber-50 text-amber-700 border border-amber-200"
-                  : "bg-rose-50 text-rose-700 border border-rose-200"
-            }`}
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "completed"
+              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : item.status === "processing"
+                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                : "bg-rose-50 text-rose-700 border border-rose-200"
+              }`}
           >
             {item.status === "completed" ? (
               <>
@@ -469,11 +468,10 @@ export default function HistoryPage() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  tab === t.id
-                    ? "bg-[#10241e] text-[#d0f471] shadow-sm"
-                    : "text-[#47574f] hover:text-[#10241e] hover:bg-white/50"
-                }`}
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${tab === t.id
+                  ? "bg-[#10241e] text-[#d0f471] shadow-sm"
+                  : "text-[#47574f] hover:text-[#10241e] hover:bg-white/50"
+                  }`}
               >
                 {t.label}
               </button>

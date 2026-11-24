@@ -94,6 +94,6 @@ def combine_source_alpha(mask: Image.Image, original: Image.Image) -> np.ndarray
     if mask.size != original.size:
         raise ValueError('Foreground mask dimensions differ from original')
     if 'A' in original.getbands() or 'transparency' in original.info:
-        source = np.asarray(original.convert('RGBA').getchannel('A'), dtype=np.uint16)
-        alpha = ((alpha.astype(np.uint16)*source+127)//255).astype(np.uint8)
+        source = np.asarray(original.convert('RGBA').getchannel('A'), dtype=np.uint8)
+        alpha = np.minimum(alpha, source)
     return alpha

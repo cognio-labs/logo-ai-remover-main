@@ -207,7 +207,9 @@ def fill_holes_and_small_notches(binary_mask: np.ndarray, max_hole_area: int | N
     h, w = binary_mask.shape[:2]
     total_area = h * w
     if max_hole_area is None:
-        max_hole_area = int(total_area * 0.15)
+        # Bounded to tiny sensor/model dropouts (<= 64px or 0.05% canvas).
+        # Prevents erroneously filling letter counters, decorative gaps, or arm openings.
+        max_hole_area = min(64, max(16, int(total_area * 0.0005)))
 
     filled = binary_mask.copy()
     contours, hierarchy = cv2.findContours(filled, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
@@ -337,17 +339,22 @@ def apply_scdtr_component_refinement(
     # Evaluate secondary components (multi-person, pets, children, held objects)
     for sec in component_records[1:]:
         min_dist = float(np.min(dt_primary[sec["retained_mask"]]))
-        # Proximity threshold: components within 23px connect to the primary subject cluster (e.g. family members, pets)
-        touches_primary = (min_dist <= 23.0)
+        # Proximity threshold: chained connection for logo text, accessories, adjacent subjects
+        proximity_thresh = max(45.0, 0.04 * max(h, w))
+        touches_primary = (min_dist <= proximity_thresh)
 
         bx, by, bw, bh = sec["bbox"]
-        # Background framing arch check: spans >= 70% height while narrow <= 25% width
-        is_framing_arch = (bh >= 0.70 * h) and (bw <= 0.25 * w)
+        # Background framing arch check: hollow vertical structure without human face
+        solidity = sec["retained_area"] / max(1.0, float(bw * bh))
+        is_framing_arch = (bh >= 0.70 * h) and (bw <= 0.25 * w) and (solidity < 0.18) and not sec["has_face_vote"]
 
         is_independent_subject = (
-            sec["core_area"] >= max(500, int(primary["core_area"] * 0.15))
-            and sec["R"] >= max(5.0, primary["R"] * 0.20)
-            and not is_framing_arch
+            sec["has_face_vote"]
+            or (
+                sec["core_area"] >= max(80, int(primary["core_area"] * 0.08))
+                and sec["R"] >= max(3.5, primary["R"] * 0.12)
+                and not is_framing_arch
+            )
         )
 
         if touches_primary or is_independent_subject:
@@ -562,7 +569,7 @@ def _remove_background_pipeline(
 
     if image_type not in {'auto', 'portrait', 'product', 'graphics'}:
         raise ValueError('Unsupported image type')
-    if image_type in {'auto', 'graphics'} and ('A' in pil_input.getbands() or 'transparency' in pil_input.info):
+    if image_type == 'graphics' and ('A' in pil_input.getbands() or 'transparency' in pil_input.info):
         existing_alpha = np.asarray(pil_input.convert('RGBA').getchannel('A'))
         if np.any(existing_alpha == 0) and np.any(existing_alpha > 0):
             # Existing authored alpha is authoritative in auto/graphics mode.
@@ -619,7 +626,15 @@ def _remove_background_pipeline(
             # The validated adapter restores the foreground mask to source size.
             if raw_alpha.shape != (h, w):
                 raise ValueError('Model mask dimensions differ from original')
-            final_alpha = combine_source_alpha(raw_mask, pil_input)
+
+            # Multi-stage mask refinement: hole filling, SCDTR component filtering, matting
+            binary_mask = (raw_alpha > 128).astype(np.uint8) * 255
+            filled_mask = fill_holes_and_small_notches(binary_mask)
+            faces = detect_faces_yunet(img_rgb)
+            clean_mask, scdtr_stats = apply_scdtr_component_refinement(filled_mask, faces=faces, strictness=1.0)
+            refined_alpha = refine_matting(img_rgb, clean_mask, raw_alpha)
+
+            final_alpha = combine_source_alpha(Image.fromarray(refined_alpha), pil_input)
             candidate_pil = pil_input.convert('RGB').convert('RGBA')
             candidate_pil.putalpha(Image.fromarray(final_alpha))
             metrics = evaluate_mask_quality(final_alpha)

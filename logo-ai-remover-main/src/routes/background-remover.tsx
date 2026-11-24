@@ -341,6 +341,8 @@ curl_close($ch);
 ?>`,
 };
 
+export const LIGHT_CHECKERBOARD = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23ffffff'/%3E%3Crect x='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect y='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23ffffff'/%3E%3C/svg%3E")`;
+
 function ShowcaseSlider({
   originalImage,
   cutoutImage,
@@ -404,7 +406,7 @@ function ShowcaseSlider({
   };
 
   return (
-    <div className="rounded-3xl border border-[#10241e]/15 bg-white shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-[#10241e]/40 flex flex-col">
+    <div className="rounded-3xl border border-slate-200 bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-slate-300 flex flex-col">
       <div
         ref={containerRef}
         role="slider"
@@ -417,7 +419,7 @@ function ShowcaseSlider({
           if (e.key === "ArrowLeft") setPosition((p) => Math.max(0, p - 5));
           if (e.key === "ArrowRight") setPosition((p) => Math.min(100, p + 5));
         }}
-        className="relative aspect-16/10 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-black focus:outline-none focus:ring-2 focus:ring-[#E11D48]/40"
+        className="relative aspect-16/10 w-full overflow-hidden cursor-ew-resize select-none touch-none bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -431,7 +433,7 @@ function ShowcaseSlider({
         <div
           className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
+            backgroundImage: LIGHT_CHECKERBOARD,
             backgroundSize: "20px 20px",
           }}
         />
@@ -463,37 +465,37 @@ function ShowcaseSlider({
         {/* BADGES */}
         {/* Left Badge: ORIGINAL */}
         <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none select-none">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#10241e]/85 text-white text-xs sm:text-sm font-bold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/20 px-3.5 py-1.5 rounded-full">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-900/80 text-white text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-sm border border-white/20">
             ORIGINAL
           </span>
         </div>
 
         {/* Right Badge: TRANSPARENT PNG */}
         <div className="absolute top-3.5 right-3.5 z-20 pointer-events-none select-none">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#d0f471] text-[#091712] text-xs sm:text-sm font-bold tracking-wider uppercase backdrop-blur-md shadow-md border border-[#10241e]/20 px-3.5 py-1.5 rounded-full">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold tracking-wider uppercase backdrop-blur-md shadow-md border border-emerald-500/20">
             TRANSPARENT PNG
           </span>
         </div>
 
         {/* DIVIDER & ↔ HANDLE */}
         <div
-          className="absolute top-0 bottom-0 w-[3px] bg-[#d0f471] z-20 pointer-events-none shadow-[0_0_12px_rgba(208,244,113,0.8)]"
+          className="absolute top-0 bottom-0 w-[3px] bg-emerald-500 z-20 pointer-events-none shadow-[0_0_12px_rgba(34,197,94,0.8)]"
           style={{ left: `${position}%` }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-11 sm:size-12 rounded-full bg-[#10241e] border-2 border-[#d0f471] shadow-2xl flex items-center justify-center text-[#d0f471] select-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-11 sm:size-12 rounded-full bg-white border-2 border-emerald-500 shadow-2xl flex items-center justify-center text-emerald-700 select-none">
             <ChevronLeft className="size-4 -mr-0.5" />
             <ChevronRight className="size-4 -ml-0.5" />
           </div>
         </div>
       </div>
 
-      <div className="p-6 sm:p-8 bg-white border-t border-[#10241e]/10 flex-1 flex flex-col justify-between">
+      <div className="p-6 sm:p-8 bg-white border-t border-slate-100 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-xs sm:text-sm font-bold text-[#10241e] uppercase tracking-wider font-mono">
+          <p className="text-xs sm:text-sm font-bold text-emerald-700 uppercase tracking-wider font-mono">
             {category}
           </p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] mt-2 tracking-tight">{title}</h3>
-          <p className="text-base sm:text-lg text-[#37433d] mt-2 leading-relaxed font-normal">{description}</p>
+          <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2 tracking-tight">{title}</h3>
+          <p className="text-base sm:text-lg text-slate-600 mt-2 leading-relaxed font-normal">{description}</p>
         </div>
       </div>
     </div>
@@ -504,10 +506,12 @@ function WorkspaceSplitSlider({
   originalUrl,
   cutoutUrl,
   bgType,
+  dimensions,
 }: {
   originalUrl: string;
   cutoutUrl: string;
   bgType: BackgroundType;
+  dimensions?: { width: number; height: number; aspectRatio: string } | null;
 }) {
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -541,7 +545,11 @@ function WorkspaceSplitSlider({
   return (
     <div
       ref={containerRef}
-      className="relative aspect-4/3 sm:h-[350px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner flex items-center justify-center select-none cursor-ew-resize touch-none"
+      className="relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-inner flex items-center justify-center select-none cursor-ew-resize touch-none mx-auto bg-slate-100"
+      style={{
+        aspectRatio: dimensions ? dimensions.aspectRatio : "4 / 3",
+        maxHeight: "min(65vh, 480px)",
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onTouchStart={onTouchStart}
@@ -552,7 +560,7 @@ function WorkspaceSplitSlider({
         <div
           className="absolute inset-0 size-full pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
+            backgroundImage: LIGHT_CHECKERBOARD,
             backgroundSize: "20px 20px",
           }}
         />
@@ -562,7 +570,7 @@ function WorkspaceSplitSlider({
       <img
         src={cutoutUrl}
         alt="AI Cutout"
-        className="absolute inset-0 size-full object-contain pointer-events-none"
+        className="absolute inset-0 size-full object-contain pointer-events-none select-none"
       />
 
       {/* Before Original (Clipped to left side without distortion) */}
@@ -576,26 +584,26 @@ function WorkspaceSplitSlider({
         <img
           src={originalUrl}
           alt="Original"
-          className="absolute inset-0 size-full object-contain pointer-events-none"
+          className="absolute inset-0 size-full object-contain pointer-events-none select-none"
         />
       </div>
 
       {/* Badges */}
-      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-gray-900/80 text-white text-[10px] font-medium backdrop-blur-md z-20 pointer-events-none">
+      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-900/80 text-white text-xs font-bold backdrop-blur-md z-20 pointer-events-none">
         ORIGINAL
       </span>
-      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#E11D48] text-white text-[10px] font-medium backdrop-blur-md shadow-xs z-20 pointer-events-none">
+      <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold backdrop-blur-md shadow-xs z-20 pointer-events-none">
         {bgType === "transparent" ? "TRANSPARENT" : "CLEANED"}
       </span>
 
       {/* Divider */}
       <div
-        className="absolute top-0 bottom-0 w-0.5 bg-[#E11D48] z-20 pointer-events-none shadow-[0_0_10px_rgba(225,29,72,0.8)]"
+        className="absolute top-0 bottom-0 w-[3px] bg-emerald-500 z-20 pointer-events-none shadow-[0_0_10px_rgba(34,197,94,0.8)]"
         style={{ left: `${position}%` }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-7 rounded-full bg-[#E11D48] border-2 border-white shadow-md flex items-center justify-center text-white">
-          <ChevronLeft className="size-3 -mr-0.5" />
-          <ChevronRight className="size-3 -ml-0.5" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 rounded-full bg-white border-2 border-emerald-500 shadow-md flex items-center justify-center text-emerald-700">
+          <ChevronLeft className="size-3.5 -mr-0.5" />
+          <ChevronRight className="size-3.5 -ml-0.5" />
         </div>
       </div>
     </div>
@@ -800,17 +808,17 @@ function SeeTheDifferenceShowcase() {
           {cards.map((card) => (
             <div
               key={card.label}
-              className="group rounded-3xl border border-[#10241e]/15 bg-white p-5 sm:p-6 shadow-xl hover:border-[#10241e]/40 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+              className="group rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-md hover:border-slate-300 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Image Frame */}
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#f3f4ee] border border-[#10241e]/10 flex items-center justify-center select-none">
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex items-center justify-center select-none">
                   {/* Subtle Checkerboard for Card 2 */}
                   {card.isTransparent && (
                     <div
                       className="absolute inset-0 size-full pointer-events-none"
                       style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23121216'/%3E%3Crect x='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect y='12' width='12' height='12' fill='%231c1c24'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23121216'/%3E%3C/svg%3E")`,
+                        backgroundImage: LIGHT_CHECKERBOARD,
                         backgroundSize: "20px 20px",
                       }}
                     />
@@ -826,18 +834,18 @@ function SeeTheDifferenceShowcase() {
                   />
 
                   {/* Stage Number Badge */}
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-[#10241e] text-[#d0f471] text-xs font-bold tracking-wider backdrop-blur-md border border-[#10241e]/20 shadow-xs">
+                  <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-xs font-bold tracking-wider backdrop-blur-md border border-slate-800 shadow-xs">
                     {card.step}
                   </span>
                 </div>
 
                 {/* Card Title */}
-                <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mt-4 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-4 tracking-tight">
                   {card.label}
                 </h3>
 
                 {/* Card Description */}
-                <p className="text-sm sm:text-base text-[#37433d] mt-2 leading-relaxed">
+                <p className="text-sm sm:text-base text-slate-600 mt-2 leading-relaxed">
                   {card.desc}
                 </p>
               </div>
@@ -898,6 +906,31 @@ function formatCutoutFilename(originalName: string, ext: string = "png"): string
     .toLowerCase();
 
   return `bellix-background-removed-${cleanBase || "cutout"}.${ext}`;
+}
+
+export interface ImageDimensions {
+  width: number;
+  height: number;
+  orientation: "landscape" | "portrait" | "square";
+  aspectRatio: string;
+}
+
+export interface ProcessedSessionItem {
+  id: string;
+  file: File;
+  originalUrl: string;
+  cutoutResult: CutoutResult;
+  dimensions: ImageDimensions;
+  timestamp: number;
+}
+
+function formatBytes(bytes: number, decimals: number = 1): string {
+  if (!bytes || bytes === 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
 type InlineErrorState =
@@ -971,6 +1004,9 @@ export default function BackgroundRemoverPage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [cutoutResult, setCutoutResult] = useState<CutoutResult | null>(null);
+  const [imageDimensions, setImageDimensions] = useState<ImageDimensions | null>(null);
+  const [sessionHistory, setSessionHistory] = useState<ProcessedSessionItem[]>([]);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("Analyzing subject");
   const [inlineError, setInlineError] = useState<InlineErrorState>(null);
@@ -1081,12 +1117,52 @@ export default function BackgroundRemoverPage() {
       URL.revokeObjectURL(cutoutResult.compositeBlobUrl);
 
     const objectUrl = URL.createObjectURL(file);
+
+    // Automatic dimension and orientation detection
+    let detectedDims: ImageDimensions = {
+      width: 800,
+      height: 600,
+      orientation: "landscape",
+      aspectRatio: "4 / 3",
+    };
+    try {
+      const probe = new Image();
+      probe.src = objectUrl;
+      await new Promise<void>((resolve) => {
+        probe.onload = () => {
+          const w = probe.naturalWidth || 800;
+          const h = probe.naturalHeight || 600;
+          const orientation: "landscape" | "portrait" | "square" =
+            w > h ? "landscape" : h > w ? "portrait" : "square";
+          detectedDims = {
+            width: w,
+            height: h,
+            orientation,
+            aspectRatio: `${w} / ${h}`,
+          };
+          resolve();
+        };
+        probe.onerror = () => resolve();
+      });
+    } catch (e) {
+      console.warn("Dimension probe warning:", e);
+    }
+
     setUploadedFile(file);
     setSourceUrl(objectUrl);
+    setImageDimensions(detectedDims);
     setCutoutResult(null);
     setViewMode("after");
 
-    executeRemoval(objectUrl, file);
+    // Step 1: Upload Complete State (Show immediate preview with file specs)
+    setStatus("uploading");
+    setStage("Upload complete — initializing AI...");
+    setProgress(10);
+
+    // Step 2: Smooth transition to AI Processing (Scanning line)
+    setTimeout(() => {
+      executeRemoval(objectUrl, file, detectedDims);
+    }, 350);
   };
 
   // Global Ctrl+V / Cmd+V paste support & global drag-and-drop window guard
@@ -1209,7 +1285,7 @@ export default function BackgroundRemoverPage() {
     }
   }, [status]);
 
-  const executeRemoval = async (imageUrl: string, file: File) => {
+  const executeRemoval = async (imageUrl: string, file: File, dims?: ImageDimensions) => {
     let accountJob: string | undefined;
 
     // Abort any in-flight request
@@ -1219,8 +1295,8 @@ export default function BackgroundRemoverPage() {
     abortControllerRef.current = new AbortController();
 
     setStatus("processing");
-    setProgress(4);
-    setStage("Preparing image...");
+    setProgress(15);
+    setStage("Analyzing subject & contours...");
 
     try {
       const reservation = await reserveLocal('background-remover', file.size).catch(() => null);
@@ -1233,7 +1309,7 @@ export default function BackgroundRemoverPage() {
         (nextStage, nextProgress) => {
           // Keep the remove.bg-style scan preview tied to real pipeline stages.
           setStage(nextStage);
-          setProgress(Math.min(99, Math.max(4, Math.round(nextProgress))));
+          setProgress(Math.min(99, Math.max(15, Math.round(nextProgress))));
         },
       );
 
@@ -1242,6 +1318,25 @@ export default function BackgroundRemoverPage() {
       setProgress(100);
       setStage("Background removed — transparent PNG ready");
       setStatus("success");
+
+      const finalDims = dims || imageDimensions || {
+        width: res.width,
+        height: res.height,
+        orientation: res.width > res.height ? "landscape" : "portrait",
+        aspectRatio: `${res.width} / ${res.height}`,
+      };
+      setImageDimensions(finalDims);
+
+      const newItem: ProcessedSessionItem = {
+        id: `job_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        file,
+        originalUrl: imageUrl,
+        cutoutResult: res,
+        dimensions: finalDims,
+        timestamp: Date.now(),
+      };
+      setSessionHistory((prev) => [newItem, ...prev]);
+      setActiveItemId(newItem.id);
 
       let thumbUrl = "";
       try {
@@ -1270,10 +1365,10 @@ export default function BackgroundRemoverPage() {
       }
 
       confetti({
-        particleCount: 40,
-        spread: 60,
+        particleCount: 50,
+        spread: 70,
         origin: { y: 0.6 },
-        colors: ["#E11D48", "#FF2E63", "#F59E0B", "#10B981"],
+        colors: ["#22C55E", "#10B981", "#16A34A", "#0F172A"],
       });
 
       toast.success("Background removed successfully!");
@@ -1355,15 +1450,49 @@ export default function BackgroundRemoverPage() {
     setUploadedFile(null);
     setSourceUrl(null);
     setCutoutResult(null);
+    setImageDimensions(null);
     setStatus("idle");
     setProgress(0);
     setInlineError(null);
     setViewMode("after");
   };
 
+  const handleSelectHistoryItem = (id: string) => {
+    const item = sessionHistory.find((i) => i.id === id);
+    if (item) {
+      setActiveItemId(item.id);
+      setUploadedFile(item.file);
+      setSourceUrl(item.originalUrl);
+      setCutoutResult(item.cutoutResult);
+      setImageDimensions(item.dimensions);
+      setViewMode("after");
+    }
+  };
+
+  const handleDeleteHistoryItem = (id: string) => {
+    setSessionHistory((prev) => {
+      const remaining = prev.filter((i) => i.id !== id);
+      if (activeItemId === id) {
+        if (remaining.length > 0) {
+          const nextItem = remaining[remaining.length - 1];
+          setActiveItemId(nextItem.id);
+          setUploadedFile(nextItem.file);
+          setSourceUrl(nextItem.originalUrl);
+          setCutoutResult(nextItem.cutoutResult);
+          setImageDimensions(nextItem.dimensions);
+          setViewMode("after");
+        } else {
+          resetToUpload();
+        }
+      }
+      return remaining;
+    });
+    toast.success("Image removed from session");
+  };
+
   const retryRemoval = () => {
     if (sourceUrl && uploadedFile) {
-      executeRemoval(sourceUrl, uploadedFile);
+      executeRemoval(sourceUrl, uploadedFile, imageDimensions || undefined);
     } else {
       resetToUpload();
     }
@@ -1547,14 +1676,14 @@ export default function BackgroundRemoverPage() {
         : cutoutResult?.compositeBlobUrl;
 
   return (
-    <main className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-24">
+    <main className="min-h-screen bg-white text-slate-900 font-sans pb-24">
       {/* 1. HERO SECTION */}
       <section
         id="upload-studio-section"
-        className="relative pt-12 pb-20 sm:pt-16 sm:pb-28 overflow-hidden bg-[#091712] text-white border-b border-[#d7f3af]/15"
+        className="relative pt-12 pb-20 sm:pt-16 sm:pb-24 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900 border-b border-slate-200"
       >
-        {/* Atmospheric 4K Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
+        {/* Atmospheric Subtle Emerald Ambient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(34,197,94,0.08),transparent_70%)] pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           {/* ============================================================== */}
           {/* STATE 1: IDLE HERO (2-COLUMN: Left Heading Copy, Right Upload)  */}
@@ -1563,46 +1692,46 @@ export default function BackgroundRemoverPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
               {/* Left Copy (lg:col-span-5) */}
               <div className="lg:col-span-5 space-y-6 text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#d0f471] shadow-sm">
-                  <Sparkles className="size-4 text-[#d0f471]" />
-                  <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wider uppercase font-mono">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 shadow-xs">
+                  <Sparkles className="size-4 text-emerald-600" />
+                  <span className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wider uppercase font-mono">
                     100% Automatic &amp; Free Background Remover
                   </span>
                 </div>
 
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.06]">
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.06]">
                   Remove Image Backgrounds in 5 Seconds Free
                 </h1>
 
-                <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
+                <p className="text-lg sm:text-xl text-slate-600 font-normal leading-relaxed max-w-xl">
                   Zero manual pen clipping. Zero green screens. Automatically isolate hair, fur, and complex product silhouettes with sub-pixel edge matting.
                 </p>
 
                 {/* 3 Value Points */}
                 <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                    <CheckCircle2 className="size-4 text-[#d0f471]" /> No sign-up required
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs">
+                    <CheckCircle2 className="size-4 text-emerald-600" /> No sign-up required
                   </span>
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                    <ShieldCheck className="size-4 text-[#d0f471]" /> 100% Private &amp; secure
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs">
+                    <ShieldCheck className="size-4 text-emerald-600" /> 100% Private &amp; secure
                   </span>
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                    <Zap className="size-4 text-[#d0f471]" /> Sub-pixel AI matting
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs">
+                    <Zap className="size-4 text-emerald-600" /> Sub-pixel AI matting
                   </span>
                 </div>
                 <div className="pt-2">
                   <Link
                     href="/gemini-image-watermark-remover"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/20 shadow-xs transition-all hover:scale-102 cursor-pointer backdrop-blur-md"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs sm:text-sm font-semibold border border-slate-200 shadow-xs transition-all hover:scale-102 cursor-pointer"
                   >
-                    <Play className="size-3 text-[#d0f471] fill-[#d0f471]" />
-                    <span className="text-zinc-200">remove gemini logo only 3 sec (60 FPS)</span>
-                    <ArrowRight className="size-3 text-[#d0f471]" />
+                    <Play className="size-3 text-emerald-600 fill-emerald-600" />
+                    <span>remove gemini logo only 3 sec (60 FPS)</span>
+                    <ArrowRight className="size-3 text-emerald-600" />
                   </Link>
                 </div>
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#d0f471] underline underline-offset-4 decoration-[#d0f471]/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d0f471]"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 underline underline-offset-4 decoration-emerald-500/60 hover:text-emerald-800"
                 >
                   See how it works <ArrowRight className="size-4" />
                 </a>
@@ -1639,16 +1768,16 @@ export default function BackgroundRemoverPage() {
                   }}
                   onDrop={handleDropArea}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`relative min-h-[440px] sm:min-h-[500px] lg:min-h-[540px] rounded-3xl border-2 border-dashed border-[#10241e]/20 bg-white hover:border-[#10241e] p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-xl group cursor-pointer ${
-                    isDragging ? "border-[#10241e] bg-[#f9faf7] shadow-2xl scale-[1.01]" : ""
+                  className={`relative min-h-[440px] sm:min-h-[500px] lg:min-h-[540px] rounded-3xl border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-white p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-xl group cursor-pointer ${
+                    isDragging ? "border-emerald-500 bg-emerald-50/20 shadow-2xl scale-[1.01]" : ""
                   }`}
                 >
                   {/* Viewfinder brackets */}
                   <div className="absolute inset-4 pointer-events-none border border-transparent">
-                    <div className="absolute top-0 left-0 size-6 border-t-2 border-l-2 border-[#10241e]" />
-                    <div className="absolute top-0 right-0 size-6 border-t-2 border-r-2 border-[#10241e]" />
-                    <div className="absolute bottom-0 left-0 size-6 border-b-2 border-l-2 border-[#10241e]" />
-                    <div className="absolute bottom-0 right-0 size-6 border-b-2 border-r-2 border-[#10241e]" />
+                    <div className="absolute top-0 left-0 size-6 border-t-2 border-l-2 border-slate-300 group-hover:border-emerald-500 transition-colors" />
+                    <div className="absolute top-0 right-0 size-6 border-t-2 border-r-2 border-slate-300 group-hover:border-emerald-500 transition-colors" />
+                    <div className="absolute bottom-0 left-0 size-6 border-b-2 border-l-2 border-slate-300 group-hover:border-emerald-500 transition-colors" />
+                    <div className="absolute bottom-0 right-0 size-6 border-b-2 border-r-2 border-slate-300 group-hover:border-emerald-500 transition-colors" />
                   </div>
 
                   {/* Inline Error Alert if any */}
@@ -1658,7 +1787,7 @@ export default function BackgroundRemoverPage() {
                       className="absolute top-4 inset-x-4 mx-auto max-w-md p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-2 shadow-lg z-20"
                     >
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="size-4 shrink-0 text-[#E11D48]" />
+                        <AlertTriangle className="size-4 shrink-0 text-rose-600" />
                         <span className="font-medium text-left leading-relaxed">
                           {typeof inlineError === "string" ? inlineError : inlineError.message}
                         </span>
@@ -1674,21 +1803,21 @@ export default function BackgroundRemoverPage() {
                     </div>
                   )}
 
-                  <span className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-lg mb-5 group-hover:scale-105 transition-transform">
-                    <Upload className="size-9 text-[#d0f471]" style={{ color: "#d0f471" }} />
+                  <span className="size-20 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-sm mb-5 group-hover:scale-105 transition-transform">
+                    <Upload className="size-9 text-emerald-600" />
                   </span>
 
-                  <h3 className="text-2xl sm:text-3xl font-bold text-[#10241e] tracking-tight" style={{ color: "#10241e" }}>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                     Drop image here
                   </h3>
 
-                  <p className="text-base text-[#37433d] mt-2 max-w-sm leading-relaxed" style={{ color: "#37433d" }}>
+                  <p className="text-base text-slate-600 mt-2 max-w-sm leading-relaxed">
                     or paste directly with{" "}
-                    <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
+                    <kbd className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-xs font-bold text-slate-800">
                       Ctrl+V
                     </kbd>{" "}
                     /{" "}
-                    <kbd className="px-2 py-0.5 rounded bg-[#e9ece4] border border-[#10241e]/15 font-mono text-xs font-bold text-[#10241e]">
+                    <kbd className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-xs font-bold text-slate-800">
                       Cmd+V
                     </kbd>
                   </p>
@@ -1699,20 +1828,19 @@ export default function BackgroundRemoverPage() {
                       e.stopPropagation();
                       fileInputRef.current?.click();
                     }}
-                    className="mt-5 px-7 py-3 rounded-full bg-[#10241e] hover:bg-[#18362d] text-white font-bold text-sm sm:text-base shadow-md transition-colors cursor-pointer inline-flex items-center gap-2"
-                    style={{ color: "#FFFFFF", backgroundColor: "#10241e" }}
+                    className="mt-5 px-7 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base shadow-md transition-all cursor-pointer inline-flex items-center gap-2 hover:scale-102 active:scale-98"
                   >
-                    <Upload className="size-4 text-white" style={{ color: "#FFFFFF" }} />
-                    <span style={{ color: "#FFFFFF" }}>Choose image</span>
+                    <Upload className="size-4 text-white" />
+                    <span>Choose image</span>
                   </button>
 
-                  <span className="mt-4 text-xs font-mono font-medium text-[#637069]" style={{ color: "#637069" }}>
+                  <span className="mt-4 text-xs font-mono font-medium text-slate-400">
                     PNG, JPG, WebP and AVIF supported
                   </span>
 
                   {/* Sample images */}
-                  <div className="mt-6 pt-5 border-t border-gray-100 w-full max-w-sm">
-                    <p className="text-xs text-[#637069] font-medium mb-3">No image? Try one of these:</p>
+                  <div className="mt-6 pt-5 border-t border-slate-100 w-full max-w-sm">
+                    <p className="text-xs text-slate-500 font-medium mb-3">No image? Try one of these:</p>
                     <div className="flex items-center justify-center gap-3">
                       {SHOWCASE_ITEMS.map((item) => (
                         <button
@@ -1729,7 +1857,7 @@ export default function BackgroundRemoverPage() {
                               toast.error("Could not load sample");
                             }
                           }}
-                          className="group/thumb relative size-12 rounded-xl overflow-hidden border border-gray-200 hover:border-[#10241e] hover:scale-105 transition-all shadow-xs cursor-pointer"
+                          className="group/thumb relative size-12 rounded-xl overflow-hidden border border-slate-200 hover:border-emerald-500 hover:scale-105 transition-all shadow-xs cursor-pointer"
                           title={`Try ${item.title}`}
                         >
                           <img src={item.originalImage} alt={item.title} className="w-full h-full object-cover" />
@@ -1745,103 +1873,119 @@ export default function BackgroundRemoverPage() {
           {/* Compact header for active/processing/result state */}
           {status !== "idle" && (
             <div className="text-center max-w-3xl mx-auto mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-[#d0f471] shadow-sm">
-                <Sparkles className="size-3.5 text-[#d0f471]" />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs sm:text-sm font-bold text-emerald-800 shadow-sm">
+                <Sparkles className="size-3.5 text-emerald-600" />
                 <span>AI Background Remover Studio</span>
               </div>
             </div>
           )}
 
           {/* ============================================================== */}
-          {/* STATE 2: LOADING IN-PLACE SPINNER (NO GHOST MASK, < 1s)        */}
+          {/* STATE 2: UPLOAD COMPLETE & AI SCANNING ANIMATION               */}
           {/* ============================================================== */}
           {(status === "uploading" || status === "processing") && sourceUrl && (
-            <div className="relative rounded-3xl overflow-hidden border border-[#1a3a2a]/60 shadow-2xl bg-[#0a1a12] flex flex-col max-w-4xl mx-auto w-full transition-all">
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1a3a2a]/60 bg-[#0d1f17]/90">
-                <div className="flex items-center gap-2 text-xs">
-                  <FileImage className="size-4 text-[#d0f471]" />
-                  <span className="font-semibold text-white/90 truncate max-w-[200px] sm:max-w-xs">
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-2xl bg-white flex flex-col max-w-4xl mx-auto w-full transition-all text-slate-900">
+              {/* Header with specs */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50/90">
+                <div className="flex items-center gap-2.5 text-xs">
+                  <FileImage className="size-4 text-emerald-600" />
+                  <span className="font-semibold text-slate-800 truncate max-w-[200px] sm:max-w-xs">
                     {uploadedFile?.name || "cutout.png"}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#d0f471]/10 border border-[#d0f471]/30 text-[#d0f471] text-[11px] font-medium ml-1">
-                    <Loader2 className="size-3 animate-spin" />
-                    <span>AI Processing</span>
-                    <ProcessingDots color="#d0f471" gap="3px" size="4px" />
+                  {imageDimensions && (
+                    <span className="hidden sm:inline-flex px-2 py-0.5 rounded-md bg-slate-200/80 text-slate-700 font-mono text-[11px]">
+                      {imageDimensions.width} × {imageDimensions.height} px
+                    </span>
+                  )}
+                  {uploadedFile && (
+                    <span className="hidden sm:inline-flex px-2 py-0.5 rounded-md bg-slate-200/80 text-slate-700 font-mono text-[11px]">
+                      {formatBytes(uploadedFile.size)}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold ml-1">
+                    {status === "uploading" ? (
+                      <>
+                        <Check className="size-3 text-emerald-600" />
+                        <span>Uploaded</span>
+                      </>
+                    ) : (
+                      <>
+                        <Loader2 className="size-3 animate-spin text-emerald-600" />
+                        <span>AI Processing</span>
+                        <ProcessingDots color="#16A34A" gap="3px" size="4px" />
+                      </>
+                    )}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCancelProcessing}
-                  className="text-xs text-white/40 hover:text-white/70 transition-colors cursor-pointer"
+                  className="text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer font-medium"
                 >
                   Cancel
                 </button>
               </div>
 
-              {/* Animated Scan Preview */}
-              <div className="relative overflow-hidden select-none" style={{ minHeight: 380, maxHeight: 560 }}>
-                {/* Checkerboard background (the "transparent" area revealed) */}
+              {/* Animated Scan Preview inside Dynamic Aspect Ratio Container */}
+              <div className="relative overflow-hidden select-none p-4 sm:p-6 bg-slate-50/60 flex items-center justify-center">
                 <div
-                  className="absolute inset-0"
+                  className="relative mx-auto rounded-2xl overflow-hidden shadow-md border border-slate-200/80 w-full"
                   style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%230d1f17'/%3E%3Crect x='12' width='12' height='12' fill='%23132b1e'/%3E%3Crect y='12' width='12' height='12' fill='%23132b1e'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%230d1f17'/%3E%3C/svg%3E")`,
-                    backgroundSize: "24px 24px",
-                  }}
-                />
-
-                {/* Original image */}
-                {sourceUrl && (
-                  <img
-                    src={sourceUrl}
-                    alt="Original upload"
-                    className="relative z-10 max-h-[500px] max-w-full object-contain mx-auto block"
-                    style={{ display: "block" }}
-                  />
-                )}
-
-                {/* Scanning line overlay — sweeps top to bottom */}
-                <div
-                  className="absolute inset-x-0 z-20 pointer-events-none"
-                  style={{
-                    animation: "bgScanLine 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
-                    top: 0,
+                    aspectRatio: imageDimensions ? imageDimensions.aspectRatio : "16 / 9",
+                    maxHeight: "min(65vh, 480px)",
+                    maxWidth: "100%",
+                    backgroundImage: LIGHT_CHECKERBOARD,
+                    backgroundSize: "20px 20px",
                   }}
                 >
-                  {/* The scan line itself */}
-                  <div
-                    style={{
-                      height: 3,
-                      background: "linear-gradient(90deg, transparent 0%, #d0f471 20%, #fff 50%, #d0f471 80%, transparent 100%)",
-                      boxShadow: "0 0 24px 6px rgba(208,244,113,0.7), 0 0 60px 20px rgba(208,244,113,0.25)",
-                    }}
-                  />
-                  {/* Glow trail below line */}
-                  <div
-                    style={{
-                      height: 80,
-                      background: "linear-gradient(to bottom, rgba(208,244,113,0.18) 0%, rgba(208,244,113,0.04) 60%, transparent 100%)",
-                    }}
-                  />
-                </div>
+                  {/* Original image */}
+                  {sourceUrl && (
+                    <img
+                      src={sourceUrl}
+                      alt="Original upload"
+                      className="w-full h-full object-contain block mx-auto select-none"
+                    />
+                  )}
 
-                {/* Dark overlay above the scan line (the "original" area not yet processed) */}
-                <div
-                  className="absolute inset-x-0 top-0 z-15 pointer-events-none"
-                  style={{
-                    animation: "bgScanOverlay 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
-                    background: "rgba(10,26,18,0.55)",
-                  }}
-                />
+                  {/* Scanning line overlay — sweeps top to bottom strictly inside preview */}
+                  {status === "processing" && (
+                    <div
+                      className="absolute inset-x-0 z-20 pointer-events-none"
+                      style={{
+                        animation: "bgScanLine 2.2s cubic-bezier(0.4,0,0.6,1) infinite",
+                        top: 0,
+                      }}
+                    >
+                      {/* Laser green-white gradient scan line */}
+                      <div
+                        style={{
+                          height: 3,
+                          background:
+                            "linear-gradient(90deg, transparent 0%, rgba(34,197,94,0.4) 15%, #22C55E 35%, #FFFFFF 50%, #22C55E 65%, rgba(34,197,94,0.4) 85%, transparent 100%)",
+                          boxShadow:
+                            "0 0 20px 4px rgba(34,197,94,0.6), 0 0 40px 10px rgba(34,197,94,0.25)",
+                        }}
+                      />
+                      {/* Soft glow trail below line */}
+                      <div
+                        style={{
+                          height: 70,
+                          background:
+                            "linear-gradient(to bottom, rgba(34,197,94,0.16) 0%, rgba(34,197,94,0.03) 60%, transparent 100%)",
+                        }}
+                      />
+                    </div>
+                  )}
 
-                {/* Stage label */}
-                <div className="absolute bottom-4 inset-x-0 flex justify-center z-30 pointer-events-none">
-                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#0d1f17]/90 border border-[#d0f471]/30 backdrop-blur-md shadow-xl">
-                    <Sparkles className="size-3.5 text-[#d0f471] animate-pulse" />
-                    <span className="text-xs font-semibold text-[#d0f471]">
-                      {stage || "Analyzing subject..."}
-                    </span>
-                    <ProcessingDots color="#d0f471" gap="3.5px" size="4px" />
+                  {/* Stage label pill centered at bottom */}
+                  <div className="absolute bottom-4 inset-x-0 flex justify-center z-30 pointer-events-none">
+                    <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 border border-slate-200 backdrop-blur-md shadow-lg">
+                      <Sparkles className="size-3.5 text-emerald-600 animate-pulse" />
+                      <span className="text-xs font-semibold text-slate-800">
+                        {stage || "Analyzing subject..."}
+                      </span>
+                      <ProcessingDots color="#16A34A" gap="3.5px" size="4px" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1852,11 +1996,7 @@ export default function BackgroundRemoverPage() {
                   0%   { transform: translateY(-10px); opacity: 0; }
                   5%   { opacity: 1; }
                   95%  { opacity: 1; }
-                  100% { transform: translateY(600px); opacity: 0; }
-                }
-                @keyframes bgScanOverlay {
-                  0%   { height: 100%; }
-                  100% { height: 0%; }
+                  100% { transform: translateY(520px); opacity: 0; }
                 }
               `}</style>
             </div>
@@ -1873,6 +2013,17 @@ export default function BackgroundRemoverPage() {
                 onReset={resetToUpload}
                 onEditInCanva={onEditInCanva}
                 isCanvaLoading={isCanvaLoading}
+                historyItems={sessionHistory.map((item) => ({
+                  id: item.id,
+                  originalUrl: item.originalUrl,
+                  cutoutUrl: item.cutoutResult.transparentBlobUrl,
+                  fileName: item.file.name,
+                  dimensions: { width: item.dimensions.width, height: item.dimensions.height },
+                }))}
+                activeItemId={activeItemId || undefined}
+                onSelectHistoryItem={handleSelectHistoryItem}
+                onDeleteHistoryItem={handleDeleteHistoryItem}
+                onUploadMore={() => fileInputRef.current?.click()}
               />
             </div>
           )}
@@ -1881,57 +2032,39 @@ export default function BackgroundRemoverPage() {
           {/* STATE 4: ERROR SCREEN                                           */}
           {/* ============================================================== */}
           {status === "error" && (
-            <div className="relative rounded-3xl overflow-hidden border border-[#1a3a2a]/60 shadow-2xl bg-[#0a1a12] flex items-center justify-center min-h-[460px] sm:min-h-[540px] max-w-4xl mx-auto w-full select-none">
-              {sourceUrl && (
-                <img
-                  src={sourceUrl}
-                  alt="Original upload"
-                  className="max-h-[500px] max-w-full object-contain filter brightness-30 blur-xs"
-                />
-              )}
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-2xl bg-white flex items-center justify-center min-h-[400px] sm:min-h-[480px] max-w-4xl mx-auto w-full select-none p-6">
+              <div className="max-w-md w-full rounded-3xl p-6 sm:p-8 text-center bg-slate-50 border border-slate-200 shadow-lg">
+                <span className="size-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-rose-50 border border-rose-200 text-rose-600">
+                  <AlertTriangle className="size-7 text-rose-600" />
+                </span>
 
-              <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-6">
-                <div
-                  className="max-w-md w-full rounded-3xl p-6 sm:p-8 text-center shadow-2xl border"
-                  style={{ backgroundColor: "#0e2419", borderColor: "rgba(208, 244, 113, 0.25)" }}
-                >
-                  <span
-                    className="size-14 rounded-2xl flex items-center justify-center mx-auto mb-4 border"
-                    style={{ backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#f87171" }}
+                <h3 className="text-xl font-bold tracking-tight mb-2 text-slate-900">
+                  We couldn't remove this background
+                </h3>
+
+                <p className="text-xs sm:text-sm leading-relaxed mb-6 text-slate-600">
+                  {typeof inlineError === "string"
+                    ? inlineError
+                    : inlineError?.message || "Please try again or upload another image."}
+                </p>
+
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={retryRemoval}
+                    className="px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    <AlertTriangle className="size-7 text-rose-400" />
-                  </span>
+                    <RefreshCw className="size-4" />
+                    <span>Try Again</span>
+                  </button>
 
-                  <h3 className="text-xl font-bold tracking-tight mb-2" style={{ color: "#FFFFFF" }}>
-                    We couldn't remove this background
-                  </h3>
-
-                  <p className="text-xs sm:text-sm leading-relaxed mb-6" style={{ color: "#b4c7be" }}>
-                    {typeof inlineError === "string"
-                      ? inlineError
-                      : inlineError?.message || "Please try again or upload another image."}
-                  </p>
-
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={retryRemoval}
-                      className="px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-2 hover:scale-105 active:scale-95"
-                      style={{ backgroundColor: "#d0f471", color: "#071A13" }}
-                    >
-                      <RefreshCw className="size-4 text-[#071A13]" />
-                      <span className="font-bold text-[#071A13]">Try Again</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={resetToUpload}
-                      className="px-5 py-2.5 rounded-full border text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-white/10"
-                      style={{ backgroundColor: "transparent", borderColor: "rgba(255, 255, 255, 0.25)", color: "#FFFFFF" }}
-                    >
-                      <span style={{ color: "#FFFFFF" }}>Upload Another</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={resetToUpload}
+                    className="px-5 py-2.5 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-xs sm:text-sm font-semibold text-slate-700 transition-all cursor-pointer"
+                  >
+                    <span>Upload Another</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1954,16 +2087,16 @@ export default function BackgroundRemoverPage() {
       <SeeTheDifferenceShowcase />
 
       {/* 3. BEFORE / AFTER QUALITY SHOWCASE */}
-      <section className="py-20 sm:py-28 bg-black border-y border-zinc-800">
+      <section className="py-20 sm:py-28 bg-slate-50 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="text-xs font-semibold text-[#FF4FA3] uppercase tracking-widest mb-2">
+            <p className="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-2 font-mono">
               SUB-PIXEL AI MATTING QUALITY
             </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight">
               Stunning Results on Hair, Fur &amp; Complex Edges
             </h2>
-            <p className="mt-3 text-base text-zinc-400 font-normal">
+            <p className="mt-3 text-base text-slate-600 font-normal">
               Drag the interactive slider to inspect the actual transparent cutout over the
               professional checkerboard pattern.
             </p>
@@ -1985,16 +2118,16 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 4. WORKFLOW & PERSONA SECTION */}
-      <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
+      <section className="py-20 sm:py-28 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-2 font-mono">
               BUILT FOR EVERY WORKFLOW
             </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight">
               One Tool. Endless Possibilities.
             </h2>
-            <p className="mt-3 text-base text-[#C7C7C7] font-normal">
+            <p className="mt-3 text-base text-slate-600 font-normal">
               Whether you need 100% white backgrounds for your e-commerce store or transparent
               stickers for social media.
             </p>
@@ -2006,7 +2139,7 @@ export default function BackgroundRemoverPage() {
               return (
                 <div
                   key={p.title}
-                  className="rounded-3xl border border-[#10241e]/15 bg-[#f3f4ee] p-8 sm:p-10 rounded-3xl shadow-xl flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all"
+                  className="rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all"
                 >
                   <div>
                     <span
@@ -2015,14 +2148,14 @@ export default function BackgroundRemoverPage() {
                     >
                       <Icon className="size-6" />
                     </span>
-                    <h3 className="text-2xl font-bold text-[#10241e]">{p.title}</h3>
-                    <p className="text-sm font-bold text-[#18362d] mt-1">{p.subtitle}</p>
-                    <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
+                    <h3 className="text-2xl font-bold text-slate-900">{p.title}</h3>
+                    <p className="text-sm font-semibold text-emerald-700 mt-1">{p.subtitle}</p>
+                    <p className="text-base text-slate-600 mt-3 leading-relaxed font-normal">
                       {p.desc}
                     </p>
                   </div>
 
-                  <ul className="mt-6 pt-5 border-t border-[#303030] space-y-2 text-xs text-[#C7C7C7]">
+                  <ul className="mt-6 pt-5 border-t border-slate-100 space-y-2 text-xs text-slate-600">
                     {p.bullets.map((b) => (
                       <li key={b} className="flex items-center gap-2">
                         <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
@@ -2038,49 +2171,49 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 5. HOW IT WORKS IN 3 STEPS */}
-      <section className="py-20 sm:py-28 bg-[#f3f4ee] border-b border-[#10241e]/10">
+      <section className="py-20 sm:py-28 bg-slate-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-2 font-mono">
               EFFORTLESS 3-STEP PIPELINE
             </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight">
               Remove Backgrounds in 3 Steps
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
-              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow">
+              <span className="size-16 mx-auto rounded-2xl bg-slate-900 text-emerald-400 font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 1
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">Upload or Paste Image</h3>
-              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Upload or Paste Image</h3>
+              <p className="text-base text-slate-600 mt-3 leading-relaxed font-normal">
                 Drag and drop your JPG, PNG, WebP or HEIC file, or press{" "}
-                <kbd className="bg-gray-100 px-1 py-0.5 rounded border text-gray-700 font-normal">
+                <kbd className="bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-800 font-mono text-xs">
                   Ctrl+V
                 </kbd>{" "}
                 from anywhere.
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
-              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow">
+              <span className="size-16 mx-auto rounded-2xl bg-slate-900 text-emerald-400 font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 2
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">AI Isolates Subject</h3>
-              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">AI Isolates Subject</h3>
+              <p className="text-base text-slate-600 mt-3 leading-relaxed font-normal">
                 Our sub-pixel neural matting separates fine hair, jewelry, and products from
                 distracting backdrops in under 5 seconds.
               </p>
             </div>
 
-            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-[#10241e]/15 shadow-xl text-center">
-              <span className="size-16 mx-auto rounded-2xl bg-[#10241e] text-[#d0f471] font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
+            <div className="rounded-3xl bg-white p-8 sm:p-10 border border-slate-200 shadow-sm text-center hover:shadow-md transition-shadow">
+              <span className="size-16 mx-auto rounded-2xl bg-slate-900 text-emerald-400 font-bold text-2xl flex items-center justify-center mb-6 shadow-md">
                 3
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">Customize &amp; Download</h3>
-              <p className="text-base text-[#37433d] mt-3 leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Customize &amp; Download</h3>
+              <p className="text-base text-slate-600 mt-3 leading-relaxed font-normal">
                 Export transparent 4K PNGs or instantly replace the background with Amazon-compliant
                 Pure White, studio colors, or scenic backdrops.
               </p>
@@ -2159,18 +2292,18 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 7. COMPREHENSIVE FAQ SECTION */}
-      <section className="py-20 sm:py-28 bg-white border-y border-[#10241e]/10">
+      <section className="py-20 sm:py-28 bg-white border-y border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-[#10241e] uppercase tracking-widest mb-2">
+            <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest mb-2 font-mono">
               FREQUENTLY ASKED QUESTIONS
             </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight">
               Everything You Need to Know
             </h2>
           </div>
 
-          <div className="divide-y divide-[#10241e]/10 border-y border-[#10241e]/15">
+          <div className="divide-y divide-slate-200 border-y border-slate-200">
             {FAQS.map((item, idx) => {
               const isOpen = openFaq === idx;
               return (
@@ -2180,15 +2313,15 @@ export default function BackgroundRemoverPage() {
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
                     className="w-full text-left flex items-center justify-between gap-4 cursor-pointer group"
                   >
-                    <span className="text-base sm:text-xl sm:text-2xl font-bold text-[#10241e] group-hover:text-[#E11D48] transition-colors">
+                    <span className="text-base sm:text-xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
                       {item.q}
                     </span>
-                    <span className="size-7 rounded-full bg-[#f3f4ee] group-open:bg-[#10241e] group-open:text-[#d0f471] flex items-center justify-center font-bold text-base text-[#10241e] transition-all shrink-0 border border-[#10241e]/15">
+                    <span className="size-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-base text-slate-700 group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-all shrink-0 border border-slate-200">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>
                   {isOpen && (
-                    <p className="mt-3 text-base sm:text-lg text-[#37433d] leading-relaxed pr-6 animate-in fade-in duration-200 font-normal">
+                    <p className="mt-3 text-base text-slate-600 leading-relaxed pr-6 animate-in fade-in duration-200 font-normal">
                       {item.a}
                     </p>
                   )}
@@ -2200,20 +2333,20 @@ export default function BackgroundRemoverPage() {
       </section>
 
       {/* 8. HIGH-CONVERTING FINAL CTA */}
-      <section className="py-16 sm:py-24 bg-[#f3f4ee]">
+      <section className="py-16 sm:py-24 bg-slate-50 border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-[#091712] border border-[#d7f3af]/25 p-10 sm:p-16 text-white text-center shadow-2xl relative overflow-hidden">
+          <div className="rounded-3xl bg-slate-900 border border-slate-800 p-10 sm:p-16 text-white text-center shadow-2xl relative overflow-hidden">
             <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-md">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md border border-white/10">
                 <Sparkles className="size-3.5" />
                 <span>TRY IT TODAY 100% FREE</span>
               </span>
 
-              <h2 className="text-3xl sm:text-5xl font-normal tracking-tight leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
                 Make Every Image Ready to Use in 5 Seconds.
               </h2>
 
-              <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed font-normal">
+              <p className="text-sm sm:text-base text-slate-300 max-w-lg mx-auto leading-relaxed font-normal">
                 Join thousands of designers, e-commerce sellers, and photographers saving hours of
                 manual cutout work every day.
               </p>
@@ -2225,9 +2358,9 @@ export default function BackgroundRemoverPage() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                     fileInputRef.current?.click();
                   }}
-                  className="px-8 py-3.5 rounded-full bg-[#d0f471] hover:bg-[#dbff83] text-[#091712] text-base sm:text-lg font-bold shadow-xl px-10 py-4 transition-all cursor-pointer flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-base sm:text-lg font-bold shadow-xl transition-all cursor-pointer flex items-center gap-2 hover:scale-102 active:scale-98"
                 >
-                  <Upload className="size-4" />
+                  <Upload className="size-5" />
                   <span>Upload Image Free</span>
                 </button>
               </div>
