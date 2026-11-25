@@ -30,8 +30,20 @@ export interface CanvaExportResult {
 export async function handleEditInCanva(
   imageBlob: Blob,
   fileName: string = "bellix-cutout.png",
-  config?: CanvaExportConfig
+  config?: CanvaExportConfig,
+  targetWindow?: Window | null
 ): Promise<CanvaExportResult> {
+  // Ensure a window reference is created immediately while user gesture is active
+  // to avoid browser popup blockers (Chrome, Safari, Edge block window.open after async awaits!)
+  let canvaWin = targetWindow;
+  if (!canvaWin && typeof window !== "undefined") {
+    try {
+      canvaWin = window.open("https://www.canva.com/", "_blank", "noopener,noreferrer");
+    } catch (popupErr) {
+      console.warn("Could not pre-open Canva window:", popupErr);
+    }
+  }
+
   const canvaAppId =
     config?.appId ||
     (typeof process !== "undefined" && (process.env.NEXT_PUBLIC_CANVA_APP_ID || process.env.VITE_CANVA_APP_ID));
@@ -53,7 +65,11 @@ export async function handleEditInCanva(
       if (response.ok) {
         const data = await response.json();
         if (data.design_url) {
-          window.open(data.design_url, "_blank", "noopener,noreferrer");
+          if (canvaWin) {
+            canvaWin.location.href = data.design_url;
+          } else {
+            window.open(data.design_url, "_blank", "noopener,noreferrer");
+          }
           return {
             success: true,
             mode: "api",
@@ -97,9 +113,11 @@ export async function handleEditInCanva(
     console.warn("Auto-download for Canva failed:", dlErr);
   }
 
-  // Open official Canva Photo Editor page (works 100% without 403 Forbidden error, whether logged in or not)
-  const canvaUrl = "https://www.canva.com/photo-editor/";
-  window.open(canvaUrl, "_blank", "noopener,noreferrer");
+  // Open official Canva studio homepage if not already opened
+  const canvaUrl = "https://www.canva.com/";
+  if (!canvaWin && typeof window !== "undefined") {
+    window.open(canvaUrl, "_blank", "noopener,noreferrer");
+  }
 
   return {
     success: true,

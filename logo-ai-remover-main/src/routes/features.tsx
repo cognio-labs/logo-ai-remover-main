@@ -144,27 +144,24 @@ export default function FeaturesPage() {
   const current = featureTabs[activeTab];
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d] font-sans pb-24">
       {/* 1. HERO SECTION: INTERACTIVE STUDIO KEYBOARD & CONTROLS */}
-      <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA] border-b border-[#E5E5E5] relative overflow-hidden">
-        {/* Subtle ambient light gradient */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-white/70 blur-[120px] rounded-full pointer-events-none" />
-
+      <section className="pt-16 pb-16 px-4 sm:px-6 lg:px-8 bg-[#f7f5ee] border-b-[3px] border-[#0b0f0d] relative overflow-hidden">
         <div className="relative mx-auto max-w-6xl text-center space-y-10">
-          <div className="max-w-2xl mx-auto space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E5E5E5] text-xs font-bold text-[#171717] tracking-wider uppercase shadow-2xs">
-              <span className="size-2 rounded-full bg-[#E11D48] animate-pulse" />
-              <span>Tactile Neural Workflow • Mac Hardware Showcase</span>
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] tracking-wider uppercase shadow-[3px_3px_0px_#0b0f0d]">
+              <span className="size-2.5 rounded-sm bg-[#0b0f0d]" />
+              <span>Tactile Neural Workflow • Hardware Showcase</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight text-[#171717]">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0b0f0d]">
               Interactive Studio{" "}
-              <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+              <span className="inline-block bg-[#d0f471] px-3 py-0.5 border-[2.5px] border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] text-[#0b0f0d]">
                 Controls
               </span>
             </h1>
 
-            <p className="text-sm sm:text-base text-[#737373] max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-[#1f2924] font-medium max-w-2xl mx-auto leading-relaxed">
               Control Bellix.us at the speed of thought. Press keys on your physical keyboard, click
               the virtual keycaps, or interact with the precision wireless mouse to trigger neural
               shortcuts with authentic switch acoustics.
@@ -180,7 +177,7 @@ export default function FeaturesPage() {
           <div className="pt-2 pb-2 flex flex-wrap items-center justify-center gap-4">
             <PinkButton
               size="lg"
-              className="px-8 py-3.5 font-bold shadow-md shadow-rose-200"
+              className="px-8 py-3.5 font-black"
               asChild
             >
               <Link to="/gemini-video-watermark-remover">
@@ -191,7 +188,7 @@ export default function FeaturesPage() {
 
             <Link
               to="/background-remover"
-              className="px-6 py-3.5 rounded-full text-sm font-bold text-[#171717] bg-[#FFFFFF] hover:bg-[#F5F5F5] border border-[#E5E5E5] shadow-xs transition-all hover:border-[#D4D4D4]"
+              className="px-6 py-3.5 rounded-lg text-sm font-black uppercase tracking-wide text-[#0b0f0d] bg-white hover:bg-[#ffe500] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] transition-all"
             >
               Try Background Remover
             </Link>
@@ -200,33 +197,33 @@ export default function FeaturesPage() {
       </section>
 
       {/* 2. HERO HIGHLIGHTS & INTRO */}
-      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF5F8] via-white to-white text-center border-t border-[#FCE7EC]">
-        <div className="mx-auto max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48] shadow-2xs">
-            <Sparkles className="size-3.5" />
+      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-white text-center border-b-[3px] border-[#0b0f0d]">
+        <div className="mx-auto max-w-4xl space-y-5">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#a8e6cf] border-2 border-[#0b0f0d] text-xs font-black uppercase tracking-wider text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+            <Sparkles className="size-3.5 text-[#0b0f0d]" />
             <span>State-of-the-Art Neural Features</span>
           </div>
 
-          <h2 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
+          <h2 className="text-4xl sm:text-6xl font-black text-[#0b0f0d] tracking-tight">
             Designed for Creators Who Demand{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+            <span className="inline-block bg-[#ffe500] px-3 py-0.5 border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] text-[#0b0f0d]">
               Perfection
             </span>
           </h2>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#1f2924] font-medium leading-relaxed">
             Explore the advanced neural models powering Bellix.us. From spatio-temporal video
             tracking to AI background removal.
           </p>
 
-          <div className="pt-4 flex items-center justify-center gap-4">
-            <PinkButton size="lg" className="font-bold shadow-md" asChild>
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+            <PinkButton size="lg" className="font-black" asChild>
               <Link to="/gemini-video-watermark-remover">
                 <Video className="size-4 mr-2" />
                 <span>Try Video Remover</span>
               </Link>
             </PinkButton>
-            <PinkButton variant="outline" size="lg" className="font-bold" asChild>
+            <PinkButton variant="outline" size="lg" className="font-black" asChild>
               <Link to="/background-remover">Background Remover</Link>
             </PinkButton>
           </div>
@@ -235,15 +232,16 @@ export default function FeaturesPage() {
 
       {/* 2. INTERACTIVE FEATURE EXPLORER TABS */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto py-12">
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
           {featureTabs.map((tab, i) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(i)}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer ${activeTab === i
-                ? "bg-[#E11D48] text-white shadow-md shadow-rose-200"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-[#FCE7EC]"
-                }`}
+              className={`px-5 py-2.5 rounded-md text-xs font-black border-2 border-[#0b0f0d] transition-all cursor-pointer ${
+                activeTab === i
+                  ? "bg-[#d0f471] text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]"
+                  : "bg-white text-[#0b0f0d] hover:bg-[#ffe500] shadow-[2px_2px_0px_#0b0f0d]"
+              }`}
             >
               {tab.title}
             </button>
@@ -251,44 +249,47 @@ export default function FeaturesPage() {
         </div>
 
         {/* Active Feature Showcase Card */}
-        <div className="rounded-3xl p-8 sm:p-12 bg-[#FFF8FA] border border-[#FCE7EC] shadow-sm grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+        <div className="rounded-xl p-8 sm:p-12 bg-white border-[2.5px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d] grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-6 space-y-4 text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]">
               <Zap className="size-3.5" />
               <span>{current.tagline}</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-950">{current.title}</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0b0f0d]">{current.title}</h2>
 
-            <p className="text-sm text-gray-600 leading-relaxed">{current.desc}</p>
+            <p className="text-sm text-[#26302b] font-medium leading-relaxed">{current.desc}</p>
 
-            <div className="space-y-2.5 pt-2 text-xs text-gray-700">
+            <div className="space-y-2.5 pt-2 text-xs text-[#0b0f0d] font-bold">
               {current.bullets.map((b) => (
                 <div key={b} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="size-4 text-[#E11D48] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="size-4 text-[#0b0f0d] shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>{b}</span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[#FCE7EC] flex items-center justify-between">
+            <div className="pt-4 border-t-2 border-[#0b0f0d] flex items-center justify-between gap-4">
               <div>
-                <span className="text-[11px] font-mono text-gray-400 block uppercase">
+                <span className="text-[11px] font-mono text-[#26302b] font-bold block uppercase">
                   Benchmark Result
                 </span>
-                <span className="text-xl font-semibold text-[#E11D48] font-mono">
+                <span className="text-xl font-black text-[#0b0f0d] font-mono">
                   {current.metric}
                 </span>
               </div>
 
-              <PinkButton size="sm" asChild>
-                <Link to="/gemini-video-watermark-remover">Test Live</Link>
-              </PinkButton>
+              <Link
+                to="/gemini-video-watermark-remover"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] font-black text-xs border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]"
+              >
+                Test Live
+              </Link>
             </div>
           </div>
 
           <div className="md:col-span-6">
-            <div className="relative aspect-video rounded-3xl overflow-hidden bg-black border-2 border-white shadow-xl">
+            <div className="relative aspect-video rounded-xl overflow-hidden bg-black border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d]">
               {current.isVideo ? (
                 <video
                   src={current.preview}
@@ -301,7 +302,7 @@ export default function FeaturesPage() {
               ) : (
                 <img src={current.preview} alt={current.title} className="size-full object-cover" />
               )}
-              <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold backdrop-blur-md">
+              <div className="absolute top-3 right-3 px-3 py-1 rounded bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] text-[11px] font-black">
                 Active Neural Preview
               </div>
             </div>
@@ -312,38 +313,38 @@ export default function FeaturesPage() {
       {/* 3. DETAILED COMPARISON TABLE */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0b0f0d]">
             Bellix.us vs Alternative Solutions
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-[#26302b] font-medium mt-2">
             See how true generative neural reconstruction compares to basic blur filters and manual
             editing.
           </p>
         </div>
 
-        <div className="overflow-x-auto rounded-3xl border border-[#FCE7EC] bg-white shadow-2xs">
+        <div className="overflow-x-auto rounded-xl border-[2.5px] border-[#0b0f0d] bg-white shadow-[6px_6px_0px_#0b0f0d]">
           <table className="w-full text-left text-xs sm:text-sm border-collapse">
             <thead>
-              <tr className="bg-[#FFF8FA] border-b border-[#FCE7EC] text-gray-900">
-                <th className="py-4 px-6 font-bold">Feature</th>
-                <th className="py-4 px-6 font-bold text-center text-[#E11D48] bg-[#FFF1F4]">
+              <tr className="bg-[#ffe500] border-b-[2.5px] border-[#0b0f0d] text-[#0b0f0d]">
+                <th className="py-4 px-6 font-black">Feature</th>
+                <th className="py-4 px-6 font-black text-center bg-[#d0f471] border-x-2 border-[#0b0f0d]">
                   Bellix.us
                 </th>
-                <th className="py-4 px-6 font-bold text-center text-gray-600">
+                <th className="py-4 px-6 font-black text-center">
                   Generic Blur Tools
                 </th>
-                <th className="py-4 px-6 font-bold text-center text-gray-600">Manual Photoshop</th>
+                <th className="py-4 px-6 font-black text-center">Manual Photoshop</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#FCE7EC]/60">
+            <tbody className="divide-y-2 divide-[#0b0f0d]">
               {comparison.map((r) => (
-                <tr key={r.feature} className="hover:bg-[#FFFDFC] transition-colors">
-                  <td className="py-4 px-6 font-semibold text-gray-900">{r.feature}</td>
-                  <td className="py-4 px-6 text-center font-bold text-[#E11D48] bg-[#FFF1F4]/30">
+                <tr key={r.feature} className="hover:bg-[#f7f5ee] transition-colors">
+                  <td className="py-4 px-6 font-black text-[#0b0f0d]">{r.feature}</td>
+                  <td className="py-4 px-6 text-center font-black text-[#0b0f0d] bg-[#d0f471]/35 border-x-2 border-[#0b0f0d]">
                     {r.bellix}
                   </td>
-                  <td className="py-4 px-6 text-center text-gray-500">{r.blurTools}</td>
-                  <td className="py-4 px-6 text-center text-gray-500">{r.manualPhotoshop}</td>
+                  <td className="py-4 px-6 text-center font-medium text-[#26302b]">{r.blurTools}</td>
+                  <td className="py-4 px-6 text-center font-medium text-[#26302b]">{r.manualPhotoshop}</td>
                 </tr>
               ))}
             </tbody>
@@ -353,42 +354,43 @@ export default function FeaturesPage() {
 
       {/* 4. PERFORMANCE BENCHMARKS STATS */}
       <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="p-6 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
-            <h3 className="text-4xl font-semibold text-gray-950 font-mono">0.4s</h3>
-            <p className="text-xs text-gray-500 mt-1 font-medium">Watermark Detection</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 text-center">
+          <div className="p-6 rounded-xl bg-[#d0f471] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+            <h3 className="text-4xl font-black text-[#0b0f0d] font-mono">0.4s</h3>
+            <p className="text-xs text-[#0b0f0d] mt-1 font-bold">Watermark Detection</p>
           </div>
-          <div className="p-6 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
-            <h3 className="text-4xl font-semibold text-gray-950 font-mono">60 FPS</h3>
-            <p className="text-xs text-gray-500 mt-1 font-medium">Optical Flow Tracking</p>
+          <div className="p-6 rounded-xl bg-[#ffe500] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+            <h3 className="text-4xl font-black text-[#0b0f0d] font-mono">60 FPS</h3>
+            <p className="text-xs text-[#0b0f0d] mt-1 font-bold">Optical Flow Tracking</p>
           </div>
-          <div className="p-6 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
-            <h3 className="text-4xl font-semibold text-[#E11D48] font-mono">8K</h3>
-            <p className="text-xs text-gray-500 mt-1 font-medium">Max Upscale Resolution</p>
+          <div className="p-6 rounded-xl bg-[#a8e6cf] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+            <h3 className="text-4xl font-black text-[#0b0f0d] font-mono">8K</h3>
+            <p className="text-xs text-[#0b0f0d] mt-1 font-bold">Max Upscale Resolution</p>
           </div>
-          <div className="p-6 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
-            <h3 className="text-4xl font-semibold text-gray-950 font-mono">99.9%</h3>
-            <p className="text-xs text-gray-500 mt-1 font-medium">Removal Accuracy</p>
+          <div className="p-6 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+            <h3 className="text-4xl font-black text-[#0b0f0d] font-mono">99.9%</h3>
+            <p className="text-xs text-[#0b0f0d] mt-1 font-bold">Removal Accuracy</p>
           </div>
         </div>
       </section>
 
       {/* 5. BOTTOM CTA */}
       <section className="py-16 text-center">
-        <div className="max-w-xl mx-auto space-y-4 px-4">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">
+        <div className="max-w-xl mx-auto space-y-4 px-6 py-10 rounded-xl bg-[#ffe500] border-[3px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d]">
+          <h2 className="text-3xl font-black text-[#0b0f0d]">
             Ready to enhance your media?
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600">
+          <p className="text-xs sm:text-sm font-semibold text-[#0b0f0d]">
             Upload any Gemini or Veo video to see neural inpainting in action.
           </p>
           <div className="pt-2 flex items-center justify-center gap-4">
-            <PinkButton size="lg" className="font-bold shadow-md" asChild>
-              <Link to="/gemini-video-watermark-remover">
-                <span>Start Cleaning Now</span>
-                <ArrowRight className="size-4 ml-1.5" />
-              </Link>
-            </PinkButton>
+            <Link
+              to="/gemini-video-watermark-remover"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-[#d0f471] hover:bg-white text-[#0b0f0d] font-black text-sm border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]"
+            >
+              <span>Start Cleaning Now</span>
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
         </div>
       </section>

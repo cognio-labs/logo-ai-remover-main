@@ -43,6 +43,7 @@ export type AdjustSettings = {
 };
 
 export type BrushSettings = {
+  shape?: "brush" | "rectangle" | "lasso";
   mode: BrushMode;
   size: number; // 5 to 100
   magicBrush: boolean;

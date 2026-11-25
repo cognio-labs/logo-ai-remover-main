@@ -7,12 +7,13 @@ import { BackgroundTab } from "./tabs/BackgroundTab";
 import { EffectsTab } from "./tabs/EffectsTab";
 import { AdjustTab } from "./tabs/AdjustTab";
 import { TextTab } from "./tabs/TextTab";
-import { X, RefreshCw, Sparkles, ExternalLink, Download, Plus, ChevronUp } from "lucide-react";
+import { X, RefreshCw, Sparkles, ExternalLink, Download, Plus, ChevronUp, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { useUserStore } from "@/lib/userStore";
 import { createThumbnailDataUrl, saveMediaBlob } from "@/lib/historyDb";
 import { ProcessingDots } from "@/components/ui/ProcessingDots";
+import { ResultComparison } from "../ResultComparison";
 
 const LIGHT_CHECKERBOARD = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect width='12' height='12' fill='%23ffffff'/%3E%3Crect x='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect y='12' width='12' height='12' fill='%23f1f5f9'/%3E%3Crect x='12' y='12' width='12' height='12' fill='%23ffffff'/%3E%3C/svg%3E")`;
 
@@ -54,6 +55,7 @@ export interface RemoveBgStudioEditorProps {
   onSelectHistoryItem?: (id: string) => void;
   onDeleteHistoryItem?: (id: string) => void;
   onUploadMore?: () => void;
+  onSelectMode?: (mode: "text" | "object" | "custom") => void;
 }
 
 function InnerEditor({
@@ -65,6 +67,7 @@ function InnerEditor({
   onSelectHistoryItem,
   onDeleteHistoryItem,
   onUploadMore,
+  onSelectMode,
 }: {
   onReset: () => void;
   onEditInCanva?: () => void;
@@ -74,23 +77,27 @@ function InnerEditor({
   onSelectHistoryItem?: (id: string) => void;
   onDeleteHistoryItem?: (id: string) => void;
   onUploadMore?: () => void;
+  onSelectMode?: (mode: "text" | "object" | "custom") => void;
 }) {
   const { state, dispatch } = useEditor();
   const { activeTab, cutoutImageUrl } = state;
 
   // Handle Export of Final Canvas
-  const handleDownload = (resolution: "preview" | "max") => {
+  const handleDownload = (resolution: "preview" | "max" | "jpg-white" | "jpg-black" = "max") => {
     // Deselect any active text gizmos for pristine export
     dispatch({ type: "SELECT_TEXT_LAYER", payload: null });
 
     // Find canvas element
-    const canvas = document.querySelector<HTMLCanvasElement>("canvas[data-background-editor-canvas]");
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      "canvas[data-background-editor-canvas]",
+    );
     if (!canvas) {
       toast.error("Canvas element not ready for export");
       return;
     }
 
     try {
+      canvas.dispatchEvent(new Event("bellix:render-export"));
       const dataUrl = canvas.toDataURL("image/png");
       const fileName = `bellix_clean_bg_${Date.now()}.png`;
 
@@ -115,7 +122,22 @@ function InnerEditor({
         console.warn("Failed to save to history:", e);
       }
 
-      if (resolution === "preview") {
+      if (resolution === "jpg-white" || resolution === "jpg-black") {
+        const solidCanvas = document.createElement("canvas");
+        solidCanvas.width = canvas.width;
+        solidCanvas.height = canvas.height;
+        const sCtx = solidCanvas.getContext("2d");
+        if (sCtx) {
+          sCtx.fillStyle = resolution === "jpg-white" ? "#FFFFFF" : "#111827";
+          sCtx.fillRect(0, 0, solidCanvas.width, solidCanvas.height);
+          sCtx.drawImage(canvas, 0, 0);
+          const link = document.createElement("a");
+          link.href = solidCanvas.toDataURL("image/jpeg", 0.95);
+          link.download = `bellix-${resolution === "jpg-white" ? "white" : "dark"}-${Date.now()}.jpg`;
+          link.click();
+          toast.success(`Exported solid ${resolution === "jpg-white" ? "white" : "dark"} JPG!`);
+        }
+      } else if (resolution === "preview") {
         // Create scaled 408 x 612 preview
         const previewCanvas = document.createElement("canvas");
         const scale = Math.min(1, 612 / Math.max(canvas.width, canvas.height));
@@ -133,7 +155,9 @@ function InnerEditor({
       } else {
         // High-res Max export directly from full resolution canvas
         const link = document.createElement("a");
-        link.href = dataUrl;
+        // Preserve exact backend PNG bytes (including RGB under soft alpha)
+        // when no editor changes have been made.
+        link.href = state.canUndo ? dataUrl : cutoutImageUrl;
         link.download = fileName;
         link.click();
 
@@ -154,6 +178,8 @@ function InnerEditor({
       link.download = "cutout.png";
       link.click();
       toast.info("Downloaded cutout PNG.");
+    } finally {
+      canvas.dispatchEvent(new Event("bellix:render-preview"));
     }
   };
 
@@ -162,20 +188,20 @@ function InnerEditor({
       {/* 1. TOP TOOLBAR (Floating pill matching Screenshot 4) */}
       <EditorToolbar onDownload={handleDownload} />
 
-      {/* 2. MAIN PREVIEW CARD MATCHING SCREENSHOT 4 */}
-      <div className="relative rounded-3xl overflow-hidden border border-slate-200/90 shadow-xl bg-white flex flex-col lg:flex-row w-full max-w-3xl lg:max-w-4xl mx-auto transition-all">
+      {/* 2. MAIN PREVIEW CARD (Neo-Brutalism Studio Frame) */}
+      <div className="relative rounded-xl overflow-hidden border-[3px] border-[#0b0f0d] shadow-[7px_7px_0px_#0b0f0d] bg-white flex flex-col lg:flex-row w-full max-w-3xl lg:max-w-4xl mx-auto transition-all">
         {/* CENTER: Main Canvas Area with clean light background */}
-        <div className="flex-1 relative flex items-center justify-center bg-slate-50/50 overflow-hidden min-h-[340px] sm:min-h-[440px] p-4 sm:p-6">
+        <div className="flex-1 relative flex items-center justify-center bg-[#f7f5ee] overflow-hidden min-h-[340px] sm:min-h-[440px] p-4 sm:p-6">
           <EditorCanvas />
 
-          {/* Floating Action: Edit in Canva (Centered pill matching Screenshot 4) */}
+          {/* Floating Action: Edit in Canva */}
           {onEditInCanva && (
             <div className="absolute top-3.5 inset-x-0 mx-auto w-fit z-20">
               <button
                 type="button"
                 onClick={onEditInCanva}
                 disabled={isCanvaLoading}
-                className="px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-slate-200/90 bg-white/95 backdrop-blur-md text-slate-800 hover:bg-slate-50 hover:shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                className="px-4 py-1.5 rounded-md text-xs font-black shadow-[3px_3px_0px_#0b0f0d] border-2 border-[#0b0f0d] bg-white text-[#0b0f0d] hover:bg-[#ffe500] flex items-center gap-2 transition-all cursor-pointer"
               >
                 <CanvaLogoIcon className="size-4" />
                 <span>{isCanvaLoading ? "Opening..." : "Edit in Canva"}</span>
@@ -183,16 +209,16 @@ function InnerEditor({
             </div>
           )}
 
-          {/* Canva Disclaimer matching Screenshot 4 */}
+          {/* Canva Disclaimer */}
           {onEditInCanva && (
             <div className="absolute bottom-2.5 inset-x-0 mx-auto w-fit z-20 pointer-events-auto">
-              <span className="text-[11px] text-slate-400 font-normal">
+              <span className="px-2 py-0.5 rounded bg-white/90 border border-[#0b0f0d]/20 text-[11px] text-[#26302b] font-semibold">
                 By sending your image to Canva you agree to{" "}
                 <a
                   href="https://www.canva.com/policies/terms-of-use/"
                   target="_blank"
                   rel="noreferrer"
-                  className="underline hover:text-slate-600 transition-colors"
+                  className="underline hover:text-[#0b0f0d] transition-colors"
                 >
                   Canva's Terms of Service
                 </a>
@@ -204,23 +230,21 @@ function InnerEditor({
 
         {/* SIDEBAR: Opens smoothly when an active tab is selected */}
         {activeTab && (
-          <aside
-            className="w-full lg:w-[320px] bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20 shadow-lg"
-          >
+          <aside className="w-full lg:w-[320px] bg-white border-t-[3px] lg:border-t-0 lg:border-l-[3px] border-[#0b0f0d] flex flex-col justify-between shrink-0 animate-in slide-in-from-right-4 duration-200 z-20">
             {/* Header of Sidebar */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50/80">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">
+            <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#0b0f0d] bg-[#ffe500]">
+              <span className="text-xs font-black uppercase tracking-wider text-[#0b0f0d] font-mono">
                 {activeTab === "cutout"
                   ? "Cutout & Erase Tools"
                   : activeTab === "background"
-                  ? "Backdrops & Scenes"
-                  : activeTab === "effects"
-                  ? "Depth & Lighting Effects"
-                  : activeTab === "adjust"
-                  ? "Adjustments & Framing"
-                  : activeTab === "text"
-                  ? "Headings & Typography"
-                  : "Design & Integrations"}
+                    ? "Backdrops & Scenes"
+                    : activeTab === "effects"
+                      ? "Depth & Lighting Effects"
+                      : activeTab === "adjust"
+                        ? "Adjustments & Framing"
+                        : activeTab === "text"
+                          ? "Headings & Typography"
+                          : "Design & Integrations"}
               </span>
               <button
                 type="button"
@@ -234,7 +258,7 @@ function InnerEditor({
 
             {/* Sidebar Tab Content */}
             <div className="flex-1 overflow-y-auto max-h-[340px] sm:max-h-[380px]">
-              {activeTab === "cutout" && <CutoutTab />}
+              {activeTab === "cutout" && <CutoutTab onSelectMode={onSelectMode} />}
               {activeTab === "background" && <BackgroundTab />}
               {activeTab === "effects" && <EffectsTab />}
               {activeTab === "adjust" && <AdjustTab />}
@@ -244,11 +268,10 @@ function InnerEditor({
                   <div className="size-12 rounded-xl bg-gradient-to-tr from-[#00C4CC] to-[#7D2AE8] text-white flex items-center justify-center mx-auto shadow-md">
                     <Sparkles className="size-6" />
                   </div>
-                  <h4 className="text-sm font-bold text-slate-900">
-                    Export directly to Canva
-                  </h4>
+                  <h4 className="text-sm font-bold text-slate-900">Export directly to Canva</h4>
                   <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                    Transform this cutout into banners, social media posts, presentations, and product listings in one click.
+                    Transform this cutout into banners, social media posts, presentations, and
+                    product listings in one click.
                   </p>
                   {onEditInCanva && (
                     <button
@@ -286,7 +309,7 @@ function InnerEditor({
               <button
                 type="button"
                 onClick={() => handleDownload("max")}
-                className="py-1.5 px-4 rounded-lg text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 bg-[#0070F3] hover:bg-blue-600 text-white"
+                className="py-1.5 px-4 rounded-lg text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <Download className="size-3 text-white" />
                 <span className="font-bold text-white">Save Image</span>
@@ -296,7 +319,7 @@ function InnerEditor({
         )}
       </div>
 
-      {/* 3. MULTI-IMAGE THUMBNAIL TRAY WITH DELETE BUTTON (Matching Screenshot 4) */}
+      {/* 3. MULTI-IMAGE THUMBNAIL TRAY WITH PERMANENT DELETE BUTTONS */}
       {historyItems && historyItems.length > 0 && (
         <div className="py-2 px-4 flex items-center justify-center gap-3.5 flex-wrap">
           <button
@@ -316,7 +339,7 @@ function InnerEditor({
                   onClick={() => onSelectHistoryItem?.(item.id)}
                   className={`relative size-12 sm:size-13 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
                     isActive
-                      ? "border-blue-500 ring-4 ring-blue-500/20 shadow-md"
+                      ? "border-emerald-500 ring-4 ring-emerald-500/20 shadow-md"
                       : "border-slate-200/80 hover:border-slate-400 opacity-70 hover:opacity-100"
                   }`}
                   style={{
@@ -331,13 +354,13 @@ function InnerEditor({
                     className="w-full h-full object-contain p-0.5"
                   />
                   {isActive && (
-                    <div className="absolute top-0 inset-x-0 mx-auto w-fit bg-blue-500 text-white rounded-b-sm px-1.5 py-0.5 shadow-xs">
+                    <div className="absolute top-0 inset-x-0 mx-auto w-fit bg-emerald-500 text-white rounded-b-sm px-1.5 py-0.5 shadow-xs">
                       <ChevronUp className="size-2.5 stroke-[3]" />
                     </div>
                   )}
                 </button>
 
-                {/* Delete Thumbnail Button */}
+                {/* Permanent Delete Button on Thumbnail */}
                 {onDeleteHistoryItem && (
                   <button
                     type="button"
@@ -345,7 +368,7 @@ function InnerEditor({
                       e.stopPropagation();
                       onDeleteHistoryItem(item.id);
                     }}
-                    className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-slate-900/90 hover:bg-rose-600 text-white flex items-center justify-center shadow-md transition-all hover:scale-110 z-20 cursor-pointer"
+                    className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-slate-900 hover:bg-rose-600 text-white flex items-center justify-center shadow-md transition-all hover:scale-110 z-20 cursor-pointer border border-white"
                     title={`Delete ${item.fileName}`}
                   >
                     <X className="size-2.5 stroke-[2.5]" />
@@ -359,14 +382,28 @@ function InnerEditor({
 
       {/* 4. BOTTOM ACTION ROW (Fully responsive across Phone, Tablet, Laptop, PC) */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 w-full max-w-3xl lg:max-w-4xl mx-auto">
-        <button
-          type="button"
-          onClick={onReset}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <RefreshCw className="size-4 text-slate-600" />
-          <span>Upload Another Image</span>
-        </button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={onReset}
+            className="flex-1 sm:flex-none px-5 py-2.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <RefreshCw className="size-4 text-slate-600" />
+            <span>Upload Another</span>
+          </button>
+
+          {activeItemId && onDeleteHistoryItem && (
+            <button
+              type="button"
+              onClick={() => onDeleteHistoryItem(activeItemId)}
+              className="px-4 py-2.5 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              title="Delete this image"
+            >
+              <Trash2 className="size-3.5 text-rose-600" />
+              <span>Delete</span>
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
           <span className="text-xs text-slate-500 font-mono font-medium hidden md:inline">
@@ -389,6 +426,7 @@ function InnerEditor({
 export function RemoveBgStudioEditor(props: RemoveBgStudioEditorProps) {
   return (
     <EditorProvider
+      key={`${props.originalImageUrl}|${props.cutoutImageUrl}`}
       originalUrl={props.originalImageUrl}
       cutoutUrl={props.cutoutImageUrl}
     >

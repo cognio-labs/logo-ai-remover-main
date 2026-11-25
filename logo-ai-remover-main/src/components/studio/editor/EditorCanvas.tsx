@@ -24,6 +24,8 @@ export function EditorCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const selectionPoints = useRef<Array<{ x: number; y: number }>>([]);
+  const selectionBefore = useRef<ImageData | null>(null);
 
   // Cached Image elements
   const originalImgRef = useRef<HTMLImageElement | null>(null);
@@ -107,217 +109,245 @@ export function EditorCanvas() {
     .join(" ");
 
   // Composite Main Rendering Pipeline (Layers 1..5)
-  const drawMainCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !cutoutImgRef.current) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const drawMainCanvas = useCallback(
+    (exportOnly = false) => {
+      const canvas = canvasRef.current;
+      if (!canvas || !cutoutImgRef.current) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-    const w = cutoutImgRef.current.naturalWidth || 800;
-    const h = cutoutImgRef.current.naturalHeight || 600;
+      const w = cutoutImgRef.current.naturalWidth || 800;
+      const h = cutoutImgRef.current.naturalHeight || 600;
 
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w;
-      canvas.height = h;
-    }
-
-    ctx.clearRect(0, 0, w, h);
-
-    // If Compare is active, draw original image only
-    if (isCompareActive && originalImgRef.current) {
-      ctx.drawImage(originalImgRef.current, 0, 0, w, h);
-      return;
-    }
-
-    // LAYER 1: Background Layer (Color, Gradient, or Image)
-    if (background.type === "color") {
-      ctx.fillStyle = background.value || "#FFFFFF";
-      ctx.fillRect(0, 0, w, h);
-    } else if (background.type === "gradient") {
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      const colors =
-        background.gradient && background.gradient.length >= 2
-          ? background.gradient
-          : ["#10241E", "#071A13"];
-      colors.forEach((c, idx) => {
-        grad.addColorStop(idx / (colors.length - 1), c);
-      });
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-    } else if (background.type === "image" && bgImgRef.current) {
-      ctx.save();
-      if (background.blurEnabled && background.blur > 0) {
-        ctx.filter = `blur(${background.blur}px)`;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
       }
 
-      const bgImg = bgImgRef.current;
-      const fit = background.fit || "cover";
+      ctx.clearRect(0, 0, w, h);
 
-      if (fit === "fill") {
-        ctx.drawImage(bgImg, 0, 0, w, h);
-      } else if (fit === "contain") {
-        const hRatio = w / bgImg.naturalWidth;
-        const vRatio = h / bgImg.naturalHeight;
-        const ratio = Math.min(hRatio, vRatio);
-        const shiftX = (w - bgImg.naturalWidth * ratio) / 2;
-        const shiftY = (h - bgImg.naturalHeight * ratio) / 2;
-        ctx.drawImage(bgImg, shiftX, shiftY, bgImg.naturalWidth * ratio, bgImg.naturalHeight * ratio);
-      } else {
-        // "cover" (default)
-        const hRatio = w / bgImg.naturalWidth;
-        const vRatio = h / bgImg.naturalHeight;
-        const ratio = Math.max(hRatio, vRatio);
-        const shiftX = (w - bgImg.naturalWidth * ratio) / 2;
-        const shiftY = (h - bgImg.naturalHeight * ratio) / 2;
-        ctx.drawImage(bgImg, shiftX, shiftY, bgImg.naturalWidth * ratio, bgImg.naturalHeight * ratio);
+      // If Compare is active, draw original image only
+      if (!exportOnly && isCompareActive && originalImgRef.current) {
+        ctx.drawImage(originalImgRef.current, 0, 0, w, h);
+        return;
       }
-      ctx.restore();
-    }
 
-    // LAYER 2: Drop Shadow (rendered directly behind subject)
-    if (shadow.enabled && maskCanvasRef.current) {
-      ctx.save();
-      ctx.shadowColor = `rgba(0, 0, 0, ${shadow.opacity})`;
-      ctx.shadowBlur = shadow.blur * 2;
-      ctx.shadowOffsetX = shadow.offsetX;
-      ctx.shadowOffsetY = shadow.offsetY * 2;
-      ctx.drawImage(maskCanvasRef.current, 0, 0, w, h);
-      ctx.restore();
-    }
-
-    // LAYER 3: Subject Cutout with direct Canvas Adjustment Filters
-    if (maskCanvasRef.current) {
-      ctx.save();
-      if (filterStyle && filterStyle !== "none") {
-        try {
-          ctx.filter = filterStyle;
-        } catch {
-          // fallback if browser doesn't support specific filter string
-        }
-      }
-      ctx.drawImage(maskCanvasRef.current, 0, 0, w, h);
-      ctx.restore();
-    }
-
-    // LAYER 4: Optional Canvas Border Outline
-    if (adjust.borderWidth > 0) {
-      ctx.save();
-      ctx.lineWidth = adjust.borderWidth * 2;
-      ctx.strokeStyle = adjust.borderColor || "#FFFFFF";
-      ctx.strokeRect(0, 0, w, h);
-      ctx.restore();
-    }
-
-    // LAYER 5: Heading & Text Layers (always rendered on top)
-    if (textLayers && textLayers.length > 0) {
-      textLayers.forEach((layer) => {
+      // LAYER 1: Background Layer (Color, Gradient, or Image)
+      if (background.type === "color") {
+        ctx.fillStyle = background.value || "#FFFFFF";
+        ctx.fillRect(0, 0, w, h);
+      } else if (background.type === "gradient") {
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        const colors =
+          background.gradient && background.gradient.length >= 2
+            ? background.gradient
+            : ["#10241E", "#071A13"];
+        colors.forEach((c, idx) => {
+          grad.addColorStop(idx / (colors.length - 1), c);
+        });
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      } else if (background.type === "image" && bgImgRef.current) {
         ctx.save();
-        const tx = (layer.x / 100) * w;
-        const ty = (layer.y / 100) * h;
-        ctx.translate(tx, ty);
-
-        if (layer.rotation) {
-          ctx.rotate((layer.rotation * Math.PI) / 180);
+        if (background.blurEnabled && background.blur > 0) {
+          ctx.filter = `blur(${background.blur}px)`;
         }
 
-        ctx.globalAlpha = layer.opacity ?? 1;
+        const bgImg = bgImgRef.current;
+        const fit = background.fit || "cover";
 
-        const fontSize = layer.fontSize || 36;
-        ctx.font = `${layer.fontWeight || "bold"} ${fontSize}px ${layer.fontFamily || "Inter, sans-serif"}`;
-        ctx.textAlign = layer.align || "center";
-        ctx.textBaseline = "middle";
-
-        const metrics = ctx.measureText(layer.text);
-        const textWidth = metrics.width;
-        const textHeight = fontSize * (layer.lineHeight || 1.2);
-
-        // Background pill badge if configured
-        if (layer.backgroundColor) {
-          ctx.save();
-          ctx.shadowColor = "transparent";
-          ctx.fillStyle = layer.backgroundColor;
-          const pad = layer.padding ?? 8;
-          const r = layer.borderRadius ?? 6;
-          const bx =
-            layer.align === "left"
-              ? -pad
-              : layer.align === "right"
-              ? -textWidth - pad
-              : -textWidth / 2 - pad;
-          const by = -textHeight / 2 - pad / 2;
-          ctx.beginPath();
-          if (typeof ctx.roundRect === "function") {
-            ctx.roundRect(bx, by, textWidth + pad * 2, textHeight + pad, r);
-          } else {
-            ctx.rect(bx, by, textWidth + pad * 2, textHeight + pad);
-          }
-          ctx.fill();
-          ctx.restore();
+        if (fit === "fill") {
+          ctx.drawImage(bgImg, 0, 0, w, h);
+        } else if (fit === "contain") {
+          const hRatio = w / bgImg.naturalWidth;
+          const vRatio = h / bgImg.naturalHeight;
+          const ratio = Math.min(hRatio, vRatio);
+          const shiftX = (w - bgImg.naturalWidth * ratio) / 2;
+          const shiftY = (h - bgImg.naturalHeight * ratio) / 2;
+          ctx.drawImage(
+            bgImg,
+            shiftX,
+            shiftY,
+            bgImg.naturalWidth * ratio,
+            bgImg.naturalHeight * ratio,
+          );
+        } else {
+          // "cover" (default)
+          const hRatio = w / bgImg.naturalWidth;
+          const vRatio = h / bgImg.naturalHeight;
+          const ratio = Math.max(hRatio, vRatio);
+          const shiftX = (w - bgImg.naturalWidth * ratio) / 2;
+          const shiftY = (h - bgImg.naturalHeight * ratio) / 2;
+          ctx.drawImage(
+            bgImg,
+            shiftX,
+            shiftY,
+            bgImg.naturalWidth * ratio,
+            bgImg.naturalHeight * ratio,
+          );
         }
-
-        // Text drop shadow for high contrast readability
-        if (layer.shadowColor) {
-          ctx.shadowColor = layer.shadowColor;
-          ctx.shadowBlur = layer.shadowBlur ?? 8;
-          ctx.shadowOffsetX = 1;
-          ctx.shadowOffsetY = 2;
-        }
-
-        ctx.fillStyle = layer.color || "#FFFFFF";
-        ctx.fillText(layer.text, 0, 0);
-
-        // Editor selection bounding box when active in text tab
-        if (layer.id === selectedTextLayerId && activeTab === "text") {
-          ctx.save();
-          ctx.shadowColor = "transparent";
-          ctx.strokeStyle = "#d0f471";
-          ctx.lineWidth = 2;
-          ctx.setLineDash([4, 4]);
-
-          const pad = 8;
-          const bx =
-            layer.align === "left"
-              ? -pad
-              : layer.align === "right"
-              ? -textWidth - pad
-              : -textWidth / 2 - pad;
-          const by = -textHeight / 2 - pad;
-          const bw = textWidth + pad * 2;
-          const bh = textHeight + pad * 2;
-
-          ctx.strokeRect(bx, by, bw, bh);
-
-          // Corner handles
-          ctx.fillStyle = "#10241E";
-          ctx.strokeStyle = "#d0f471";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([]);
-          const handleSize = 6;
-          [
-            [bx, by],
-            [bx + bw, by],
-            [bx, by + bh],
-            [bx + bw, by + bh],
-          ].forEach(([hx, hy]) => {
-            ctx.fillRect(hx - handleSize / 2, hy - handleSize / 2, handleSize, handleSize);
-            ctx.strokeRect(hx - handleSize / 2, hy - handleSize / 2, handleSize, handleSize);
-          });
-
-          ctx.restore();
-        }
-
         ctx.restore();
-      });
-    }
-  }, [
-    background,
-    shadow,
-    adjust,
-    filterStyle,
-    isCompareActive,
-    textLayers,
-    selectedTextLayerId,
-  ]);
+      }
+
+      // LAYER 2: Drop Shadow (rendered directly behind subject)
+      if (shadow.enabled && maskCanvasRef.current) {
+        ctx.save();
+        ctx.shadowColor = `rgba(0, 0, 0, ${shadow.opacity})`;
+        ctx.shadowBlur = shadow.blur * 2;
+        ctx.shadowOffsetX = shadow.offsetX;
+        ctx.shadowOffsetY = shadow.offsetY * 2;
+        ctx.drawImage(maskCanvasRef.current, 0, 0, w, h);
+        ctx.restore();
+      }
+
+      // LAYER 3: Subject Cutout with direct Canvas Adjustment Filters
+      if (maskCanvasRef.current) {
+        ctx.save();
+        if (filterStyle && filterStyle !== "none") {
+          try {
+            ctx.filter = filterStyle;
+          } catch {
+            // fallback if browser doesn't support specific filter string
+          }
+        }
+        ctx.drawImage(maskCanvasRef.current, 0, 0, w, h);
+        ctx.restore();
+      }
+
+      // LAYER 4: Optional Canvas Border Outline
+      if (adjust.borderWidth > 0) {
+        ctx.save();
+        ctx.lineWidth = adjust.borderWidth * 2;
+        ctx.strokeStyle = adjust.borderColor || "#FFFFFF";
+        ctx.strokeRect(0, 0, w, h);
+        ctx.restore();
+      }
+
+      // LAYER 5: Heading & Text Layers (always rendered on top)
+      if (textLayers && textLayers.length > 0) {
+        textLayers.forEach((layer) => {
+          ctx.save();
+          const tx = (layer.x / 100) * w;
+          const ty = (layer.y / 100) * h;
+          ctx.translate(tx, ty);
+
+          if (layer.rotation) {
+            ctx.rotate((layer.rotation * Math.PI) / 180);
+          }
+
+          ctx.globalAlpha = layer.opacity ?? 1;
+
+          const fontSize = layer.fontSize || 36;
+          ctx.font = `${layer.fontWeight || "bold"} ${fontSize}px ${layer.fontFamily || "Inter, sans-serif"}`;
+          ctx.textAlign = layer.align || "center";
+          ctx.textBaseline = "middle";
+
+          const metrics = ctx.measureText(layer.text);
+          const textWidth = metrics.width;
+          const textHeight = fontSize * (layer.lineHeight || 1.2);
+
+          // Background pill badge if configured
+          if (layer.backgroundColor) {
+            ctx.save();
+            ctx.shadowColor = "transparent";
+            ctx.fillStyle = layer.backgroundColor;
+            const pad = layer.padding ?? 8;
+            const r = layer.borderRadius ?? 6;
+            const bx =
+              layer.align === "left"
+                ? -pad
+                : layer.align === "right"
+                  ? -textWidth - pad
+                  : -textWidth / 2 - pad;
+            const by = -textHeight / 2 - pad / 2;
+            ctx.beginPath();
+            if (typeof ctx.roundRect === "function") {
+              ctx.roundRect(bx, by, textWidth + pad * 2, textHeight + pad, r);
+            } else {
+              ctx.rect(bx, by, textWidth + pad * 2, textHeight + pad);
+            }
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // Text drop shadow for high contrast readability
+          if (layer.shadowColor) {
+            ctx.shadowColor = layer.shadowColor;
+            ctx.shadowBlur = layer.shadowBlur ?? 8;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 2;
+          }
+
+          ctx.fillStyle = layer.color || "#FFFFFF";
+          ctx.fillText(layer.text, 0, 0);
+
+          // Editor selection bounding box when active in text tab
+          if (!exportOnly && layer.id === selectedTextLayerId && activeTab === "text") {
+            ctx.save();
+            ctx.shadowColor = "transparent";
+            ctx.strokeStyle = "#d0f471";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+
+            const pad = 8;
+            const bx =
+              layer.align === "left"
+                ? -pad
+                : layer.align === "right"
+                  ? -textWidth - pad
+                  : -textWidth / 2 - pad;
+            const by = -textHeight / 2 - pad;
+            const bw = textWidth + pad * 2;
+            const bh = textHeight + pad * 2;
+
+            ctx.strokeRect(bx, by, bw, bh);
+
+            // Corner handles
+            ctx.fillStyle = "#10241E";
+            ctx.strokeStyle = "#d0f471";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([]);
+            const handleSize = 6;
+            [
+              [bx, by],
+              [bx + bw, by],
+              [bx, by + bh],
+              [bx + bw, by + bh],
+            ].forEach(([hx, hy]) => {
+              ctx.fillRect(hx - handleSize / 2, hy - handleSize / 2, handleSize, handleSize);
+              ctx.strokeRect(hx - handleSize / 2, hy - handleSize / 2, handleSize, handleSize);
+            });
+
+            ctx.restore();
+          }
+
+          ctx.restore();
+        });
+      }
+    },
+    [
+      background,
+      shadow,
+      adjust,
+      filterStyle,
+      isCompareActive,
+      textLayers,
+      selectedTextLayerId,
+      activeTab,
+    ],
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const renderExport = () => drawMainCanvas(true);
+    const renderPreview = () => drawMainCanvas();
+    canvas?.addEventListener("bellix:render-export", renderExport);
+    canvas?.addEventListener("bellix:render-preview", renderPreview);
+    return () => {
+      canvas?.removeEventListener("bellix:render-export", renderExport);
+      canvas?.removeEventListener("bellix:render-preview", renderPreview);
+    };
+  }, [drawMainCanvas]);
 
   useEffect(() => {
     if (isLoaded) {
@@ -351,7 +381,7 @@ export function EditorCanvas() {
       const tx = (layer.x / 100) * canvas.width;
       const ty = (layer.y / 100) * canvas.height;
 
-      const approxWidth = Math.max(100, (layer.fontSize * 0.65) * layer.text.length + 30);
+      const approxWidth = Math.max(100, layer.fontSize * 0.65 * layer.text.length + 30);
       const approxHeight = Math.max(40, layer.fontSize * 1.5 + 20);
 
       const halfW = approxWidth / 2;
@@ -384,6 +414,10 @@ export function EditorCanvas() {
     // 2. Cutout Brush Drawing
     if (activeTab === "cutout") {
       e.currentTarget.setPointerCapture(e.pointerId);
+      const mask = maskCanvasRef.current;
+      selectionPoints.current = [];
+      selectionBefore.current =
+        mask?.getContext("2d")?.getImageData(0, 0, mask.width, mask.height) || null;
       setIsDrawing(true);
       applyBrush(e);
       return;
@@ -466,6 +500,35 @@ export function EditorCanvas() {
     const mCtx = mCanvas.getContext("2d");
     if (!mCtx) return;
 
+    if (brush.shape && brush.shape !== "brush") {
+      if (!selectionBefore.current) return;
+      selectionPoints.current.push({ x, y });
+      const points = selectionPoints.current;
+      const start = points[0];
+      mCtx.putImageData(selectionBefore.current, 0, 0);
+      mCtx.save();
+      mCtx.beginPath();
+      if (brush.shape === "rectangle")
+        mCtx.rect(
+          Math.min(start.x, x),
+          Math.min(start.y, y),
+          Math.abs(x - start.x),
+          Math.abs(y - start.y),
+        );
+      else {
+        mCtx.moveTo(start.x, start.y);
+        points.forEach((p) => mCtx.lineTo(p.x, p.y));
+        mCtx.closePath();
+      }
+      mCtx.clip();
+      mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+      if (brush.mode === "restore" && originalImgRef.current)
+        mCtx.drawImage(originalImgRef.current, 0, 0, mCanvas.width, mCanvas.height);
+      mCtx.restore();
+      drawMainCanvas();
+      return;
+    }
+
     mCtx.save();
     if (brush.mode === "erase") {
       mCtx.globalCompositeOperation = "destination-out";
@@ -498,14 +561,14 @@ export function EditorCanvas() {
     adjust.cropAspect === "1:1"
       ? "aspect-square"
       : adjust.cropAspect === "4:5"
-      ? "aspect-[4/5]"
-      : adjust.cropAspect === "9:16"
-      ? "aspect-[9/16]"
-      : adjust.cropAspect === "16:9"
-      ? "aspect-video"
-      : adjust.cropAspect === "3:2"
-      ? "aspect-[3/2]"
-      : "aspect-auto";
+        ? "aspect-[4/5]"
+        : adjust.cropAspect === "9:16"
+          ? "aspect-[9/16]"
+          : adjust.cropAspect === "16:9"
+            ? "aspect-video"
+            : adjust.cropAspect === "3:2"
+              ? "aspect-[3/2]"
+              : "aspect-auto";
 
   return (
     <div
@@ -538,8 +601,8 @@ export function EditorCanvas() {
             activeTab === "cutout"
               ? "cursor-crosshair"
               : isDraggingText
-              ? "cursor-grabbing"
-              : "cursor-default"
+                ? "cursor-grabbing"
+                : "cursor-default"
           }`}
           style={{
             aspectRatio:
@@ -559,9 +622,7 @@ export function EditorCanvas() {
               width: `${brush.size}px`,
               height: `${brush.size}px`,
               backgroundColor:
-                brush.mode === "erase"
-                  ? "rgba(225, 29, 72, 0.25)"
-                  : "rgba(16, 185, 129, 0.25)",
+                brush.mode === "erase" ? "rgba(225, 29, 72, 0.25)" : "rgba(16, 185, 129, 0.25)",
             }}
           />
         )}

@@ -1,0 +1,246 @@
+.bellix-processing {
+  max-width: 896px;
+  margin: auto;
+  background: #fff;
+  border: 1px solid #e3e8e6;
+  border-radius: 24px;
+  box-shadow: 0 16px 48px #152d2310;
+  overflow: hidden;
+  color: #202b26;
+}
+.bellix-processing .bellix-file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #edf0ee;
+}
+.bellix-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 13px;
+}
+.bellix-file svg {
+  color: #009c6a;
+  flex-shrink: 0;
+}
+.bellix-file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+}
+.bellix-file small {
+  color: #65736c;
+  white-space: nowrap;
+  font: 11px monospace;
+}
+.bellix-processing button {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #52625a;
+  cursor: pointer;
+}
+.bellix-processing button:hover {
+  background: #f1f5f3;
+}
+.bellix-processing button:focus-visible {
+  outline: 2px solid #009c6a;
+  outline-offset: 2px;
+}
+.bellix-preview-wrap {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  background: #fafcfb;
+}
+.bellix-preview {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f7f9f8;
+  isolation: isolate;
+}
+.bellix-preview img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.bellix-reveal {
+  position: absolute;
+  inset: 0;
+  background-color: #fff;
+  background-image: conic-gradient(#edf1ef 25%, transparent 0 50%, #edf1ef 0 75%, transparent 0);
+  background-size: 20px 20px;
+}
+.bellix-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #63e4ae 20%, #fff 50%, #63e4ae 80%, transparent);
+  box-shadow: 0 0 14px 3px #00ae7255;
+}
+.bellix-beam:after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 36px;
+  background: linear-gradient(#30d18b20, transparent);
+}
+.bellix-beam-scanning {
+  animation: bellix-scan 3.4s ease-in-out infinite alternate;
+}
+.bellix-beam-reveal {
+  transform: translateY(-1px);
+}
+.bellix-processing .bellix-status-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid #edf0ee;
+  padding: 18px 24px;
+}
+.bellix-processing .bellix-status-footer strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.bellix-processing .bellix-status-footer small {
+  display: block;
+  font-size: 11px;
+  color: #65736c;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.bellix-live-dot {
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #00a36c;
+  animation: bellix-breathe 2.4s ease-in-out infinite;
+}
+.bellix-flower {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  animation: bellix-turn 6s linear infinite;
+  filter: drop-shadow(0 0 5px #55dfa533);
+}
+.bellix-flower span {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 9px 9px 3px 9px;
+  background: linear-gradient(135deg, #a6f2d0, #009c6a);
+  animation: bellix-breathe 2.4s ease-in-out infinite;
+}
+.bellix-flower span:nth-child(1) {
+  left: 0;
+  top: 0;
+}
+.bellix-flower span:nth-child(2) {
+  right: 0;
+  top: 0;
+  transform: rotate(90deg);
+}
+.bellix-flower span:nth-child(3) {
+  right: 0;
+  bottom: 0;
+  transform: rotate(180deg);
+}
+.bellix-flower span:nth-child(4) {
+  left: 0;
+  bottom: 0;
+  transform: rotate(270deg);
+}
+.bellix-particles i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #dcffeb;
+  border-radius: 50%;
+  left: 17%;
+  top: 28%;
+  animation: bellix-drift 4s ease-in-out infinite;
+  box-shadow: 0 0 5px #24c489;
+}
+.bellix-particles i:nth-child(2) {
+  left: 79%;
+  top: 61%;
+  animation-delay: -1.3s;
+}
+.bellix-particles i:nth-child(3) {
+  left: 63%;
+  top: 15%;
+  animation-delay: -2.6s;
+}
+@keyframes bellix-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes bellix-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes bellix-scan {
+  from {
+    top: 2%;
+  }
+  to {
+    top: 98%;
+  }
+}
+@keyframes bellix-drift {
+  50% {
+    transform: translate(8px, -12px);
+    opacity: 0.25;
+  }
+}
+@media (max-width: 540px) {
+  .bellix-processing .bellix-file-header {
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+  .bellix-file {
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 76%;
+  }
+  .bellix-file span {
+    max-width: 170px;
+  }
+  .bellix-file small {
+    width: 100%;
+    padding-left: 23px;
+  }
+  .bellix-preview-wrap {
+    padding: 12px;
+  }
+  .bellix-processing .bellix-status-footer {
+    padding: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bellix-processing * {
+    animation: none !important;
+  }
+  .bellix-beam-scanning {
+    display: none;
+  }
+}

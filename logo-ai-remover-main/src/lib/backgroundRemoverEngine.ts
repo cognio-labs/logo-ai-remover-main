@@ -10,11 +10,7 @@
  * 6. High-resolution transparent 32-bit PNG and JPEG exports
  */
 
-import {
-  type BackgroundType,
-  type BackgroundOptions,
-  type ManualStroke,
-} from "./backgroundApi";
+import { type BackgroundType, type BackgroundOptions, type ManualStroke } from "./backgroundApi";
 
 export type { BackgroundType, ManualStroke };
 
@@ -102,7 +98,7 @@ export type CutoutResult = {
 const localBlobCache = new Map<string, Blob>();
 
 function getImageDimensions(url: string): Promise<{ width: number; height: number }> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       resolve({
@@ -110,16 +106,22 @@ function getImageDimensions(url: string): Promise<{ width: number; height: numbe
         height: img.naturalHeight || img.height || 900,
       });
     };
-    img.onerror = () => resolve({ width: 1200, height: 900 });
+    img.onerror = () => reject(new Error("The processed image could not be decoded."));
     img.src = url;
   });
 }
 
 // Try the Python backend for high-quality neural background removal (rembg/BiRefNet)
-async function tryBackendRemoval(imageUrl: string, imageType: "auto" | "portrait" | "product" | "graphics" = "auto"): Promise<{ blob: Blob; operation: string } | null> {
+async function tryBackendRemoval(
+  imageUrl: string,
+  imageType: "auto" | "portrait" | "product" | "graphics" = "auto",
+  textMode: "auto" | "subject_only" | "keep_text" = "auto",
+  signal?: AbortSignal,
+): Promise<{ blob: Blob; operation: string } | null> {
   try {
     // Fetch the image file bytes
-    const imgResp = await fetch(imageUrl);
+    signal?.throwIfAborted();
+    const imgResp = await fetch(imageUrl, { signal });
     if (!imgResp.ok) {
       console.warn("Could not fetch image blob from url:", imageUrl);
       return null;
@@ -129,41 +131,55 @@ async function tryBackendRemoval(imageUrl: string, imageType: "auto" | "portrait
     const formData = new FormData();
     formData.append("image", imgBlob, "image.png");
     formData.append("image_type", imageType);
+    formData.append("text_mode", textMode);
     // Worker owns model selection; do not force ISNet over its configured model.
 
     // Primary route: Next.js proxy route /api/remove-bg
     const resp = await fetch("/api/remove-bg", {
       method: "POST",
       body: formData,
-      signal: AbortSignal.timeout(120000),
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(120000)])
+        : AbortSignal.timeout(120000),
     });
 
     if (resp.ok) {
       const blob = await resp.blob();
       if (blob.size > 0 && resp.headers.get("Content-Type")?.includes("image/png")) {
-        return { blob, operation: resp.headers.get("X-Bellix-Operation") || "neural-background-removal" };
+        return {
+          blob,
+          operation: resp.headers.get("X-Bellix-Operation") || "neural-background-removal",
+        };
       }
     }
+    signal?.throwIfAborted();
 
     // Direct fallback for local development if proxy is blocked
     try {
       const directResp = await fetch("http://127.0.0.1:5000/api/background/remove-advanced", {
         method: "POST",
         body: formData,
-        signal: AbortSignal.timeout(60000),
+        signal: signal
+          ? AbortSignal.any([signal, AbortSignal.timeout(60000)])
+          : AbortSignal.timeout(60000),
       });
       if (directResp.ok) {
         const directBlob = await directResp.blob();
         if (directBlob.size > 0 && directResp.headers.get("Content-Type")?.includes("image/png")) {
-          return { blob: directBlob, operation: directResp.headers.get("X-Bellix-Operation") || "neural-background-removal" };
+          return {
+            blob: directBlob,
+            operation: directResp.headers.get("X-Bellix-Operation") || "neural-background-removal",
+          };
         }
       }
     } catch {
+      signal?.throwIfAborted();
       // Direct localhost fallback unavailable (normal in production)
     }
 
     return null;
   } catch (err) {
+    signal?.throwIfAborted();
     console.warn("Backend background removal request failed:", err);
     return null;
   }
@@ -180,18 +196,23 @@ export async function removeImageBackground(
   backdropId: string = "luxury-studio",
   onProgress?: (stage: string, progress: number) => void,
   imageType: "auto" | "portrait" | "product" | "graphics" = "auto",
+  signal?: AbortSignal,
+  textMode: "auto" | "subject_only" | "keep_text" = "auto",
 ): Promise<CutoutResult> {
   const startTime = Date.now();
   if (onProgress) onProgress("Preparing image for neural analysis...", 10);
 
   // Try the configured Python neural worker first.
   if (onProgress) onProgress("Removing background with AI neural model...", 25);
-  const backendResult = await tryBackendRemoval(imageUrl, imageType);
+  signal?.throwIfAborted();
+  const backendResult = await tryBackendRemoval(imageUrl, imageType, textMode, signal);
+  signal?.throwIfAborted();
   if (backendResult) {
     const backendBlob = backendResult.blob;
     if (onProgress) onProgress("Preparing PNG preview...", 90);
     const resultBlobUrl = URL.createObjectURL(backendBlob);
     const dimensions = await getImageDimensions(resultBlobUrl);
+    signal?.throwIfAborted();
     const processingTimeMs = Date.now() - startTime;
     const jobId = `backend_${Date.now()}`;
     localBlobCache.set(jobId, backendBlob);
@@ -213,48 +234,78 @@ export async function removeImageBackground(
       fileSizeFormatted: formatBytes(backendBlob.size),
       processingTimeMs,
       isRealAi: backendResult.operation === "neural-background-removal",
-      warnings: [backendResult.operation === "preserved-existing-transparency"
-        ? "Existing graphics transparency preserved; no AI segmentation performed."
-        : "Inspect the cutout before use; visual quality is unverified."],
+      warnings: [
+        backendResult.operation === "preserved-existing-transparency"
+          ? "Existing graphics transparency preserved; no AI segmentation performed."
+          : "Inspect the cutout before use; visual quality is unverified.",
+      ],
       status: "completed",
-
     };
   }
 
   if (imageType === "graphics") {
-    throw new Error("Graphics processing needs the image worker. Please retry when it is available.");
+    throw new Error(
+      "Graphics processing needs the image worker. Please retry when it is available.",
+    );
   }
   // --- Fallback: in-browser neural segmentation ---
   if (onProgress) onProgress("Loading AI model (in-browser)...", 30);
 
   try {
     const { removeBackground } = await import("@imgly/background-removal");
+    signal?.throwIfAborted();
 
     if (onProgress) onProgress("Isolating edges & sub-pixel matting...", 55);
 
     // Ultra-fast configuration: quantized model + WebGPU acceleration when available
-    const config: any = {
-      device: typeof navigator !== "undefined" && "gpu" in navigator ? "gpu" : "cpu",
-      model: "isnet_quint8",
+    const config = {
+      device: (typeof navigator !== "undefined" && "gpu" in navigator ? "gpu" : "cpu") as
+        "gpu" | "cpu",
+      model: "isnet_quint8" as const,
       output: {
-        format: "image/png",
+        format: "image/png" as const,
         quality: 0.95,
       },
       progress: (key: string, current: number, total: number) => {
-        if (onProgress && total > 0) {
-          const pct = Math.min(95, Math.max(35, Math.round((current / total) * 100)));
-          onProgress(`Extracting subject (${pct}%)`, pct);
+        if (onProgress && !signal?.aborted) {
+          onProgress(key.includes("fetch") ? "Loading image model..." : "Analyzing image...", 0);
         }
       },
     };
 
-    // Race neural removal with a 15s timeout
+    // IMG.LY has no cancellation API. Stop waiting immediately on abort and
+    // discard its eventual output; never let stale work update the studio.
     const neuralPromise = removeBackground(imageUrl, config);
-    const timeoutPromise = new Promise<Blob>((_, reject) =>
-      setTimeout(() => reject(new Error("In-browser neural matting timeout")), 15000)
-    );
-
-    const resultBlob = await Promise.race([neuralPromise, timeoutPromise]);
+    const resultBlob = await new Promise<Blob>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error("In-browser neural matting timeout"));
+      }, 60000);
+      const abort = () => {
+        cleanup();
+        reject(new DOMException("Cancelled", "AbortError"));
+      };
+      const cleanup = () => {
+        clearTimeout(timer);
+        signal?.removeEventListener("abort", abort);
+      };
+      signal?.addEventListener("abort", abort, { once: true });
+      if (signal?.aborted) {
+        abort();
+        return;
+      }
+      neuralPromise.then(
+        (blob) => {
+          cleanup();
+          resolve(blob);
+        },
+        (cause) => {
+          cleanup();
+          reject(cause);
+        },
+      );
+    });
+    signal?.throwIfAborted();
 
     const resultBlobUrl = URL.createObjectURL(resultBlob);
     const dimensions = await getImageDimensions(resultBlobUrl);
@@ -284,12 +335,14 @@ export async function removeImageBackground(
       processingTimeMs,
       isRealAi: true,
       status: "completed",
-
     };
   } catch (error) {
+    signal?.throwIfAborted();
     console.warn("Neural in-browser removal failed:", error);
     if (onProgress) onProgress("AI processing failed", 75);
-    throw new Error("AI background removal failed. Please retry; no unprocessed image was returned.");
+    throw new Error(
+      "AI background removal failed. Please retry; no unprocessed image was returned.",
+    );
   }
 }
 
@@ -336,8 +389,7 @@ export async function clientSideRecomposite(
         ctx.fillStyle = customColor;
         ctx.fillRect(0, 0, w, h);
       } else if (bgType === "backdrop") {
-        const preset =
-          BACKDROP_PRESETS.find((p) => p.id === backdropId) || BACKDROP_PRESETS[0];
+        const preset = BACKDROP_PRESETS.find((p) => p.id === backdropId) || BACKDROP_PRESETS[0];
         const grad = ctx.createLinearGradient(0, 0, 0, h);
         if (preset.gradient && preset.gradient.length >= 2) {
           preset.gradient.forEach((color, idx) => {
@@ -367,7 +419,7 @@ export async function clientSideRecomposite(
           });
         },
         mimeType,
-        0.95
+        0.95,
       );
     };
     img.onerror = () => {

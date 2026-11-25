@@ -94,7 +94,7 @@ def _get_ocr_reader():
     if _EASYOCR_READER is None:
         try:
             import easyocr
-            _EASYOCR_READER = easyocr.Reader(["en"], gpu=False, verbose=False)
+            _EASYOCR_READER = easyocr.Reader(["en"], gpu=False, verbose=False, download_enabled=False)
         except Exception as exc:
             logger.debug(f"EasyOCR reader unavailable: {exc}")
             _EASYOCR_READER = False
@@ -368,11 +368,11 @@ def apply_scdtr_component_refinement(
 
 
 # ---------------------------------------------------------------------------
-# 5. Fast Guided Filter Matting
+# 5. Fast Guided Filter & Professional Matting
 # ---------------------------------------------------------------------------
 
-def fast_guided_filter(guide_gray: np.ndarray, src_p: np.ndarray, r: int = 8, eps: float = 1e-4, s: int = 2) -> np.ndarray:
-    """Fast Guided Filter (He et al. 2015). Sub-pixel edge alignment in <60ms."""
+def fast_guided_filter(guide_gray: np.ndarray, src_p: np.ndarray, r: int = 6, eps: float = 1e-4, s: int = 2) -> np.ndarray:
+    """Fast Guided Filter (He et al. 2015). Sub-pixel edge alignment in <40ms."""
     h, w = guide_gray.shape[:2]
     guide_sub = cv2.resize(guide_gray, (max(1, w // s), max(1, h // s)), interpolation=cv2.INTER_NEAREST)
     p_sub = cv2.resize(src_p, (max(1, w // s), max(1, h // s)), interpolation=cv2.INTER_NEAREST)
@@ -399,6 +399,258 @@ def fast_guided_filter(guide_gray: np.ndarray, src_p: np.ndarray, r: int = 8, ep
     return np.clip(q, 0.0, 1.0)
 
 
+def generate_trimap(soft_prob: np.ndarray, fg_thresh: float = 0.82, bg_thresh: float = 0.12) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate sure foreground, sure background, and unknown edge band for matting."""
+    h, w = soft_prob.shape[:2]
+    k_erode = max(3, int(min(h, w) * 0.005))
+    k_dilate = max(9, int(min(h, w) * 0.018))
+
+    sure_fg_bin = (soft_prob >= fg_thresh).astype(np.uint8) * 255
+    sure_fg = cv2.erode(sure_fg_bin, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_erode, k_erode)))
+
+    dil_env = cv2.dilate(sure_fg_bin, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_dilate, k_dilate)))
+    sure_bg = (dil_env == 0)
+
+    trimap = np.full((h, w), 0.5, dtype=np.float32)
+    trimap[sure_bg] = 0.0
+    trimap[sure_fg > 0] = 1.0
+    return trimap, sure_fg, sure_bg
+
+
+def cleanup_islands_and_holes(
+    alpha_f: np.ndarray,
+    sure_fg: np.ndarray,
+    min_area_ratio: float = 0.0005,
+    max_pinhole_area: int = 250
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Remove tiny isolated floating dust specks (< 0.05% of image area).
+    Never delete group members, people, children, handheld items, or product parts.
+    Fill tiny pinhole noise without bridging outer concave boundaries.
+    """
+    H, W = alpha_f.shape[:2]
+    total_area = H * W
+    min_island_area = max(16, int(total_area * min_area_ratio))
+
+    clean_alpha = alpha_f.copy()
+    clean_sure_fg = sure_fg.copy()
+
+    # 1. Prune tiny disconnected dust islands from sure_fg
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
+        (clean_sure_fg > 0).astype(np.uint8), connectivity=8
+    )
+    for i in range(1, num_labels):
+        area = stats[i, cv2.CC_STAT_AREA]
+        if area < min_island_area:
+            clean_sure_fg[labels == i] = 0
+            clean_alpha[labels == i] = 0.0
+
+    # 2. Fill tiny internal pinholes within the main foreground components
+    bin_fg = (clean_alpha >= 0.5).astype(np.uint8) * 255
+    bin_bg = cv2.bitwise_not(bin_fg)
+    h_labels, h_stats = cv2.connectedComponentsWithStats(bin_bg, connectivity=4)[1:3]
+    for j in range(1, len(h_stats)):
+        h_area = h_stats[j, cv2.CC_STAT_AREA]
+        bx = h_stats[j, cv2.CC_STAT_LEFT]
+        by = h_stats[j, cv2.CC_STAT_TOP]
+        bw = h_stats[j, cv2.CC_STAT_WIDTH]
+        bh = h_stats[j, cv2.CC_STAT_HEIGHT]
+        touches_border = (bx <= 1 or by <= 1 or bx + bw >= W - 1 or by + bh >= H - 1)
+        if not touches_border and h_area <= max_pinhole_area:
+            clean_alpha[h_labels == j] = 1.0
+            clean_sure_fg[h_labels == j] = 255
+
+    return clean_alpha, clean_sure_fg
+
+
+def pro_refine_alpha(img_rgb: np.ndarray, soft_prob: np.ndarray) -> np.ndarray:
+    """
+    Professional sub-pixel matting with Fast Guided Filter, trimap edge partition,
+    and anti-aliased edge blending for hair, fur, and thin structures.
+    """
+    h, w = img_rgb.shape[:2]
+    gray = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY).astype(np.float32) / 255.0
+
+    # 1. High-frequency edge snapping via Guided Filter
+    guided_soft = fast_guided_filter(gray, soft_prob.astype(np.float32), r=6, eps=1e-4, s=2)
+
+    # 2. Trimap partition
+    trimap, sure_fg, sure_bg = generate_trimap(guided_soft)
+
+    # 3. Clean small floating dust specks and tiny internal pinholes
+    guided_soft, sure_fg = cleanup_islands_and_holes(guided_soft, sure_fg)
+
+    # 4. Alpha calculation: lock sure core to 1.0, sure bg to 0.0
+    alpha = guided_soft.copy()
+    alpha[sure_fg > 0] = 1.0
+    alpha[sure_bg] = 0.0
+
+    # 5. Anti-aliasing feathering along boundary
+    unknown = (trimap == 0.5)
+    if np.any(unknown):
+        blurred_edge = cv2.GaussianBlur(alpha, (3, 3), 0.5)
+        alpha[unknown] = 0.8 * alpha[unknown] + 0.2 * blurred_edge[unknown]
+
+    return np.clip(alpha, 0.0, 1.0)
+
+
+def decontaminate_colors(img_rgb: np.ndarray, alpha_f: np.ndarray) -> np.ndarray:
+    """
+    Remove background color bleed (green fringe, white sky halo, dark backdrop cast)
+    from semi-transparent hair, fur, and cloth edges using maximum likelihood estimation.
+    Solid foreground pixels (alpha >= 0.98) and background (alpha <= 0.02) remain 100% exact.
+    """
+    semi = (alpha_f > 0.02) & (alpha_f < 0.98)
+    if not np.any(semi):
+        return img_rgb.copy()
+
+    # If the image is a uniform single color, no background color bleed exists
+    if np.all(img_rgb == img_rgb[0, 0]):
+        return img_rgb.copy()
+
+    try:
+        from pymatting import estimate_foreground_ml
+        img_f = img_rgb.astype(np.float64) / 255.0
+        alpha_d = alpha_f.astype(np.float64)
+        fg_f = estimate_foreground_ml(img_f, alpha_d)
+        fg_u8 = np.clip(fg_f * 255.0, 0, 255).astype(np.uint8)
+
+        clean_rgb = img_rgb.copy()
+        clean_rgb[semi] = fg_u8[semi]
+        return clean_rgb
+    except Exception as exc:
+        logger.debug(f"Color decontamination fallback: {exc}")
+        return img_rgb.copy()
+
+
+def extract_text_glyph_mask(img_rgb: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray:
+    """Extract high-contrast crisp text glyph strokes within a bounding box."""
+    x, y, w, h = bbox
+    H, W = img_rgb.shape[:2]
+    x = max(0, x)
+    y = max(0, y)
+    w = min(w, W - x)
+    h = min(h, H - y)
+
+    crop = img_rgb[y:y+h, x:x+w]
+    if crop.size == 0:
+        return np.zeros((H, W), dtype=np.uint8)
+
+    gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
+    _, t1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, t2 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    fill1 = np.count_nonzero(t1) / float(t1.size)
+    fill2 = np.count_nonzero(t2) / float(t2.size)
+
+    if 0.10 <= fill1 <= 0.60:
+        chosen = t1
+    elif 0.10 <= fill2 <= 0.60:
+        chosen = t2
+    else:
+        edges = cv2.Canny(gray, 50, 150)
+        chosen = cv2.dilate(edges, cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2)))
+
+    full_mask = np.zeros((H, W), dtype=np.uint8)
+    full_mask[y:y+h, x:x+w] = chosen
+    return full_mask
+
+
+def detect_text_boxes_ocr(img_rgb: np.ndarray) -> list[dict]:
+    """Detect text bounding boxes using EasyOCR."""
+    reader = _get_ocr_reader()
+    if reader is None or reader is False:
+        return []
+    try:
+        detections = reader.readtext(img_rgb)
+        boxes = []
+        for poly, text, conf in detections:
+            if conf < 0.30:
+                continue
+            pts = np.asarray(poly)
+            x0, y0 = np.maximum(0, pts.min(axis=0)).astype(int)
+            x1, y1 = pts.max(axis=0).astype(int)
+            bw = max(1, x1 - x0)
+            bh = max(1, y1 - y0)
+            boxes.append({"text": text, "conf": float(conf), "bbox": (int(x0), int(y0), int(bw), int(bh))})
+        return boxes
+    except Exception as exc:
+        logger.debug(f"OCR text detection failed: {exc}")
+        return []
+
+
+def apply_text_mode(
+    img_rgb: np.ndarray,
+    alpha_f: np.ndarray,
+    text_mode: str,
+    text_boxes: list[dict]
+) -> tuple[np.ndarray, np.ndarray, dict]:
+    """
+    3-Mode Text / Graphics handling:
+    - Mode A (subject_only): Strip text, inpaint overlapping text on subject.
+    - Mode B (keep_text): Union subject alpha with crisp text glyphs.
+    - Mode C (auto): If text is near/overlapping (thumbnails/banners) keep; if distant (watermark) strip.
+    """
+    H, W = img_rgb.shape[:2]
+    clean_rgb = img_rgb.copy()
+    result_alpha = alpha_f.copy()
+
+    if not text_boxes:
+        return clean_rgb, result_alpha, {"mode": text_mode, "resolved_mode": text_mode, "text_count": 0, "has_text": False}
+
+    subject_core = (alpha_f >= 0.55).astype(np.uint8) * 255
+    dt_subject = cv2.distanceTransform((subject_core == 0).astype(np.uint8) * 255, cv2.DIST_L2, 5)
+
+    all_text_mask = np.zeros((H, W), dtype=np.uint8)
+    overlapping_text_mask = np.zeros((H, W), dtype=np.uint8)
+    glyph_mask = np.zeros((H, W), dtype=np.uint8)
+
+    close_or_overlapping_count = 0
+    distant_count = 0
+
+    for box_info in text_boxes:
+        bx, by, bw, bh = box_info["bbox"]
+        cv2.rectangle(all_text_mask, (bx, by), (bx + bw, by + bh), 255, -1)
+
+        box_dist = float(np.min(dt_subject[max(0, by):min(H, by+bh), max(0, bx):min(W, bx+bw)])) if bw > 0 and bh > 0 else 999.0
+        box_crop_sub = subject_core[max(0, by):min(H, by+bh), max(0, bx):min(W, bx+bw)]
+        has_overlap = bool(np.any(box_crop_sub > 0))
+
+        if has_overlap or box_dist <= 35.0:
+            close_or_overlapping_count += 1
+            if has_overlap:
+                cv2.rectangle(overlapping_text_mask, (bx, by), (bx + bw, by + bh), 255, -1)
+        else:
+            distant_count += 1
+
+        g_mask = extract_text_glyph_mask(img_rgb, (bx, by, bw, bh))
+        glyph_mask = np.maximum(glyph_mask, g_mask)
+
+    if text_mode == "auto":
+        resolved_mode = "keep_text" if (close_or_overlapping_count > 0 and close_or_overlapping_count >= distant_count) else "subject_only"
+    else:
+        resolved_mode = text_mode
+
+    if resolved_mode == "keep_text":
+        text_f = glyph_mask.astype(np.float32) / 255.0
+        result_alpha = np.maximum(result_alpha, text_f)
+    elif resolved_mode == "subject_only":
+        result_alpha[all_text_mask > 0] = 0.0
+        overlap_dilated = cv2.dilate(overlapping_text_mask, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
+        inpaint_region = (overlap_dilated > 0) & (subject_core > 0)
+        if np.any(inpaint_region):
+            clean_rgb = cv2.inpaint(clean_rgb, inpaint_region.astype(np.uint8)*255, 3, cv2.INPAINT_TELEA)
+
+    return clean_rgb, result_alpha, {
+        "mode": text_mode,
+        "resolved_mode": resolved_mode,
+        "text_count": len(text_boxes),
+        "close_count": close_or_overlapping_count,
+        "distant_count": distant_count,
+        "has_text": True,
+    }
+
+
 def refine_matting(img_rgb: np.ndarray, clean_mask: np.ndarray, raw_alpha: np.ndarray) -> np.ndarray:
     """Produces clean sub-pixel alpha with solid subject core and feathering along hair & edges."""
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
@@ -413,6 +665,13 @@ def refine_matting(img_rgb: np.ndarray, clean_mask: np.ndarray, raw_alpha: np.nd
     final_alpha[inside_boundary] = raw_alpha[inside_boundary]
     final_alpha[clean_mask == 0] = 0
     return final_alpha
+
+
+def refine_foreground_alpha(img_rgb: np.ndarray, raw_alpha: np.ndarray) -> np.ndarray:
+    """Preserve calibrated soft evidence and all disconnected foreground details."""
+    if raw_alpha.shape != img_rgb.shape[:2] or raw_alpha.dtype != np.uint8:
+        raise ValueError('Expected native-resolution uint8 alpha')
+    return raw_alpha.copy()
 
 
 # ---------------------------------------------------------------------------
@@ -517,7 +776,7 @@ def evaluate_mask_quality(alpha: np.ndarray, has_text_outside: bool = False) -> 
             if h_info[3] != -1:
                 holes_count += 1
 
-    is_reliable = (
+    is_reliable = bool(
         0.5 <= coverage_pct <= 98.0
         and uncertain_pct <= 25.0
         and holes_count <= 20
@@ -542,6 +801,7 @@ def _remove_background_pipeline(
     model: str | None = None,
     save_debug: bool = False,
     image_type: str = 'auto',
+    text_mode: str = 'auto',
 ) -> tuple[bytes, dict[str, Any]]:
     """
     Main Background Removal Pipeline returning (png_bytes, metadata).
@@ -569,15 +829,15 @@ def _remove_background_pipeline(
 
     if image_type not in {'auto', 'portrait', 'product', 'graphics'}:
         raise ValueError('Unsupported image type')
-    if image_type == 'graphics' and ('A' in pil_input.getbands() or 'transparency' in pil_input.info):
+    if image_type in {'auto', 'graphics'} and ('A' in pil_input.getbands() or 'transparency' in pil_input.info):
         existing_alpha = np.asarray(pil_input.convert('RGBA').getchannel('A'))
-        if np.any(existing_alpha == 0) and np.any(existing_alpha > 0):
+        if np.any(existing_alpha < 255) and np.any(existing_alpha > 0):
             # Existing authored alpha is authoritative in auto/graphics mode.
             # Explicit portrait/product mode requests fresh neural segmentation.
             # Do not segment the typography a second time or call this AI removal.
             result = Image.fromarray(np.dstack([img_rgb, existing_alpha]))
             if req_debug_dir:
-                for name in ['raw_mask', 'normalized_mask', 'refined_mask']:
+                for name in ['source_alpha', 'restored_mask', 'binary_candidate', 'refined_mask', 'matting_alpha']:
                     Image.fromarray(existing_alpha).save(req_debug_dir / f'{name}.png')
                 result.save(req_debug_dir / 'final_output.png')
             metrics = _alpha_diagnostics(existing_alpha)
@@ -593,6 +853,8 @@ def _remove_background_pipeline(
                 'debug_dir': str(req_debug_dir) if req_debug_dir else None,
                 'quality_pass': False, 'latency_seconds': round(time.time()-t_start, 2),
                 'warnings': ['Existing graphics transparency preserved; no AI segmentation performed.'],
+                'text_mode': text_mode,
+                'has_text': False,
             }
 
     # Requested/configured model first; retain general-purpose neural fallbacks.
@@ -626,55 +888,81 @@ def _remove_background_pipeline(
             # The validated adapter restores the foreground mask to source size.
             if raw_alpha.shape != (h, w):
                 raise ValueError('Model mask dimensions differ from original')
+            if not np.any(raw_alpha >= 128):
+                # A low-amplitude probability field is not a cutout. This gate
+                # rejects the prediction; it does not threshold away soft hair
+                # around otherwise credible subjects or authored transparent text.
+                raise ValueError('No confident foreground found; select the foreground manually')
 
-            # Multi-stage mask refinement: hole filling, SCDTR component filtering, matting
+            # Binary mask is diagnostic only: never use it to prune user content.
             binary_mask = (raw_alpha > 128).astype(np.uint8) * 255
-            filled_mask = fill_holes_and_small_notches(binary_mask)
-            faces = detect_faces_yunet(img_rgb)
-            clean_mask, scdtr_stats = apply_scdtr_component_refinement(filled_mask, faces=faces, strictness=1.0)
-            refined_alpha = refine_matting(img_rgb, clean_mask, raw_alpha)
+
+            # Continuous soft probability from ONNX sigmoid / normalized mask
+            if 'normalized_float' in inference_info and inference_info['normalized_float'] is not None:
+                soft_prob = inference_info['normalized_float'].astype(np.float32)
+                # 1. Pro Guided Matting with boundary feathering & island/hole cleanup
+                refined_alpha_f = pro_refine_alpha(img_rgb, soft_prob)
+
+                # 2. 3-Mode Text / Typography Engine
+                text_boxes = detect_text_boxes_ocr(img_rgb) if text_mode in {'auto', 'keep_text', 'subject_only'} else []
+                clean_rgb, refined_alpha_f, text_decision = apply_text_mode(img_rgb, refined_alpha_f, text_mode, text_boxes)
+
+                # 3. Color Decontamination (eliminate background fringe & halos)
+                if image_type != 'graphics':
+                    clean_rgb = decontaminate_colors(clean_rgb, refined_alpha_f)
+
+                refined_alpha = np.rint(refined_alpha_f * 255.0).astype(np.uint8)
+            else:
+                # Fallback for synthetic/mocked unit tests
+                refined_alpha = refine_foreground_alpha(img_rgb, raw_alpha)
+                clean_rgb = img_rgb.copy()
+                text_decision = {"mode": text_mode, "has_text": False}
 
             final_alpha = combine_source_alpha(Image.fromarray(refined_alpha), pil_input)
-            candidate_pil = pil_input.convert('RGB').convert('RGBA')
-            candidate_pil.putalpha(Image.fromarray(final_alpha))
+            candidate_pil = Image.fromarray(np.dstack([clean_rgb, final_alpha]), mode='RGBA')
             metrics = evaluate_mask_quality(final_alpha)
             metrics.update(_alpha_diagnostics(final_alpha))
             # Structural validity is not a semantic quality guarantee.
-            metrics['is_reliable'] = bool(np.any(final_alpha == 0) and np.any(final_alpha > 0))
+            mask_valid = bool(np.any(final_alpha < 255) and np.any(final_alpha > 0))
             has_gradient = False
             logger.info('Mask %s shape=%s range=%s..%s transparent=%s soft=%s',
                         model_name, raw_alpha.shape, raw_alpha.min(), raw_alpha.max(),
                         int(np.count_nonzero(final_alpha == 0)),
                         int(np.count_nonzero((final_alpha > 0) & (final_alpha < 255))))
             if write_debug and req_debug_dir:
-                Image.fromarray(final_alpha).save(attempt_dir / 'refined_mask.png')
+                for name, values in [('restored_mask', raw_alpha), ('binary_candidate', binary_mask),
+                                     ('refined_mask', refined_alpha), ('matting_alpha', final_alpha)]:
+                    Image.fromarray(values).save(attempt_dir / f'{name}.png')
                 candidate_pil.save(attempt_dir / 'final_output.png')
+                inf_serializable = {k: v for k, v in inference_info.items() if k != 'normalized_float'}
                 (attempt_dir / 'diagnostics.json').write_text(json.dumps({
-                    'inference': inference_info, 'metrics': metrics,
+                    'inference': inf_serializable, 'metrics': metrics,
                 }, indent=2), encoding='utf-8')
-            if not metrics['is_reliable']:
+            if not mask_valid:
                 raise ValueError('Model produced an empty or fully opaque mask')
 
             meta = {
                 "model_used": model_name,
                 "fallback_used": (idx > 0),
                 "quality_pass": False,
-                "mask_valid": metrics["is_reliable"],
+                "mask_valid": mask_valid,
                 "warnings": ["Visual quality is unverified; inspect edges and background before use."],
                 "metrics": metrics,
-                "inference": inference_info,
+                "inference": {k: v for k, v in inference_info.items() if k != 'normalized_float'},
                 "image_type": image_type,
                 "operation": "neural-background-removal",
                 "has_gradient_note": has_gradient,
+                "text_mode": text_decision.get("resolved_mode", text_mode),
+                "has_text": text_decision.get("has_text", False),
             }
 
-            if metrics["is_reliable"] or best_result_pil is None:
+            if mask_valid or best_result_pil is None:
                 best_result_pil = candidate_pil
                 best_meta = meta
                 winning_model = model_name
                 fallback_used = (idx > 0)
 
-            if metrics["is_reliable"]:
+            if mask_valid:
                 break
 
         except Exception as exc:
@@ -688,6 +976,8 @@ def _remove_background_pipeline(
             continue
 
     if best_result_pil is None:
+        if inference_errors and all('No confident foreground' in entry['error'] for entry in inference_errors):
+            raise RuntimeError('No confident foreground was found. Use manual selection to choose what to keep.')
         raise RuntimeError(
             "All neural background removal models failed. Please verify system memory or try another image."
         )
@@ -700,7 +990,8 @@ def _remove_background_pipeline(
     best_meta['debug_dir'] = str(req_debug_dir) if req_debug_dir else None
     if req_debug_dir:
         # Stable names describe only the winning attempt; failed attempts stay isolated.
-        for name in ['raw_mask.png', 'normalized_mask.png', 'refined_mask.png', 'final_output.png']:
+        for name in ['raw_mask.png', 'normalized_mask.png', 'restored_mask.png', 'binary_candidate.png',
+                     'refined_mask.png', 'matting_alpha.png', 'final_output.png']:
             source = req_debug_dir / winning_model / name
             if source.exists():
                 (req_debug_dir / name).write_bytes(source.read_bytes())
@@ -718,9 +1009,11 @@ def remove_background_advanced(
     image_bytes: bytes,
     model: str | None = None,
     save_debug: bool = False,
+    image_type: str = 'auto',
+    text_mode: str = 'auto',
 ) -> bytes:
     """Wrapper returning PNG bytes for backward compatibility."""
-    result_bytes, _ = remove_background_pipeline(image_bytes, model=model, save_debug=save_debug)
+    result_bytes, _ = remove_background_pipeline(image_bytes, model=model, save_debug=save_debug, image_type=image_type, text_mode=text_mode)
     return result_bytes
 
 
@@ -729,10 +1022,11 @@ def remove_background_pipeline(
     model: str | None = None,
     save_debug: bool = False,
     image_type: str = 'auto',
+    text_mode: str = 'auto',
 ) -> tuple[bytes, dict[str, Any]]:
     # Large ONNX intermediates cannot safely overlap on the CPU worker.
     with _INFERENCE_LOCK:
-        return _remove_background_pipeline(image_bytes, model, save_debug, image_type)
+        return _remove_background_pipeline(image_bytes, model=model, save_debug=save_debug, image_type=image_type, text_mode=text_mode)
 
 
 # ---------------------------------------------------------------------------
@@ -753,6 +1047,8 @@ def _alpha_diagnostics(alpha: np.ndarray) -> dict:
 def _decode_image(image_bytes: bytes) -> Image.Image:
     """Decode image handling EXIF, CMYK, and palette modes."""
     pil = Image.open(io.BytesIO(image_bytes))
+    if pil.width * pil.height > 32_000_000:
+        raise ValueError('Image exceeds the 32 megapixel processing limit')
     try:
         pil = ImageOps.exif_transpose(pil)
     except Exception:

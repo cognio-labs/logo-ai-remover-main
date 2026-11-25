@@ -139,31 +139,31 @@ export default function ContactPage() {
     <main className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans py-12 sm:py-20 px-4 sm:px-6 lg:px-8 pb-28">
       <div className="max-w-6xl mx-auto space-y-12">
         {/* Top Header Badge */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-sm text-xs sm:text-sm font-bold text-[#10241e] px-4 py-1.5">
-            <Sparkles className="size-3.5 text-[#18362d]" />
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] font-mono uppercase">
+            <Sparkles className="size-4 text-[#0b0f0d]" />
             <span>24/7 Dedicated Support</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-[#10241e] tracking-tight leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0b0f0d] tracking-tight leading-[1.06]">
             Let's Create Something Amazing Together
           </h1>
 
-          <p className="max-w-2xl mx-auto text-lg sm:text-2xl text-[#37433d] font-normal leading-relaxed">
+          <p className="max-w-2xl mx-auto text-lg sm:text-2xl text-[#26302b] font-semibold leading-relaxed">
             Have a question, a project idea, or need help with our AI tools? Drop us a message.
             Our team is here to help you 24/7.
           </p>
 
           {/* 3 Trust Badges */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs px-4 py-2">
-              <Zap className="size-3.5 text-amber-500" /> 24/7 Support
+            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+              <Zap className="size-4 text-[#0b0f0d]" /> 24/7 Support
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs px-4 py-2">
-              <ShieldCheck className="size-3.5 text-blue-500" /> 100% Privacy Guaranteed
+            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-white border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+              <ShieldCheck className="size-4 text-[#0b0f0d]" /> 100% Privacy Guaranteed
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs sm:text-sm font-semibold text-[#10241e] shadow-xs px-4 py-2">
-              <Clock className="size-3.5 text-emerald-500" /> Quick Response Time (&lt; 2h)
+            <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#a8e6cf] border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+              <Clock className="size-4 text-[#0b0f0d]" /> Quick Response Time (&lt; 2h)
             </span>
           </div>
         </div>
@@ -172,12 +172,12 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Column: Trust Info & Direct Contact */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-3xl border border-[#10241e]/15 bg-white p-8 sm:p-10 shadow-xl space-y-6">
+            <div className="rounded-xl border-[2.5px] border-[#0b0f0d] bg-white p-8 sm:p-10 shadow-[6px_6px_0px_#0b0f0d] space-y-6">
               <div className="flex items-center">
                 <BrandLogo href="/" size="lg" variant="dark" />
               </div>
 
-              <p className="text-sm text-[#37433d] leading-relaxed">
+              <p className="text-sm text-[#26302b] font-medium leading-relaxed">
                 We empower creators, agencies, and businesses with next-generation neural image and
                 video processing. Whether you need custom API integration, volume licensing, or tool
                 assistance, we're at your service.
@@ -185,46 +185,46 @@ export default function ContactPage() {
 
               {/* Direct Contact Cards */}
               <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#f3f4ee] border border-[#10241e]/10">
-                  <div className="size-10 rounded-xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="flex items-start gap-3.5 p-4 rounded-lg bg-[#f7f5ee] border-2 border-[#0b0f0d]">
+                  <div className="size-10 rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#0b0f0d]">
                     <Mail className="size-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E8E] block">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[#26302b] block font-mono">
                       Direct Email Support
                     </span>
                     <a
                       href="mailto:bellixus062@gmail.com"
-                      className="text-sm font-bold text-[#10241e] hover:text-[#18362d] transition-colors"
+                      className="text-sm font-black text-[#0b0f0d] hover:underline"
                     >
                       bellixus062@gmail.com
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#f3f4ee] border border-[#10241e]/10">
-                  <div className="size-9 rounded-xl bg-[#151515] border border-[#303030] text-[#37433d] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="flex items-start gap-3.5 p-4 rounded-lg bg-[#f7f5ee] border-2 border-[#0b0f0d]">
+                  <div className="size-10 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#0b0f0d]">
                     <MessageSquare className="size-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E8E] block">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[#26302b] block font-mono">
                       Response Guarantee
                     </span>
-                    <span className="text-xs font-semibold text-[#37433d]">
+                    <span className="text-xs font-bold text-[#0b0f0d]">
                       Under 2 Hours (24/7 Availability)
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#f3f4ee] border border-[#10241e]/10">
-                  <div className="size-9 rounded-xl bg-[#151515] border border-[#303030] text-[#37433d] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="flex items-start gap-3.5 p-4 rounded-lg bg-[#f7f5ee] border-2 border-[#0b0f0d]">
+                  <div className="size-10 rounded-md bg-[#a8e6cf] border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#0b0f0d]">
                     <MapPin className="size-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E8E] block">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[#26302b] block font-mono">
                       Headquarters
                     </span>
-                    <span className="text-xs font-semibold text-[#37433d]">
+                    <span className="text-xs font-bold text-[#0b0f0d]">
                       Digital Creator Hub • United States
                     </span>
                   </div>
@@ -232,8 +232,8 @@ export default function ContactPage() {
               </div>
 
               {/* Trust statement */}
-              <div className="p-4 rounded-2xl bg-[#f3f4ee] border border-emerald-500/40 text-[#10241e] text-xs flex items-center gap-2.5">
-                <ShieldCheck className="size-5 text-emerald-600 shrink-0" />
+              <div className="p-4 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] text-xs flex items-center gap-2.5 shadow-[3px_3px_0px_#0b0f0d]">
+                <ShieldCheck className="size-5 text-[#0b0f0d] shrink-0 stroke-[2.4]" />
                 <span>
                   <strong>Privacy First:</strong> We never share your email address or inquiries with
                   any third parties.
@@ -242,32 +242,32 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Right Column: Sleek Contact Form Card */}
+          {/* Right Column: Contact Form Card */}
           <div className="lg:col-span-7">
-            <div className="rounded-3xl border border-[#10241e]/15 bg-white p-8 sm:p-12 shadow-2xl">
+            <div className="rounded-xl border-[3px] border-[#0b0f0d] bg-white p-8 sm:p-12 shadow-[7px_7px_0px_#0b0f0d]">
               {isSubmitted ? (
                 <div className="py-12 text-center space-y-4">
-                  <div className="size-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                  <div className="size-16 rounded-xl bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center mx-auto shadow-[4px_4px_0px_#0b0f0d]">
                     <CheckCircle2 className="size-8" />
                   </div>
-                  <h3 className="text-2xl font-bold text-[#10241e]">Message Sent Successfully!</h3>
-                  <p className="text-sm text-[#37433d] max-w-md mx-auto leading-relaxed">
+                  <h3 className="text-2xl font-black text-[#0b0f0d]">Message Sent Successfully!</h3>
+                  <p className="text-sm font-medium text-[#26302b] max-w-md mx-auto leading-relaxed">
                     Thank you for contacting Bellix.us. We have received your inquiry and our team
                     will get back to you within 24 hours.
                   </p>
                   <button
                     type="button"
                     onClick={() => setIsSubmitted(false)}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold text-[#10241e] bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-black text-[#0b0f0d] bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] hover:bg-[#d0f471] transition-colors cursor-pointer"
                   >
                     <span>Send Another Message</span>
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="border-b border-[#10241e]/10 pb-4 mb-3">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-[#10241e]">Send us a Message</h2>
-                    <p className="text-sm sm:text-base text-[#637069]">
+                  <div className="border-b-2 border-[#0b0f0d] pb-4 mb-3">
+                    <h2 className="text-2xl sm:text-3xl font-black text-[#0b0f0d]">Send us a Message</h2>
+                    <p className="text-sm sm:text-base font-medium text-[#26302b]">
                       Fill out the form below and we'll reply right away.
                     </p>
                   </div>
@@ -286,8 +286,8 @@ export default function ContactPage() {
                   {/* Name fields row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#37433d]">
-                        First Name <span className="text-[#18362d]">*</span>
+                      <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">
+                        First Name <span>*</span>
                       </label>
                       <input
                         type="text"
@@ -295,14 +295,13 @@ export default function ContactPage() {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
-                        
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-semibold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#37433d]">
-                        Last Name <span className="text-[#18362d]">*</span>
+                      <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">
+                        Last Name <span>*</span>
                       </label>
                       <input
                         type="text"
@@ -310,8 +309,7 @@ export default function ContactPage() {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
-                        
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-semibold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
                       />
                     </div>
                   </div>
@@ -319,8 +317,8 @@ export default function ContactPage() {
                   {/* Email & Phone row */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#37433d]">
-                        Email Address <span className="text-[#18362d]">*</span>
+                      <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">
+                        Email Address <span>*</span>
                       </label>
                       <input
                         type="email"
@@ -328,46 +326,44 @@ export default function ContactPage() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-semibold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#37433d]">
-                        Phone Number <span className="text-[#8E8E8E] font-normal">(Optional)</span>
+                      <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">
+                        Phone Number <span className="text-[#26302b] font-normal">(Optional)</span>
                       </label>
                       <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-semibold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
                       />
                     </div>
                   </div>
 
                   {/* Subject selector */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#37433d]">Subject</label>
+                    <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">Subject</label>
                     <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-bold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
                     >
                       <option value="General Inquiry">General Inquiry</option>
-                                            <option value="Video Watermark Remover">Video Watermark Remover</option>
-                      <option value="API & Business Enterprise">API & Business Enterprise</option>
+                      <option value="Video Watermark Remover">Video Watermark Remover</option>
+                      <option value="API & Business Enterprise">API &amp; Business Enterprise</option>
                       <option value="Bug Report or Feedback">Bug Report or Feedback</option>
                     </select>
                   </div>
 
                   {/* Message field */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#37433d]">
-                      Message <span className="text-[#18362d]">*</span>
+                    <label className="text-xs font-black text-[#0b0f0d] uppercase font-mono">
+                      Message <span>*</span>
                     </label>
                     <textarea
                       name="message"
@@ -375,8 +371,7 @@ export default function ContactPage() {
                       required
                       value={formData.message}
                       onChange={handleChange}
-                      
-                      className="w-full px-4 py-3 rounded-xl border border-[#10241e]/15 bg-[#f3f4ee] text-base text-[#10241e] placeholder-[#718278] py-3 focus:outline-none focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e] transition-all resize-y"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-base font-semibold text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] resize-y"
                     />
                   </div>
 
@@ -384,7 +379,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-6 rounded-2xl text-white text-sm font-bold bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] shadow-xl text-base py-4 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+                    className="w-full py-4 px-6 rounded-lg text-[#0b0f0d] text-base font-black bg-[#d0f471] hover:bg-[#ffe500] border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_#0b0f0d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>

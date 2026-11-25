@@ -13,6 +13,7 @@ import {
   Sparkles,
   Clock,
   PlusCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 
@@ -43,17 +44,24 @@ export const NAVBAR_NAV_ITEMS: NavItem[] = [
   },
   {
     name: "Gemini Sparkle",
-    shortName: "Gemini Sparkle",
+    shortName: "Sparkle",
     path: "/gemini-image-watermark-remover",
     icon: Sparkles,
     desc: "Remove corner sparkle from Gemini photos",
   },
   {
     name: "Video cleaner",
-    shortName: "Video cleaner",
+    shortName: "Video",
     path: "/gemini-video-watermark-remover",
     icon: ScanLine,
     desc: "Remove Gemini & Veo marks",
+  },
+  {
+    name: "SynthID Verify",
+    shortName: "SynthID",
+    path: "/synthid-verification",
+    icon: ShieldCheck,
+    desc: "Verify Google AI watermark signals",
   },
   {
     name: "Contact",
@@ -89,18 +97,18 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10 shadow-sm select-none">
+    <header className="sticky top-0 z-50 bg-white border-b-[3px] border-[#0b0f0d] select-none">
       <nav
-        className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-[76px] flex items-center justify-between gap-2 lg:gap-4 xl:gap-6"
+        className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-[78px] flex items-center justify-between gap-2 lg:gap-4 xl:gap-6"
         aria-label="Main navigation"
       >
         {/* 1. BRAND LOGO */}
-        <div className="shrink-0 flex items-center z-10 mr-2 lg:mr-4 xl:mr-6" onClick={handleNavClick}>
-          <BrandLogo href="/" />
+        <div className="shrink-0 flex items-center z-10" onClick={handleNavClick}>
+          <BrandLogo href="/" variant="dark" />
         </div>
 
-        {/* 2. DESKTOP NAV LINKS */}
-        <div className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-2.5 min-w-0 px-1">
+        {/* 2. DESKTOP NAV LINKS (Neo-Brutalism tabs — crisp #0b0f0d text, fits cleanly inside 1280px) */}
+        <div className="hidden lg:flex flex-1 items-center justify-center gap-1.5 2xl:gap-2 min-w-0 px-2 overflow-x-auto no-scrollbar">
           {NAVBAR_NAV_ITEMS.map((item) => {
             const active = isItemActive(item.path, item.exact);
             const isContact = item.name === "Contact";
@@ -110,68 +118,62 @@ export function Navbar() {
                 key={item.name}
                 href={item.path}
                 onClick={handleNavClick}
-                className={`group inline-flex items-center gap-1.5 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all duration-180 cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`group inline-flex items-center gap-1.5 px-2.5 py-1.5 2xl:px-3.5 2xl:py-2 rounded-md text-xs 2xl:text-sm font-extrabold border-2 border-[#0b0f0d] transition-all duration-120 cursor-pointer whitespace-nowrap shrink-0 ${
                   active
-                    ? "bg-white/15 text-white font-bold border border-white/25 shadow-xs"
+                    ? "bg-[#d0f471] text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]"
                     : isContact
-                    ? "bg-white/10 text-white font-bold hover:text-white hover:bg-white/20 border border-white/20"
-                    : "text-zinc-300 hover:text-white hover:bg-white/10"
+                    ? "bg-[#a8e6cf] text-[#0b0f0d] hover:bg-[#ffe500] shadow-[2px_2px_0px_#0b0f0d] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#0b0f0d]"
+                    : "bg-white text-[#0b0f0d] hover:bg-[#ffe500] shadow-[2px_2px_0px_#0b0f0d] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#0b0f0d]"
                 }`}
               >
                 <item.icon
-                  size={15}
-                  className={`shrink-0 transition-colors ${
-                    active
-                      ? "text-white"
-                      : isContact
-                      ? "text-white group-hover:scale-110"
-                      : "text-zinc-400 group-hover:text-white"
-                  }`}
+                  size={14}
+                  className="shrink-0 text-[#0b0f0d] stroke-[2.4]"
                 />
-                <span className="lg:hidden xl:inline">{item.name}</span>
-                <span className="hidden lg:inline xl:hidden">{item.shortName || item.name}</span>
+                <span className="hidden 2xl:inline text-[#0b0f0d]">{item.name}</span>
+                <span className="lg:inline 2xl:hidden text-[#0b0f0d]">{item.shortName || item.name}</span>
               </Link>
             );
           })}
         </div>
 
         {/* 3. RIGHT SIDE: ACTIONS */}
-        <div className="flex items-center gap-2 xl:gap-3 shrink-0 z-10 ml-2 lg:mr-0">
+        <div className="flex items-center gap-2 shrink-0 z-10">
           <Link
             href="/history"
             onClick={handleNavClick}
-            className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 xl:px-4 xl:py-2 rounded-full bg-white/10 border border-white/20 text-zinc-200 hover:text-white hover:bg-white/20 text-xs xl:text-sm font-semibold transition-all cursor-pointer shrink-0"
+            className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 2xl:px-3.5 2xl:py-2 rounded-md bg-white hover:bg-[#ffe500] border-2 border-[#0b0f0d] text-[#0b0f0d] text-xs 2xl:text-sm font-extrabold shadow-[2px_2px_0px_#0b0f0d] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#0b0f0d] transition-all cursor-pointer shrink-0 whitespace-nowrap"
             title="View recent history"
           >
-            <Clock size={15} className="text-zinc-300" />
-            <span>History</span>
+            <Clock size={14} className="text-[#0b0f0d] stroke-[2.4]" />
+            <span className="text-[#0b0f0d]">History</span>
           </Link>
 
           <Link
             href="/background-remover"
             onClick={handleNavClick}
-            className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-4.5 sm:py-2 xl:px-5 xl:py-2.5 rounded-full bg-white hover:bg-zinc-200 text-black text-xs xl:text-sm font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer select-none shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 2xl:px-5 rounded-md bg-[#ffe500] hover:bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] text-xs 2xl:text-sm font-black shadow-[3px_3px_0px_#0b0f0d] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0b0f0d] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all cursor-pointer select-none shrink-0 whitespace-nowrap"
           >
-            <PlusCircle size={16} className="shrink-0 text-black" />
-            <span>Create with AI</span>
+            <PlusCircle size={16} className="shrink-0 text-[#0b0f0d] stroke-[2.5]" />
+            <span className="text-[#0b0f0d]">Create with AI</span>
           </Link>
 
           {/* Mobile hamburger menu toggle */}
           <button
             type="button"
-            className="flex lg:hidden size-10 items-center justify-center rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors cursor-pointer"
+            className="flex lg:hidden size-10 items-center justify-center rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] hover:bg-[#ffe500] transition-colors cursor-pointer"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen(!open)}
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {open ? <X size={20} className="text-[#0b0f0d] stroke-[2.5]" /> : <Menu size={20} className="text-[#0b0f0d] stroke-[2.5]" />}
           </button>
         </div>
       </nav>
 
       {/* MOBILE DRAWER */}
       {open && (
-        <div className="lg:hidden fixed inset-x-0 top-18 bg-black/95 backdrop-blur-md border-b border-white/10 p-5 shadow-2xl flex flex-col gap-2 z-50">
+        <div className="lg:hidden fixed inset-x-0 top-[75px] bg-[#f7f5ee] border-b-[3px] border-[#0b0f0d] p-4 shadow-[0_8px_0px_#0b0f0d] flex flex-col gap-2.5 z-50">
           {NAVBAR_NAV_ITEMS.map((item) => {
             const active = isItemActive(item.path, item.exact);
             return (
@@ -179,14 +181,14 @@ export function Navbar() {
                 key={item.name}
                 href={item.path}
                 onClick={handleNavClick}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-base font-semibold ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-[#0b0f0d] text-sm font-extrabold shadow-[3px_3px_0px_#0b0f0d] ${
                   active
-                    ? "bg-white/15 text-white font-bold border border-white/25"
-                    : "text-zinc-300 hover:bg-white/10 hover:text-white"
+                    ? "bg-[#d0f471] text-[#0b0f0d]"
+                    : "bg-white text-[#0b0f0d] hover:bg-[#ffe500]"
                 }`}
               >
-                <item.icon size={18} className={active ? "text-white" : "text-zinc-400"} />
-                <span>{item.name}</span>
+                <item.icon size={18} className="text-[#0b0f0d] stroke-[2.4] shrink-0" />
+                <span className="text-[#0b0f0d]">{item.name}</span>
               </Link>
             );
           })}
@@ -194,10 +196,10 @@ export function Navbar() {
           <Link
             href="/history"
             onClick={handleNavClick}
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-base font-semibold text-zinc-300 hover:bg-white/10 hover:text-white border-t border-white/10 mt-1"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-[#0b0f0d] bg-[#a8e6cf] text-sm font-extrabold text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]"
           >
-            <Clock size={18} className="text-zinc-400" />
-            <span>History</span>
+            <Clock size={18} className="text-[#0b0f0d] stroke-[2.4] shrink-0" />
+            <span className="text-[#0b0f0d]">History</span>
           </Link>
         </div>
       )}

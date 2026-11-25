@@ -80,24 +80,24 @@ export default function AffiliatePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d] font-sans pb-24">
       {/* 1. HERO SECTION */}
-      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF5F8] via-white to-white text-center">
-        <div className="mx-auto max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48] shadow-2xs">
+      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-[#f7f5ee] border-b-[3px] border-[#0b0f0d] text-center">
+        <div className="mx-auto max-w-4xl space-y-5">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black uppercase tracking-wider text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
             <HeartHandshake className="size-3.5" />
             <span>Bellix.us Partner & Affiliate Program</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
+          <h1 className="text-4xl sm:text-6xl font-black text-[#0b0f0d] tracking-tight">
             Earn{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+            <span className="inline-block bg-[#d0f471] px-3 py-0.5 border-[3px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] text-[#0b0f0d]">
               30% Lifetime Recurring
             </span>{" "}
             Commission
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#1f2924] font-medium leading-relaxed">
             Partner with the #1 AI watermark remover. Introduce your audience of creators, video
             editors, and designers to pristine 4K frame cleaning.
           </p>
@@ -105,22 +105,22 @@ export default function AffiliatePage() {
       </section>
 
       {/* 2. INTERACTIVE EARNINGS CALCULATOR */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto py-8">
-        <div className="rounded-3xl p-8 sm:p-12 bg-[#FFF8FA] border-2 border-[#FCE7EC] shadow-sm space-y-8">
-          <div className="text-center space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-serif font-normal text-gray-950">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto py-12">
+        <div className="rounded-xl p-6 sm:p-10 bg-white border-[3px] border-[#0b0f0d] shadow-[8px_8px_0px_#0b0f0d] space-y-8">
+          <div className="text-center space-y-1.5">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0b0f0d]">
               Calculate Your Earning Potential
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-[#1f2924] font-medium">
               Drag the slider to calculate your estimated monthly & annual recurring commissions.
             </p>
           </div>
 
           {/* Slider */}
-          <div className="p-6 rounded-2xl bg-white border border-[#FCE7EC] space-y-3">
-            <div className="flex justify-between items-center text-sm font-bold text-gray-900">
+          <div className="p-6 rounded-xl bg-[#f7f5ee] border-2 border-[#0b0f0d] space-y-3">
+            <div className="flex justify-between items-center text-sm font-black text-[#0b0f0d]">
               <span>Active Paid Subscribers:</span>
-              <span className="text-[#E11D48] text-xl font-semibold font-mono">
+              <span className="bg-[#ffe500] border-2 border-[#0b0f0d] px-2.5 py-0.5 rounded-md text-[#0b0f0d] text-lg font-black font-mono shadow-[2px_2px_0px_#0b0f0d]">
                 {referredUsers} creators
               </span>
             </div>
@@ -132,50 +132,50 @@ export default function AffiliatePage() {
               step="5"
               value={referredUsers}
               onChange={(e) => setReferredUsers(Number(e.target.value))}
-              className="w-full accent-[#E11D48] cursor-pointer"
+              className="w-full accent-[#0b0f0d] cursor-pointer"
             />
           </div>
 
           {/* Dynamic Payout Box */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
-            <div className="p-6 rounded-2xl bg-white border border-[#FCE7EC] shadow-2xs">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
+            <div className="p-6 rounded-xl bg-[#d0f471] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+              <span className="text-xs font-black text-[#0b0f0d] uppercase tracking-wider block">
                 Estimated Monthly Income
               </span>
-              <h3 className="text-4xl font-semibold text-[#E11D48] font-mono mt-2">
+              <h3 className="text-4xl font-black text-[#0b0f0d] font-mono mt-2">
                 ${monthlyEarnings.toLocaleString()}
-                <span className="text-xs text-gray-500 font-normal"> / mo</span>
+                <span className="text-xs text-[#0b0f0d] font-bold"> / mo</span>
               </h3>
-              <p className="text-[11px] text-gray-500 mt-1">Paid automatically every month</p>
+              <p className="text-[11px] font-bold text-[#1f2924] mt-1">Paid automatically every month</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#FCE7EC] shadow-2xs">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
+            <div className="p-6 rounded-xl bg-[#a8e6cf] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+              <span className="text-xs font-black text-[#0b0f0d] uppercase tracking-wider block">
                 Estimated Annual Income
               </span>
-              <h3 className="text-4xl font-semibold text-gray-950 font-mono mt-2">
+              <h3 className="text-4xl font-black text-[#0b0f0d] font-mono mt-2">
                 ${annualEarnings.toLocaleString()}
-                <span className="text-xs text-gray-500 font-normal"> / yr</span>
+                <span className="text-xs text-[#0b0f0d] font-bold"> / yr</span>
               </h3>
-              <p className="text-[11px] text-gray-500 mt-1">Passive recurring revenue</p>
+              <p className="text-[11px] font-bold text-[#1f2924] mt-1">Passive recurring revenue</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* 3. PROGRAM PERKS */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {perks.map((p) => (
             <div
               key={p.title}
-              className="p-6 rounded-3xl bg-white border border-[#FCE7EC] space-y-3 hover:border-[#FDA4AF] transition-colors"
+              className="p-6 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] space-y-3 hover:translate-y-[-2px] transition-transform"
             >
-              <div className="size-12 rounded-2xl bg-[#FFF1F4] flex items-center justify-center">
+              <div className="size-12 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] flex items-center justify-center shadow-[2px_2px_0px_#0b0f0d] text-[#0b0f0d]">
                 {p.icon}
               </div>
-              <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">{p.desc}</p>
+              <h4 className="text-base font-black text-[#0b0f0d]">{p.title}</h4>
+              <p className="text-xs text-[#1f2924] font-medium leading-relaxed">{p.desc}</p>
             </div>
           ))}
         </div>
@@ -183,37 +183,37 @@ export default function AffiliatePage() {
 
       {/* 4. 4-STEP ROADMAP */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center space-y-8">
-        <h2 className="text-2xl sm:text-3xl font-serif font-normal text-gray-950">
+        <h2 className="text-2xl sm:text-3xl font-black text-[#0b0f0d]">
           How the Partner Program Works
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-left">
           {[
             {
-              step: "1",
+              step: "01",
               title: "Join Free",
               desc: "Submit the quick form below. Instant approval.",
             },
             {
-              step: "2",
+              step: "02",
               title: "Share Link",
               desc: "Post your link on YouTube, TikTok, X, or blog.",
             },
             {
-              step: "3",
+              step: "03",
               title: "Track Sales",
               desc: "Live dashboard tracking clicks, trials, and sales.",
             },
             {
-              step: "4",
+              step: "04",
               title: "Get Paid",
               desc: "Receive 30% payouts every month via Stripe or PayPal.",
             },
           ].map((item) => (
-            <div key={item.step} className="p-5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC]">
-              <span className="text-2xl font-semibold text-[#E11D48] font-mono">{item.step}</span>
-              <h4 className="text-sm font-bold text-gray-900 mt-2">{item.title}</h4>
-              <p className="text-xs text-gray-600 mt-1">{item.desc}</p>
+            <div key={item.step} className="p-5 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
+              <span className="inline-block px-2 py-0.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-sm font-black text-[#0b0f0d] font-mono">{item.step}</span>
+              <h4 className="text-sm font-black text-[#0b0f0d] mt-3">{item.title}</h4>
+              <p className="text-xs text-[#1f2924] font-medium mt-1">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -221,39 +221,39 @@ export default function AffiliatePage() {
 
       {/* 5. APPLICATION FORM */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-xl mx-auto">
-        <div className="rounded-3xl p-8 bg-white border-2 border-[#E11D48] shadow-lg space-y-6">
+        <div className="rounded-xl p-8 bg-white border-[3px] border-[#0b0f0d] shadow-[8px_8px_0px_#0b0f0d] space-y-6">
           <div className="text-center space-y-1">
-            <h3 className="text-2xl font-bold text-gray-950">Apply for Partner Access</h3>
-            <p className="text-xs text-gray-500">Takes less than 60 seconds to get your link.</p>
+            <h3 className="text-2xl font-black text-[#0b0f0d]">Apply for Partner Access</h3>
+            <p className="text-xs text-[#1f2924] font-medium">Takes less than 60 seconds to get your link.</p>
           </div>
 
           <form onSubmit={handleApply} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-gray-700 block mb-1">Your Name</label>
+              <label className="text-xs font-black uppercase tracking-wider text-[#0b0f0d] block mb-1.5">Your Name</label>
               <input
                 type="text"
                 required
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 placeholder="Alex Creator"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#FCE7EC] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-4 py-2.5 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-xs font-bold text-[#0b0f0d] focus:outline-none focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-700 block mb-1">Email Address</label>
+              <label className="text-xs font-black uppercase tracking-wider text-[#0b0f0d] block mb-1.5">Email Address</label>
               <input
                 type="email"
                 required
                 value={partnerEmail}
                 onChange={(e) => setPartnerEmail(e.target.value)}
                 placeholder="alex@youtube.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#FCE7EC] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-4 py-2.5 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-xs font-bold text-[#0b0f0d] focus:outline-none focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-700 block mb-1">
+              <label className="text-xs font-black uppercase tracking-wider text-[#0b0f0d] block mb-1.5">
                 Your Channel / Website / Social URL
               </label>
               <input
@@ -261,11 +261,11 @@ export default function AffiliatePage() {
                 value={partnerChannel}
                 onChange={(e) => setPartnerChannel(e.target.value)}
                 placeholder="https://youtube.com/@alexai or https://x.com/alex"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#FCE7EC] bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                className="w-full px-4 py-2.5 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] text-xs font-bold text-[#0b0f0d] focus:outline-none focus:bg-white"
               />
             </div>
 
-            <PinkButton type="submit" size="lg" className="w-full font-bold">
+            <PinkButton type="submit" size="lg" className="w-full font-black">
               <Send className="size-4 mr-2" />
               <span>Submit Partner Application</span>
             </PinkButton>

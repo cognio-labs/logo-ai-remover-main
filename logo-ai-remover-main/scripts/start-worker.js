@@ -52,35 +52,42 @@ console.log("\x1b[36m%s\x1b[0m", "----------------------------------------------
 
 const args = ["-m", "uvicorn", "main:app", "--app-dir", backendDir, "--host", "127.0.0.1", "--port", "5000"];
 
-const child = spawn(pythonExe, args, {
-  cwd: backendDir,
-  stdio: "inherit",
-  shell: isWin,
-  env: {
-    ...process.env,
-    PYTHONUNBUFFERED: "1",
-  },
-});
+const withWeb = process.argv.includes("--with-web");
+const nextCli = withWeb ? require.resolve("next/dist/bin/next") : null;
+const children = [
+  spawn(pythonExe, args, {
+    cwd: backendDir,
+    stdio: "inherit",
+    env: { ...process.env, PYTHONUNBUFFERED: "1" },
+  }),
+];
 
-child.on("error", (err) => {
-  console.error("\x1b[31m[ERROR] Failed to start Python worker process:\x1b[0m", err);
-  process.exit(1);
-});
+if (nextCli) {
+  children.push(
+    spawn(process.execPath, [nextCli, "dev", "-p", "5678"], {
+      cwd: path.resolve(__dirname, ".."),
+      stdio: "inherit",
+    }),
+  );
+}
 
-child.on("close", (code) => {
-  if (code !== 0 && code !== null) {
-    console.error(`\x1b[31m[EXIT] Python worker stopped with exit code ${code}\x1b[0m`);
-    process.exit(code);
+let shuttingDown = false;
+function stop(code, signal = "SIGTERM") {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  process.exitCode = code;
+  for (const child of children) {
+    if (child.exitCode === null && child.signalCode === null) child.kill(signal);
   }
-});
+}
 
-// Clean termination on SIGINT / SIGTERM
-process.on("SIGINT", () => {
-  child.kill("SIGINT");
-  process.exit(0);
-});
+for (const child of children) {
+  child.on("error", (error) => {
+    console.error("Failed to start a Bellix development service.", error);
+    stop(1);
+  });
+  child.on("close", (code) => stop(code ?? 1));
+}
 
-process.on("SIGTERM", () => {
-  child.kill("SIGTERM");
-  process.exit(0);
-});
+process.on("SIGINT", () => stop(0, "SIGINT"));
+process.on("SIGTERM", () => stop(0));

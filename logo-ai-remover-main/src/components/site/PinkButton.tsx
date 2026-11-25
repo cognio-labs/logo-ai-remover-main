@@ -18,22 +18,22 @@ export const PinkButton: React.FC<PinkButtonProps> = ({
   ...props
 }) => {
   const sizeClasses = {
-    sm: "px-4 py-2 text-sm font-bold rounded-xl min-h-[40px]",
-    md: "px-6 py-3 text-base font-bold rounded-2xl min-h-[48px]",
-    lg: "px-8 py-4 text-lg font-bold rounded-2xl min-h-[56px]",
+    sm: "px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-wide rounded-lg min-h-[40px]",
+    md: "px-6 py-3 text-sm sm:text-base font-black uppercase tracking-wide rounded-lg min-h-[48px]",
+    lg: "px-8 py-4 text-base sm:text-lg font-black uppercase tracking-wide rounded-lg min-h-[54px]",
   };
 
   const variantClasses = {
     primary:
-      "bg-[#d0f471] hover:bg-[#dbff83] !text-[#091712] text-[#091712] font-extrabold [&_*]:!text-[#091712] shadow-[0_6px_24px_-4px_rgba(208,244,113,0.45)] hover:shadow-[0_10px_32px_-4px_rgba(208,244,113,0.6)] hover:scale-[1.02] active:scale-[0.98] border border-[#d7f3af]/40 transition-all duration-200",
+      "bg-[#d0f471] hover:bg-[#ffe500] !text-[#0b0f0d] text-[#0b0f0d] font-black [&_*]:!text-[#0b0f0d] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[6px_6px_0px_#0b0f0d] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-150",
     forest:
-      "bg-[#10241e] hover:bg-[#18362d] text-white shadow-md hover:scale-[1.02] active:scale-[0.98] border border-[#d7f3af]/20 transition-all duration-200",
+      "bg-[#0b0f0d] hover:bg-[#1a2420] !text-white text-white [&_*]:!text-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#d0f471] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-150",
     outline:
-      "bg-white text-[#10241e] border-2 border-[#10241e]/20 hover:bg-[#e9ece4] hover:border-[#10241e] shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all duration-200",
+      "bg-white text-[#0b0f0d] hover:bg-[#ffe500] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[6px_6px_0px_#0b0f0d] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-150",
     soft:
-      "bg-[#e9ece4] text-[#10241e] hover:bg-[#dfe3da] border border-[#10241e]/15 font-bold transition-all duration-200",
+      "bg-[#f7f5ee] text-[#0b0f0d] hover:bg-[#a8e6cf] border-[2px] border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] font-bold transition-all duration-150",
     ghost:
-      "bg-transparent text-[#37433d] hover:text-[#10241e] hover:bg-[#10241e]/10 transition-all duration-200",
+      "bg-white/0 text-[#0b0f0d] hover:bg-[#ffe500] border-[2px] border-transparent hover:border-[#0b0f0d] transition-all duration-150",
   };
 
   const Comp = asChild ? Slot : "button";

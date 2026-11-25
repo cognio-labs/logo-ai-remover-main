@@ -255,7 +255,7 @@ const VIDEO_FAQS = [
   {
     question: "Will the output keep the original quality?",
     answer:
-      "Yes. Full export keeps the source dimensions, frame rate, duration, and audio while using high-quality H.264 encoding.",
+      "The MP4 export keeps the source dimensions and frame timing. H.264 re-encodes the picture, and incompatible audio tracks are converted to AAC.",
   },
   {
     question: "Where is the Gemini mark shown?",
@@ -292,51 +292,53 @@ export default function GeminiVideoRemoverPage() {
       : INSPIRATION_ITEMS.filter((item) => item.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans pb-24">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d] font-sans pb-24">
       {/* 1. HERO & UPLOAD SECTION */}
-      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#091712] text-white border-b border-[#d7f3af]/15 overflow-hidden">
-        {/* Atmospheric 4K Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_at_top,rgba(208,244,113,0.14),transparent_70%)] pointer-events-none" />
+      <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-white text-[#0b0f0d] border-b-[3px] border-[#0b0f0d] overflow-hidden">
         <div className="relative mx-auto max-w-7xl z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Copy (lg:col-span-5) */}
             <div className="lg:col-span-5 space-y-6 text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
                 <img src="/gemini-logo.png" alt="Gemini" className="size-4 object-contain" />
-                <span className="text-xs sm:text-sm font-bold text-[#d0f471] tracking-wide uppercase font-mono">
+                <span className="text-xs sm:text-sm font-black text-[#0b0f0d] tracking-wide uppercase font-mono">
                   Gemini &amp; Veo Video Cleaner
                 </span>
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.06]">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#0b0f0d] tracking-tight leading-[1.04]">
                 Remove Gemini and Veo Video Watermarks.
               </h1>
 
               {/* Subheading */}
-              <p className="text-lg sm:text-2xl text-white/95 font-medium leading-relaxed max-w-xl">
+              <p className="text-lg sm:text-xl text-[#26302b] font-semibold leading-relaxed max-w-xl">
                 Remove supported visible sparkle marks from your original Gemini or Veo export.
                 Processing starts as soon as you choose a video.
               </p>
 
-              {/* 3 Value Points */}
+              {/* 3 Value Points — High-contrast Brutalist Cards */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                  <CheckCircle2 className="size-4 text-[#d0f471]" /> Zero quality loss
+                <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+                  <CheckCircle2 className="size-4 text-[#0b0f0d] shrink-0 stroke-[2.5]" />
+                  <span>Original resolution</span>
                 </span>
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                  <ShieldCheck className="size-4 text-[#d0f471]" /> 100% Private &amp; secure
+                <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-white border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+                  <ShieldCheck className="size-4 text-[#0b0f0d] shrink-0 stroke-[2.5]" />
+                  <span>100% Private &amp; secure</span>
                 </span>
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-semibold text-white shadow-xs">
-                  <Zap className="size-4 text-[#d0f471]" /> Fast AI inpainting
+                <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#a8e6cf] border-2 border-[#0b0f0d] text-xs sm:text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+                  <Zap className="size-4 text-[#0b0f0d] shrink-0 stroke-[2.5]" />
+                  <span>Fast AI inpainting</span>
                 </span>
               </div>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-[#d0f471] underline underline-offset-4 decoration-[#d0f471]/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d0f471]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-white hover:bg-[#ffe500] border-2 border-[#0b0f0d] text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] transition-all"
               >
-                See how it works <ArrowRight className="size-4" />
+                <span>See how it works</span>
+                <ArrowRight className="size-4 stroke-[2.5]" />
               </a>
             </div>
 
@@ -347,7 +349,7 @@ export default function GeminiVideoRemoverPage() {
           </div>
 
           {/* Trust Guarantees */}
-          <div className="mt-12 sm:mt-16 pt-8 border-t border-white/10">
+          <div className="mt-12 sm:mt-16 pt-8 border-t-[2.5px] border-[#0b0f0d]">
             <VideoTrustBadges />
           </div>
         </div>
@@ -356,61 +358,65 @@ export default function GeminiVideoRemoverPage() {
       <HowItWorksGuide guide={howItWorksGuides.en.geminiVideo} />
 
       {/* 2. BENTO GRID FEATURES SECTION */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#f3f4ee] border-b border-[#10241e]/10">
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#f7f5ee] border-b-[3px] border-[#0b0f0d]">
         <div className="mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 shadow-xs">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
               <img src="/gemini-logo.png" alt="Gemini Logo" className="size-3.5" />
-              <span className="text-xs font-bold text-[#10241e]">Fixed sparkle matte</span>
+              <span className="text-xs font-black text-[#0b0f0d] uppercase font-mono">Fixed sparkle matte</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-black text-[#0b0f0d] tracking-tight">
               Remove the visible mark while keeping the full frame and smooth motion
             </h2>
           </div>
 
           {/* Feature cards — 2x2 bento grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
                 icon: ShieldCheck,
                 title: "Restore the marked area frame by frame",
                 desc: "Detect visible Gemini and Veo marks across adjacent frames while aiming to keep motion, color, and texture consistent.",
                 badge: "Reverse alpha blending",
+                accent: "bg-[#d0f471]",
               },
               {
                 icon: FileVideo,
                 title: "Full-length video processing",
                 desc: "Upload MP4, MOV, WebM or MKV and export an MP4 at source resolution.",
                 badge: "4 upload formats",
+                accent: "bg-[#ffe500]",
               },
               {
                 icon: Monitor,
                 title: "Dedicated video worker",
                 desc: "The worker deletes the upload after processing and keeps the result available for 15 minutes.",
                 badge: "Temporary storage",
+                accent: "bg-[#a8e6cf]",
               },
               {
                 icon: Crop,
                 title: "Full-frame aware cleanup",
                 desc: "Cleans the watermark area directly instead of cutting away the edges, so the original frame stays intact at full resolution.",
                 badge: "Zero crop",
+                accent: "bg-[#bae6fd]",
               },
             ].map((card) => (
               <div
                 key={card.title}
-                className="p-8 sm:p-10 rounded-3xl bg-white border border-[#10241e]/15 shadow-md hover:shadow-xl hover:border-[#10241e]/40 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
+                className="p-7 sm:p-9 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_#0b0f0d] transition-all duration-150 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="size-14 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center shadow-md">
-                      <card.icon className="size-7" />
+                    <div className={`size-14 rounded-lg ${card.accent} border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center shadow-[3px_3px_0px_#0b0f0d]`}>
+                      <card.icon className="size-7 stroke-[2.3]" />
                     </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#f3f4ee] text-[#10241e] border border-[#10241e]/15">
+                    <span className="px-3 py-1 rounded-md text-xs font-black bg-[#f7f5ee] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]">
                       {card.badge}
                     </span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#10241e]">{card.title}</h3>
-                  <p className="text-sm sm:text-base text-[#37433d] leading-relaxed">{card.desc}</p>
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0b0f0d]">{card.title}</h3>
+                  <p className="text-sm sm:text-base text-[#26302b] font-medium leading-relaxed">{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -419,52 +425,52 @@ export default function GeminiVideoRemoverPage() {
       </section>
 
       {/* 4. "REMOVE A GEMINI VIDEO WATERMARK IN 3 STEPS" SECTION */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#10241e]/10">
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b-[3px] border-[#0b0f0d]">
         <div className="mx-auto max-w-5xl text-center">
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight mb-16">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0b0f0d] tracking-tight mb-14">
             Remove a Gemini video watermark in 3 steps
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
             {/* Step 1 */}
-            <div className="flex flex-col items-center text-center p-8 sm:p-10 rounded-3xl bg-[#f3f4ee] border border-[#10241e]/15 shadow-xl hover:shadow-2xl hover:border-[#10241e]/40 hover:-translate-y-1 transition-transform">
-              <div className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center mb-6 shadow-md">
-                <Upload className="size-8" />
+            <div className="flex flex-col items-center text-center p-7 sm:p-8 rounded-xl bg-[#d0f471] border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d]">
+              <div className="size-16 rounded-lg bg-white border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center mb-5 shadow-[3px_3px_0px_#0b0f0d]">
+                <Upload className="size-7 stroke-[2.4]" />
               </div>
-              <span className="text-xs sm:text-sm font-bold text-[#637069] uppercase tracking-widest mb-2 font-mono">
+              <span className="px-2.5 py-0.5 rounded bg-[#0b0f0d] text-[#d0f471] text-xs font-black uppercase tracking-widest mb-3 font-mono">
                 Step 01
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mb-3">Upload your clip</h3>
-              <p className="text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-black text-[#0b0f0d] mb-2">Upload your clip</h3>
+              <p className="text-sm sm:text-base text-[#0b0f0d] leading-relaxed font-semibold">
                 Choose an MP4, MOV, WebM or MKV file up to 500 MB.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="flex flex-col items-center text-center p-8 sm:p-10 rounded-3xl bg-[#f3f4ee] border border-[#10241e]/15 shadow-xl hover:shadow-2xl hover:border-[#10241e]/40 hover:-translate-y-1 transition-transform">
-              <div className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center mb-6 shadow-md">
-                <Sparkles className="size-8" />
+            <div className="flex flex-col items-center text-center p-7 sm:p-8 rounded-xl bg-[#ffe500] border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d]">
+              <div className="size-16 rounded-lg bg-white border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center mb-5 shadow-[3px_3px_0px_#0b0f0d]">
+                <Sparkles className="size-7 stroke-[2.4]" />
               </div>
-              <span className="text-xs sm:text-sm font-bold text-[#637069] uppercase tracking-widest mb-2 font-mono">
+              <span className="px-2.5 py-0.5 rounded bg-[#0b0f0d] text-[#ffe500] text-xs font-black uppercase tracking-widest mb-3 font-mono">
                 Step 02
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mb-3">Mark and clean the logo</h3>
-              <p className="text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-black text-[#0b0f0d] mb-2">Mark and clean the logo</h3>
+              <p className="text-sm sm:text-base text-[#0b0f0d] leading-relaxed font-semibold">
                 The worker detects the sparkle automatically. Use Manual position to point it at the
                 sparkle if automatic detection misses.
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="flex flex-col items-center text-center p-8 sm:p-10 rounded-3xl bg-[#f3f4ee] border border-[#10241e]/15 shadow-xl hover:shadow-2xl hover:border-[#10241e]/40 hover:-translate-y-1 transition-transform">
-              <div className="size-20 rounded-2xl bg-[#10241e] text-[#d0f471] flex items-center justify-center mb-6 shadow-md">
-                <Download className="size-8" />
+            <div className="flex flex-col items-center text-center p-7 sm:p-8 rounded-xl bg-[#a8e6cf] border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d]">
+              <div className="size-16 rounded-lg bg-white border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center mb-5 shadow-[3px_3px_0px_#0b0f0d]">
+                <Download className="size-7 stroke-[2.4]" />
               </div>
-              <span className="text-xs sm:text-sm font-bold text-[#637069] uppercase tracking-widest mb-2 font-mono">
+              <span className="px-2.5 py-0.5 rounded bg-[#0b0f0d] text-[#a8e6cf] text-xs font-black uppercase tracking-widest mb-3 font-mono">
                 Step 03
               </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#10241e] mb-3">Download the result</h3>
-              <p className="text-base sm:text-lg text-[#37433d] leading-relaxed font-normal">
+              <h3 className="text-xl sm:text-2xl font-black text-[#0b0f0d] mb-2">Download the result</h3>
+              <p className="text-sm sm:text-base text-[#0b0f0d] leading-relaxed font-semibold">
                 When processing finishes, download the cleaned MP4 from the task result.
               </p>
             </div>
@@ -473,30 +479,30 @@ export default function GeminiVideoRemoverPage() {
       </section>
 
       {/* 5. FAQ: Clear Answers */}
-      <section className="border-b border-[#10241e]/10 bg-white px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <section className="border-b-[3px] border-[#0b0f0d] bg-[#f7f5ee] px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
           <div>
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-[#10241e]">
+            <span className="inline-block px-3 py-1 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] text-xs font-black uppercase tracking-wider font-mono text-[#0b0f0d]">
               Clear answers
-            </p>
-            <h2 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-[#10241e]">
+            </span>
+            <h2 className="mt-4 text-4xl sm:text-5xl font-black tracking-tight text-[#0b0f0d]">
               Questions before you start
             </h2>
-            <p className="mt-5 max-w-md text-base sm:text-lg leading-relaxed text-[#37433d]">
+            <p className="mt-4 max-w-md text-base sm:text-lg font-medium leading-relaxed text-[#26302b]">
               A simple workflow, an easy-to-read comparison, and clear expectations about processing
               and downloads.
             </p>
           </div>
-          <div className="divide-y divide-[#10241e]/10 rounded-3xl border border-[#10241e]/15 bg-[#f3f4ee] px-6 sm:px-8 shadow-xl">
+          <div className="divide-y-2 divide-[#0b0f0d] rounded-xl border-[2.5px] border-[#0b0f0d] bg-white px-6 sm:px-8 shadow-[6px_6px_0px_#0b0f0d]">
             {VIDEO_FAQS.map((faq) => (
               <details key={faq.question} className="group py-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-left text-base sm:text-lg font-bold text-[#10241e] marker:content-none">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-left text-base sm:text-lg font-black text-[#0b0f0d] marker:content-none">
                   {faq.question}
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white text-xl font-bold text-[#10241e] group-open:bg-[#10241e] group-open:text-[#d0f471] transition-transform group-open:rotate-45">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md border-2 border-[#0b0f0d] bg-[#f7f5ee] text-xl font-black text-[#0b0f0d] group-open:bg-[#d0f471] transition-transform group-open:rotate-45 shadow-[2px_2px_0px_#0b0f0d]">
                     +
                   </span>
                 </summary>
-                <p className="max-w-xl pt-4 text-base sm:text-lg leading-relaxed text-[#37433d]">{faq.answer}</p>
+                <p className="max-w-xl pt-4 text-sm sm:text-base font-medium leading-relaxed text-[#26302b]">{faq.answer}</p>
               </details>
             ))}
           </div>
@@ -504,32 +510,32 @@ export default function GeminiVideoRemoverPage() {
       </section>
 
       {/* 7. "DISCOVER INSPIRATIONS" GALLERY SECTION (21 High-Definition AI Images) */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-[#f3f4ee]" id="inspirations">
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white" id="inspirations">
         <div className="mx-auto max-w-7xl">
-          <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs font-bold text-[#10241e] shadow-xs">
-              <Layers className="size-3.5 text-[#10241e]" />
+          <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#a8e6cf] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] font-mono uppercase">
+              <Layers className="size-3.5 text-[#0b0f0d]" />
               <span>Prompt Inspiration Library</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#10241e] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#0b0f0d] tracking-tight">
               Discover Inspirations
             </h2>
-            <p className="text-base sm:text-lg text-[#637069]">
-              Pick a prompt you love and start creating high-definition videos & imagery
+            <p className="text-base sm:text-lg font-medium text-[#26302b]">
+              Pick a prompt you love and start creating high-definition videos &amp; imagery
             </p>
           </div>
 
           {/* Category Filter Tabs (Pills) */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-12">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md text-xs font-black border-2 border-[#0b0f0d] transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#10241e] text-[#d0f471] font-bold shadow-md"
-                    : "bg-white text-[#10241e] font-semibold border border-[#10241e]/15 hover:bg-[#e9ece4]"
+                    ? "bg-[#d0f471] text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]"
+                    : "bg-white text-[#0b0f0d] hover:bg-[#ffe500] shadow-[2px_2px_0px_#0b0f0d]"
                 }`}
               >
                 {cat}
@@ -538,15 +544,15 @@ export default function GeminiVideoRemoverPage() {
           </div>
 
           {/* Grid of 21 User Inspiration Cards with Visible Prompts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filteredInspirations.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setActiveModalItem(item)}
-                className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-[#10241e]/15 shadow-md hover:shadow-xl hover:border-[#10241e]/40 hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="group relative rounded-xl overflow-hidden bg-white border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_#0b0f0d] transition-all duration-150 cursor-pointer flex flex-col justify-between"
               >
                 {/* Visual Card Image */}
-                <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-gray-100">
+                <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-[#0b0f0d]">
                   <img
                     src={item.img}
                     alt={item.title}
@@ -554,30 +560,30 @@ export default function GeminiVideoRemoverPage() {
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-2.5 left-2.5 z-10">
-                    <span className="px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-wider border border-white/10 shadow-xs">
+                    <span className="px-2.5 py-0.5 rounded bg-[#ffe500] border-2 border-[#0b0f0d] text-[10px] font-black text-[#0b0f0d] uppercase tracking-wider shadow-[2px_2px_0px_#0b0f0d]">
                       {item.category}
                     </span>
                   </div>
                 </div>
 
                 {/* Card Details: Title & Prompt */}
-                <div className="p-4 sm:p-5 bg-white flex flex-col justify-between flex-1 border-t border-[#10241e]/10 space-y-3">
+                <div className="p-4 sm:p-5 bg-white flex flex-col justify-between flex-1 border-t-[2.5px] border-[#0b0f0d] space-y-3">
                   <div className="flex items-center justify-between gap-1.5">
-                    <h4 className="text-sm sm:text-base font-bold text-[#10241e] truncate leading-snug">
+                    <h4 className="text-sm sm:text-base font-black text-[#0b0f0d] truncate leading-snug">
                       {item.title}
                     </h4>
-                    <span className="shrink-0 text-[10px] font-mono font-bold text-[#10241e] bg-[#f3f4ee] px-2 py-0.5 rounded border border-[#10241e]/15">
+                    <span className="shrink-0 text-[10px] font-mono font-black text-[#0b0f0d] bg-[#d0f471] px-2 py-0.5 rounded border border-[#0b0f0d]">
                       Prompt
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#37433d] line-clamp-2 leading-relaxed bg-[#f3f4ee] p-3 rounded-xl border border-[#10241e]/10 font-sans">
+                  <p className="text-xs sm:text-sm text-[#26302b] line-clamp-2 leading-relaxed bg-[#f7f5ee] p-3 rounded-lg border-2 border-[#0b0f0d] font-medium">
                     "{item.prompt}"
                   </p>
 
-                  <div className="pt-1 flex items-center justify-between text-[11px] text-[#52645d] font-semibold">
-                    <span className="text-[#10241e] group-hover:underline font-bold">Tap to inspect</span>
-                    <ArrowRight className="size-4 text-[#10241e] group-hover:translate-x-1 transition-transform" />
+                  <div className="pt-1 flex items-center justify-between text-xs text-[#0b0f0d] font-black">
+                    <span className="group-hover:underline">Tap to inspect</span>
+                    <ArrowRight className="size-4 text-[#0b0f0d] group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </div>
@@ -589,14 +595,14 @@ export default function GeminiVideoRemoverPage() {
       {/* Lightbox Modal for Inspirations */}
       {activeModalItem && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
           onClick={() => setActiveModalItem(null)}
         >
           <div
-            className="relative max-w-2xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl p-6 sm:p-8 text-left space-y-4 border border-[#10241e]/15 text-[#10241e]"
+            className="relative max-w-2xl w-full bg-white rounded-xl overflow-hidden shadow-[8px_8px_0px_#d0f471] p-6 sm:p-8 text-left space-y-4 border-[3px] border-[#0b0f0d] text-[#0b0f0d]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black">
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border-2 border-[#0b0f0d]">
               <img
                 src={activeModalItem.img}
                 alt={activeModalItem.title}
@@ -605,12 +611,12 @@ export default function GeminiVideoRemoverPage() {
             </div>
 
             <div>
-              <span className="text-xs sm:text-sm font-bold text-[#10241e] uppercase tracking-wider">
+              <span className="inline-block px-2.5 py-0.5 rounded bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] uppercase tracking-wider">
                 {activeModalItem.category}
               </span>
-              <h3 className="text-2xl font-bold text-[#10241e] mt-1">{activeModalItem.title}</h3>
-              <div className="mt-3 p-3.5 rounded-xl bg-[#f3f4ee] border border-[#10241e]/15 text-sm text-[#37433d] font-mono">
-                <span className="font-bold text-[#637069] block mb-1">Prompt:</span>"
+              <h3 className="text-2xl font-black text-[#0b0f0d] mt-2">{activeModalItem.title}</h3>
+              <div className="mt-3 p-3.5 rounded-lg bg-[#f7f5ee] border-2 border-[#0b0f0d] text-sm text-[#0b0f0d] font-mono">
+                <span className="font-black text-[#0b0f0d] block mb-1">Prompt:</span>"
                 {activeModalItem.prompt}"
               </div>
             </div>
@@ -619,13 +625,13 @@ export default function GeminiVideoRemoverPage() {
               <button
                 type="button"
                 onClick={() => setActiveModalItem(null)}
-                className="px-5 py-2 rounded-xl border border-[#10241e]/20 text-sm font-bold text-[#10241e] hover:bg-[#f3f4ee] transition-colors"
+                className="px-5 py-2.5 rounded-lg border-2 border-[#0b0f0d] bg-white text-sm font-black text-[#0b0f0d] hover:bg-[#ffe500] shadow-[3px_3px_0px_#0b0f0d] cursor-pointer"
               >
                 Close
               </button>
               <Link
                 href="/remove/video"
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold bg-[#10241e] text-[#d0f471] hover:bg-[#18362d] shadow-sm transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-black bg-[#d0f471] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] hover:bg-[#ffe500] transition-all"
               >
                 <span>Clean Similar Video</span>
                 <ArrowRight className="size-4" />

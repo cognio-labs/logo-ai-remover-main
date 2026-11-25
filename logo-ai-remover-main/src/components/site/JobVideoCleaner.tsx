@@ -36,9 +36,18 @@ type WorkerResponse = {
   job_token?: string;
   state?: string;
   progress?: number;
+  stage?: string;
+  frames_processed?: number;
+  quality?: {
+    frames_processed: number;
+    decoded_frames_verified: number;
+    total_frames: number;
+    method?: string;
+  };
+  log_tail?: string[];
 };
 
-const ACCEPT = "video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm,.mkv";
+const ACCEPT = "video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm,.mkv,.avi,.m4v";
 
 function fmt(t: number): string {
   if (!isFinite(t) || t < 0) t = 0;
@@ -56,13 +65,20 @@ function workerError(response: Response, payload: WorkerResponse | null, fallbac
 }
 
 export function JobVideoCleaner() {
+  const npmCommand = typeof navigator !== "undefined" && /Windows/i.test(navigator.userAgent)
+    ? "npm.cmd"
+    : "npm";
+  const workerCommand = `${npmCommand} run worker`;
   const accountRequestKey = useRef<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
+  const [resultNote, setResultNote] = useState<string | null>(null);
 
   const processingControllerRef = useRef<AbortController | null>(null);
+  const origUrlRef = useRef<string | null>(null);
+  const cleanUrlRef = useRef<string | null>(null);
 
   const [manual, setManual] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -79,7 +95,7 @@ export function JobVideoCleaner() {
 
   // Processing State
   const [isProcessing, setIsProcessing] = useState(false);
-  const [cleanMode, setCleanMode] = useState<"clean" | "guaranteed">("clean");
+  const [cleanMode, setCleanMode] = useState<"clean" | "crop">("clean");
   const [isDone, setIsDone] = useState(false);
   const [statusMsg, setStatusMsg] = useState("Ready to process.");
   const [progress, setProgress] = useState(0);
@@ -92,6 +108,14 @@ export function JobVideoCleaner() {
   useEffect(() => {
     return () => {
       processingControllerRef.current?.abort();
+      if (origUrlRef.current) {
+        URL.revokeObjectURL(origUrlRef.current);
+        origUrlRef.current = null;
+      }
+      if (cleanUrlRef.current) {
+        URL.revokeObjectURL(cleanUrlRef.current);
+        cleanUrlRef.current = null;
+      }
     };
   }, []);
 
@@ -111,23 +135,19 @@ export function JobVideoCleaner() {
     return () => {
       testVideo.removeEventListener("loadedmetadata", onMeta);
       testVideo.removeEventListener("loadeddata", onMeta);
-      URL.revokeObjectURL(origUrl);
     };
   }, [origUrl]);
-
-  useEffect(
-    () => () => {
-      if (cleanUrl) URL.revokeObjectURL(cleanUrl);
-    },
-    [cleanUrl],
-  );
 
   // Load Video File
   const loadFile = useCallback(
     (f: File) => {
-      const ok = /\.(mp4|mov|webm|mkv)$/i.test(f.name);
+      const ok = /\.(mp4|mov|webm|mkv|avi|m4v)$/i.test(f.name);
       if (!ok) {
-        toast.error("Please choose an MP4, WebM, MOV or MKV video.");
+        toast.error("Choose an MP4, MOV, WebM, MKV, AVI or M4V video.");
+        return;
+      }
+      if (!f.size) {
+        toast.error("This file is empty. Choose a video with footage.");
         return;
       }
       if (f.size > 500 * 1024 * 1024) {
@@ -139,10 +159,12 @@ export function JobVideoCleaner() {
       processingControllerRef.current = null;
       selectionStart.current = null;
 
-      if (origUrl) URL.revokeObjectURL(origUrl);
-      if (cleanUrl) URL.revokeObjectURL(cleanUrl);
+      if (origUrlRef.current) URL.revokeObjectURL(origUrlRef.current);
+      if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
 
       const url = URL.createObjectURL(f);
+      origUrlRef.current = url;
+      cleanUrlRef.current = null;
       setFile(f);
       accountRequestKey.current = crypto.randomUUID();
       setOrigUrl(url);
@@ -162,7 +184,7 @@ export function JobVideoCleaner() {
       setIsPlaying(false);
       setStatusMsg("Preparing video upload");
     },
-    [cleanUrl, origUrl],
+    [],
   );
 
   // Clipboard Paste Handler (Ctrl+V)
@@ -244,8 +266,10 @@ export function JobVideoCleaner() {
     pauseBoth();
     processingControllerRef.current?.abort();
     processingControllerRef.current = null;
-    if (origUrl) URL.revokeObjectURL(origUrl);
-    if (cleanUrl) URL.revokeObjectURL(cleanUrl);
+    if (origUrlRef.current) URL.revokeObjectURL(origUrlRef.current);
+    if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
+    origUrlRef.current = null;
+    cleanUrlRef.current = null;
     setFile(null);
     setOrigUrl(null);
     setCleanUrl(null);
@@ -263,17 +287,32 @@ export function JobVideoCleaner() {
     setErrorDetails(null);
   };
 
+  const handleCancel = () => {
+    processingControllerRef.current?.abort();
+    processingControllerRef.current = null;
+    setIsProcessing(false);
+    setProgress(0);
+    setStatusMsg("Processing cancelled.");
+    toast.info("Video processing cancelled.");
+  };
+
   const handleProcess = async (position?: Selection) => {
     if (!file || !origUrl || processingControllerRef.current) return;
     const controller = new AbortController();
     const { signal } = controller;
     processingControllerRef.current = controller;
+    if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
+    cleanUrlRef.current = null;
+    setCleanUrl(null);
+    setResultNote(null);
+    setIsDone(false);
     setIsProcessing(true);
     setIsError(false);
     setErrorDetails(null);
     setProgress(2);
     setStatusMsg("Connecting to the video worker");
     let workerOrigin: string | null = null;
+    let checkingConnection = false;
 
     try {
       const config = await fetch("/api/video-worker", { signal, cache: "no-store" });
@@ -283,6 +322,7 @@ export function JobVideoCleaner() {
       }
       workerOrigin = worker.origin;
 
+      checkingConnection = true;
       const healthResponse = await accountFetch(`${workerOrigin}/health`, {
         signal,
         cache: "no-store",
@@ -291,6 +331,7 @@ export function JobVideoCleaner() {
       if (!healthResponse.ok || !health?.ok || health.ffmpeg !== true) {
         throw workerError(healthResponse, health, "The video worker is not ready");
       }
+      checkingConnection = false;
 
       setStatusMsg("Uploading video");
       const form = new FormData();
@@ -313,7 +354,7 @@ export function JobVideoCleaner() {
       const jobId = encodeURIComponent(job.job_id);
       const options = { signal, headers: { "X-Video-Job-Token": job.job_token } };
       while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 750));
+        await new Promise((resolve) => setTimeout(resolve, 250));
         signal.throwIfAborted();
         const statusResponse = await accountFetch(
           `${workerOrigin}/api/video/status/${jobId}`,
@@ -324,13 +365,23 @@ export function JobVideoCleaner() {
           throw workerError(statusResponse, status, "The worker could not retrieve this job");
         }
         if (status.state === "error") throw new Error(status.error || "Video processing failed.");
-        if (status.state === "done") break;
-        setProgress(Math.min(98, Math.max(5, status.progress || 0)));
-        setStatusMsg(
-          status.state === "queued"
-            ? "Waiting for a processing slot"
-            : "Restoring the watermark area",
-        );
+        if (status.state === "done") {
+          const quality = status.quality;
+          if (
+            !quality ||
+            quality.total_frames < 1 ||
+            quality.frames_processed !== quality.total_frames ||
+            quality.decoded_frames_verified !== quality.total_frames
+          ) {
+            throw new Error("The worker did not verify every export frame.");
+          }
+          if (quality.method === "calibrated-opaque-inpainting" || quality.method === "manual-box-inpainting") {
+            setResultNote("The worker estimated covered pixels from nearby detail. Review the restored texture and edges.");
+          }
+          break;
+        }
+        setProgress(Math.min(99, Math.max(2, status.progress ?? 0)));
+        setStatusMsg(status.stage || (status.state === "queued" ? "Waiting for the worker" : "Processing video"));
       }
 
       setProgress(99);
@@ -346,7 +397,10 @@ export function JobVideoCleaner() {
       const blob = await result.blob();
       signal.throwIfAborted();
       if (!blob.size) throw new Error("The worker returned an empty MP4.");
+      if (blob.type !== "video/mp4") throw new Error("The worker returned an unexpected file type.");
       const cleanBlobUrl = URL.createObjectURL(blob);
+      if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
+      cleanUrlRef.current = cleanBlobUrl;
       setCleanUrl(cleanBlobUrl);
       setManual(false);
       setIsDone(true);
@@ -376,13 +430,13 @@ export function JobVideoCleaner() {
     } catch (error) {
       if (signal.aborted || processingControllerRef.current !== controller) return;
       const isConnectionError =
-        (error instanceof TypeError && /fetch/i.test(error.message)) ||
-        (error instanceof Error &&
-          /network|refused|failed to fetch|not ready|unavailable|worker/i.test(error.message));
-      
-      const targetWorker = workerOrigin || "http://127.0.0.1:5000";
+        checkingConnection && error instanceof TypeError && /fetch|network/i.test(error.message);
+
+      const localWorker = workerOrigin?.startsWith("http://127.0.0.1");
       const details = isConnectionError
-        ? `The video worker at ${targetWorker} is not running or reachable. To start it, run: npm run worker (or npm run dev:all)`
+        ? localWorker
+          ? `The video worker at ${workerOrigin} is unreachable. Start it with ${workerCommand} or ${npmCommand} run dev:all.`
+          : "The video worker is unreachable. Try again in a moment."
         : error instanceof Error
           ? error.message
           : "Unable to process this video.";
@@ -442,10 +496,10 @@ export function JobVideoCleaner() {
     return (
       <div id="gemini-video-upload-card" tabIndex={-1} className="w-full">
         <div
-          className={`relative flex min-h-[440px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-16 sm:py-20 text-center transition-all duration-300 ${
+          className={`relative flex min-h-[440px] cursor-pointer flex-col items-center justify-center rounded-xl border-[3px] px-6 py-14 sm:py-18 text-center transition-all duration-150 ${
             dragOver
-              ? "border-[#10241e] bg-[#f9faf7] shadow-2xl scale-[1.01]"
-              : "border-[#10241e]/20 bg-white hover:border-[#10241e] shadow-xl"
+              ? "border-[#0b0f0d] bg-[#d0f471] shadow-[8px_8px_0px_#0b0f0d] -translate-x-0.5 -translate-y-0.5"
+              : "border-[#0b0f0d] bg-white hover:bg-[#fffef5] shadow-[7px_7px_0px_#0b0f0d]"
           }`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={(e) => {
@@ -461,32 +515,32 @@ export function JobVideoCleaner() {
           }}
         >
           <div className="relative mb-2">
-            <span className="flex size-24 items-center justify-center rounded-3xl bg-[#10241e] text-[#d0f471] shadow-[0_12px_32px_rgba(16,36,30,0.2)] transition-transform duration-300 hover:scale-105">
-              <UploadCloud className="size-11 animate-pulse" />
+            <span className="flex size-22 items-center justify-center rounded-xl bg-[#d0f471] border-[2.5px] border-[#0b0f0d] text-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] transition-transform duration-200 hover:scale-105">
+              <UploadCloud className="size-10 stroke-[2.3]" />
             </span>
-            <span className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-[#d0f471] border border-[#10241e]/20 text-[#091712] shadow-xs">
-              <Film className="size-4" />
+            <span className="absolute -bottom-2 -right-2 flex size-9 items-center justify-center rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]">
+              <Film className="size-4 stroke-[2.4]" />
             </span>
           </div>
 
-          <h3 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#10241e]">
+          <h3 className="mt-5 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#0b0f0d]">
             Drop a Gemini or Veo video
           </h3>
 
-          <p className="mt-3 text-sm sm:text-base text-[#637069] max-w-lg">
+          <p className="mt-3 text-sm sm:text-base text-[#26302b] font-semibold max-w-lg">
             MP4, MOV, WebM or MKV up to 500 MB. Processing starts automatically when selected.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-base sm:text-lg font-bold shadow-lg transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] border-2 border-[#0b0f0d] text-[#0b0f0d] px-7 py-3.5 text-base font-black shadow-[4px_4px_0px_#0b0f0d] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#0b0f0d] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
               }}
             >
-              <UploadCloud className="size-5 mr-1" /> Browse Video
+              <UploadCloud className="size-5 stroke-[2.4]" /> Browse Video
             </button>
 
             <button
@@ -511,15 +565,15 @@ export function JobVideoCleaner() {
                   toast.info("Press Ctrl+V to paste your video file from clipboard.");
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-2xl border border-[#10241e]/20 bg-[#f3f4ee] hover:bg-[#e9ece4] text-[#10241e] px-6 py-3.5 text-sm sm:text-base font-semibold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#0b0f0d] bg-white hover:bg-[#ffe500] text-[#0b0f0d] px-5 py-3.5 text-sm sm:text-base font-black shadow-[3px_3px_0px_#0b0f0d] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0b0f0d] transition-all cursor-pointer"
             >
-              <Copy className="size-4 text-[#10241e]" />
+              <Copy className="size-4 text-[#0b0f0d] stroke-[2.4]" />
               <span>Paste from Clipboard</span>
             </button>
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[#637069]">
-            <ShieldCheck className="size-4 text-[#10241e]" />
+          <div className="mt-6 inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-md bg-[#f7f5ee] border-2 border-[#0b0f0d] text-xs font-bold text-[#0b0f0d]">
+            <ShieldCheck className="size-4 text-[#0b0f0d] stroke-[2.3]" />
             <span>Reverse-alpha cleanup with MP4 export</span>
           </div>
 
@@ -546,22 +600,22 @@ export function JobVideoCleaner() {
 
   return (
     <div
-      className={`w-full rounded-3xl border border-[#10241e]/15 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-left transition-all duration-300 ${
+      className={`w-full rounded-xl border-[3px] border-[#0b0f0d] bg-white p-5 sm:p-7 shadow-[7px_7px_0px_#0b0f0d] space-y-5 text-left transition-all duration-200 ${
         isPortrait ? "max-w-xl mx-auto" : "max-w-5xl mx-auto"
       }`}
     >
       {isDone && cleanUrl && !manual && (
-        <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] px-5 py-4 sm:px-6">
+        <div className="rounded-lg border-2 border-[#0b0f0d] bg-[#d0f471] px-5 py-4 shadow-[3px_3px_0px_#0b0f0d]">
           <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#d0f471] text-[#10241e]">
-              <CheckCircle2 className="size-5" />
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-md border-2 border-[#0b0f0d] bg-white text-[#0b0f0d]">
+              <CheckCircle2 className="size-5 stroke-[2.5]" />
             </span>
             <div>
-              <h3 className="text-lg font-bold text-[#10241e]">Your processed video is ready</h3>
-              <p className="mt-1 text-sm text-[#4e5f55]">
-                Drag the line to compare the same moment before and after cleanup. Play or scrub
-                through the full clip to check the watermark area.
+              <h3 className="text-lg font-black text-[#0b0f0d]">Your processed video is ready</h3>
+              <p className="mt-1 text-sm font-semibold text-[#0b0f0d]">
+                Drag the split slider or select Processed to review the exported video.
               </p>
+              {resultNote && <p className="mt-1 text-sm text-[#0b0f0d]">{resultNote}</p>}
             </div>
           </div>
         </div>
@@ -574,7 +628,7 @@ export function JobVideoCleaner() {
           beforeLabel="Original"
           afterLabel="Processed"
           initialRatio={videoRatio}
-          defaultFit="cover"
+          defaultFit="contain"
           autoPlay={false}
           loop={false}
           controlsOutside
@@ -589,12 +643,13 @@ export function JobVideoCleaner() {
           }`}
         >
           <div
-            className="relative flex items-center justify-center overflow-hidden bg-[#091712]"
+            className="relative flex items-center justify-center overflow-hidden bg-[#091712] mx-auto w-full"
             style={
               videoRatio > 0
                 ? {
                     aspectRatio: `${videoRatio}`,
                     maxHeight: "75vh",
+                    maxWidth: `calc(75vh * ${videoRatio})`,
                   }
                 : { aspectRatio: "16/9" }
             }
@@ -617,7 +672,7 @@ export function JobVideoCleaner() {
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               onError={() => setPreviewError(true)}
-              className="h-full w-full cursor-pointer object-cover"
+              className="h-full w-full cursor-pointer object-contain"
               onClick={togglePlay}
               onLoadedMetadata={(event) => {
                 const video = event.currentTarget;
@@ -677,13 +732,22 @@ export function JobVideoCleaner() {
         </div>
       )}
       {isProcessing && (
-        <div className="rounded-2xl border border-[#10241e]/15 bg-[#f3f4ee] p-4">
+        <div className="rounded-xl border-[2.5px] border-[#0b0f0d] bg-[#f7f5ee] p-4 shadow-[4px_4px_0px_#0b0f0d]">
           <div
             role="status"
-            className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold text-[#10241e]"
+            className="mb-2 flex items-center justify-between gap-3 text-xs font-black text-[#0b0f0d]"
           >
             <span>{statusMsg}</span>
-            <span className="font-mono">{progress}%</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="font-mono bg-[#ffe500] border border-[#0b0f0d] px-1.5 py-0.5 rounded">{progress}%</span>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded border border-[#0b0f0d] bg-white px-2 py-0.5 text-[11px] font-bold text-[#0b0f0d] hover:bg-[#ffdad6] cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
           <div
             role="progressbar"
@@ -691,10 +755,10 @@ export function JobVideoCleaner() {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={progress}
-            className="h-2 overflow-hidden rounded-full bg-[#10241e]/10"
+            className="h-3 overflow-hidden rounded-md border-2 border-[#0b0f0d] bg-white"
           >
             <div
-              className="h-full rounded-full bg-[#10241e] transition-[width] duration-200"
+              className="h-full bg-[#d0f471] transition-[width] duration-200 border-r-2 border-[#0b0f0d]"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -703,11 +767,11 @@ export function JobVideoCleaner() {
 
       {/* Playback Control Bar */}
       {(!isDone || manual) && (
-        <div className="flex items-center gap-3 px-3 py-2.5 bg-[#f3f4ee] rounded-2xl border border-[#10241e]/15">
+        <div className="flex items-center gap-3 px-3 py-2.5 bg-white rounded-xl border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
           <button
             type="button"
             onClick={togglePlay}
-            className="size-11 rounded-full bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] shadow-md flex items-center justify-center transition-all cursor-pointer shrink-0"
+            className="size-10 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] flex items-center justify-center transition-all cursor-pointer shrink-0"
             title={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 ml-0.5" />}
@@ -719,22 +783,22 @@ export function JobVideoCleaner() {
             max={1000}
             value={seekValue}
             onChange={handleSeek}
-            className="flex-1 accent-[#10241e] cursor-pointer h-2 bg-gray-300 rounded-lg"
+            className="flex-1 accent-[#0b0f0d] cursor-pointer h-2 bg-[#f7f5ee] rounded-lg"
             aria-label="Seek video position"
           />
 
-          <span className="min-w-[84px] text-right font-mono text-xs sm:text-sm font-semibold text-[#10241e]">
+          <span className="min-w-[84px] text-right font-mono text-xs sm:text-sm font-black text-[#0b0f0d]">
             {fmt(currentTime)} / {fmt(duration)}
           </span>
 
           <button
             type="button"
             onClick={toggleMute}
-            className="size-8 rounded-lg bg-white border border-[#10241e]/15 text-[#10241e] hover:bg-[#e9ece4] flex items-center justify-center transition-all cursor-pointer"
+            className="size-8 rounded-lg bg-[#f7f5ee] border-2 border-[#0b0f0d] text-[#0b0f0d] hover:bg-[#ffe500] flex items-center justify-center transition-all cursor-pointer"
             title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? (
-              <VolumeX className="size-4 text-[#10241e]" />
+              <VolumeX className="size-4 text-[#0b0f0d]" />
             ) : (
               <Volume2 className="size-4" />
             )}
@@ -744,41 +808,44 @@ export function JobVideoCleaner() {
 
       {/* Error Message Box (Clean, friendly, actionable) */}
       {isError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/90 p-4 sm:p-5 flex flex-col gap-3 text-left">
+        <div className="rounded-xl border-[2.5px] border-[#0b0f0d] bg-[#ffdad6] p-4 sm:p-5 flex flex-col gap-3 text-left shadow-[4px_4px_0px_#0b0f0d]">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-2.5 text-rose-800 text-sm font-semibold">
-              <AlertTriangle className="size-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 text-[#0b0f0d] text-sm font-bold">
+              <AlertTriangle className="size-5 text-[#ff5c5c] shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <span className="block font-bold text-rose-900 text-sm">
+                <span className="block font-black text-[#0b0f0d] text-sm">
                   {errorDetails?.includes("npm run worker")
                     ? "Video Processing Worker Offline"
                     : "Processing Error"}
                 </span>
-                <span className="text-xs text-rose-700 font-normal block leading-relaxed">
+                <span className="text-xs text-[#0b0f0d] font-medium block leading-relaxed">
                   {errorDetails ||
                     "Unable to process this video. Please try again or upload a different file."}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-              {errorDetails?.includes("npm run worker") && (
+              {errorDetails?.includes(workerCommand) && (
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText("npm run worker");
-                    toast.success("Copied 'npm run worker' to clipboard!");
+                    navigator.clipboard.writeText(workerCommand);
+                    toast.success("Worker command copied.");
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-rose-300 hover:bg-rose-100 text-rose-900 text-xs font-mono font-bold transition-all cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border-2 border-[#0b0f0d] hover:bg-[#ffe500] text-[#0b0f0d] text-xs font-mono font-bold transition-all cursor-pointer shadow-[2px_2px_0px_#0b0f0d]"
                   title="Copy command to clipboard"
                 >
                   <Copy className="size-3.5" />
-                  <span>Copy: npm run worker</span>
+                  <span>Copy worker command</span>
                 </button>
               )}
               <button
                 type="button"
-                onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
+                onClick={() => {
+                  accountRequestKey.current = crypto.randomUUID();
+                  void handleProcess(manual ? (selection ?? undefined) : undefined);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#ff5c5c] hover:bg-[#ffe500] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] text-xs font-black transition-all cursor-pointer shrink-0"
               >
                 <RotateCcw className="size-3.5" />
                 <span>Try Again</span>
@@ -788,56 +855,54 @@ export function JobVideoCleaner() {
         </div>
       )}
 
-      {/* Removal Mode Selector: Clean (AI Fill) vs Guaranteed (100% Zero-Trace) */}
-      {(!isDone || manual) && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#f3f4ee] border border-[#10241e]/15 text-left">
+      {/* Removal mode */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-[#f7f5ee] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] text-left">
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-[#10241e] uppercase tracking-wider">Removal Mode</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                cleanMode === "guaranteed" ? "bg-[#d0f471] text-[#091712]" : "bg-[#10241e] text-white"
+              <span className="text-xs font-black text-[#0b0f0d] uppercase tracking-wider">Removal Mode</span>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded border border-[#0b0f0d] ${
+                cleanMode === "crop" ? "bg-[#ffe500] text-[#0b0f0d]" : "bg-[#d0f471] text-[#0b0f0d]"
               }`}>
-                {cleanMode === "guaranteed" ? "100% Trace-Free" : "Full Frame AI"}
+                {cleanMode === "crop" ? "Reframed export" : "Original framing"}
               </span>
             </div>
-            <p className="text-xs text-[#637069]">
+            <p className="text-xs text-[#1f2924] font-medium">
               {cleanMode === "clean"
-                ? "Full 100% frame preserved using neural inpainting. Best for wide scenes."
-                : "Watermark completely removed by cropping 6-8% bottom-right & upscaling with Lanczos sharpness."}
+                ? "Reconstruct pixels around the detected sparkle."
+                : "Crop out a detected stationary sparkle and resize to the source dimensions."}
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white border border-[#10241e]/15 shadow-xs shrink-0 self-stretch sm:self-auto justify-center">
+          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-white border-2 border-[#0b0f0d] shrink-0 self-stretch sm:self-auto justify-center">
             <button
               type="button"
               onClick={() => setCleanMode("clean")}
               disabled={isProcessing}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                 cleanMode === "clean"
-                  ? "bg-[#10241e] text-[#d0f471] shadow-xs"
-                  : "text-[#37433d] hover:text-[#10241e] hover:bg-gray-100"
+                  ? "bg-[#d0f471] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
+                  : "text-[#0b0f0d] hover:bg-[#f7f5ee] border-2 border-transparent"
               }`}
             >
               <Sparkles className="size-3.5" />
-              <span>Clean (AI Fill)</span>
+              <span>Restore</span>
             </button>
 
             <button
               type="button"
-              onClick={() => setCleanMode("guaranteed")}
+              onClick={() => setCleanMode("crop")}
               disabled={isProcessing}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                cleanMode === "guaranteed"
-                  ? "bg-[#10241e] text-[#d0f471] shadow-xs"
-                  : "text-[#37433d] hover:text-[#10241e] hover:bg-gray-100"
+              className={`px-3.5 py-1.5 rounded-md text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                cleanMode === "crop"
+                  ? "bg-[#ffe500] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
+                  : "text-[#0b0f0d] hover:bg-[#f7f5ee] border-2 border-transparent"
               }`}
             >
-              <ShieldCheck className="size-3.5 text-[#d0f471]" />
-              <span>Guaranteed</span>
+              <ShieldCheck className="size-3.5 text-[#0b0f0d]" />
+              <span>Crop and scale</span>
             </button>
           </div>
         </div>
-      )}
 
       {/* Action Buttons Row */}
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -845,16 +910,16 @@ export function JobVideoCleaner() {
           type="button"
           disabled={isProcessing}
           onClick={() => fileInputRef.current?.click()}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#10241e]/20 bg-white hover:bg-[#f3f4ee] text-[#10241e] px-5 py-3 text-sm font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border-2 border-[#0b0f0d] bg-white hover:bg-[#ffe500] text-[#0b0f0d] px-5 py-2.5 text-sm font-black shadow-[3px_3px_0px_#0b0f0d] transition-all cursor-pointer disabled:opacity-50"
         >
-          <Upload className="size-4 text-[#10241e]" />
+          <Upload className="size-4 text-[#0b0f0d]" />
           Choose Another Video
         </button>
 
         <button
           type="button"
           onClick={resetState}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#10241e]/20 bg-white hover:bg-[#f3f4ee] text-[#10241e] px-5 py-3 text-sm font-bold shadow-xs transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-lg border-2 border-[#0b0f0d] bg-white hover:bg-[#ffe500] text-[#0b0f0d] px-5 py-2.5 text-sm font-black shadow-[3px_3px_0px_#0b0f0d] transition-all cursor-pointer"
         >
           <RotateCcw className="size-4" />
           Reset
@@ -865,7 +930,9 @@ export function JobVideoCleaner() {
           onClick={toggleManual}
           disabled={isProcessing}
           aria-pressed={manual}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#10241e]/20 bg-white px-5 py-3 text-sm font-bold text-[#10241e] hover:bg-[#f3f4ee] disabled:opacity-50"
+          className={`inline-flex items-center gap-2 rounded-lg border-2 border-[#0b0f0d] px-5 py-2.5 text-sm font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] disabled:opacity-50 cursor-pointer transition-all ${
+            manual ? "bg-[#a8e6cf]" : "bg-white hover:bg-[#a8e6cf]"
+          }`}
         >
           {manual ? "Close manual position" : "Manual position"}
         </button>
@@ -882,30 +949,47 @@ export function JobVideoCleaner() {
                   selection[2] > 0.35 ||
                   selection[3] > 0.35))
             }
-            onClick={() => void handleProcess(manual ? (selection ?? undefined) : undefined)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
+            onClick={() => {
+              accountRequestKey.current = crypto.randomUUID();
+              void handleProcess(manual ? (selection ?? undefined) : undefined);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] px-8 py-3 text-sm sm:text-base font-black uppercase tracking-wide transition-all cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <>
-                <span className="size-4 border-2 border-[#d0f471] border-t-transparent rounded-full animate-spin" />
+                <span className="size-4 border-2 border-[#0b0f0d] border-t-transparent rounded-full animate-spin" />
                 <span>Removing Watermark...</span>
               </>
             ) : (
               <>
-                <Sparkles className="size-4 text-[#d0f471]" />
+                <Sparkles className="size-4 text-[#0b0f0d]" />
                 <span>Remove Watermark</span>
               </>
             )}
           </button>
         ) : (
-          <a
-            href={cleanUrl || "#"}
-            download={`cleaned-${file.name.replace(/\.[^/.]+$/, "")}.mp4`}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#10241e] hover:bg-[#18362d] text-[#d0f471] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition-all cursor-pointer"
-          >
-            <Download className="size-4" />
-            <span>Download Processed MP4</span>
-          </a>
+          <>
+            <button
+              type="button"
+              disabled={isProcessing}
+              onClick={() => {
+                accountRequestKey.current = crypto.randomUUID();
+                void handleProcess();
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#0b0f0d] bg-[#f7f5ee] hover:bg-[#ffe500] text-[#0b0f0d] px-5 py-2.5 text-sm font-black shadow-[3px_3px_0px_#0b0f0d] transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Sparkles className="size-4 text-[#0b0f0d]" />
+              <span>Re-process</span>
+            </button>
+            <a
+              href={cleanUrl || "#"}
+              download={`cleaned-${file.name.replace(/\.[^/.]+$/, "")}.mp4`}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] px-8 py-3 text-sm sm:text-base font-black uppercase tracking-wide transition-all cursor-pointer"
+            >
+              <Download className="size-4" />
+              <span>Download Processed MP4</span>
+            </a>
+          </>
         )}
       </div>
 

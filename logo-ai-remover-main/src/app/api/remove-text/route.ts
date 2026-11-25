@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(`${workerUrl}/api/image/remove-text`, {
       method: "POST",
       body: formData,
+      signal: req.signal,
     });
 
     if (!response.ok) {
@@ -29,14 +30,19 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "no-store",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API /api/remove-text proxy error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Text removal worker error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Text removal worker error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 }

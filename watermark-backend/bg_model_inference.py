@@ -75,6 +75,7 @@ def predict_foreground_mask(session, image: Image.Image, model: str,
         'raw_mask': raw_stats, 'normalized_mask': mask_statistics(normalized),
         'restored_mask': mask_statistics(np.asarray(mask)),
         'providers': runtime.get_providers() if hasattr(runtime, 'get_providers') else [],
+        'normalized_float': normalized,
     }
     logger.info('Inference mask diagnostics %s: %s', model, diagnostics)
     if debug_dir is not None:

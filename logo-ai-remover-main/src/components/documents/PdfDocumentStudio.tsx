@@ -233,17 +233,17 @@ export function PdfDocumentStudio() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f3f4ee] text-[#10241e]">
+    <main className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d]">
       <section className="px-4 pb-20 pt-12 sm:pt-16">
         <div className="mx-auto max-w-6xl">
           <header className="mx-auto mb-10 max-w-3xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#10241e]/15 bg-white px-4 py-1.5 text-xs font-bold">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-md border-2 border-[#0b0f0d] bg-[#ffe500] px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
               <FileText className="size-3.5" /> Bellix PDF Watermark Remover
             </div>
-            <h1 className="text-4xl font-bold tracking-[-0.045em] sm:text-6xl">
+            <h1 className="text-4xl font-black tracking-[-0.04em] sm:text-6xl text-[#0b0f0d]">
               A clean PDF, without rebuilding the page.
             </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#5d6c62] sm:text-lg">
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#1f2924] font-medium sm:text-lg">
               Bellix inspects each page, removes supported watermark objects automatically, and lets
               you verify the real processed PDF before downloading it.
             </p>
@@ -261,7 +261,7 @@ export function PdfDocumentStudio() {
             }}
           />
 
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-[28px] border border-[#10241e]/15 bg-white shadow-[0_24px_70px_rgba(16,36,30,.10)]">
+          <div className="mx-auto max-w-5xl overflow-hidden rounded-xl border-[3px] border-[#0b0f0d] bg-white shadow-[8px_8px_0px_#0b0f0d]">
             {state === "EMPTY" && (
               <button
                 type="button"
@@ -277,23 +277,23 @@ export function PdfDocumentStudio() {
                   const file = event.dataTransfer.files[0];
                   if (file) void upload(file);
                 }}
-                className={`m-5 flex min-h-[420px] w-[calc(100%-2.5rem)] cursor-pointer flex-col items-center justify-center rounded-[22px] border-2 border-dashed p-8 transition sm:m-8 sm:w-[calc(100%-4rem)] ${
+                className={`m-5 flex min-h-[420px] w-[calc(100%-2.5rem)] cursor-pointer flex-col items-center justify-center rounded-xl border-[3px] border-dashed p-8 transition sm:m-8 sm:w-[calc(100%-4rem)] ${
                   dragging
-                    ? "border-[#10241e] bg-[#eef7d7]"
-                    : "border-[#10241e]/20 bg-[#fafbf7] hover:border-[#10241e]/50"
+                    ? "border-[#0b0f0d] bg-[#d0f471]"
+                    : "border-[#0b0f0d] bg-[#f7f5ee] hover:bg-[#eef7d7]"
                 }`}
               >
-                <span className="grid size-20 place-items-center rounded-3xl bg-[#10241e] text-[#d0f471] shadow-xl">
+                <span className="grid size-20 place-items-center rounded-xl bg-[#d0f471] text-[#0b0f0d] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
                   <Upload className="size-9" />
                 </span>
-                <span className="mt-6 text-2xl font-bold sm:text-3xl">Drop your PDF here</span>
-                <span className="mt-2 text-sm text-[#68756c]">
+                <span className="mt-6 text-2xl font-black sm:text-3xl text-[#0b0f0d]">Drop your PDF here</span>
+                <span className="mt-2 text-sm text-[#1f2924] font-medium">
                   or choose a file from your device
                 </span>
-                <span className="mt-6 rounded-xl bg-[#d0f471] px-7 py-3.5 text-sm font-bold text-[#10241e]">
+                <span className="mt-6 rounded-lg bg-[#d0f471] border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] px-7 py-3.5 text-sm font-black uppercase tracking-wide text-[#0b0f0d]">
                   Upload PDF
                 </span>
-                <span className="mt-5 text-xs text-[#7a857d]">
+                <span className="mt-5 text-xs text-[#37433d] font-bold">
                   PDF only · up to 50 MB · up to 25 pages
                 </span>
               </button>
@@ -303,13 +303,13 @@ export function PdfDocumentStudio() {
               <div className="grid min-h-[420px] place-items-center p-8">
                 {state === "ERROR" ? (
                   <div className="max-w-md text-center" role="alert">
-                    <X className="mx-auto size-10 text-rose-600" />
-                    <h2 className="mt-4 text-xl font-bold">This PDF could not be opened</h2>
-                    <p className="mt-2 text-sm leading-6 text-[#68756c]">{error}</p>
+                    <X className="mx-auto size-10 text-[#ff5c5c]" />
+                    <h2 className="mt-4 text-xl font-black text-[#0b0f0d]">This PDF could not be opened</h2>
+                    <p className="mt-2 text-sm leading-6 text-[#1f2924] font-medium">{error}</p>
                     <button
                       type="button"
                       onClick={reset}
-                      className="mt-6 rounded-xl bg-[#10241e] px-6 py-3 text-sm font-bold text-white"
+                      className="mt-6 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] px-6 py-3 text-sm font-black text-[#0b0f0d] cursor-pointer"
                     >
                       Choose another PDF
                     </button>

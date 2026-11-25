@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npm --prefix logo-ai-remover-main run dev",
+    "worker": "npm --prefix logo-ai-remover-main run worker",
+    "dev:all": "npm --prefix logo-ai-remover-main run dev:all",
     "backend": "cd watermark-backend && run_backend.bat",
     "build": "cd logo-ai-remover-main && npm install && npm run build && node -e \"const fs = require('fs'); if (fs.existsSync('.next')) { fs.cpSync('.next', '../.next', { recursive: true }); }\"",
     "start": "cd logo-ai-remover-main && npm run start"

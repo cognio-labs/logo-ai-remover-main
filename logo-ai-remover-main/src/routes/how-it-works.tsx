@@ -126,34 +126,35 @@ export default function HowItWorksPage() {
   const currentStage = stages[activeStage];
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-900 font-sans pb-24">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d] font-sans pb-24">
       {/* 1. HERO SECTION */}
-      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#FFF5F8] via-white to-white text-center">
+      <section className="pt-16 pb-14 px-4 sm:px-6 lg:px-8 bg-white border-b-[3px] border-[#0b0f0d] text-center">
         <div className="mx-auto max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48] shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] font-mono uppercase">
             <Cpu className="size-3.5" />
             <span>Behind The Scenes • Neural Architecture</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-semibold text-gray-950 tracking-tight">
+          <h1 className="text-4xl sm:text-6xl font-black text-[#0b0f0d] tracking-tight">
             How Bellix.us{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+            <span className="inline-block px-3 py-0.5 rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
               Restores Every Frame
             </span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 font-normal leading-relaxed">
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#26302b] font-semibold leading-relaxed">
             Unlike legacy tools that simply blur or smudge marked pixels, Bellix.us employs a
             four-stage spatio-temporal pipeline that reconstructs true underlying texture.
           </p>
 
           <div className="pt-4 flex items-center justify-center gap-4">
-            <PinkButton size="lg" className="font-bold shadow-md" asChild>
-              <Link to="/gemini-video-watermark-remover">
-                <Video className="size-4 mr-2" />
-                <span>Test With Your Video</span>
-              </Link>
-            </PinkButton>
+            <Link
+              to="/gemini-video-watermark-remover"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] font-black text-sm border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]"
+            >
+              <Video className="size-4" />
+              <span>Test With Your Video</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -161,10 +162,10 @@ export default function HowItWorksPage() {
       {/* 2. THE 4-STAGE PIPELINE INTERACTIVE SELECTOR */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto py-12">
         <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-4xl font-serif font-normal text-gray-950">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#0b0f0d]">
             The 4-Stage Spatio-Temporal Pipeline
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-[#26302b] font-medium mt-1">
             Click each stage to inspect the technical process and neural execution.
           </p>
         </div>
@@ -175,16 +176,17 @@ export default function HowItWorksPage() {
             <button
               key={st.step}
               onClick={() => setActiveStage(i)}
-              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${activeStage === i
-                ? "bg-white border-2 border-[#E11D48] shadow-md shadow-rose-100 ring-2 ring-[#FFF1F4]"
-                : "bg-[#FFFDFC] border-[#FCE7EC] hover:bg-white hover:border-[#FDA4AF]"
-                }`}
+              className={`p-4 rounded-xl border-2 border-[#0b0f0d] text-left transition-all cursor-pointer ${
+                activeStage === i
+                  ? "bg-[#d0f471] shadow-[4px_4px_0px_#0b0f0d]"
+                  : "bg-white hover:bg-[#ffe500] shadow-[2px_2px_0px_#0b0f0d]"
+              }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-semibold text-[#E11D48]">{st.step}</span>
-                {activeStage === i && <span className="size-2 rounded-full bg-[#E11D48]" />}
+                <span className="text-xs font-mono font-black text-[#0b0f0d]">{st.step}</span>
+                {activeStage === i && <span className="size-2.5 rounded-full bg-[#0b0f0d]" />}
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-950 leading-snug">
+              <h4 className="text-xs sm:text-sm font-black text-[#0b0f0d] leading-snug">
                 {st.title}
               </h4>
             </button>
@@ -192,53 +194,53 @@ export default function HowItWorksPage() {
         </div>
 
         {/* Active Stage Deep-Dive Card */}
-        <div className="rounded-3xl p-8 sm:p-10 bg-[#FFF8FA] border border-[#FCE7EC] shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div className="rounded-xl p-8 sm:p-10 bg-white border-[2.5px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d] grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-7 space-y-4 text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#FCE7EC] text-xs font-bold text-[#E11D48]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d]">
               {currentStage.icon}
               <span>{currentStage.badge}</span>
             </div>
 
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-950">{currentStage.title}</h3>
+            <h3 className="text-2xl sm:text-3xl font-black text-[#0b0f0d]">{currentStage.title}</h3>
 
-            <p className="text-sm text-gray-700 leading-relaxed font-normal">
+            <p className="text-sm text-[#26302b] leading-relaxed font-medium">
               {currentStage.summary}
             </p>
 
-            <div className="space-y-2 pt-2 text-xs text-gray-600">
+            <div className="space-y-2 pt-2 text-xs text-[#0b0f0d] font-bold">
               {currentStage.details.map((d, idx) => (
                 <div key={idx} className="flex items-start gap-2">
-                  <CheckCircle2 className="size-4 text-green-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="size-4 text-[#0b0f0d] shrink-0 mt-0.5" />
                   <span>{d}</span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[#FCE7EC] flex items-center gap-2">
-              <span className="text-xs text-gray-400 uppercase font-mono font-bold">
+            <div className="pt-4 border-t-2 border-[#0b0f0d] flex flex-wrap items-center gap-2">
+              <span className="text-xs text-[#26302b] uppercase font-mono font-black">
                 Neural Engine:
               </span>
-              <span className="text-xs font-mono font-bold text-[#E11D48] bg-white px-2.5 py-1 rounded-lg border border-[#FCE7EC]">
+              <span className="text-xs font-mono font-black text-[#0b0f0d] bg-[#d0f471] px-2.5 py-1 rounded border-2 border-[#0b0f0d]">
                 {currentStage.techSpec}
               </span>
             </div>
           </div>
 
           <div className="md:col-span-5">
-            <div className="rounded-2xl bg-white border border-[#FCE7EC] p-4 shadow-sm space-y-3">
-              <div className="text-xs font-bold text-gray-800 flex items-center justify-between">
+            <div className="rounded-xl bg-[#f7f5ee] border-2 border-[#0b0f0d] p-4 shadow-[4px_4px_0px_#0b0f0d] space-y-3">
+              <div className="text-xs font-black text-[#0b0f0d] flex items-center justify-between">
                 <span>Real-Time Stage Output</span>
-                <span className="text-green-600 font-mono text-[11px]">0.42s Latency</span>
+                <span className="bg-[#d0f471] px-2 py-0.5 rounded border border-[#0b0f0d] font-mono text-[11px]">0.42s Latency</span>
               </div>
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-black">
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-black border-2 border-[#0b0f0d]">
                 <img
                   src="/hero-after-clean.png"
                   alt="Stage Result"
                   className="size-full object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-white text-xs">
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 to-transparent text-white text-xs">
                   <span className="font-bold">Active Pass: </span>
-                  <span className="font-mono text-rose-200">{currentStage.title}</span>
+                  <span className="font-mono text-[#d0f471]">{currentStage.title}</span>
                 </div>
               </div>
             </div>
@@ -249,16 +251,16 @@ export default function HowItWorksPage() {
       {/* 3. INTERACTIVE BEFORE & AFTER SLIDER SHOWCASE */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
         <div className="space-y-3 mb-8">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0b0f0d]">
             Inspect the Reconstruction Quality
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-[#26302b] font-medium max-w-xl mx-auto">
             Drag the handle to compare original watermarked media with the four-stage AI cleaned
             output.
           </p>
         </div>
 
-        <div className="rounded-3xl p-3 sm:p-4 bg-white border border-[#FCE7EC] shadow-[0_20px_50px_-15px_rgba(225,29,72,0.18)]">
+        <div className="rounded-xl p-3 sm:p-4 bg-white border-[2.5px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d]">
           <BeforeAfterSlider
             beforeSrc="/creative-suite/watermark_remover_city.jpg"
             src="/creative-suite/upscaler_macro_8k.jpg"
@@ -272,8 +274,8 @@ export default function HowItWorksPage() {
       {/* 4. SUPPORTED FORMATS GRID */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center mb-10 space-y-2">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">Supported Media Formats</h2>
-          <p className="text-xs sm:text-sm text-gray-600">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0b0f0d]">Supported Media Formats</h2>
+          <p className="text-xs sm:text-sm text-[#26302b] font-medium">
             Upload from mobile, desktop, studio cameras, or web exports with full container support.
           </p>
         </div>
@@ -282,15 +284,15 @@ export default function HowItWorksPage() {
           {formats.map((f) => (
             <div
               key={f.ext}
-              className="p-5 rounded-2xl bg-[#FFF8FA] border border-[#FCE7EC] hover:border-[#FDA4AF] transition-all space-y-1.5 text-left"
+              className="p-5 rounded-xl bg-white border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] space-y-1.5 text-left"
             >
               <div className="flex items-center justify-between">
-                <span className="text-base font-semibold font-mono text-[#E11D48]">{f.ext}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-md bg-white font-bold text-gray-500 border border-gray-100">
+                <span className="text-base font-black font-mono text-[#0b0f0d]">{f.ext}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[#ffe500] font-black text-[#0b0f0d] border border-[#0b0f0d]">
                   {f.type}
                 </span>
               </div>
-              <p className="text-xs text-gray-600 leading-snug">{f.desc}</p>
+              <p className="text-xs text-[#26302b] font-medium leading-snug">{f.desc}</p>
             </div>
           ))}
         </div>
@@ -298,27 +300,27 @@ export default function HowItWorksPage() {
 
       {/* 5. BEST PRACTICES GUIDE */}
       <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        <div className="rounded-3xl p-8 bg-white border-2 border-[#FCE7EC] space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-            <Zap className="size-6 text-[#E11D48]" />
+        <div className="rounded-xl p-8 bg-white border-[2.5px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d] space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b-2 border-[#0b0f0d]">
+            <Zap className="size-6 text-[#0b0f0d]" />
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Pro Tips for Flawless Results</h3>
-              <p className="text-xs text-gray-500">How to get the highest visual fidelity</p>
+              <h3 className="text-lg font-black text-[#0b0f0d]">Pro Tips for Flawless Results</h3>
+              <p className="text-xs font-medium text-[#26302b]">How to get the highest visual fidelity</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-gray-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-[#0b0f0d]">
             <div className="space-y-1.5">
-              <h4 className="font-bold text-gray-900">1. Upload Highest Native Resolution</h4>
-              <p className="text-gray-500 leading-relaxed">
+              <h4 className="font-black text-[#0b0f0d]">1. Upload Highest Native Resolution</h4>
+              <p className="text-[#26302b] font-medium leading-relaxed">
                 Whenever possible, provide uncompressed 1080p or 4K files. The more surrounding
                 pixel detail available, the sharper the inpainting texture will be.
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <h4 className="font-bold text-gray-900">2. Continuous Frame Continuity</h4>
-              <p className="text-gray-500 leading-relaxed">
+              <h4 className="font-black text-[#0b0f0d]">2. Continuous Frame Continuity</h4>
+              <p className="text-[#26302b] font-medium leading-relaxed">
                 Ensure your video clip has at least 1-2 seconds of smooth camera motion around the
                 watermark area to allow our optical flow model to synthesize background data.
               </p>
@@ -328,24 +330,28 @@ export default function HowItWorksPage() {
       </section>
 
       {/* 6. BOTTOM CTA */}
-      <section className="py-16 text-center">
-        <div className="max-w-xl mx-auto space-y-4 px-4">
-          <h2 className="text-3xl font-serif font-normal text-gray-950">
+      <section className="py-16 text-center px-4">
+        <div className="max-w-xl mx-auto space-y-4 px-6 py-10 rounded-xl bg-[#ffe500] border-[3px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d]">
+          <h2 className="text-3xl font-black text-[#0b0f0d]">
             Experience the neural difference
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600">
+          <p className="text-xs sm:text-sm font-semibold text-[#0b0f0d]">
             Remove watermarks from your first video or photo right now.
           </p>
-          <div className="pt-2 flex items-center justify-center gap-4">
-            <PinkButton size="lg" className="font-bold shadow-md" asChild>
-              <Link to="/gemini-video-watermark-remover">
-                <span>Start Video Remover</span>
-                <ArrowRight className="size-4 ml-1.5" />
-              </Link>
-            </PinkButton>
-            <PinkButton variant="outline" size="lg" className="font-bold" asChild>
-              <Link to="/background-remover">Background Remover</Link>
-            </PinkButton>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/gemini-video-watermark-remover"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#d0f471] hover:bg-white text-[#0b0f0d] font-black text-sm border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]"
+            >
+              <span>Start Video Remover</span>
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              to="/background-remover"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white hover:bg-[#a8e6cf] text-[#0b0f0d] font-black text-sm border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]"
+            >
+              Background Remover
+            </Link>
           </div>
         </div>
       </section>

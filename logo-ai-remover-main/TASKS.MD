@@ -58,3 +58,5 @@ Completing this documentation setup does not complete the product backlog.
 - [ ] BG-QUALITY follow-up (2026-11-23): Review all 20 source/raw-alpha/final-alpha/PNG fixtures from tools/review_bg_quality.py before production. Evaluate model limitations on graphics, selective edge matting/decontamination and image-type selection. No professional-quality equivalence established. Preserve original RGB by default; color decontamination needs explicit, tested edge-only behavior.
 
 - [ ] BG-MODEL-COMPARISON: Complete paired BiRefNet category evaluation on sufficient memory/CUDA hardware. Current corrected Lite/General runs fail decoder allocation; do not claim visual pass. Auto authored-alpha logo preservation is verified; opaque graphics, scene remnants, glass and fine fur remain unapproved. Detailed evidence: watermark-backend/BACKGROUND_QUALITY_REPORT.md.
+
+- [ ] Review the exact original clips from the reported video screenshots when available. The local regression artifacts and verified format coverage are documented in watermark-backend/VIDEO_AUDIT.md.

@@ -268,7 +268,7 @@ function GuideArtwork({ visual }: { visual: GuideVisual }) {
       <div className="guide-corner guide-corner-c" /><div className="guide-corner guide-corner-d" />
       <span className="guide-upload-icon">{isVideo ? <Video aria-hidden="true" /> : <Upload aria-hidden="true" />}</span>
       <p>{isVideo ? "Drop a Gemini or Veo video" : isGeminiImage ? "Drop your Gemini AI image" : "Drop your image here"}</p>
-      <small>or paste directly with <kbd>Ctrl+V</kbd> / <kbd>Cmd+V</kbd></small>
+      <small><kbd>Ctrl+V</kbd> / <kbd>Cmd+V</kbd></small>
       <div className="guide-upload-actions">
         <span className="guide-faux-button">{isVideo ? "Browse Video" : "Choose image"}</span>
         {(isVideo || isGeminiImage) && <span className="guide-faux-button is-secondary">Paste</span>}

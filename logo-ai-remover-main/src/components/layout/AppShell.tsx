@@ -38,9 +38,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ScrollToTop />
       <AuthSessionSync />
-      <div className="flex min-h-screen flex-col bg-[#f3f4ee] text-[#10241e] relative overflow-x-hidden w-full max-w-full">
+      <div className="flex min-h-screen flex-col bg-[#f7f5ee] text-[#0b0f0d] relative overflow-x-hidden w-full max-w-full">
         <Navbar />
-        <main className="flex-1 w-full overflow-x-hidden bg-[#f3f4ee]">{children}</main>
+        <main className="flex-1 w-full overflow-x-hidden bg-[#f7f5ee] text-[#0b0f0d]">{children}</main>
         <Footer />
         <Toaster richColors position="top-right" />
       </div>

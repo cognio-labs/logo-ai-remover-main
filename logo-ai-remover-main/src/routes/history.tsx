@@ -21,7 +21,6 @@ import {
   Layers,
   ArrowRight,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useUserStore, JobItem } from "@/lib/userStore";
 import { getMediaBlob } from "@/lib/historyDb";
 import { toast } from "sonner";
@@ -59,7 +58,7 @@ const TOOL_CONFIGS: Record<string, ToolMeta> = {
     badgeBg: "bg-emerald-500/10",
     badgeText: "text-emerald-700",
     badgeBorder: "border-emerald-500/25",
-    tabLabel: "🪄 Background Remover",
+    tabLabel: "Background Remover",
     gradient: "from-emerald-500/20 to-lime-500/20",
   },
   image: {
@@ -79,7 +78,7 @@ const TOOL_CONFIGS: Record<string, ToolMeta> = {
     badgeBg: "bg-cyan-500/10",
     badgeText: "text-cyan-700",
     badgeBorder: "border-cyan-500/25",
-    tabLabel: "🎬 Video Cleaner",
+    tabLabel: "Video Cleaner",
     gradient: "from-cyan-500/20 to-blue-500/20",
   },
   upscale: {
@@ -109,9 +108,9 @@ function getToolConfig(fileType: string, toolName?: string): ToolMeta {
 
 const TABS = [
   { id: "all", label: "All Assets" },
-  { id: "background-remover", label: "🪄 Background Remover" },
+  { id: "background-remover", label: "Background Remover" },
   { id: "image", label: "Image Cleaner" },
-  { id: "video", label: "🎬 Video Cleaner" },
+  { id: "video", label: "Video Cleaner" },
 ] as const;
 
 function HistoryCard({
@@ -160,12 +159,12 @@ function HistoryCard({
   }, [item.id, item.thumbnail_url]);
 
   return (
-    <div className="group rounded-3xl bg-white border border-[#10241e]/12 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#10241e]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+    <div className="group rounded-xl bg-white border-[2.5px] border-[#0b0f0d] overflow-hidden shadow-[5px_5px_0px_#0b0f0d] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_#0b0f0d] transition-all duration-150 flex flex-col justify-between">
       <div>
         {/* Top Bar inside Card: Tool Badge & Status */}
-        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-[#10241e]/6 bg-[#fbfcf8]">
+        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b-2 border-[#0b0f0d] bg-[#f7f5ee]">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${tool.badgeBg} ${tool.badgeText} ${tool.badgeBorder} shadow-2xs`}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ffe500] text-[#0b0f0d] text-[11px] font-black border-2 border-[#0b0f0d]"
             title={`Processed with ${tool.name}`}
           >
             <ToolIcon className="size-3.5 shrink-0" />
@@ -173,26 +172,26 @@ function HistoryCard({
           </span>
 
           <span
-            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "completed"
-              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-black border-2 border-[#0b0f0d] ${item.status === "completed"
+              ? "bg-[#d0f471] text-[#0b0f0d]"
               : item.status === "processing"
-                ? "bg-amber-50 text-amber-700 border border-amber-200"
-                : "bg-rose-50 text-rose-700 border border-rose-200"
+                ? "bg-[#ffe500] text-[#0b0f0d]"
+                : "bg-[#ff5c5c] text-white"
               }`}
           >
             {item.status === "completed" ? (
               <>
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="size-1.5 rounded-full bg-[#0b0f0d]" />
                 <span>Ready</span>
               </>
             ) : item.status === "processing" ? (
               <>
-                <span className="size-1.5 rounded-full bg-amber-500 animate-spin" />
+                <span className="size-1.5 rounded-full bg-[#0b0f0d] animate-spin" />
                 <span>Processing</span>
               </>
             ) : (
               <>
-                <AlertCircle className="size-3 text-rose-500" />
+                <AlertCircle className="size-3" />
                 <span>Failed</span>
               </>
             )}
@@ -419,19 +418,19 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f4ee] text-[#10241e] font-sans py-12 sm:py-20 px-4 sm:px-6 lg:px-8 pb-32">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d] font-sans py-12 sm:py-20 px-4 sm:px-6 lg:px-8 pb-32">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#10241e]/15 text-xs font-bold text-[#10241e] shadow-xs">
-              <Clock className="size-3.5 text-[#10241e]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] text-xs font-black text-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] font-mono">
+              <Clock className="size-3.5 text-[#0b0f0d]" />
               <span>Cloud Project Archive &amp; Studio Assets</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-[#10241e] tracking-tight">
+            <h1 className="text-3xl sm:text-5xl font-black text-[#0b0f0d] tracking-tight">
               Project History
             </h1>
-            <p className="text-sm sm:text-base text-[#47574f] max-w-2xl">
+            <p className="text-sm sm:text-base text-[#26302b] font-medium max-w-2xl">
               Search, inspect, and re-download your clean AI transparent cutouts, watermark-free images, and clean videos.
             </p>
           </div>
@@ -441,7 +440,7 @@ export default function HistoryPage() {
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 transition-all cursor-pointer shadow-xs hover:border-rose-300"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-black bg-[#ff5c5c] hover:bg-red-600 text-white border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] transition-all cursor-pointer"
                 title="Clear all project history"
               >
                 <Trash2 className="size-3.5" />
@@ -451,27 +450,27 @@ export default function HistoryPage() {
 
             <Link
               to="/background-remover"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all hover:scale-105 cursor-pointer"
-              style={{ backgroundColor: "#d0f471", color: "#071A13" }}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs sm:text-sm font-black bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d] transition-all cursor-pointer"
             >
-              <Sparkles className="size-4 text-[#071A13]" />
-              <span className="font-bold text-[#071A13]">Clean New File</span>
+              <Sparkles className="size-4 text-[#0b0f0d]" />
+              <span>Clean New File</span>
             </Link>
           </div>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 rounded-3xl bg-white border border-[#10241e]/12 shadow-sm">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d]">
           {/* Tabs */}
-          <div className="flex items-center gap-1.5 bg-[#f3f4ee] p-1.5 rounded-2xl border border-[#10241e]/10 w-full lg:w-auto overflow-x-auto">
+          <div className="flex items-center gap-2 bg-[#f7f5ee] p-1.5 rounded-lg border-2 border-[#0b0f0d] w-full lg:w-auto overflow-x-auto">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${tab === t.id
-                  ? "bg-[#10241e] text-[#d0f471] shadow-sm"
-                  : "text-[#47574f] hover:text-[#10241e] hover:bg-white/50"
-                  }`}
+                className={`px-4 py-2 rounded-md text-xs font-black whitespace-nowrap border-2 transition-all cursor-pointer ${
+                  tab === t.id
+                    ? "bg-[#d0f471] text-[#0b0f0d] border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d]"
+                    : "border-transparent text-[#26302b] hover:text-[#0b0f0d] hover:bg-white"
+                }`}
               >
                 {t.label}
               </button>
@@ -480,22 +479,26 @@ export default function HistoryPage() {
 
           {/* Search Bar + Asset Count */}
           <div className="flex items-center gap-3 w-full lg:w-auto">
-            <span className="text-xs font-bold text-[#637069] hidden sm:inline whitespace-nowrap">
+            <span className="text-xs font-black font-mono text-[#0b0f0d] hidden sm:inline whitespace-nowrap">
               {filtered.length} {filtered.length === 1 ? "asset" : "assets"} found
             </span>
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
-              <Input
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#0b0f0d] pointer-events-none z-10" />
+              <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by filename or tool..."
-                className="pl-10 h-10 rounded-2xl border-gray-200 text-xs bg-white text-[#10241e] focus:ring-2 focus:ring-[#10241e]/20 focus:border-[#10241e]"
+                style={{ paddingLeft: "2.75rem", paddingRight: "2.5rem" }}
+                className="search-input-field w-full h-10 rounded-lg border-2 border-[#0b0f0d] text-xs font-bold bg-white text-[#0b0f0d] placeholder:text-[#26302b]/60 shadow-[2px_2px_0px_#0b0f0d] transition-all"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#10241e] text-xs font-bold cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-5 flex items-center justify-center rounded text-[#0b0f0d] hover:bg-[#ffe500] text-xs font-black cursor-pointer transition-colors z-10"
+                  title="Clear search"
+                  aria-label="Clear search"
                 >
                   ✕
                 </button>
@@ -506,13 +509,13 @@ export default function HistoryPage() {
 
         {/* Empty State */}
         {filtered.length === 0 ? (
-          <div className="p-16 text-center rounded-3xl bg-white border border-[#10241e]/12 shadow-md space-y-5 max-w-2xl mx-auto">
-            <div className="size-20 rounded-3xl bg-[#10241e] text-[#d0f471] flex items-center justify-center mx-auto shadow-lg">
-              <Clock className="size-10 text-[#d0f471]" />
+          <div className="p-12 sm:p-16 text-center rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[6px_6px_0px_#0b0f0d] space-y-5 max-w-2xl mx-auto">
+            <div className="size-20 rounded-xl bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] text-[#0b0f0d] flex items-center justify-center mx-auto">
+              <Clock className="size-10 text-[#0b0f0d]" />
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-2xl font-bold text-[#10241e]">No files in project history</h3>
-              <p className="text-sm text-[#52645D]">
+              <h3 className="text-2xl font-black text-[#0b0f0d]">No files in project history</h3>
+              <p className="text-sm font-medium text-[#26302b]">
                 {search
                   ? `No assets match "${search}". Try clearing your search query.`
                   : "Upload an image or video to create your first clean transparent cutout or watermark-free media."}
@@ -521,16 +524,15 @@ export default function HistoryPage() {
             <div className="pt-2">
               <Link
                 to="/background-remover"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold shadow-md transition-all hover:scale-105 cursor-pointer"
-                style={{ backgroundColor: "#d0f471", color: "#071A13" }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-black bg-[#d0f471] hover:bg-[#ffe500] text-[#0b0f0d] border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] transition-all cursor-pointer"
               >
-                <Sparkles className="size-4 text-[#071A13]" />
-                <span className="font-bold text-[#071A13]">Open AI Background Studio</span>
+                <Sparkles className="size-4 text-[#0b0f0d]" />
+                <span>Open AI Background Studio</span>
               </Link>
             </div>
           </div>
         ) : (
-          /* Grid of Modern Luxury Cards */
+          /* Grid of Brutalist Asset Cards */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filtered.map((item) => (
               <HistoryCard

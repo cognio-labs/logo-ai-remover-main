@@ -21,8 +21,9 @@ def test_soft_alpha_rgb_and_dimensions_survive(monkeypatch):
     decoded = np.array(Image.open(io.BytesIO(result)))
     assert np.array_equal(decoded[:, :, :3], rgb)
     assert decoded.shape == (45, 73, 4)
-    # The refined foreground retains solid core and dimensions without corrupting RGB
-    assert np.all(decoded[15:30, 25:45, 3] == 255)
+    assert np.array_equal(decoded[:, :, 3], alpha)  # soft strands and real holes survive
+    assert decoded[20, 30, 3] == 0
+    assert decoded[21, 30, 3] == 255
     assert np.all(decoded[:5, :5, 3] == 0)
 
 
@@ -96,7 +97,7 @@ def test_explicit_graphics_preserves_authored_text_alpha(monkeypatch):
     assert meta['quality_pass'] is False
 
 
-def test_auto_mode_performs_neural_segmentation_with_existing_transparency(monkeypatch):
+def test_auto_mode_preserves_authored_transparency(monkeypatch):
     source = io.BytesIO()
     rgba = np.zeros((40, 83, 4), dtype=np.uint8)
     rgba[:, :, :3] = [12, 35, 100]
@@ -114,13 +115,14 @@ def test_auto_mode_performs_neural_segmentation_with_existing_transparency(monke
     monkeypatch.setattr(bg, 'predict_foreground_mask', lambda *a: (Image.fromarray(mask), {}))
 
     png, meta = bg.remove_background_pipeline(source.getvalue(), image_type='auto')
-    assert called, "Auto mode must perform neural segmentation even with existing transparency"
+    assert not called, "Authored alpha is authoritative in auto mode"
     decoded = np.asarray(Image.open(io.BytesIO(png)))
     # Existing transparent corner remains transparent
     assert np.all(decoded[:5, :5, 3] == 0)
     # Inside the mask, foreground is kept
     assert np.all(decoded[15:25, 25:55, 3] == 255)
-    assert meta['operation'] == 'neural-background-removal'
+    assert np.array_equal(decoded, rgba)
+    assert meta['operation'] == 'preserved-existing-transparency'
 
 
 def test_birefnet_failure_keeps_isnet_fallback(monkeypatch):
@@ -189,7 +191,8 @@ def test_pipeline_debug_artifacts_and_png_roundtrip(monkeypatch, tmp_path):
     png, meta = bg.remove_background_pipeline(source.getvalue(), save_debug=True)
     from pathlib import Path
     folder = Path(meta['debug_dir'])
-    for name in ['original.png', 'raw_mask.png', 'normalized_mask.png', 'refined_mask.png', 'final_output.png', 'diagnostics.json']:
+    for name in ['original.png', 'raw_mask.png', 'normalized_mask.png', 'restored_mask.png',
+                 'binary_candidate.png', 'refined_mask.png', 'matting_alpha.png', 'final_output.png', 'diagnostics.json']:
         assert (folder/name).is_file()
     result = Image.open(io.BytesIO(png))
     assert result.format == 'PNG' and result.mode == 'RGBA'

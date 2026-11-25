@@ -1,44 +1,30 @@
-/* Use whole class tokens so hover utilities and translucent tints do not
-   turn nearby light content into a dark surface. */
+/* Dark surface foreground helpers (excludes light Neo-Brutalism surfaces). */
 @scope (
-  .hero, .tools-section, .dark-section, .studio-hero, .studio-end, .final-cta, footer,
+  .dark-section, .studio-hero, .studio-end, .demo-section,
   [class~="bg-[#091712]"], [class~="bg-[#10241e]"], [class~="bg-[#10241E]"],
   [class~="bg-[#142e25]"], [class~="bg-[#18362d]"], [class~="bg-[#0d221a]"],
-  [class~="bg-[#0a1a13]"], [class~="bg-[#071a13]"]
+  [class~="bg-[#0a1a13]"], [class~="bg-[#071a13]"], [class~="bg-[#0b0f0d]"]
 ) to (
   .home-tool-guides, .home-tool-guide, .bg-white, .bg-card, .bg-background,
   [class~="bg-[#FFFFFF]"], [class~="bg-[#ffffff]"], [class~="bg-[#f3f4ee]"],
-  [class~="bg-[#f9faf7]"], [class~="bg-[#f4f5f0]"], [class~="bg-[#e9ece4]"],
-  [class~="bg-[#F5F5F5]"], [class~="bg-[#FAFAFA]"], [class~="bg-[#FFF8FA]"]
+  [class~="bg-[#f7f5ee]"], [class~="bg-[#f9faf7]"], [class~="bg-[#f4f5f0]"],
+  [class~="bg-[#e9ece4]"], [class~="bg-[#F5F5F5]"], [class~="bg-[#FAFAFA]"],
+  [class~="bg-[#FFF8FA]"], [class~="bg-[#d0f471]"], [class~="bg-[#ffe500]"],
+  [class~="bg-[#a8e6cf]"]
 ) {
   :scope {
     color: #f3f7ee;
   }
 
-  :is(h1, h2, h3, h4, h5, h6) {
-    color: #f5faef !important;
+  :is(h1, h2, h3, h4, h5, h6):not([class*="text-"]) {
+    color: #f5faef;
   }
 
   :is(h1, h2, h3, h4, h5, h6) em {
-    color: #d0f471 !important;
+    color: #d0f471;
   }
 
-  :is(p, li, label, dt, dd, small):not([class~="text-[#d0f471]"]) {
+  :is(p, li, label, dt, dd, small):not([class*="text-"]) {
     color: #dce8dd;
   }
-}
-
-/* Reinforce the foreground used by the layered homepage CTA. */
-.final-cta .cta-copy h2,
-.final-cta .cta-copy h2:first-line {
-  color: #f5faef !important;
-}
-
-.final-cta .cta-copy h2 em {
-  color: #d0f471 !important;
-}
-
-.final-cta .cta-copy > p,
-.final-cta .cta-reassurance {
-  color: #dce8dd;
 }

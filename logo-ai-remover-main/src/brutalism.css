@@ -1,0 +1,713 @@
+/* ==========================================================================
+   BELLIX.US — NEO-BRUTALISM UI SYSTEM
+   High-contrast ink (#0B0F0D), crisp cream paper (#F7F5EE), pure white cards,
+   acid lime (#D0F471), signal yellow (#FFE500), 2px-3px solid borders,
+   hard offset drop shadows, zero mushy contrast, zero cut-off text.
+   ========================================================================== */
+
+:root {
+  --brutal-paper: #f7f5ee;
+  --brutal-surface: #ffffff;
+  --brutal-ink: #0b0f0d;
+  --brutal-ink-soft: #26302b;
+  --brutal-lime: #d0f471;
+  --brutal-yellow: #ffe500;
+  --brutal-mint: #a8e6cf;
+  --brutal-coral: #ff5c5c;
+  --brutal-sky: #bae6fd;
+  --brutal-border: 2px solid #0b0f0d;
+  --brutal-border-thick: 3px solid #0b0f0d;
+  --brutal-shadow-sm: 3px 3px 0px #0b0f0d;
+  --brutal-shadow-md: 5px 5px 0px #0b0f0d;
+  --brutal-shadow-lg: 7px 7px 0px #0b0f0d;
+}
+
+/* Global canvas */
+html,
+body,
+#root,
+#__next {
+  background-color: var(--brutal-paper) !important;
+  color: var(--brutal-ink);
+  font-family: "DM Sans", var(--font-inter), sans-serif;
+}
+
+/* Brutalist utility helpers */
+.brutal-card {
+  background-color: #ffffff;
+  color: #0b0f0d;
+  border: 2.5px solid #0b0f0d;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px #0b0f0d;
+}
+
+.brutal-card-interactive {
+  background-color: #ffffff;
+  color: #0b0f0d;
+  border: 2.5px solid #0b0f0d;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px #0b0f0d;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+}
+
+.brutal-card-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px #0b0f0d;
+}
+
+.brutal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px solid #0b0f0d;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px #0b0f0d;
+  font-weight: 800;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  cursor: pointer;
+}
+
+.brutal-btn:hover:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #0b0f0d;
+}
+
+.brutal-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px #0b0f0d;
+}
+
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 2px solid #0b0f0d;
+  border-radius: 6px;
+  box-shadow: 2px 2px 0px #0b0f0d;
+  font-weight: 800;
+  color: #0b0f0d;
+}
+
+/* Form controls (inputs, textareas, selects) inside light pages */
+main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.gemini-workspace input),
+main textarea:not(.gemini-workspace textarea),
+main select:not(.gemini-workspace select) {
+  background-color: #ffffff;
+  color: #0b0f0d;
+  border: 2px solid #0b0f0d;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px #0b0f0d;
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+main textarea:focus,
+main select:focus {
+  outline: none;
+  box-shadow: 4px 4px 0px #0b0f0d;
+  background-color: #fffef5;
+}
+
+/* Global Details / Accordion brutalism styling */
+details {
+  border-radius: 8px;
+}
+
+/* ==========================================================================
+   HOME PAGE NEO-BRUTALISM OVERRIDES (.home-page)
+   Clean override on top of home-editorial.css so every section on / is crisp
+   Neo-Brutalism with 100% legible text and zero invisible hero elements.
+   ========================================================================== */
+
+.home-page {
+  background: var(--brutal-paper) !important;
+  color: var(--brutal-ink) !important;
+}
+
+.home-page .hero {
+  background: #f7f5ee !important;
+  color: #0b0f0d !important;
+  border-bottom: 3px solid #0b0f0d !important;
+  min-height: auto !important;
+  padding-top: 56px !important;
+  padding-bottom: 52px !important;
+}
+
+.home-page .hero:before,
+.home-page .hero:after,
+.home-page .hero-orbit {
+  display: none !important;
+}
+
+.home-page .hero::after {
+  content: "" !important;
+  display: block !important;
+  opacity: 0.07 !important;
+  background-image: radial-gradient(#0b0f0d 1.2px, transparent 1.2px) !important;
+  background-size: 20px 20px !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.home-page .hero h1 {
+  color: #0b0f0d !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.home-page .hero h1 em {
+  color: #0b0f0d !important;
+  background: #d0f471 !important;
+  padding: 0 10px 4px !important;
+  border: 2.5px solid #0b0f0d !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  display: inline-block !important;
+  font-style: normal !important;
+  font-family: inherit !important;
+  margin-top: 6px !important;
+}
+
+.home-page .hero .eyebrow,
+.home-page .hero .eyebrow-light {
+  color: #0b0f0d !important;
+  background: #ffe500 !important;
+  border: 2px solid #0b0f0d !important;
+  box-shadow: 3px 3px 0 #0b0f0d !important;
+  padding: 6px 12px !important;
+  width: fit-content !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  border-radius: 6px !important;
+}
+
+.home-page .hero .eyebrow-pip {
+  background: #0b0f0d !important;
+  box-shadow: none !important;
+}
+
+.home-page .hero-description {
+  color: #26302b !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+}
+
+.home-page .button,
+.home-page .button-lime,
+.home-page .button-outline-light,
+.home-page .button-dark {
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  min-height: 48px !important;
+  padding: 0 20px !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.home-page .button:hover {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 #0b0f0d !important;
+}
+
+.home-page .button-lime {
+  background: #d0f471 !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .button-outline-light {
+  background: #ffffff !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .button-dark {
+  background: #0b0f0d !important;
+  color: #d0f471 !important;
+}
+
+.home-page .hero-assurances {
+  color: #0b0f0d !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  gap: 10px !important;
+}
+
+.home-page .hero-assurances span {
+  background: #ffffff !important;
+  border: 2px solid #0b0f0d !important;
+  border-radius: 6px !important;
+  padding: 5px 10px !important;
+  box-shadow: 2px 2px 0 #0b0f0d !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .hero-assurances svg {
+  color: #0b0f0d !important;
+}
+
+.home-page .hero-art {
+  border: 3px solid #0b0f0d !important;
+  border-radius: 12px !important;
+  box-shadow: 8px 8px 0 #0b0f0d !important;
+}
+
+.home-page .hero-art-topline {
+  background: #0b0f0d !important;
+  color: #ffffff !important;
+  padding: 6px 12px !important;
+  border: 2px solid #d0f471 !important;
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+}
+
+.home-page .hero-art-note {
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  background: #ffffff !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .hero-art-note strong,
+.home-page .hero-art-note small {
+  color: #0b0f0d !important;
+}
+
+.home-page .hero-art-caption h2,
+.home-page .hero-art-caption .image-kicker {
+  color: #ffffff !important;
+}
+
+.home-page .hero-float-tag {
+  background: #ffe500 !important;
+  color: #0b0f0d !important;
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+.home-page .hero-side-label {
+  color: #0b0f0d !important;
+  font-weight: 700 !important;
+}
+
+.home-page .hero-bottomline {
+  border-top: 2.5px solid #0b0f0d !important;
+  color: #0b0f0d !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.home-page .hero-bottomline a {
+  color: #0b0f0d !important;
+  background: #d0f471 !important;
+  border: 2px solid #0b0f0d !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  box-shadow: 2px 2px 0 #0b0f0d !important;
+}
+
+/* Metrics Bar */
+.home-page .metrics-section {
+  background: #ffe500 !important;
+  border-bottom: 3px solid #0b0f0d !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .section-index {
+  color: #0b0f0d !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+}
+
+.home-page .metrics-intro p,
+.home-page .metrics-intro em,
+.home-page .metric-value,
+.home-page .metric-label,
+.home-page .metric-card small,
+.home-page .claim-note {
+  color: #0b0f0d !important;
+}
+
+.home-page .metrics-grid {
+  gap: 14px !important;
+}
+
+.home-page .metric-card {
+  background: #ffffff !important;
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 10px !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  padding: 16px !important;
+}
+
+.home-page .metric-icon {
+  color: #0b0f0d !important;
+}
+
+/* Showcase Section */
+.home-page .showcase-section h2,
+.home-page .workflow-intro h2,
+.home-page .benchmark-heading h2 {
+  color: #0b0f0d !important;
+  font-weight: 900 !important;
+}
+
+.home-page .section-heading h2 em,
+.home-page .workflow-intro h2 em,
+.home-page .benchmark-heading h2 em {
+  color: #0b0f0d !important;
+  background: #d0f471 !important;
+  padding: 0 8px !important;
+  border: 2px solid #0b0f0d !important;
+  font-style: normal !important;
+  font-family: inherit !important;
+}
+
+.home-page .showcase-card {
+  background: #ffffff !important;
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 10px !important;
+  box-shadow: 6px 6px 0 #0b0f0d !important;
+  padding: 14px !important;
+}
+
+.home-page .showcase-image {
+  border: 2px solid #0b0f0d !important;
+  border-radius: 6px !important;
+}
+
+.home-page .showcase-corner-icon {
+  border: 2px solid #0b0f0d !important;
+  background: #d0f471 !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .showcase-card-copy h3 {
+  color: #0b0f0d !important;
+  font-weight: 800 !important;
+}
+
+.home-page .showcase-card-copy p,
+.home-page .showcase-heading > p {
+  color: #26302b !important;
+  font-size: 13px !important;
+}
+
+/* Tools Directory Grid */
+.home-page .tools-section {
+  background: #a8e6cf !important;
+  color: #0b0f0d !important;
+  border-top: 3px solid #0b0f0d !important;
+  border-bottom: 3px solid #0b0f0d !important;
+}
+
+.home-page .tools-section:before {
+  display: none !important;
+}
+
+.home-page .tools-heading {
+  border-bottom: 2.5px solid #0b0f0d !important;
+}
+
+.home-page .tools-heading h2,
+.home-page .section-index-light,
+.home-page .tools-heading > p,
+.home-page .tool-group-heading .eyebrow,
+.home-page .tool-group-heading p,
+.home-page .group-count,
+.home-page .tool-note {
+  color: #0b0f0d !important;
+}
+
+.home-page .tools-heading h2 em {
+  background: #ffe500 !important;
+  color: #0b0f0d !important;
+  padding: 0 8px !important;
+  border: 2px solid #0b0f0d !important;
+  font-style: normal !important;
+  font-family: inherit !important;
+}
+
+.home-page .group-marker {
+  background: #ffffff !important;
+  color: #0b0f0d !important;
+  border: 2px solid #0b0f0d !important;
+  box-shadow: 2px 2px 0 #0b0f0d !important;
+  font-weight: 900 !important;
+}
+
+.home-page .group-marker-lime {
+  background: #d0f471 !important;
+}
+
+.home-page .tool-group + .tool-group {
+  border-top: 2.5px solid #0b0f0d !important;
+}
+
+.home-page .tool-grid {
+  border: none !important;
+  gap: 14px !important;
+}
+
+.home-page .tool-card {
+  background: #ffffff !important;
+  color: #0b0f0d !important;
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 10px !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease !important;
+}
+
+.home-page .tool-card:hover {
+  background: #ffe500 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0 #0b0f0d !important;
+}
+
+.home-page .tool-card-top,
+.home-page .tool-number,
+.home-page .tool-card h3,
+.home-page .tool-descriptor,
+.home-page .tool-model {
+  color: #0b0f0d !important;
+}
+
+.home-page .tool-card h3 {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+.home-page .tool-descriptor {
+  font-size: 12px !important;
+  color: #26302b !important;
+}
+
+.home-page .tool-model {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+}
+
+/* Workflow Section */
+.home-page .workflow-steps {
+  border-top: 2.5px solid #0b0f0d !important;
+}
+
+.home-page .workflow-step {
+  border-bottom: 2.5px solid #0b0f0d !important;
+}
+
+.home-page .step-icon {
+  background: #d0f471 !important;
+  color: #0b0f0d !important;
+  border: 2px solid #0b0f0d !important;
+  box-shadow: 2px 2px 0 #0b0f0d !important;
+  border-radius: 6px !important;
+}
+
+.home-page .step-number,
+.home-page .step-copy h3,
+.home-page .step-copy p,
+.home-page .step-copy a,
+.home-page .workflow-intro > p {
+  color: #0b0f0d !important;
+}
+
+.home-page .step-copy p,
+.home-page .workflow-intro > p {
+  color: #26302b !important;
+  font-size: 13px !important;
+}
+
+/* Interactive Demo Section on Home */
+.home-page .demo-section {
+  background: #0b0f0d !important;
+  color: #ffffff !important;
+  border-bottom: 3px solid #0b0f0d !important;
+}
+
+.home-page .demo-section:before {
+  display: none !important;
+}
+
+.home-page .demo-copy h2,
+.home-page .demo-lead,
+.home-page .demo-benefits,
+.home-page .demo-window-heading,
+.home-page .comparison-control label,
+.home-page .demo-disclaimer {
+  color: #ffffff !important;
+}
+
+.home-page .comparison-frame {
+  border: 3px solid #d0f471 !important;
+  border-radius: 10px !important;
+  box-shadow: 6px 6px 0 #d0f471 !important;
+}
+
+/* Benchmark Grid */
+.home-page .benchmark-grid {
+  border: none !important;
+  gap: 16px !important;
+}
+
+.home-page .benchmark-card {
+  background: #ffffff !important;
+  border: 2.5px solid #0b0f0d !important;
+  border-radius: 10px !important;
+  box-shadow: 5px 5px 0 #0b0f0d !important;
+  color: #0b0f0d !important;
+}
+
+.home-page .benchmark-card h3,
+.home-page .benchmark-card p,
+.home-page .benchmark-card-top,
+.home-page .benchmark-card-top span,
+.home-page .benchmark-arrow,
+.home-page .benchmark-foot,
+.home-page .benchmark-heading > div > p {
+  color: #0b0f0d !important;
+}
+
+/* Final CTA Section */
+.home-page .final-cta {
+  background: #ffe500 !important;
+  color: #0b0f0d !important;
+  border-top: 3px solid #0b0f0d !important;
+  border-bottom: 3px solid #0b0f0d !important;
+}
+
+.home-page .final-cta:before,
+.home-page .cta-orbit {
+  display: none !important;
+}
+
+.home-page .cta-copy h2,
+.home-page .cta-copy > p,
+.home-page .cta-reassurance,
+.home-page .cta-side-label .eyebrow,
+.home-page .cta-vertical-text {
+  color: #0b0f0d !important;
+}
+
+.home-page .cta-copy h2 em {
+  background: #0b0f0d !important;
+  color: #d0f471 !important;
+  padding: 0 10px !important;
+  font-style: normal !important;
+  font-family: inherit !important;
+}
+
+.home-page .cta-stamp {
+  background: #ffffff !important;
+  color: #0b0f0d !important;
+  border: 3px solid #0b0f0d !important;
+  box-shadow: 4px 4px 0 #0b0f0d !important;
+}
+
+.home-page .cta-stamp svg {
+  color: #0b0f0d !important;
+}
+
+/* /tools Directory Page */
+.tools-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 5rem;
+  color: #0b0f0d;
+}
+
+.tools-page > header {
+  background: #ffe500;
+  border: 3px solid #0b0f0d;
+  border-radius: 12px;
+  box-shadow: 6px 6px 0 #0b0f0d;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tools-page > header p {
+  font-family: "DM Mono", monospace;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: #0b0f0d;
+}
+
+.tools-page > header h1 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 900;
+  color: #0b0f0d;
+  margin: 0.4rem 0 0.75rem;
+}
+
+.tools-page > header span {
+  display: block;
+  max-width: 44rem;
+  color: #26302b;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.tools-page > input {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 1.25rem;
+}
+
+.tools-page > nav button.active {
+  background: #d0f471;
+  color: #0b0f0d;
+  border: 2px solid #0b0f0d;
+  box-shadow: 3px 3px 0 #0b0f0d;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.tools-page .tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.tools-page .tool-grid > a {
+  background: #ffffff;
+  border: 2.5px solid #0b0f0d;
+  border-radius: 12px;
+  box-shadow: 5px 5px 0 #0b0f0d;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: #0b0f0d;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.tools-page .tool-grid > a:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 #0b0f0d;
+}
+
+.tools-page .tool-grid > a img {
+  height: 190px;
+  border: 2px solid #0b0f0d;
+  border-radius: 8px;
+}
+
+.tools-page .tool-grid > a h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0b0f0d;
+}
+
+.tools-page .tool-grid > a p {
+  font-size: 0.9rem;
+  color: #26302b;
+  line-height: 1.5;
+}

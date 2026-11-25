@@ -1,19 +1,18 @@
 """
 text_remover.py — Precision Text and Object Removal Engine
 ==========================================================
-High-quality, local text and object inpainting for Bellix.us.
-- Accurately detects and segments text using morphological stroke analysis,
-  contour filtering, and bounding box localization.
-- Supports user-specified bounding boxes or mask brushes.
-- Reconstructs background seamlessly using Navier-Stokes edge preservation,
-  Telea fast marching, and texture grain matching without blurry patches.
-- 100% local, zero external paid APIs.
+Local text and object inpainting for explicit user selections.
+Uses existing LaMa weights when available, with OpenCV fallback. Morphological
+legacy proposals are not OCR and are never trusted as a semantic selection.
+Output quality depends on context; all unselected pixels stay unchanged.
 """
 from __future__ import annotations
 
 import io
 import json
 import logging
+import os
+from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 import cv2
@@ -21,6 +20,53 @@ import numpy as np
 from PIL import Image, ImageOps
 
 logger = logging.getLogger("text_remover")
+
+
+def inpaint_with_local_lama(image_bgr: np.ndarray, mask: np.ndarray) -> np.ndarray | None:
+    """Reuse installed LaMa weights; never download weights or modify outside selection.
+
+    The prediction works on a bounded contextual crop. Full-resolution original
+    pixels remain authoritative outside the exact mask, even when a large crop
+    needs to be scaled for neural inference.
+    """
+    default = Path(__file__).resolve().parents[1] / 'artifacts' / 'big-lama.pt'
+    weights = Path(os.getenv('LAMA_MODEL_PATH', str(default)))
+    if not weights.is_file() or not np.any(mask):
+        return None
+    try:
+        import torch
+        from lama_residual import _load, _inference_lock
+        ys, xs = np.where(mask > 0)
+        h, w = mask.shape
+        margin = max(48, min(256, int(max(xs.max()-xs.min(), ys.max()-ys.min()) * .35)))
+        x0, y0 = max(0, int(xs.min())-margin), max(0, int(ys.min())-margin)
+        x1, y1 = min(w, int(xs.max())+margin+1), min(h, int(ys.max())+margin+1)
+        crop = image_bgr[y0:y1, x0:x1]
+        selection = mask[y0:y1, x0:x1]
+        ch, cw = selection.shape
+        scale = min(1., 1024./max(ch,cw))
+        sw, sh = max(1, round(cw*scale)), max(1, round(ch*scale))
+        rgb = cv2.cvtColor(cv2.resize(crop, (sw,sh), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB)
+        small_mask = cv2.resize(selection, (sw,sh), interpolation=cv2.INTER_NEAREST) > 0
+        if not small_mask.any():
+            return None
+        padding = ((0, (-sh)%8), (0, (-sw)%8))
+        image_tensor = torch.from_numpy(np.ascontiguousarray(
+            np.pad(rgb, (*padding,(0,0)), mode='edge').transpose(2,0,1)[None], dtype=np.float32)/255.)
+        mask_tensor = torch.from_numpy(np.pad(small_mask.astype(np.float32), padding)[None,None])
+        with _inference_lock, torch.inference_mode():
+            model = _load(str(weights.resolve()))
+            prediction = model(image_tensor, mask_tensor)[0].permute(1,2,0).numpy()[:sh,:sw]
+        repaired = cv2.cvtColor(np.rint(np.clip(prediction,0,1)*255).astype(np.uint8), cv2.COLOR_RGB2BGR)
+        repaired = cv2.resize(repaired, (cw,ch), interpolation=cv2.INTER_LINEAR)
+        result = image_bgr.copy()
+        region = result[y0:y1,x0:x1]
+        region[selection>0] = repaired[selection>0]
+        logger.info('Selected-region repair used local LaMa on %sx%s context', sw,sh)
+        return result
+    except Exception:
+        logger.exception('Local LaMa unavailable; using bounded OpenCV inpainting')
+        return None
 
 
 def detect_text_regions_morphological(image_bgr: np.ndarray) -> List[Tuple[int, int, int, int]]:
@@ -100,7 +146,11 @@ def build_text_mask(
         for (bx, by, bw, bh) in detected:
             mask[by:by + bh, bx:bx + bw] = 255
 
-    # Refine mask: dilate slightly (2-3px) to ensure no colored stroke borders remain
+    # An explicit user mask is authoritative: never expand into unselected text,
+    # faces or neighbouring objects. Automatic proposals may need padding.
+    if custom_mask is not None or boxes:
+        return mask
+    # Refine automatically detected strokes only.
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     mask = cv2.dilate(mask, kernel, iterations=1)
 
@@ -159,12 +209,14 @@ def remove_text_pipeline(
     High-level entry point for text and object removal.
     """
     pil_img = Image.open(io.BytesIO(image_bytes))
+    if pil_img.width * pil_img.height > 32_000_000:
+        raise ValueError('Image exceeds the 32 megapixel processing limit')
     try:
         pil_img = ImageOps.exif_transpose(pil_img)
     except Exception:
         pass
 
-    has_alpha = pil_img.mode == "RGBA"
+    has_alpha = 'A' in pil_img.getbands() or 'transparency' in pil_img.info
     img_bgr = cv2.cvtColor(np.array(pil_img.convert("RGB")), cv2.COLOR_RGB2BGR)
     h, w = img_bgr.shape[:2]
 
@@ -200,11 +252,13 @@ def remove_text_pipeline(
     mask = build_text_mask(img_bgr, boxes=boxes, custom_mask=custom_mask, auto_detect=auto_detect)
 
     # Inpaint
-    clean_bgr = inpaint_text_and_objects(img_bgr, mask)
+    clean_bgr = inpaint_with_local_lama(img_bgr, mask)
+    if clean_bgr is None:
+        clean_bgr = inpaint_text_and_objects(img_bgr, mask)
     clean_rgb = cv2.cvtColor(clean_bgr, cv2.COLOR_BGR2RGB)
 
     if has_alpha:
-        orig_alpha = np.array(pil_img)[:, :, 3]
+        orig_alpha = np.array(pil_img.convert('RGBA'))[:, :, 3]
         final_rgba = np.dstack([clean_rgb, orig_alpha])
         out_pil = Image.fromarray(final_rgba, "RGBA")
     else:

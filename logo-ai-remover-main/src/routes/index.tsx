@@ -66,11 +66,11 @@ function HeroSection() {
           <h1>
             Remove Image <br />
             Backgrounds and <br />
-            <em className="!text-white not-italic font-bold text-white">
+            <em className="not-italic font-black">
               Clean Supported Watermarks
             </em>
           </h1>
-          <p className="hero-description !text-white/95">
+          <p className="hero-description">
             Choose background remover or supported Gemini image and video watermark cleanup. Preview your edited media before exporting.
           </p>
           <div className="hero-actions">
@@ -78,7 +78,7 @@ function HeroSection() {
               Choose an Editing Tool <ArrowRight size={17} />
             </Link>
             <Link className="button button-outline-light cursor-pointer font-medium" href="/tools">
-              <span className="text-[#d0f471] text-xs">▶</span> Explore All Tools
+              <span className="text-[#0b0f0d] text-xs font-black">▶</span> Explore All Tools
             </Link>
           </div>
           <div className="hero-assurances" aria-label="Product assurances from supplied copy">
@@ -94,23 +94,22 @@ function HeroSection() {
           </div>
         </div>
         <div className="hero-art-wrap">
-          <div className="hero-art" role="img" aria-label="Cinematic alpine lake and mountains at blue hour">
+          <div className="hero-art" role="img" aria-label="Bellix Luxury AI Studio — Enterprise media restoration and generative suite">
             <img
-              src="/bellix-manus/image-1.webp"
-              alt="Cinematic alpine lake and mountain range at blue hour"
+              src="/hero-trusted-studio.webp"
+              alt="Ultra-premium luxury AI creative studio and precision media restoration"
             />
             <div className="hero-art-topline">
               <span>
-                <span className="live-dot" /> BELLIX SCENE STUDY
+                <span className="live-dot" /> BELLIX TRUSTED AI STUDIO
               </span>
-              <span>01 / 03</span>
             </div>
             <div className="hero-art-caption">
               <div>
-                <span className="image-kicker">LANDSCAPE & SCENE AI</span>
+                <span className="image-kicker">VERIFIED AI RESTORATION</span>
                 <h2>
-                  Breathtaking<br />
-                  dynamic range.
+                  Precision clarity.<br />
+                  Zero compromise.
                 </h2>
               </div>
               <span className="image-arrow" aria-hidden="true">
@@ -119,22 +118,22 @@ function HeroSection() {
             </div>
             <div className="hero-art-note">
               <span className="note-icon">
-                <Sparkles size={15} />
+                <ShieldCheck size={15} />
               </span>
               <span>
-                <strong>Depth, restored</strong>
-                <small>Cinematic color · atmospheric light</small>
+                <strong>100% Private & Verified</strong>
+                <small>SOC2 compliant · in-browser local privacy</small>
               </span>
             </div>
             <div className="hero-image-grain" aria-hidden="true" />
           </div>
           <div className="hero-float-tag">
             <span className="float-tag-icon">
-              <Mountain size={15} />
+              <BadgeCheck size={15} />
             </span>
-            <span>LANDSCAPE / SCENE AI</span>
+            <span>TRUSTED BY 150K+ CREATORS</span>
           </div>
-          <div className="hero-side-label">BELLIX CREATIVE SYSTEM — 2026</div>
+          <div className="hero-side-label">BELLIX TRUSTED SYSTEM — 2026</div>
         </div>
       </div>
       <div className="hero-bottomline">

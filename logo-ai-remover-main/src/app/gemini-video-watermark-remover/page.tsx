@@ -6,7 +6,7 @@ import GeminiVideoRemoverPage from "@/routes/gemini-video-watermark-remover";
 export const metadata = pageMetadata(
   "/gemini-video-watermark-remover",
   "Gemini & Veo Video Watermark Remover",
-  "Clean supported visible Gemini and Veo sparkle marks locally in your browser. Upload an original video up to 100 MB and review the exported MP4.",
+  "Restore supported visible Gemini and Veo sparkle marks on your videos. Upload up to 500 MB and compare the processed MP4 with the original.",
   true,
 );
 

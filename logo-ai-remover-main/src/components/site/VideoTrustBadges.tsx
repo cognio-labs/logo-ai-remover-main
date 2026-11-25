@@ -11,7 +11,7 @@ function LaurelBranch({ className = "" }: { className?: string }) {
     <svg
       viewBox="0 0 36 68"
       fill="currentColor"
-      className={`h-12 w-6 sm:h-14 sm:w-7 md:h-16 md:w-8 shrink-0 select-none text-[#d0f471] ${className}`}
+      className={`h-12 w-6 sm:h-14 sm:w-7 md:h-16 md:w-8 shrink-0 select-none text-[#10241e]/60 ${className}`}
       aria-hidden="true"
     >
       {/* Stem arc */}
@@ -51,21 +51,14 @@ interface TrustBadgeItemProps {
 
 function TrustBadgeItem({ icon, line1, line2 }: TrustBadgeItemProps) {
   return (
-    <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-5 transition-transform hover:scale-105 duration-200">
-      {/* Left Laurel Branch */}
-      <LaurelBranch />
-
-      {/* Center Icon & Text */}
-      <div className="flex flex-col items-center justify-center text-center px-1">
-        <div className="text-[#d0f471] mb-2 flex items-center justify-center">{icon}</div>
-        <div className="text-white font-bold text-xs sm:text-sm md:text-[15px] leading-snug tracking-tight whitespace-nowrap drop-shadow-sm">
-          <div>{line1}</div>
-          <div>{line2}</div>
-        </div>
+    <div className="w-full flex items-center justify-center gap-4 px-5 py-4 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] transition-transform hover:-translate-y-0.5 duration-150">
+      <div className="size-12 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] text-[#0b0f0d] flex items-center justify-center shrink-0">
+        {icon}
       </div>
-
-      {/* Right Laurel Branch (Mirrored) */}
-      <LaurelBranch className="-scale-x-100" />
+      <div className="text-[#0b0f0d] font-black text-sm sm:text-base leading-tight tracking-tight text-left">
+        <div>{line1}</div>
+        <div>{line2}</div>
+      </div>
     </div>
   );
 }
@@ -74,25 +67,25 @@ export function VideoTrustBadges({ className = "" }: { className?: string }) {
   return (
     <section
       aria-label="Video processing details"
-      className={`w-full py-8 sm:py-10 my-4 ${className}`}
+      className={`w-full py-4 ${className}`}
     >
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 md:gap-10 lg:gap-14 items-center justify-items-center">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-stretch">
           <TrustBadgeItem
-            icon={<ShieldCheck className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
+            icon={<ShieldCheck className="size-6 stroke-[2.3] text-[#0b0f0d]" />}
             line1="Dedicated"
             line2="Video Worker"
           />
 
           <TrustBadgeItem
-            icon={<Zap className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
+            icon={<Zap className="size-6 stroke-[2.3] text-[#0b0f0d]" />}
             line1="Temporary"
             line2="Output Storage"
           />
 
           {/* Badge 3: Open Source Pipeline */}
           <TrustBadgeItem
-            icon={<CheckCircle2 className="size-7 sm:size-8 stroke-[1.9] text-[#d0f471]" />}
+            icon={<CheckCircle2 className="size-6 stroke-[2.3] text-[#0b0f0d]" />}
             line1="Open Source"
             line2="Pipeline"
           />

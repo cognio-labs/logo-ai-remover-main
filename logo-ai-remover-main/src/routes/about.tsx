@@ -40,27 +40,25 @@ export const Route = createFileRoute("/about")({
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-gray-900">
+    <div className="min-h-screen bg-[#f7f5ee] text-[#0b0f0d]">
       {/* Hero Header */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FFF5F8] via-white to-[#FAFAFA] pt-16 pb-20 px-4 sm:px-6 lg:px-8 border-b border-[#FCE7EC]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-80 bg-gradient-to-br from-[#FFE4E9]/60 via-[#FFF1F4]/30 to-transparent blur-3xl pointer-events-none" />
-
+      <section className="relative overflow-hidden bg-white pt-16 pb-20 px-4 sm:px-6 lg:px-8 border-b-[3px] border-[#0b0f0d]">
         <div className="relative mx-auto max-w-4xl text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#FCE7EC] shadow-2xs">
-            <span className="flex size-2 rounded-full bg-[#E11D48] animate-pulse" />
-            <span className="text-xs font-bold text-[#E11D48] tracking-wide">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[3px_3px_0px_#0b0f0d]">
+            <span className="flex size-2 rounded-full bg-[#0b0f0d]" />
+            <span className="text-xs font-black text-[#0b0f0d] tracking-wide font-mono uppercase">
               Craft Meets Next-Gen Artificial Intelligence
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-semibold text-gray-950 tracking-tight leading-[1.15]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0b0f0d] tracking-tight leading-[1.08]">
             Empowering Creators with{" "}
-            <span className="bg-gradient-to-r from-[#E11D48] via-[#FF2E63] to-[#FF4FA3] bg-clip-text text-transparent">
+            <span className="inline-block px-3 py-0.5 rounded-md bg-[#d0f471] border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d]">
               Flawless Visual Freedom
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-[#26302b] font-semibold max-w-2xl mx-auto leading-relaxed">
             Bellix.us was founded on a simple vision: to give designers, video editors, and digital
             creators the power to restore, clean, and elevate any visual asset in seconds with zero
             loss in quality.
@@ -73,12 +71,12 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto space-y-16">
           {/* Grid: Mission & Story */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-            <div className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm space-y-4">
-              <div className="size-12 rounded-2xl bg-[#FFF1F4] flex items-center justify-center text-[#E11D48]">
-                <Target className="size-6" />
+            <div className="p-8 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d] space-y-4">
+              <div className="size-12 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] flex items-center justify-center text-[#0b0f0d]">
+                <Target className="size-6 stroke-[2.4]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Our Mission</h2>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+              <h2 className="text-2xl font-black text-[#0b0f0d]">Our Mission</h2>
+              <p className="text-[#26302b] font-medium leading-relaxed text-sm sm:text-base">
                 We bridge the gap between creative craft and state-of-the-art neural computation.
                 Where traditional editing software requires hours of meticulous manual retouching
                 and cloning, Bellix.us’s deep learning models reconstruct covered textures, lighting
@@ -87,12 +85,12 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm space-y-4">
-              <div className="size-12 rounded-2xl bg-[#FFF1F4] flex items-center justify-center text-[#E11D48]">
-                <Cpu className="size-6" />
+            <div className="p-8 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[5px_5px_0px_#0b0f0d] space-y-4">
+              <div className="size-12 rounded-lg bg-[#ffe500] border-2 border-[#0b0f0d] shadow-[2px_2px_0px_#0b0f0d] flex items-center justify-center text-[#0b0f0d]">
+                <Cpu className="size-6 stroke-[2.4]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">The Technology</h2>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+              <h2 className="text-2xl font-black text-[#0b0f0d]">The Technology</h2>
+              <p className="text-[#26302b] font-medium leading-relaxed text-sm sm:text-base">
                 Rather than applying crude blurs or smudged pixel fills, our neural inpainting
                 engine uses multi-frame spatio-temporal flow vectors and latent diffusion. This
                 guarantees pristine 4K/8K resolution fidelity, zero temporal flickering in video
@@ -104,41 +102,41 @@ export default function AboutPage() {
           {/* Core Values / Features */}
           <div className="space-y-8">
             <div className="text-center space-y-2">
-              <h2 className="text-3xl font-semibold text-gray-900">What We Stand For</h2>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <h2 className="text-3xl sm:text-4xl font-black text-[#0b0f0d]">What We Stand For</h2>
+              <p className="text-[#26302b] font-medium text-sm sm:text-base">
                 Built by creators for creators, with speed, privacy, and precision at the core.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-xs space-y-3">
-                <div className="size-10 rounded-xl bg-pink-50 flex items-center justify-center text-[#E11D48]">
+              <div className="p-6 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] space-y-3">
+                <div className="size-10 rounded-lg bg-[#d0f471] border-2 border-[#0b0f0d] flex items-center justify-center text-[#0b0f0d]">
                   <WandSparkles className="size-5" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Uncompromising Fidelity</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h3 className="text-lg font-black text-[#0b0f0d]">Uncompromising Fidelity</h3>
+                <p className="text-[#26302b] font-medium text-sm leading-relaxed">
                   Every pixel matters. We train our algorithms to preserve fine details, natural
                   skin tones, micro-textures, and high dynamic range lighting.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-xs space-y-3">
-                <div className="size-10 rounded-xl bg-pink-50 flex items-center justify-center text-[#E11D48]">
+              <div className="p-6 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] space-y-3">
+                <div className="size-10 rounded-lg bg-[#ffe500] border-2 border-[#0b0f0d] flex items-center justify-center text-[#0b0f0d]">
                   <Zap className="size-5" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Instant Browser Workflows</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h3 className="text-lg font-black text-[#0b0f0d]">Instant Browser Workflows</h3>
+                <p className="text-[#26302b] font-medium text-sm leading-relaxed">
                   No hefty installations or complex plugins needed. Access pro-grade AI video and
                   image processing tools straight from your web browser.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-xs space-y-3">
-                <div className="size-10 rounded-xl bg-pink-50 flex items-center justify-center text-[#E11D48]">
+              <div className="p-6 rounded-xl bg-white border-[2.5px] border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] space-y-3">
+                <div className="size-10 rounded-lg bg-[#a8e6cf] border-2 border-[#0b0f0d] flex items-center justify-center text-[#0b0f0d]">
                   <ShieldCheck className="size-5" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Privacy & Security</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <h3 className="text-lg font-black text-[#0b0f0d]">Privacy &amp; Security</h3>
+                <p className="text-[#26302b] font-medium text-sm leading-relaxed">
                   Your creative files are processed with end-to-end encryption and automatically
                   purged from our cloud servers after download.
                 </p>
@@ -147,22 +145,22 @@ export default function AboutPage() {
           </div>
 
           {/* CTA Banner */}
-          <div className="rounded-3xl bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white p-8 sm:p-12 text-center space-y-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#E11D48]/20 rounded-full blur-3xl pointer-events-none" />
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+          <div className="rounded-xl bg-[#ffe500] border-[3px] border-[#0b0f0d] text-[#0b0f0d] p-8 sm:p-12 text-center space-y-5 shadow-[7px_7px_0px_#0b0f0d]">
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-[#0b0f0d]">
               Ready to experience true visual clarity?
             </h2>
-            <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
+            <p className="text-[#0b0f0d] font-semibold max-w-xl mx-auto text-sm sm:text-base">
               Try our neural watermark remover and video enhancer directly online with zero setup
               required.
             </p>
             <div className="pt-2 flex flex-wrap justify-center gap-4">
-              <Link to="/">
-                <PinkButton size="lg" className="px-8 shadow-lg">
-                  <Sparkles className="size-4 mr-2" />
-                  Try Free Now
-                  <ArrowRight className="size-4 ml-2" />
-                </PinkButton>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#d0f471] hover:bg-white text-[#0b0f0d] font-black border-2 border-[#0b0f0d] shadow-[4px_4px_0px_#0b0f0d] transition-all"
+              >
+                <Sparkles className="size-4" />
+                <span>Try Free Now</span>
+                <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>

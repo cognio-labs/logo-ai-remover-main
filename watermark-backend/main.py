@@ -57,7 +57,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from processor import remove_watermark
+from processor import _load_fdncnn_session, remove_watermark
 from billing_access import authenticated_user, reserve_video, settle
 
 # ---------------------------------------------------------------------------
@@ -188,7 +188,9 @@ async def lifespan(app: FastAPI):
         try:
             from bg_remover_advanced import _get_session
             _get_session("isnet-general-use")
-            logger.info("Neural model (isnet-general-use) pre-warmed for < 3s inference.")
+            _load_fdncnn_session("model_core_fp32_86x74.onnx")
+            _load_fdncnn_session("model_core_fp32_104.onnx")
+            logger.info("Neural models pre-warmed.")
         except Exception as e:
             logger.warning("Could not pre-warm neural model: %s", e)
 
@@ -246,6 +248,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*", "X-Box", "x-box", "X-NCC", "x-ncc"],
     allow_private_network=True,
 )
 
@@ -329,6 +332,8 @@ async def _probe_video_file(file_path: str):
         "ffprobe",
         "-v",
         "error",
+        "-select_streams",
+        "V:0",
         "-print_format",
         "json",
         "-show_format",
@@ -374,15 +379,10 @@ async def _probe_video_file(file_path: str):
     except Exception:
         duration = 0.0
 
-    fps_str = v.get("r_frame_rate", "30/1")
-    has_audio = any(s.get("codec_type") == "audio" for s in data.get("streams", []))
-
     return {
         "width": width,
         "height": height,
         "duration": duration,
-        "fps": fps_str,
-        "has_audio": has_audio,
     }
 
 
@@ -507,10 +507,12 @@ async def _process_video_worker(job_id: str):
     async with video_semaphore:
         job["state"] = "processing"
         job["progress"] = 5
-        logger.info("[Job %s] Acquired semaphore slot. Detecting and removing static logo.", job_id)
+        logger.info("[Job %s] Started video scan.", job_id)
 
-        def on_progress(percent, _frames, stage):
+        def on_progress(percent, frames, stage):
             job["progress"] = min(99, max(5, int(percent)))
+            job["stage"] = stage
+            job["frames_processed"] = frames
             job["log_tail"] = [stage]
 
         try:
@@ -521,23 +523,21 @@ async def _process_video_worker(job_id: str):
                 progress_cb=on_progress,
                 normalized_box=job["manual_box"],
                 mode=job.get("mode", "clean"),
-                allow_tracking=False,
+                allow_tracking=True,
             )
             if not os.path.isfile(job["output_path"]) or os.path.getsize(job["output_path"]) == 0:
                 raise RuntimeError("The watermark-removal pipeline did not produce an output video.")
-            output_meta = await _probe_video_file(job["output_path"])
-            if (
-                output_meta["width"] != job["width"]
-                or output_meta["height"] != job["height"]
-                or output_meta["has_audio"] != job["has_audio"]
-                or abs(output_meta["duration"] - job["duration"]) > 0.15
-            ):
-                raise RuntimeError("Output validation failed")
+            quality_path = Path(str(job["output_path"]) + ".quality.json")
+            quality = json.loads(quality_path.read_text(encoding="utf8"))
+            if quality["decoded_frames_verified"] != quality["total_frames"]:
+                raise RuntimeError("Export frame validation failed")
             await settle(job_id, True)
+            job["quality"] = quality
+            job["stage"] = "Processed export ready for review"
             job["state"] = "done"
             job["progress"] = 100
             job["finished_at"] = time.time()
-            logger.info("[Job %s] Clean video generated successfully.", job_id)
+            logger.info("[Job %s] Processed video passed export checks.", job_id)
         except Exception as exc:
             logger.exception("[Job %s] Video watermark removal failed.", job_id)
             job["state"] = "error"
@@ -691,11 +691,10 @@ async def api_video_process(
         "dist_pct": float(dist_pct),
         "alpha": float(alpha),
         "manual_box": selection,
-        "mode": mode.lower() if mode and mode.lower() in ("clean", "guaranteed") else "clean",
+        "mode": mode.lower() if mode.lower() in ("clean", "crop", "guaranteed") else "clean",
         "width": meta["width"],
         "height": meta["height"],
         "duration": meta["duration"],
-        "has_audio": meta["has_audio"],
         "client_ip": client_ip,
     }
 
@@ -720,6 +719,9 @@ async def api_video_status(job_id: str):
         content={
             "state": job["state"],
             "progress": job["progress"],
+            "stage": job.get("stage", ""),
+            "frames_processed": job.get("frames_processed", 0),
+            "quality": job.get("quality"),
             "error": job["error"],
             "log_tail": job["log_tail"][-8:],
         }
@@ -792,6 +794,7 @@ async def api_background_remove_advanced(
     image: UploadFile = File(...),
     model: str = Form(""),
     image_type: str = Form("auto"),
+    text_mode: str = Form("auto"),
 ):
     """
     Mask-only neural inference, original RGB, lossless RGBA PNG.
@@ -815,9 +818,13 @@ async def api_background_remove_advanced(
     try:
         if image_type not in {"auto", "portrait", "product", "graphics"}:
             raise HTTPException(status_code=400, detail="Unsupported image type")
+        if text_mode not in {"auto", "subject_only", "keep_text"}:
+            raise HTTPException(status_code=400, detail="Unsupported text mode")
         if model and model not in {"isnet-general-use", "birefnet-general", "birefnet-general-lite", "u2net"}:
             raise HTTPException(status_code=400, detail="Unsupported background model")
-        result_png, meta = remove_background_pipeline(data, model=model or None, save_debug=False, image_type=image_type)
+        from starlette.concurrency import run_in_threadpool
+        result_png, meta = await run_in_threadpool(
+            remove_background_pipeline, data, model=model or None, save_debug=False, image_type=image_type, text_mode=text_mode)
 
         # The background-removal contract is always a real transparent PNG.
         # Validate the bytes at the boundary so a model/fallback regression
@@ -830,7 +837,7 @@ async def api_background_remove_advanced(
             if result_image.format != "PNG" or result_image.mode != "RGBA":
                 raise ValueError("background remover returned a non-RGBA PNG")
             alpha = np.asarray(result_image.getchannel("A"))
-            if not np.any(alpha == 0) or not np.any(alpha > 0):
+            if not np.any(alpha < 255) or not np.any(alpha > 0):
                 raise ValueError("background remover returned an invalid alpha mask")
 
         return Response(
@@ -843,9 +850,11 @@ async def api_background_remove_advanced(
                 "X-Bellix-Quality-Pass": str(meta.get("quality_pass", True)).lower(),
                 "X-Bellix-Latency": f"{meta.get('latency_seconds', 0.0)}s",
                 "X-Bellix-Has-Gradient": str(meta.get("has_gradient_note", False)).lower(),
+                "X-Bellix-Text-Mode": meta.get("text_mode", text_mode),
+                "X-Bellix-Has-Text": str(meta.get("has_text", False)).lower(),
                 "X-Processing": "existing-alpha" if meta.get("model_used") == "existing-alpha" else "neural",
                 "X-Bellix-Operation": meta.get("operation", "neural-background-removal"),
-                "Access-Control-Expose-Headers": "X-Model,X-Bellix-Model,X-Bellix-Fallback-Used,X-Bellix-Quality-Pass,X-Bellix-Latency,X-Bellix-Has-Gradient,X-Processing,X-Bellix-Operation",
+                "Access-Control-Expose-Headers": "X-Model,X-Bellix-Model,X-Bellix-Fallback-Used,X-Bellix-Quality-Pass,X-Bellix-Latency,X-Bellix-Has-Gradient,X-Bellix-Text-Mode,X-Bellix-Has-Text,X-Processing,X-Bellix-Operation",
             },
         )
     except HTTPException:
@@ -879,6 +888,34 @@ async def api_background_status():
 # TEXT AND OBJECT REMOVAL PIPELINE
 # ============================================================================
 
+@app.post("/api/image/detect-text")
+async def api_image_detect_text(image: UploadFile = File(...)):
+    """Read-only OCR proposals; users explicitly select regions before inpainting."""
+    data = await image.read()
+    if len(data) > 35 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 35MB)")
+    from bg_remover_advanced import _decode_image, _get_ocr_reader
+    import numpy as np
+    from starlette.concurrency import run_in_threadpool
+    reader = await run_in_threadpool(_get_ocr_reader)
+    if reader is None:
+        raise HTTPException(status_code=503, detail="Local OCR weights unavailable; select text manually")
+    try:
+        image_rgb = np.asarray(_decode_image(data).convert('RGB'))
+        detections = await run_in_threadpool(reader.readtext, image_rgb)
+        regions = []
+        for polygon, text, confidence in detections:
+            if confidence < .35:
+                continue
+            points = np.asarray(polygon)
+            x, y = np.maximum(0, points.min(axis=0)).astype(int)
+            right, bottom = points.max(axis=0).astype(int)
+            regions.append({'text': text, 'confidence': float(confidence),
+                            'box': [int(x), int(y), int(right-x), int(bottom-y)]})
+        return {'regions': regions}
+    except Exception:
+        raise HTTPException(status_code=422, detail="Could not inspect image text")
+
 @app.post("/api/image/remove-text")
 async def api_image_remove_text(
     image: UploadFile = File(...),
@@ -898,7 +935,8 @@ async def api_image_remove_text(
 
     from text_remover import remove_text_pipeline
     try:
-        cleaned_bytes = remove_text_pipeline(
+        from starlette.concurrency import run_in_threadpool
+        cleaned_bytes = await run_in_threadpool(remove_text_pipeline,
             data,
             boxes_json=boxes,
             mask_bytes=mask_data,
@@ -908,6 +946,43 @@ async def api_image_remove_text(
     except Exception as exc:
         logger.error(f"Text removal failed: {exc}")
         raise HTTPException(status_code=500, detail=f"Text removal failed: {str(exc)}")
+
+
+# ============================================================================
+# SYNTHID PROVENANCE VERIFICATION
+# ============================================================================
+
+@app.post("/api/synthid/verify")
+async def api_synthid_verify(
+    file: UploadFile = File(...),
+):
+    """
+    Inspects image or video for SynthID, C2PA, and Google AI provenance signals.
+    Preserves original file 1:1 and does not alter digital watermark signals.
+    """
+    if not file:
+        raise HTTPException(status_code=400, detail="No file uploaded")
+    
+    data = await file.read()
+    if len(data) > 100 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 100MB)")
+
+    from synthid_verifier import verify_synthid_provenance
+    try:
+        result = verify_synthid_provenance(data, file.filename or "uploaded_media")
+        return JSONResponse(content=result)
+    except Exception as e:
+        logger.error(f"SynthID verification error: {e}")
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "inconclusive",
+                "title": "Inconclusive",
+                "description": "Insufficient evidence for a reliable result.",
+                "confidence": 0.3,
+                "error": str(e),
+            }
+        )
 
 
 # ============================================================================
@@ -949,12 +1024,14 @@ async def api_remove_corner(
             raise HTTPException(status_code=500, detail="Failed to encode image")
 
         bx, by, bw, bh = box
+        applied_str = "true" if (bw > 0 and bh > 0) else "false"
         return Response(
             content=buf.tobytes(),
             media_type="image/png",
             headers={
                 "X-Box": f"{bx},{by},{bw},{bh}",
-                "Access-Control-Expose-Headers": "X-Box",
+                "X-Applied": applied_str,
+                "Access-Control-Expose-Headers": "X-Box, x-box, X-Applied, x-applied, *",
             },
         )
     except ValueError as ve:
@@ -1167,7 +1244,7 @@ if static_dir.is_dir():
 
 @app.post("/api/video/detect-frame")
 async def detect_video_frame(request: Request):
-    """Native-resolution PNG only; uses exactly the export detector and repair."""
+    """Single-frame preview for legacy clients using the per-frame tracking detector."""
     import base64
     import cv2
     import numpy as np

@@ -23,10 +23,11 @@
   align-items: center;
   min-width: 0;
   margin-bottom: 1.4rem;
-  padding: 0.7rem;
-  border: 1px solid #c4d0bd;
-  border-radius: 1.45rem;
-  background: #fafcf6;
+  padding: 0.9rem;
+  border: 3px solid #0b0f0d;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 6px 6px 0 #0b0f0d;
 }
 
 .home-tool-guide:nth-of-type(even) {
@@ -79,11 +80,19 @@
   min-height: 2.8rem;
   align-items: center;
   gap: 0.55rem;
-  padding: 0.65rem 1rem;
-  border-radius: 0.7rem;
-  background: #10241e;
-  color: #f5ffdf;
-  font-weight: 700;
+  padding: 0.65rem 1.1rem;
+  border-radius: 8px;
+  border: 2.5px solid #0b0f0d;
+  background: #d0f471;
+  color: #0b0f0d;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 #0b0f0d;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+}
+.home-tool-guide-link:hover {
+  background: #ffe500;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #0b0f0d;
 }
 
 .home-tool-guide-link:focus-visible {

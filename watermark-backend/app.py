@@ -682,10 +682,11 @@ def clean_gemini_image():
         as_attachment=False,
         download_name=f"gemini_cleaned_{job_id[:8]}.png"
     )
-    # Header X-Box for debugging
+    # Header X-Box & X-Applied for debugging and honest status reporting
     bx, by, bw, bh = box
     response.headers["X-Box"] = f"{bx},{by},{bw},{bh}"
-    response.headers["Access-Control-Expose-Headers"] = "X-Box"
+    response.headers["X-Applied"] = "true" if (bw > 0 and bh > 0) else "false"
+    response.headers["Access-Control-Expose-Headers"] = "X-Box, X-Applied"
     return response
 
 

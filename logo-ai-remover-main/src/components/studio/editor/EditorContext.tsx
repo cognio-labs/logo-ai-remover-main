@@ -44,6 +44,7 @@ const INITIAL_ADJUST: AdjustSettings = {
 };
 
 type Action =
+  | { type: "SET_BRUSH_SHAPE"; payload: "brush" | "rectangle" | "lasso" }
   | { type: "SET_ACTIVE_TAB"; payload: ActiveTab }
   | { type: "SET_COMPARE"; payload: boolean }
   | { type: "SET_BRUSH_MODE"; payload: "erase" | "restore" }
@@ -85,7 +86,10 @@ interface ContextType {
 
 const EditorContext = createContext<ContextType | null>(null);
 
-function createInitialState(originalUrl: string, cutoutUrl: string): EditorState & {
+function createInitialState(
+  originalUrl: string,
+  cutoutUrl: string,
+): EditorState & {
   historyStack: HistorySnapshot[];
   historyIndex: number;
 } {
@@ -125,6 +129,8 @@ type InternalState = EditorState & {
 
 function editorReducer(state: InternalState, action: Action): InternalState {
   switch (action.type) {
+    case "SET_BRUSH_SHAPE":
+      return { ...state, brush: { ...state.brush, shape: action.payload } };
     case "SET_ACTIVE_TAB":
       return {
         ...state,
@@ -286,6 +292,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
 
     case "RESET_ALL": {
       const newSnapshot: HistorySnapshot = {
+        maskPixels: state.historyStack[0].maskPixels,
         background: INITIAL_BACKGROUND,
         shadow: INITIAL_SHADOW,
         activeFilter: "none",
@@ -296,6 +303,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       newStack.push(newSnapshot);
       return {
         ...state,
+        maskPixels: state.historyStack[0].maskPixels,
         background: INITIAL_BACKGROUND,
         shadow: INITIAL_SHADOW,
         activeFilter: "none",
@@ -317,7 +325,10 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         background: target.background,
-        maskPixels: state.historyStack.slice(0, prevIdx + 1).reverse().find(s => s.maskPixels)?.maskPixels,
+        maskPixels: state.historyStack
+          .slice(0, prevIdx + 1)
+          .reverse()
+          .find((s) => s.maskPixels)?.maskPixels,
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
@@ -335,7 +346,10 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         background: target.background,
-        maskPixels: state.historyStack.slice(0, nextIdx + 1).reverse().find(s => s.maskPixels)?.maskPixels,
+        maskPixels: state.historyStack
+          .slice(0, nextIdx + 1)
+          .reverse()
+          .find((s) => s.maskPixels)?.maskPixels,
         shadow: target.shadow,
         activeFilter: target.activeFilter,
         adjust: target.adjust,
@@ -377,7 +391,7 @@ function editorReducer(state: InternalState, action: Action): InternalState {
 
     case "UPDATE_TEXT_LAYER": {
       const updatedLayers = state.textLayers.map((layer) =>
-        layer.id === action.payload.id ? { ...layer, ...action.payload.updates } : layer
+        layer.id === action.payload.id ? { ...layer, ...action.payload.updates } : layer,
       );
       const newSnapshot: HistorySnapshot = {
         background: state.background,
@@ -414,7 +428,8 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         textLayers: updatedLayers,
-        selectedTextLayerId: state.selectedTextLayerId === action.payload ? null : state.selectedTextLayerId,
+        selectedTextLayerId:
+          state.selectedTextLayerId === action.payload ? null : state.selectedTextLayerId,
         historyStack: newStack,
         historyIndex: newStack.length - 1,
         canUndo: true,
@@ -453,11 +468,19 @@ function editorReducer(state: InternalState, action: Action): InternalState {
       return {
         ...state,
         maskCanvas: action.payload,
-        maskPixels: action.payload.getContext("2d")?.getImageData(0, 0, action.payload.width, action.payload.height),
-        historyStack: state.historyStack.map((snapshot, index) => index === 0 ? {
-          ...snapshot,
-          maskPixels: action.payload.getContext("2d")?.getImageData(0, 0, action.payload.width, action.payload.height),
-        } : snapshot),
+        maskPixels: action.payload
+          .getContext("2d")
+          ?.getImageData(0, 0, action.payload.width, action.payload.height),
+        historyStack: state.historyStack.map((snapshot, index) =>
+          index === 0
+            ? {
+                ...snapshot,
+                maskPixels: action.payload
+                  .getContext("2d")
+                  ?.getImageData(0, 0, action.payload.width, action.payload.height),
+              }
+            : snapshot,
+        ),
       };
 
     case "SET_PROCESSING":
@@ -480,10 +503,7 @@ export function EditorProvider({
   cutoutUrl: string;
   children: ReactNode;
 }) {
-  const [state, dispatch] = useReducer(
-    editorReducer,
-    createInitialState(originalUrl, cutoutUrl)
-  );
+  const [state, dispatch] = useReducer(editorReducer, createInitialState(originalUrl, cutoutUrl));
 
   const undo = () => dispatch({ type: "UNDO" });
   const redo = () => dispatch({ type: "REDO" });

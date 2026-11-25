@@ -4,6 +4,7 @@
 @import "./home-editorial.css";
 @import "./home-tool-guides.css";
 @import "./surface-contrast.css";
+@import "./brutalism.css";
 
 @custom-variant hover (&:not(*));
 
@@ -419,42 +420,12 @@ button.gemini-remove-button svg {
     color: inherit;
   }
 
-  /* Default heading color on light pages */
-  body:not(.dark) h1:not([class*="text-"]):not([class*="text-white"]),
-  body:not(.dark) h2:not([class*="text-"]):not([class*="text-white"]),
-  body:not(.dark) h3:not([class*="text-"]):not([class*="text-white"]),
-  body:not(.dark) h4:not([class*="text-"]):not([class*="text-white"]) {
-    color: #10241e;
-  }
-
-  /* Headings on dark backgrounds MUST be crisp pure white */
-  .text-white,
-  [class*="text-white"],
-  footer h1,
-  footer h2,
-  footer h3,
-  footer h4,
-  .hero h1,
-  .hero h2,
-  .hero h3,
-  .hero h4,
-  [class*="bg-[#091712]"] h1,
-  [class*="bg-[#091712]"] h2,
-  [class*="bg-[#091712]"] h3,
-  [class*="bg-[#091712]"] h4,
-  [class*="bg-[#10241e]"] h1,
-  [class*="bg-[#10241e]"] h2,
-  [class*="bg-[#10241e]"] h3,
-  [class*="bg-[#10241e]"] h4 {
-    color: #ffffff !important;
-  }
-
-  /* Ensure text inside lime buttons is always high contrast dark */
-  .bg-\[\#d0f471\] {
-    color: #091712 !important;
-  }
-  .bg-\[\#d0f471\] * {
-    color: #091712 !important;
+  /* Headings rely on parent contrast rules; avoid wildcard lime child overrides */
+  body:not(.dark) h1:not([class*="text-"]),
+  body:not(.dark) h2:not([class*="text-"]),
+  body:not(.dark) h3:not([class*="text-"]),
+  body:not(.dark) h4:not([class*="text-"]) {
+    color: #0b0f0d;
   }
 
   b,
@@ -532,212 +503,68 @@ button.gemini-remove-button svg {
 }
 
 /* ==========================================================================
-   GLOBAL HERO SECTION WHITE & FOREST GREEN THEME SYSTEM
-   (Black background removed, Large typography, Spacious cards, Crisp contrast)
+   GLOBAL NEO-BRUTALISM THEME BASE (ZERO CONFLICTING !IMPORTANT OVERRIDES)
    ========================================================================== */
 
-/* Main Canvas Background: Warm White / Paper (#f3f4ee) */
 html,
 body,
 #root,
-#__next,
-main {
-  background-color: #f3f4ee !important;
-  color: #10241e !important;
-}
-
-/* Header & Navbar: Luxury Deep Forest (#091712) */
-header,
-nav.sticky,
-.site-header {
-  background-color: #091712 !important;
-  border-color: rgba(215, 243, 175, 0.15) !important;
-}
-
-/* All Cards & Containers: Crisp White, Spacious, Clear Borders */
-.bg-white:not([data-keep-light]),
-.bg-card,
-.card,
-.studio-card,
-.feature-card,
-.pricing-card {
-  background-color: #ffffff !important;
-  color: #10241e !important;
-  border-color: rgba(16, 36, 30, 0.12) !important;
-  box-shadow: 0 10px 30px rgba(16, 36, 30, 0.06) !important;
+#__next {
+  background-color: #f7f5ee;
+  color: #0b0f0d;
 }
 
 /* Light / Inner Panels */
 .bg-gray-50,
-.bg-slate-50,
-.bg-zinc-900,
-[class*="bg-[#f8fafc]"],
-[class*="bg-[#FFF0F4]"],
-[class*="bg-[#FFF1F4]"],
-[class*="bg-[#FFF5F7]"],
-[class*="bg-[#FFF6F9]"],
-[class*="bg-[#FFF7ED]"],
-[class*="bg-[#FFF8FA]"],
-[class*="bg-[#FFF9FA]"],
-[class*="bg-[#FFF0F4]"] {
-  background-color: #e9ece4 !important;
-  color: #10241e !important;
-  border-color: rgba(16, 36, 30, 0.12) !important;
+.bg-slate-50 {
+  background-color: #f7f5ee;
+  color: #0b0f0d;
 }
 
-/* Remove old black background elements */
-[class*="bg-[#080808]"],
-[class*="bg-[#0A0A0A]"],
-[class*="bg-[#0c0c0c]"],
-[class*="bg-[#0d0d0d]"],
-[class*="bg-[#111111]"],
-[class*="bg-[#121212]"],
-[class*="bg-[#141414]"],
-[class*="bg-[#151515]"],
-[class*="bg-[#1C1C1C]"],
-.bg-zinc-950 {
-  background-color: #ffffff !important;
-  color: #10241e !important;
-  border-color: rgba(16, 36, 30, 0.12) !important;
-}
-
-/* Hero / Dark Forest Sections: Deep Forest with White Text */
-.hero,
-.dark-section,
-.tools-section,
-.footer-banner {
-  background-color: #091712 !important;
-  color: #ffffff !important;
-}
-
-.hero h1,
-.hero h2,
-.hero h3,
-.hero h4,
-.hero p,
-.hero span,
-.dark-section h1,
-.dark-section h2,
-.dark-section h3,
-.dark-section p,
-.tools-section h2,
-.tools-section p,
-header nav a {
-  color: #ffffff;
-}
-
-header nav a:not([class*="bg-[#d0f471]"]):not([class*="text-[#d0f471]"]) span {
-  color: #ffffff;
-}
-
-.hero em,
-.hero .brand-dot,
-.tools-section em,
-.lime-accent {
-  color: #d0f471 !important;
-}
-
-/* Subtle clean borders */
-.border,
-.border-t,
-.border-b,
-.border-l,
-.border-r,
-.border-gray-200,
-.border-gray-100,
-.border-slate-200,
-.border-zinc-800,
-[class*="border-[#303030]"],
-[class*="border-[#2a2a2a]"],
-[class*="border-[#262626]"],
-[class*="border-[#222222]"],
-[class*="border-[#2f2f2f]"] {
-  border-color: rgba(16, 36, 30, 0.12) !important;
-}
-
-/* Main Text: Deep Ink (#10241e) */
+/* Main Text: Deep Ink (#0b0f0d) */
 .text-gray-950,
 .text-gray-900,
 .text-slate-900,
 .text-slate-950,
 .text-zinc-950,
 .text-zinc-900 {
-  color: #10241e !important;
+  color: #0b0f0d;
 }
 
-/* Secondary Text: Readable Ink-Soft (#37433d) */
-.text-gray-800,
-.text-gray-700,
-.text-slate-800,
-.text-slate-700,
-.text-zinc-800,
-.text-zinc-700,
+/* Secondary Text inside light containers */
 .text-gray-600,
-.text-gray-500,
-.text-slate-600,
-.text-slate-500,
-.text-zinc-400,
-[class*="text-[#9ca3af]"],
-[class*="text-[#C7C7C7]"] {
-  color: #37433d !important;
+.text-slate-600 {
+  color: #26302b;
 }
 
-/* Form inputs & textareas: Clean white with crisp dark text & generous padding */
-input:not([type="checkbox"]):not([type="radio"]),
+/* Form inputs & textareas */
+input:not([type="checkbox"]):not([type="radio"]):not(.search-input-field):not([class*="pl-"]):not([type="range"]),
 textarea,
 select {
+  background-color: #ffffff;
+  color: #0b0f0d;
+  border: 2px solid #0b0f0d;
+  font-size: 1rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: 0.5rem;
+}
+
+/* Dedicated search inputs with leading icon */
+.search-input-field,
+input.search-input-field {
+  padding-left: 2.75rem !important;
+  padding-right: 2.25rem !important;
+  font-size: 0.8125rem !important;
+  height: 2.5rem !important;
+  border-radius: 1rem !important;
   background-color: #ffffff !important;
   color: #10241e !important;
-  border: 1.5px solid rgba(16, 36, 30, 0.18) !important;
-  font-size: 1.05rem !important;
-  padding: 0.8rem 1.25rem !important;
-  border-radius: 0.75rem !important;
+  border: 1px solid rgba(16, 36, 30, 0.15) !important;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #718278 !important;
-}
-
-/* Primary Action Buttons: Prominent, Big, Signature Forest & Lime */
-.btn-primary,
-button.btn-primary,
-.button-lime {
-  background-color: #d0f471 !important;
-  color: #091712 !important;
-  font-weight: 700 !important;
-  border-radius: 99px !important;
-  min-height: 52px !important;
-  padding: 0.85rem 2.2rem !important;
-  font-size: 1.05rem !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 4px 14px rgba(208, 244, 113, 0.4) !important;
-}
-
-/* Secondary Action Buttons: Forest Green with White Text */
-.btn-secondary,
-.button-forest {
-  background-color: #10241e !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  border-radius: 99px !important;
-  min-height: 52px !important;
-  padding: 0.85rem 2.2rem !important;
-  font-size: 1.05rem !important;
-  transition: all 0.2s ease !important;
-}
-
-/* Shadows: Subtle soft studio elevation */
-.shadow-xs,
-.shadow-sm {
-  box-shadow: 0 2px 8px rgba(16, 36, 30, 0.05) !important;
-}
-
-.shadow-md,
-.shadow-lg,
-.shadow-xl,
-.shadow-2xl {
-  box-shadow: 0 12px 35px rgba(16, 36, 30, 0.08) !important;
+  color: #526059 !important;
 }
 
 @utility grid-lines {
@@ -3987,157 +3814,37 @@ body {
 
 
 /* ==========================================================================
-   GLOBAL ACCESSIBILITY & CONTRAST ENFORCEMENT (WCAG AAA AUDIT)
-   Ensures zero invisible text, crystal-clear headings, and readable CTA buttons
+   SAFE ACCESSIBILITY HELPERS (NO WILDCARD CHILD OVERRIDES)
    ========================================================================== */
 
-/* 1. BUTTON TEXT CONTRAST GUARANTEES */
-
-/* Lime Green Buttons: MUST HAVE DARK FOREST TEXT (#071A13) */
-.button-lime,
-.button-accent,
-.btn-lime,
-button.bg-\[\#d0f471\],
-a.bg-\[\#d0f471\],
-.bg-\[\#d0f471\],
-.bg-\[\#dbff83\] {
-  background-color: #d0f471 !important;
-  color: #071A13 !important;
-  font-weight: 700 !important;
+button[class~="bg-[#d0f471]"],
+a[class~="bg-[#d0f471]"],
+span[class~="bg-[#d0f471]"] {
+  background-color: #d0f471;
+  color: #0b0f0d;
 }
 
-.button-lime *,
-.button-accent *,
-.btn-lime *,
-button.bg-\[\#d0f471\] *,
-a.bg-\[\#d0f471\] *,
-.bg-\[\#d0f471\] *,
-.bg-\[\#dbff83\] * {
-  color: #071A13 !important;
-  stroke: #071A13 !important;
+button[class~="bg-[#ffe500]"],
+a[class~="bg-[#ffe500]"],
+span[class~="bg-[#ffe500]"] {
+  background-color: #ffe500;
+  color: #0b0f0d;
 }
 
-/* Dark Green / Near-Black Buttons: MUST HAVE CRISP WHITE TEXT (#FFFFFF) */
-.button-forest,
-.button-dark,
-button.bg-\[\#10241e\],
-a.bg-\[\#10241e\],
-button.bg-\[\#091712\],
-a.bg-\[\#091712\],
-button.bg-\[\#142e25\],
-a.bg-\[\#142e25\],
-[class*="bg-[#10241e]"]:not([class*="text-[#d0f471]"]):not(.tool-card),
-[class*="bg-[#091712]"]:not([class*="text-[#d0f471]"]),
-[class*="bg-[#142e25]"]:not([class*="text-[#d0f471]"]) {
-  color: #ffffff;
-}
-
-.button-forest *,
-.button-dark *,
-button.bg-\[\#10241e\] *,
-a.bg-\[\#10241e\] *,
-button.bg-\[\#091712\] *,
-a.bg-\[\#091712\] *,
-button.bg-\[\#142e25\] * {
-  color: #ffffff;
-  stroke: #ffffff;
-}
-
-/* White Buttons: MUST HAVE DARK READABLE TEXT (#10251D) */
-button.bg-white,
-a.bg-white,
-.button-white {
-  color: #10251D !important;
-}
-
-button.bg-white *,
-a.bg-white *,
-.button-white * {
-  color: #10251D !important;
-  stroke: #10251D !important;
-}
-
-/* Outlined Buttons on Dark Sections */
-.button-outline-light,
-.hero .button-outline,
-footer .button-outline {
-  border-color: rgba(215, 243, 175, 0.4) !important;
-  color: #ffffff !important;
-}
-
-.button-outline-light *,
-.hero .button-outline *,
-footer .button-outline * {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* 4. PREVENT INVISIBLE / TRANSPARENT TEXT BUGS */
 .text-transparent:not([class*="bg-clip-text"]) {
-  color: #10241e !important;
+  color: #0b0f0d !important;
 }
 
-
-/* ==========================================================================
-   GLOBAL BRAND THEME & CONTRAST ENFORCEMENT
-   1. Convert all legacy pink/rose buttons to Brand Lime Green (#d0f471)
-   2. Ensure text on light cards/buttons is never hidden or white
-   ========================================================================== */
-
-button[class*="bg-rose-"]:not([class*="bg-rose-50"]),
-a[class*="bg-rose-"]:not([class*="bg-rose-50"]),
-button[class*="bg-pink-"],
-a[class*="bg-pink-"],
-button[class*="bg-[#E11D48]"],
-a[class*="bg-[#E11D48]"],
-[class*="from-[#E11D48]"],
-[class*="to-[#FF2E63]"],
-[class*="to-[#E11D48]"] {
-  background-color: #d0f471 !important;
-  background-image: none !important;
-  color: #071A13 !important;
-  font-weight: 700 !important;
-  border-color: rgba(215, 243, 175, 0.4) !important;
-}
-
-button[class*="bg-rose-"] *,
-a[class*="bg-rose-"] *,
-button[class*="bg-pink-"] *,
-a[class*="bg-pink-"] *,
-button[class*="bg-[#E11D48]"] *,
-a[class*="bg-[#E11D48]"] *,
-button[class*="bg-[#d0f471]"] *,
-a[class*="bg-[#d0f471]"] *,
-[class*="bg-[#d0f471]"] *,
-[class*="bg-[#d0f471]"] span,
-[class*="bg-[#d0f471]"] svg,
-[class*="bg-[#d0f471]"] .text-white,
-button[class*="bg-[#d0f471]"] span,
-button[class*="bg-[#d0f471]"] .text-white {
-  color: #071A13 !important;
-  stroke: #071A13 !important;
-}
-
-/* Dark Green and Charcoal Buttons: Always Pure White Text & Icons */
-button[class*="bg-[#10241E]"] span,
-button[class*="bg-[#10241e]"] span,
-button[class*="bg-[#091712]"] span,
-button[class*="bg-[#1C1C1C]"] span,
-button[class*="bg-[#151515]"] span,
-button[class*="bg-[#10241E]"] .text-white,
-button[class*="bg-[#10241e]"] .text-white {
-  color: #FFFFFF !important;
-}
-
-/* Guard against invisible white text on white/gray button tabs and cards (excluding dark workspaces) */
-.bg-white button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]):not(.gemini-workspace *),
-.bg-gray-100 button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]):not(.gemini-workspace *),
-[class*="bg-[#f3f4ee]"]:not([class*="bg-[#10241e]"]):not(.gemini-workspace) button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]):not(.gemini-workspace *),
-[class*="bg-[#e9ece4]"]:not([class*="bg-[#10241e]"]):not(.gemini-workspace) button.text-white:not([class*="bg-[#10241e]"]):not([class*="bg-[#091712]"]):not([class*="bg-[#10241E]"]):not(.gemini-workspace *),
-.bg-white span.text-white:not(.gemini-workspace *):not([class*="bg-[#10241e]"] *),
-.bg-white h4.text-white:not(.gemini-workspace *):not([class*="bg-[#10241e]"] *),
-.bg-white p.text-white:not(.gemini-workspace *):not([class*="bg-[#10241e]"] *) {
-  color: #10241e !important;
+button[class~="bg-rose-600"],
+a[class~="bg-rose-600"],
+button[class~="bg-[#E11D48]"],
+a[class~="bg-[#E11D48]"] {
+  background-color: #d0f471;
+  background-image: none;
+  color: #0b0f0d;
+  font-weight: 800;
+  border: 2px solid #0b0f0d;
+  box-shadow: 3px 3px 0 #0b0f0d;
 }
 
 
