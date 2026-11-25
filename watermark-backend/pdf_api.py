@@ -16,9 +16,13 @@ from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, Query
 from fastapi.responses import FileResponse, Response
 from pdf_engine import analyze_pdf, clean_pdf, clean_image, detect_pdf, detect_image_watermarks
 
+import os
+
 router = APIRouter(prefix="/api/pdf", tags=["PDF cleanup"])
-ROOT = Path(__file__).resolve().parent / "document_uploads"
-ROOT.mkdir(exist_ok=True)
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+DEFAULT_PDF_ROOT = "/tmp/document_uploads" if IS_VERCEL else str(Path(__file__).resolve().parent / "document_uploads")
+ROOT = Path(os.environ.get("DOCUMENT_UPLOAD_DIR", DEFAULT_PDF_ROOT))
+ROOT.mkdir(parents=True, exist_ok=True)
 jobs = {}
 slots = asyncio.Semaphore(2)
 MAX_BYTES = 50 * 1024 * 1024  # 50 MB

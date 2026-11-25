@@ -10,10 +10,12 @@ Debug originals/masks/results are written only on explicit local opt-in.
 from __future__ import annotations
 
 import gc
+import hashlib
 import io
 import json
 import logging
 import os
+import tempfile
 import time
 import threading
 from datetime import datetime
@@ -22,30 +24,167 @@ from typing import Any
 
 import cv2
 import numpy as np
+import requests
 from PIL import Image, ImageOps
 from bg_model_inference import predict_foreground_mask, combine_source_alpha, mask_statistics
 
 logger = logging.getLogger(__name__)
 
-# Keep the model cache local and configurable
-os.environ["U2NET_HOME"] = os.getenv("U2NET_HOME", r"D:\models\rembg")
+BASE_DIR = Path(__file__).resolve().parent
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+_DEFAULT_MODEL_HOME = (
+    "/tmp/rembg"
+    if IS_VERCEL
+    else (r"D:\models\rembg" if os.name == "nt" else str(Path.home() / ".u2net"))
+)
+
+# Keep the model cache local and configurable (writable /tmp on Vercel serverless)
+os.environ["U2NET_HOME"] = os.getenv("U2NET_HOME", _DEFAULT_MODEL_HOME)
 
 # Production privacy: DEBUG is false by default. No user images written to disk unless explicitly enabled.
 DEBUG = os.getenv("BELLIX_DEBUG", "false").lower() in ("true", "1", "yes")
-SCRATCH_ROOT = Path(os.getenv("BELLIX_SCRATCH_DIR", str(Path(__file__).resolve().parents[1] / 'scratch' / 'background-removal')))
+_DEFAULT_SCRATCH = (
+    "/tmp/scratch/background-removal"
+    if IS_VERCEL
+    else str(BASE_DIR.parent / "scratch" / "background-removal")
+)
+SCRATCH_ROOT = Path(os.getenv("BELLIX_SCRATCH_DIR", _DEFAULT_SCRATCH))
 DEBUG_DIR = SCRATCH_ROOT / "debug"
-YUNET_WEIGHTS_PATH = Path("d:/logo-ai-remover-main/watermark-backend/weights/face_detection_yunet_2023mar.onnx")
+YUNET_WEIGHTS_PATH = Path(
+    os.getenv("YUNET_WEIGHTS_PATH", str(BASE_DIR / "weights" / "face_detection_yunet_2023mar.onnx"))
+)
 
 # ---------------------------------------------------------------------------
-# rembg session management & neural fallback chain
+# Direct ONNX Runtime session management (no rembg/scipy/numba/llvmlite dependency)
 # ---------------------------------------------------------------------------
 try:
-    from rembg import new_session
-    from rembg import remove as rembg_remove
-    REMBG_AVAILABLE = True
+    import onnxruntime as ort
+    _ONNXRUNTIME_AVAILABLE = True
 except ImportError:
-    REMBG_AVAILABLE = False
-    logger.warning("rembg not installed — neural models unavailable")
+    ort = None
+    _ONNXRUNTIME_AVAILABLE = False
+
+REMBG_AVAILABLE = _ONNXRUNTIME_AVAILABLE
+if not REMBG_AVAILABLE:
+    logger.warning("onnxruntime not installed — neural models unavailable")
+
+_MODEL_SPECS: dict[str, dict[str, str]] = {
+    "isnet-general-use": {
+        "local_name": "isnet-general-use.onnx",
+        "release_name": "isnet-general-use.onnx",
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx",
+        "md5": "fc16ebd8b0c10d971d3513d564d01e29",
+    },
+    "u2net": {
+        "local_name": "u2net.onnx",
+        "release_name": "u2net.onnx",
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx",
+        "md5": "60024c5c889badc19c04ad937298a77b",
+    },
+    "birefnet-general-lite": {
+        "local_name": "birefnet-general-lite.onnx",
+        "release_name": "BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx",
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx",
+        "md5": "4fab47adc4ff364be1713e97b7e66334",
+    },
+    "birefnet-general": {
+        "local_name": "birefnet-general.onnx",
+        "release_name": "BiRefNet-general-epoch_244.onnx",
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/BiRefNet-general-epoch_244.onnx",
+        "md5": "7a35a0141cbbc80de11d9c9a28f52697",
+    },
+}
+
+
+class _DirectONNXSession:
+    """Lightweight ONNX Runtime wrapper exposing `.inner_session` and `.normalize`."""
+
+    def __init__(self, model_name: str, model_path: Path, sess_opts=None, providers=None):
+        self.model_name = model_name
+        self.inner_session = ort.InferenceSession(
+            str(model_path),
+            sess_options=sess_opts,
+            providers=providers or ["CPUExecutionProvider"],
+        )
+
+    def normalize(
+        self,
+        img: Image.Image,
+        mean: tuple[float, float, float],
+        std: tuple[float, float, float],
+        size: tuple[int, int],
+    ) -> dict[str, np.ndarray]:
+        resized = img.convert("RGB").resize(size, Image.Resampling.LANCZOS)
+        arr = np.asarray(resized, dtype=np.float32)
+        arr = arr / max(float(np.max(arr)), 1e-6)
+        mean_arr = np.asarray(mean, dtype=np.float32).reshape(1, 1, 3)
+        std_arr = np.asarray(std, dtype=np.float32).reshape(1, 1, 3)
+        tensor = np.ascontiguousarray(((arr - mean_arr) / std_arr).transpose(2, 0, 1)[None])
+        input_name = self.inner_session.get_inputs()[0].name
+        return {input_name: tensor}
+
+
+def _resolve_or_download_onnx(model_name: str) -> Path:
+    spec = _MODEL_SPECS.get(model_name)
+    if spec is None:
+        raise ValueError(f"Unsupported neural model: {model_name}")
+
+    roots = [
+        Path(os.getenv("U2NET_HOME", _DEFAULT_MODEL_HOME)),
+        Path(os.path.expanduser(os.getenv("REMBG_HOME", "~/.rembg"))),
+        Path.home() / ".u2net",
+    ]
+    names = [spec["local_name"], spec["release_name"]]
+    for root in roots:
+        for fname in names:
+            for candidate in (root / "models" / model_name / fname, root / fname):
+                if candidate.is_file() and candidate.stat().st_size > 0:
+                    return candidate
+
+    target_dir = Path(os.getenv("U2NET_HOME", _DEFAULT_MODEL_HOME)) / "models" / model_name
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_path = target_dir / spec["local_name"]
+
+    logger.info("Downloading ONNX model weights for %s ...", model_name)
+    hasher = hashlib.md5()
+    fd, tmp_name = tempfile.mkstemp(prefix=f"{model_name}-", suffix=".onnx.tmp", dir=str(target_dir))
+    os.close(fd)
+    tmp_path = Path(tmp_name)
+    try:
+        with requests.get(spec["url"], stream=True, timeout=120) as resp:
+            resp.raise_for_status()
+            with tmp_path.open("wb") as handle:
+                for chunk in resp.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        handle.write(chunk)
+                        hasher.update(chunk)
+        expected_md5 = spec.get("md5")
+        if expected_md5 and not os.getenv("MODEL_CHECKSUM_DISABLED") and hasher.hexdigest() != expected_md5:
+            raise ValueError(f"Checksum mismatch downloading {model_name}")
+        os.replace(tmp_path, target_path)
+    except Exception:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+        raise
+    return target_path
+
+
+def new_session(model_name: str, sess_opts=None, providers=None):
+    """Create a direct ONNX session for supported segmentation models."""
+    if not _ONNXRUNTIME_AVAILABLE:
+        raise RuntimeError("onnxruntime is not available")
+    if model_name in _MODEL_SPECS:
+        model_path = _resolve_or_download_onnx(model_name)
+        return _DirectONNXSession(
+            model_name,
+            model_path,
+            sess_opts=sess_opts,
+            providers=providers or ["CPUExecutionProvider"],
+        )
+    # Optional fallback only if rembg is explicitly installed for unlisted custom models.
+    from rembg import new_session as _rembg_new_session
+    return _rembg_new_session(model_name, sess_opts=sess_opts)
+
 
 def ensure_rembg_installed() -> bool:
     return REMBG_AVAILABLE
@@ -66,18 +205,21 @@ DEFAULT_NEURAL_CHAIN = [
 ]
 
 def _get_session(model_name: str):
-    """Return a cached rembg session for the given neural model."""
+    """Return a cached ONNX segmentation session for the given neural model."""
     if not REMBG_AVAILABLE:
         return None
     if model_name not in _SESSION_CACHE:
         logger.info(f"Loading neural model: {model_name} ...")
         t0 = time.time()
         try:
-            import onnxruntime as ort
             opts = ort.SessionOptions()
             opts.intra_op_num_threads = max(1, int(os.getenv('BELLIX_BG_CPU_THREADS', '1')))
             opts.inter_op_num_threads = 1
-            _SESSION_CACHE[model_name] = new_session(model_name, sess_opts=opts)
+            _SESSION_CACHE[model_name] = new_session(
+                model_name,
+                sess_opts=opts,
+                providers=["CPUExecutionProvider"],
+            )
             logger.info('Model %s active providers: %s', model_name, _SESSION_CACHE[model_name].inner_session.get_providers())
             logger.info(f"Model {model_name} loaded in {time.time()-t0:.2f}s")
         except Exception as exc:
@@ -518,9 +660,24 @@ def decontaminate_colors(img_rgb: np.ndarray, alpha_f: np.ndarray) -> np.ndarray
         clean_rgb = img_rgb.copy()
         clean_rgb[semi] = fg_u8[semi]
         return clean_rgb
+    except ImportError:
+        pass
     except Exception as exc:
-        logger.debug(f"Color decontamination fallback: {exc}")
-        return img_rgb.copy()
+        logger.debug(f"PyMatting decontamination fallback: {exc}")
+
+    # Pure OpenCV foreground color propagation (no scipy/numba/pymatting needed).
+    sure_fg = (alpha_f >= 0.95).astype(np.float32)
+    if np.any(sure_fg > 0):
+        fg_src = img_rgb.astype(np.float32) * sure_fg[..., None]
+        num = cv2.GaussianBlur(fg_src, (11, 11), 3.0)
+        den = cv2.GaussianBlur(sure_fg, (11, 11), 3.0)
+        valid = semi & (den > 1e-4)
+        if np.any(valid):
+            clean_rgb = img_rgb.copy()
+            est = np.clip(num / np.maximum(den[..., None], 1e-4), 0, 255).astype(np.uint8)
+            clean_rgb[valid] = est[valid]
+            return clean_rgb
+    return img_rgb.copy()
 
 
 def extract_text_glyph_mask(img_rgb: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray:

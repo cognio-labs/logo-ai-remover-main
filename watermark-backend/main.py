@@ -73,7 +73,9 @@ logger = logging.getLogger("watermark-backend")
 # Application paths & configuration
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
-UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", str(BASE_DIR / "uploads")))
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+DEFAULT_UPLOAD_DIR = "/tmp/uploads" if IS_VERCEL else str(BASE_DIR / "uploads")
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", DEFAULT_UPLOAD_DIR))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 MAX_UPLOAD_SIZE = 500 * 1024 * 1024  # 500 MB max video upload
@@ -183,8 +185,10 @@ async def lifespan(app: FastAPI):
     logger.info("FFmpeg / FFprobe availability: %s", ffmpeg_ok)
     purge_startup_leftovers()
 
-    # Pre-warm neural background model session for instant < 3s user responses
+    # Pre-warm neural background model session locally for instant < 3s user responses
     def _warmup_neural_model():
+        if IS_VERCEL:
+            return
         try:
             from bg_remover_advanced import _get_session
             _get_session("isnet-general-use")

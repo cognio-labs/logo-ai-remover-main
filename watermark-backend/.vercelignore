@@ -1,8 +1,64 @@
+# Virtual environments & caches
+.venv/
+venv/
+env/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Git & local tooling
+.git/
+.vercel/
+.qa_tmp/
+.ui_dl/
+.vscode/
+.idea/
+
+# Runtime / scratch folders (never bundle local uploads or test outputs)
 uploads/
 outputs/
 image_jobs/
-__pycache__/
+document_uploads/
+temp_synthid/
+regression_results/
+test_images/
+tools/
+scratch/
+
+# Media, documents, logs, docs, and container files
 *.mp4
 *.avi
 *.mov
+*.webm
+*.mkv
+*.m4v
+*.pdf
+*.jpg
+*.jpeg
+*.log
+*.md
+*.whl
+*.pt
+*.pth
+*.npy
+*.npz
+*.upload
+*.quality.json
+Dockerfile
+docker-compose.yml
+.dockerignore
+run_backend.bat
 
+# Test / benchmark / dev-only scripts
+test_*.py
+run_*.py
+verify_*.py
+benchmark_harness.py
+update_video_app.js
+generate_alpha_ts.py
+requirements-dev.txt
+
+# Root debug PNGs (keep runtime alpha_mask.png; static/ only contains jpg/html/js)
+/*.png
+!/alpha_mask.png
