@@ -58,6 +58,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       "@tanstack/react-router": path.resolve(__dirname, "src/lib/router-compat.tsx"),
+      "onnxruntime-web": "gwr-onnxruntime-web",
     };
     return config;
   },

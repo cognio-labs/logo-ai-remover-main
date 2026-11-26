@@ -42,6 +42,9 @@ def frame_transform(matrix, origin):
     return result
 
 
+_WORKER_THREADS = max(2, min(4, int(os.environ.get("BELLIX_WORKER_THREADS") or (os.cpu_count() or 2))))
+
+
 @lru_cache(maxsize=1)
 def _sparkle_mattes():
     root = Path(__file__).parent
@@ -83,7 +86,7 @@ def _load_fdncnn_session(model_name: str):
         candidate = base / model_name
         if candidate.is_file():
             opts = ort.SessionOptions()
-            opts.intra_op_num_threads = 2
+            opts.intra_op_num_threads = _WORKER_THREADS
             opts.inter_op_num_threads = 1
             opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
             return ort.InferenceSession(str(candidate), sess_options=opts, providers=["CPUExecutionProvider"])
@@ -450,7 +453,7 @@ def _find_opaque_or_colored_sparkle(bgr_samples, short, origin, hints=False):
     best_score = 0.0
     min_score = 0.48 if hints else 0.65
 
-    for template in mattes[:3]:
+    for template in mattes:
         native = template.shape[0]
         for size in _candidate_sizes(short, max_dim, native, hints):
             if not hints and short >= 400 and size < 24:
@@ -492,6 +495,8 @@ def _find_opaque_or_colored_sparkle(bgr_samples, short, origin, hints=False):
                         continue
                     best_score = float(score)
                     best = (left + x, top + y, w, h), tmpl, best_score
+        if best_score >= 0.88:
+            break
     return best
 
 
@@ -800,8 +805,8 @@ def _sample_crops_bgr(src, region, total, count=12):
     select = "+".join(f"eq(n,{i})" for i in indices)
     filters = f"select='{select}',format=bgr24,crop={width}:{height}:{left}:{top}:exact=1"
     data = subprocess.check_output([
-        "ffmpeg", "-nostdin", "-v", "error", "-threads", "2", "-noautorotate",
-        "-i", src, "-map", "0:V:0", "-filter_threads", "2", "-vf", filters,
+        "ffmpeg", "-nostdin", "-v", "error", "-threads", str(_WORKER_THREADS), "-noautorotate",
+        "-i", src, "-map", "0:V:0", "-filter_threads", str(_WORKER_THREADS), "-vf", filters,
         "-fps_mode", "passthrough", "-c:v", "rawvideo", "-threads", "1",
         "-f", "rawvideo", "pipe:1",
     ])
@@ -1139,7 +1144,7 @@ def remove_watermark(
         pipe_format = "yuv420p" if native_yuv else "bgr24"
 
         decode = [
-            "ffmpeg", "-nostdin", "-v", "error", "-threads", "2", "-noautorotate", "-i", src,
+            "ffmpeg", "-nostdin", "-v", "error", "-threads", str(_WORKER_THREADS), "-noautorotate", "-i", src,
             "-map", "0:V:0", "-fps_mode", "passthrough", "-filter_threads", "1",
             "-pix_fmt", pipe_format, "-c:v", "rawvideo", "-threads", "1", "-f", "rawvideo", "pipe:1",
         ]
@@ -1149,7 +1154,7 @@ def remove_watermark(
             "-framerate", str(raw_rate), "-i", "pipe:0", "-i", src,
             "-map", "0:v:0", "-map", "1:a?", "-map_metadata", "1", "-map_metadata:s:v:0", "1:s:V:0",
             "-filter_threads", "1", *filter_args, *timing_args,
-            "-fps_mode", "passthrough", "-c:v", "libx264", "-threads", "2",
+            "-fps_mode", "passthrough", "-c:v", "libx264", "-threads", str(_WORKER_THREADS),
             "-crf", "14", "-preset", "ultrafast", "-pix_fmt", pixel_format, *colors,
             *audio_args, "-movflags", "+faststart+use_metadata_tags", str(encoded),
         ]

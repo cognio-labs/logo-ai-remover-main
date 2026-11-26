@@ -84,7 +84,8 @@ async def upload(request: Request, file: UploadFile = File(...)):
     job_id = str(uuid.uuid4())
     folder = ROOT / job_id
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / '.owner').write_text(request.state.user_id)
+    owner_id = getattr(request.state, 'user_id', 'anonymous')
+    (folder / '.owner').write_text(owner_id if owner_id else 'anonymous')
 
     filename = Path((file.filename or "document").replace("\\", "/")).name
     orig_ext = Path(filename).suffix.lower()

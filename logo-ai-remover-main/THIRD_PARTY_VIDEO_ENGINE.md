@@ -1,8 +1,9 @@
-# Gemini/Veo browser video engine attribution
+# Gemini image and video engine attribution
 
-Bellix's browser-local Gemini/Veo video workflow includes the packaged browser
-runtime from [`GargantuaX/gemini-watermark-remover`](https://github.com/GargantuaX/gemini-watermark-remover),
-version `1.0.45`, installed as `@pilio/gemini-watermark-remover`.
+Bellix uses the browser image and video runtimes from
+[`GargantuaX/gemini-watermark-remover`](https://github.com/GargantuaX/gemini-watermark-remover).
+The vendored source and browser bundles come from the local checkout at
+version `1.0.47`, commit `c596ae7`.
 
 The upstream runtime and the calibrated reverse-alpha work derived from AllenK
 (Kwyshell) are licensed under the MIT License. The required copyright and
@@ -11,12 +12,21 @@ permission notice is distributed with the deployed runtime at
 
 Included upstream runtime assets:
 
+- `src/lib/gwr-engine/` — calibrated image SDK, image worker source, video
+  processor source and their shared dependencies.
+- `workers/watermark-worker.js` — browser image processing bundle.
 - `video-preview.html` and `video-app.js` — WebCodecs/MediaBunny detection,
   per-frame restoration, encoding, audio packet passthrough, and MP4 muxing.
 - `models/allenk-fdncnn/*.onnx` — optional fixed-shape FDnCNN cleanup models.
 - `onnxruntime/*` — ONNX Runtime Web WASM runtime and its upstream notices.
 
-Bellix does not represent the FDnCNN model as a coordinate detector. Watermark
-candidate detection is performed by the upstream calibrated catalog, anchor
-search, temporal voting, and validation logic; ONNX is used only for the
+The image and video bundles are served from `public/gwr-engine/`. The development
+and production build scripts copy the three model weights into this directory
+from the pinned `@pilio/gemini-watermark-remover` package. The calibrated catalog,
+anchor search and temporal voting locate video marks. FDnCNN runs in the
 supported cleanup stage.
+
+Run `npm run build:gwr-engine` in the Bellix frontend after editing the vendored
+runtime. The original checkout, release files, scripts and fixtures were copied
+into the workspace's `vendor/gemini-watermark-remover/` for local reference.
+Its pnpm lockfile defines the source project's dependencies.

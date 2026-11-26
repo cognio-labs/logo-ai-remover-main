@@ -1,15 +1,20 @@
 # Bellix.us
 
-The Next.js Gemini video cleaner uses a dedicated FastAPI worker. See the
-[video cleaner setup, calibration, and QA guide](../watermark-backend/VIDEO_CLEANER.md).
+## Gemini watermark cleanup
+
+Open `/gemini-image-watermark-remover` to clean a visible Gemini watermark from
+a PNG, JPEG or WebP. The calibrated image engine runs in a browser worker and
+returns an image at the original dimensions.
 
 ## Gemini/Veo video cleanup
 
 Open `/gemini-video-watermark-remover` and select an MP4, MOV, WebM or MKV clip
-up to 500 MB. The browser uploads directly to the configured
-worker. When processing completes, use the comparison slider to inspect the
-result before downloading. If automatic detection misses, use **Manual
-position** to draw a small box around a visible mark.
+up to 500 MB. Automatic cleanup runs locally when the browser can process the
+clip. The configured FastAPI worker handles manual selection, crop mode and
+automatic cleanup when the browser engine can't produce a usable export.
+Browser cleanup shows the first processed frame while the MP4 exports. Use the
+comparison slider to review the complete video before downloading.
+See the [video worker setup and QA guide](../watermark-backend/VIDEO_CLEANER.md).
 
 Browser-based media cleanup, upscaling, video enhancement, background removal and PDF tools. Public site: <https://www.bellix.us/>.
 

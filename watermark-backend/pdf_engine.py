@@ -428,7 +428,7 @@ def _remove_native(source: Path, output: Path, page_indexes: list[int]) -> dict[
         return stream
 
     for index in page_indexes:
-        page = reader.pages[index]
+        page = writer.add_page(reader.pages[index])
         if page.get_contents() is not None:
             page.replace_contents(clean_stream(page.get_contents(), page.get("/Resources", {})))
         if "/Annots" in page:
@@ -439,7 +439,6 @@ def _remove_native(source: Path, output: Path, page_indexes: list[int]) -> dict[
                 else:
                     retained.append(ref)
             page[NameObject("/Annots")] = ArrayObject(retained)
-        writer.add_page(page)
     if removed == 0:
         raise ValueError("No native watermark layer found.")
     with output.open("wb") as handle:

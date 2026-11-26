@@ -3,7 +3,10 @@ import { access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const localBinPath = fileURLToPath(new URL('../../../bin/gwr.mjs', import.meta.url));
+const localBinPaths = [
+  fileURLToPath(new URL('../../../bin/gwr.mjs', import.meta.url)),
+  fileURLToPath(new URL('../../../../bin/gwr.mjs', import.meta.url))
+];
 const WINDOWS_SHELL = process.env.ComSpec || 'cmd.exe';
 const DEFAULT_CLI_PACKAGE_SPEC = process.env.GWR_SKILL_CLI_SPEC || '@pilio/gemini-watermark-remover';
 
@@ -60,15 +63,18 @@ function getPathFallbackCandidates(args) {
 }
 
 async function resolveCliCandidates(args) {
-  try {
-    await access(localBinPath);
-    return [{
-      command: process.execPath,
-      commandArgs: [localBinPath, ...args]
-    }];
-  } catch {
-    return getPathFallbackCandidates(args);
+  for (const binPath of localBinPaths) {
+    try {
+      await access(binPath);
+      return [{
+        command: process.execPath,
+        commandArgs: [binPath, ...args]
+      }];
+    } catch {
+      // Try next local binary location
+    }
   }
+  return getPathFallbackCandidates(args);
 }
 
 function spawnOnce(command, commandArgs, options) {

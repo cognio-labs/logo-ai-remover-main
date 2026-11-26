@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { VideoCompareSlider } from "@/components/site/VideoCompareSlider";
+import { processWithGeminiEngine } from "@/lib/geminiVideoEngine";
 type Point = [number, number];
 type Selection = [number, number, number, number];
 type WorkerResponse = {
@@ -74,11 +75,13 @@ export function JobVideoCleaner() {
 
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [cleanUrl, setCleanUrl] = useState<string | null>(null);
+  const [framePreviewUrl, setFramePreviewUrl] = useState<string | null>(null);
   const [resultNote, setResultNote] = useState<string | null>(null);
 
   const processingControllerRef = useRef<AbortController | null>(null);
   const origUrlRef = useRef<string | null>(null);
   const cleanUrlRef = useRef<string | null>(null);
+  const framePreviewRef = useRef<string | null>(null);
 
   const [manual, setManual] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -116,7 +119,14 @@ export function JobVideoCleaner() {
         URL.revokeObjectURL(cleanUrlRef.current);
         cleanUrlRef.current = null;
       }
+      if (framePreviewRef.current) URL.revokeObjectURL(framePreviewRef.current);
     };
+  }, []);
+
+  const clearFramePreview = useCallback(() => {
+    if (framePreviewRef.current) URL.revokeObjectURL(framePreviewRef.current);
+    framePreviewRef.current = null;
+    setFramePreviewUrl(null);
   }, []);
 
   useEffect(() => {
@@ -157,6 +167,7 @@ export function JobVideoCleaner() {
 
       processingControllerRef.current?.abort();
       processingControllerRef.current = null;
+      clearFramePreview();
       selectionStart.current = null;
 
       if (origUrlRef.current) URL.revokeObjectURL(origUrlRef.current);
@@ -184,7 +195,7 @@ export function JobVideoCleaner() {
       setIsPlaying(false);
       setStatusMsg("Preparing video upload");
     },
-    [],
+    [clearFramePreview],
   );
 
   // Clipboard Paste Handler (Ctrl+V)
@@ -264,6 +275,7 @@ export function JobVideoCleaner() {
 
   const resetState = () => {
     pauseBoth();
+    clearFramePreview();
     processingControllerRef.current?.abort();
     processingControllerRef.current = null;
     if (origUrlRef.current) URL.revokeObjectURL(origUrlRef.current);
@@ -290,6 +302,7 @@ export function JobVideoCleaner() {
   const handleCancel = () => {
     processingControllerRef.current?.abort();
     processingControllerRef.current = null;
+    clearFramePreview();
     setIsProcessing(false);
     setProgress(0);
     setStatusMsg("Processing cancelled.");
@@ -301,6 +314,8 @@ export function JobVideoCleaner() {
     const controller = new AbortController();
     const { signal } = controller;
     processingControllerRef.current = controller;
+    origVideoRef.current?.pause();
+    clearFramePreview();
     if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
     cleanUrlRef.current = null;
     setCleanUrl(null);
@@ -310,14 +325,89 @@ export function JobVideoCleaner() {
     setIsError(false);
     setErrorDetails(null);
     setProgress(2);
-    setStatusMsg("Connecting to the video worker");
+    setStatusMsg("Preparing video...");
     let workerOrigin: string | null = null;
     let checkingConnection = false;
+    let browserRejectionMessage: string | null = null;
+
+    const finalizeCleanBlob = (blob: Blob, qualityLabel: string) => {
+      const cleanBlobUrl = URL.createObjectURL(blob);
+      if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
+      cleanUrlRef.current = cleanBlobUrl;
+      setCleanUrl(cleanBlobUrl);
+      setManual(false);
+      setIsDone(true);
+      setProgress(100);
+      setStatusMsg("Processing complete. Review the result before downloading.");
+      emitToolEvent("processing_completed", "gemini-video-watermark-remover");
+      toast.success("Video export is ready to review.");
+
+      try {
+        const newJob = useUserStore.getState().addJob({
+          file_name: file.name,
+          file_type: "video",
+          tool_name: "Gemini & Veo Video Cleaner",
+          status: "completed",
+          quality: qualityLabel,
+          credits_used: 0,
+          file_url: origUrl,
+          result_url: cleanBlobUrl,
+        });
+        saveMediaBlob(newJob.id, blob, "video/mp4");
+      } catch {
+        // The processed MP4 remains available if local history storage fails.
+      }
+      setCurrentTime(0);
+      setSeekValue(0);
+      setIsPlaying(false);
+    };
 
     try {
+      const canUseBrowserEngine =
+        !position &&
+        cleanMode === "clean" &&
+        typeof VideoDecoder !== "undefined" &&
+        typeof VideoEncoder !== "undefined" &&
+        typeof OffscreenCanvas !== "undefined";
+
+      if (canUseBrowserEngine) {
+        try {
+          const browserResult = await processWithGeminiEngine(
+            file,
+            (prog) => {
+              setProgress(Math.min(99, Math.max(2, Math.round(prog.progress * 100))));
+              setStatusMsg(prog.message || "Removing watermark...");
+            },
+            signal,
+            (blob) => {
+              if (signal.aborted) return;
+              framePreviewRef.current = URL.createObjectURL(blob);
+              setFramePreviewUrl(framePreviewRef.current);
+            },
+          );
+          signal.throwIfAborted();
+          finalizeCleanBlob(browserResult.blob, "Browser-processed MP4");
+          return;
+        } catch (browserErr) {
+          if (signal.aborted || processingControllerRef.current !== controller) return;
+          clearFramePreview();
+          const msg = browserErr instanceof Error ? browserErr.message : String(browserErr);
+          const isDetectionReject =
+            /未检测到|没有检测到|置信度|no watermark|matches the original|unchanged/i.test(msg);
+          if (isDetectionReject) {
+            browserRejectionMessage =
+              "No confident Gemini sparkle was detected. Try Manual position over the visible sparkle.";
+          }
+          // Fall back to the Python FastAPI worker if reachable (handles unusual codecs,
+          // low-contrast variants, dark polarity, manual boxes, and crop-and-scale).
+        }
+      }
+
+      setStatusMsg("Connecting to the video worker");
       const config = await fetch("/api/video-worker", { signal, cache: "no-store" });
       const worker = await readWorkerResponse(config);
       if (!config.ok || !worker?.origin) {
+        if (browserRejectionMessage) throw new Error(browserRejectionMessage);
         throw new Error(worker?.detail || "The video worker is unavailable.");
       }
       workerOrigin = worker.origin;
@@ -329,6 +419,7 @@ export function JobVideoCleaner() {
       });
       const health = await readWorkerResponse(healthResponse);
       if (!healthResponse.ok || !health?.ok || health.ffmpeg !== true) {
+        if (browserRejectionMessage) throw new Error(browserRejectionMessage);
         throw workerError(healthResponse, health, "The video worker is not ready");
       }
       checkingConnection = false;
@@ -385,7 +476,7 @@ export function JobVideoCleaner() {
       }
 
       setProgress(99);
-      setStatusMsg("Downloading processed MP4");
+      setStatusMsg("Finalizing video...");
       const result = await accountFetch(`${workerOrigin}/api/video/download/${jobId}`, options);
       if (!result.ok) {
         throw workerError(
@@ -398,37 +489,17 @@ export function JobVideoCleaner() {
       signal.throwIfAborted();
       if (!blob.size) throw new Error("The worker returned an empty MP4.");
       if (blob.type !== "video/mp4") throw new Error("The worker returned an unexpected file type.");
-      const cleanBlobUrl = URL.createObjectURL(blob);
-      if (cleanUrlRef.current) URL.revokeObjectURL(cleanUrlRef.current);
-      cleanUrlRef.current = cleanBlobUrl;
-      setCleanUrl(cleanBlobUrl);
-      setManual(false);
-      setIsDone(true);
-      setProgress(100);
-      setStatusMsg("Processing complete. Review the result before downloading.");
-      emitToolEvent("processing_completed", "gemini-video-watermark-remover");
-      toast.success("Video export is ready to review.");
-
-      try {
-        const newJob = useUserStore.getState().addJob({
-          file_name: file.name,
-          file_type: "video",
-          tool_name: "Gemini & Veo Video Cleaner",
-          status: "completed",
-          quality: "Original resolution MP4",
-          credits_used: 0,
-          file_url: origUrl,
-          result_url: cleanBlobUrl,
-        });
-        saveMediaBlob(newJob.id, blob, "video/mp4");
-      } catch {
-        // The processed MP4 remains available if local history storage fails.
-      }
-      setCurrentTime(0);
-      setSeekValue(0);
-      setIsPlaying(false);
+      finalizeCleanBlob(blob, "Original resolution MP4");
     } catch (error) {
       if (signal.aborted || processingControllerRef.current !== controller) return;
+      if (browserRejectionMessage && checkingConnection) {
+        setIsError(true);
+        setErrorDetails(browserRejectionMessage);
+        setStatusMsg("Processing failed");
+        emitToolEvent("processing_failed", "gemini-video-watermark-remover");
+        toast.error("No Gemini sparkle detected.");
+        return;
+      }
       const isConnectionError =
         checkingConnection && error instanceof TypeError && /fetch|network/i.test(error.message);
 
@@ -448,6 +519,7 @@ export function JobVideoCleaner() {
     } finally {
       if (processingControllerRef.current === controller) {
         processingControllerRef.current = null;
+        clearFramePreview();
         setIsProcessing(false);
       }
     }
@@ -488,6 +560,8 @@ export function JobVideoCleaner() {
     if (file && origUrl) void handleProcess();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, origUrl]);
+
+
 
   /* -------------------------------------------------------------------------- */
   /* STEP 1: UPLOAD BOX                                                         */
@@ -655,8 +729,8 @@ export function JobVideoCleaner() {
             }
           >
             <span className="absolute left-3 top-3 z-10 rounded-full bg-black/85 px-3 py-1 text-xs font-bold text-white">
-              {isDone
-                ? "Original video"
+              {framePreviewUrl
+                ? "Processed frame preview"
                 : isProcessing
                   ? "Scanning original video"
                   : "Original video"}
@@ -666,8 +740,7 @@ export function JobVideoCleaner() {
               src={origUrl}
               playsInline
               muted={isMuted}
-              autoPlay={!manual}
-              loop={isProcessing && !manual}
+              autoPlay={!manual && !isProcessing}
               preload="auto"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
@@ -691,7 +764,14 @@ export function JobVideoCleaner() {
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
             />
-            {previewError && (
+            {framePreviewUrl && (
+              <img
+                src={framePreviewUrl}
+                alt="A frame from the video with the watermark processed"
+                className="pointer-events-none absolute inset-0 size-full bg-[#091712] object-contain"
+              />
+            )}
+            {previewError && !framePreviewUrl && (
               <p className="absolute px-5 text-center text-sm text-white">
                 This browser cannot preview the original format. The worker can still process it.
               </p>

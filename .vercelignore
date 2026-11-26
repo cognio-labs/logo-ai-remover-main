@@ -15,6 +15,7 @@ backend/storage
 backend/models/weights
 .git
 .agents
+vendor/gemini-watermark-remover/
 *.pyc
 __pycache__
 bun.lock

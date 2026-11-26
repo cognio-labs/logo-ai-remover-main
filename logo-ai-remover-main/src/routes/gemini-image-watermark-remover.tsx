@@ -34,10 +34,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  cleanGeminiWatermarkPrecision,
-  cleanGeminiWatermarkPrecisionSync,
-} from "@/lib/geminiPrecisionEngine";
+import { cleanGeminiWatermarkPrecision } from "@/lib/geminiPrecisionEngine";
 import { HowItWorksGuide } from "@/components/site/HowItWorksGuide";
 import { howItWorksGuides } from "@/data/howItWorksGuides";
 
@@ -85,24 +82,6 @@ function calcRect(W: number, H: number, boxPct: number, offsetPct: number): Corn
     h: boxSize,
     g: Math.round((offsetPct / 100) * S),
   };
-}
-
-/**
- * Precise targeted watermark cleanup:
- * Only cleans the white watermark sparkle pixels, leaving the background 100% untouched.
- * ZERO background blur, ZERO black shadow.
- */
-function cleanWatermarkIconPrecise(
-  g: CanvasRenderingContext2D,
-  W: number,
-  H: number,
-  R: CornerRect
-): void {
-  const origData = g.getImageData(0, 0, W, H);
-  const result = cleanGeminiWatermarkPrecisionSync(origData, { minConfidence: 0.35 });
-  if (result.applied) {
-    g.putImageData(result.imageData, 0, 0);
-  }
 }
 
 function generateLoupes(
@@ -289,6 +268,7 @@ function generateProceduralScene(
 interface ImageItem {
   id: string;
   name: string;
+  sourceFile: File;
   canvas: HTMLCanvasElement;
   beforeURL: string;
   afterURL?: string;
@@ -572,6 +552,30 @@ export default function GeminiImageWatermarkRemoverPage() {
   const [gallerySamples, setGallerySamples] = useState<GallerySample[]>(INITIAL_GALLERY_SAMPLES);
   const [scanStage, setScanStage] = useState(0);
   const [scanProgress, setScanProgress] = useState(0);
+
+  const runWithLiveScanProgress = useCallback(async <T,>(task: Promise<T>): Promise<T> => {
+    const liveSteps = [
+      { stage: 0, progress: 25 },
+      { stage: 1, progress: 50 },
+      { stage: 2, progress: 72 },
+      { stage: 3, progress: 90 },
+    ];
+    let stepIdx = 0;
+    const timer = setInterval(() => {
+      stepIdx = Math.min(stepIdx + 1, liveSteps.length - 1);
+      const nextStep = liveSteps[stepIdx];
+      setScanStage(nextStep.stage);
+      setScanProgress(nextStep.progress);
+    }, 120);
+    try {
+      const done = await task;
+      setScanStage(4);
+      setScanProgress(100);
+      return done;
+    } finally {
+      clearInterval(timer);
+    }
+  }, []);
   const [zoom, setZoom] = useState(1);
   const [fullscreen, setFullscreen] = useState(false);
   const [loupeZoom, setLoupeZoom] = useState<"off" | "4x" | "8x">("off");
@@ -614,18 +618,18 @@ export default function GeminiImageWatermarkRemoverPage() {
       // Draw original
       g.drawImage(item.canvas, 0, 0);
 
-      // 1. Calibrated 4-stage precision pipeline (ZERO shadow, ZERO star outline, ZERO blur patch)
       let watermarkCleaned = false;
+      let directBlob: Blob | undefined;
       try {
         const cleanResult = await cleanGeminiWatermarkPrecision(afterCanvas, {
-          minConfidence: 0.55,
-          preferBackend: true,
+          sourceFile: item.sourceFile,
         });
 
         if (cleanResult.applied) {
           g.clearRect(0, 0, W, H);
           g.drawImage(cleanResult.canvas, 0, 0);
           watermarkCleaned = true;
+          directBlob = cleanResult.processedBlob;
 
           if (cleanResult.box && cleanResult.box.w > 0) {
             R = {
@@ -641,10 +645,10 @@ export default function GeminiImageWatermarkRemoverPage() {
         console.warn("Watermark precision engine processing error:", err);
       }
 
-      // If no watermark was detected, the precision engine returns the image 100% untouched
-      // so subjects, hands, zippers, and backgrounds are never damaged.
 
-      const blob = await new Promise<Blob | null>((resolve) => afterCanvas.toBlob(resolve, "image/png"));
+      const blob =
+        directBlob ??
+        (await new Promise<Blob | null>((resolve) => afterCanvas.toBlob(resolve, "image/png")));
       if (!blob) throw new Error("Could not encode image for processing.");
       const afterURL = URL.createObjectURL(blob);
       const loupes = generateLoupes(item.canvas, afterCanvas, R);
@@ -710,6 +714,7 @@ export default function GeminiImageWatermarkRemoverPage() {
         const rawItem: ImageItem = {
           id: `upload_${Date.now()}_${i}`,
           name: file.name,
+          sourceFile: file,
           canvas,
           beforeURL: objUrl,
           width: img.naturalWidth,
@@ -729,25 +734,10 @@ export default function GeminiImageWatermarkRemoverPage() {
       setScanStage(0);
       setScanProgress(10);
 
-      // 2. Start background inpainting in parallel with smooth 3-second AI scanner
-      const processPromise = Promise.all(newItems.map((item) => processItem(item, sizePct, marginPct)));
-
-      // 3. Cinematic 3-second AI scanning sequence (Stage 0 to Stage 4 across ~3.0s)
-      const animSteps = [
-        { stage: 0, progress: 20, delay: 550 },
-        { stage: 1, progress: 44, delay: 650 },
-        { stage: 2, progress: 70, delay: 750 },
-        { stage: 3, progress: 94, delay: 650 },
-        { stage: 4, progress: 100, delay: 400 },
-      ];
-
-      for (const step of animSteps) {
-        setScanStage(step.stage);
-        setScanProgress(step.progress);
-        await new Promise((res) => setTimeout(res, step.delay));
-      }
-
-      const processedItems = await processPromise;
+      // Run inpainting immediately without artificial delay while updating scan stage cleanly
+      const processedItems = await runWithLiveScanProgress(
+        Promise.all(newItems.map((item) => processItem(item, sizePct, marginPct)))
+      );
 
       setItems((prev) =>
         prev.map((item) => {
@@ -762,7 +752,7 @@ export default function GeminiImageWatermarkRemoverPage() {
         toast.success(
           processedItems.length > 1
             ? `${processedItems.length} images cleaned automatically!`
-            : "Gemini watermark removed cleanly in 3s!"
+            : "Gemini watermark removed cleanly!"
         );
       } else if (cleanedCount > 0) {
         toast.warning(
@@ -790,26 +780,9 @@ export default function GeminiImageWatermarkRemoverPage() {
       setScanProgress(10);
 
       try {
-        const processPromise = Promise.all(
-          pending.map((item) => processItem(item, sizePct, marginPct))
+        const processedList = await runWithLiveScanProgress(
+          Promise.all(pending.map((item) => processItem(item, sizePct, marginPct)))
         );
-
-        // Cinematic 3-second scanning sequence
-        const animSteps = [
-          { stage: 0, progress: 20, delay: 550 },
-          { stage: 1, progress: 44, delay: 650 },
-          { stage: 2, progress: 70, delay: 750 },
-          { stage: 3, progress: 94, delay: 650 },
-          { stage: 4, progress: 100, delay: 400 },
-        ];
-
-        for (const step of animSteps) {
-          setScanStage(step.stage);
-          setScanProgress(step.progress);
-          await new Promise((res) => setTimeout(res, step.delay));
-        }
-
-        const processedList = await processPromise;
 
         setItems((prev) =>
           prev.map((candidate) => {
@@ -822,7 +795,7 @@ export default function GeminiImageWatermarkRemoverPage() {
           toast.success(
             pending.length > 1
               ? `${pending.length} image(s) cleaned successfully!`
-              : "Gemini watermark removed successfully in 3s!"
+              : "Gemini watermark removed successfully!"
           );
         } else if (cleanedCount > 0) {
           toast.warning(

@@ -47,7 +47,7 @@ Completing this documentation setup does not complete the product backlog.
 - Video cleanup remains incomplete: the exact cartoon MP4 has now been tested end to end (240 frames, original AAC audio preserved), but NS inpainting smears floor detail and the output detector still flags frames 0 and 63. Resolve reconstruction quality and canceled Chrome save downloads. Validate VFR/rotation and large target jumps before wider claims.
 - [ ] **VIDEO-QUALITY: Full-video visual review.** Inspect real Gemini/Veo source and processed MP4 frame by frame, including moving marks, scene cuts, audio sync, and download reliability. The single-box UI and frame progress do not prove complete watermark removal.
   - The reported landscape clip was re-exported using calibrated alpha restoration. Sampled frames retain the background edges where the previous rectangular patch appeared.
-- [ ] **VIDEO-DEPLOY:** Attach the Dockerized FastAPI worker to an HTTPS service, set Vercel `VIDEO_WORKER_URL`, and run an upload and download smoke test on bellix.us.
+- [ ] **VIDEO-DEPLOY:** Attach the Dockerized FastAPI worker to an HTTPS service, set Vercel `VIDEO_WORKER_URL`, and verify browser and worker upload-to-download flows on bellix.us.
 
 ## 2026-11-17 SEO follow-up
 - [ ] Complete production/mobile tool processing and download QA; collect comparable mobile lab and CrUX data.

@@ -3,8 +3,12 @@ node_modules/
 .venv/
 __pycache__/
 *.py[cod]
+.qa_tmp/
+.ui_dl/
 .next/
-logo-ai-remover-main/.next/
+logo-ai-remover-main/.qa_tmp/
+.ui_dl/
+.next/
 watermark-backend/uploads/
 watermark-backend/outputs/
 watermark-backend/image_jobs/
@@ -87,3 +91,4 @@ debug/
 /user_*.png
 /view_*.png
 logo-ai-remover-main/output/
+/vendor/gemini-watermark-remover/

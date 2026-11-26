@@ -3,9 +3,8 @@
  * Upstream project and AllenK restoration work are MIT licensed. The complete
  * notice is shipped with the runtime at /gwr-engine/LICENSE.txt.
  *
- * We deliberately use the packaged browser runtime instead of the package's
- * `./video` SDK export: that export is a Node/Playwright adapter, while the
- * packaged page is the actual WebCodecs + MediaBunny implementation.
+ * Runs removeGeminiVideoWatermark directly in-process via WebCodecs + MediaBunny,
+ * eliminating the previous hidden iframe requirement and cross-realm File/Blob issues.
  */
 
 export type GeminiVideoPhase =
@@ -36,6 +35,12 @@ export type GeminiVideoResult = {
     sampledFrames: number;
     changedPixelRatio: number | null;
   };
+};
+
+export type ProcessedFramePreview = {
+  url: string;
+  applied: boolean;
+  decisionTier: string | null;
 };
 
 async function sampleRegion(
@@ -110,42 +115,91 @@ async function sampleRegion(
 async function auditExportRegion(
   file: File,
   blob: Blob,
-  detection: string,
+  detectionOrRect:
+    | string
+    | [number, number, number, number]
+    | { x: number; y: number; width: number; height: number }
+    | null
+    | undefined,
   signal?: AbortSignal,
 ): Promise<GeminiVideoResult["qualityAudit"]> {
-  const position = detection.match(/位置\s*(\d+)\s*,\s*(\d+)/);
-  const size = detection.match(/大小\s*(\d+)\s*x\s*(\d+)/i);
-  if (!position || !size)
-    return { status: "unavailable", sampledFrames: 0, changedPixelRatio: null };
-  const rect: [number, number, number, number] = [
-    Number(position[1]),
-    Number(position[2]),
-    Number(size[1]),
-    Number(size[2]),
-  ];
-  try {
-    const fractions = [0.02, 0.25, 0.5, 0.75, 0.95];
-    const [before, after] = await Promise.all([
-      sampleRegion(file, rect, fractions, signal),
-      sampleRegion(blob, rect, fractions, signal),
-    ]);
-    let changed = 0;
-    let pixels = 0;
-    for (let frame = 0; frame < before.length; frame++) {
-      for (let index = 0; index < before[frame].length; index += 4) {
-        const delta =
-          (Math.abs(before[frame][index] - after[frame][index]) +
-            Math.abs(before[frame][index + 1] - after[frame][index + 1]) +
-            Math.abs(before[frame][index + 2] - after[frame][index + 2])) /
-          3;
-        if (delta > 8) changed++;
-        pixels++;
-      }
+  let rect: [number, number, number, number] | null = null;
+
+  if (Array.isArray(detectionOrRect) && detectionOrRect.length === 4) {
+    rect = [
+      Math.round(detectionOrRect[0]),
+      Math.round(detectionOrRect[1]),
+      Math.round(detectionOrRect[2]),
+      Math.round(detectionOrRect[3]),
+    ];
+  } else if (
+    detectionOrRect &&
+    typeof detectionOrRect === "object" &&
+    "x" in detectionOrRect &&
+    "y" in detectionOrRect &&
+    "width" in detectionOrRect &&
+    "height" in detectionOrRect
+  ) {
+    rect = [
+      Math.round(detectionOrRect.x),
+      Math.round(detectionOrRect.y),
+      Math.round(detectionOrRect.width),
+      Math.round(detectionOrRect.height),
+    ];
+  } else if (typeof detectionOrRect === "string") {
+    const position = detectionOrRect.match(/位置\s*(\d+)\s*,\s*(\d+)/);
+    const size = detectionOrRect.match(/大小\s*(\d+)\s*x\s*(\d+)/i);
+    if (position && size) {
+      rect = [Number(position[1]), Number(position[2]), Number(size[1]), Number(size[2])];
     }
-    const changedPixelRatio = pixels ? changed / pixels : 0;
+  }
+
+  if (!rect || rect[2] <= 0 || rect[3] <= 0) {
+    return { status: "unavailable", sampledFrames: 0, changedPixelRatio: null };
+  }
+
+  try {
+    const primaryFractions = [0.5];
+    const [beforeMid, afterMid] = await Promise.all([
+      sampleRegion(file, rect, primaryFractions, signal),
+      sampleRegion(blob, rect, primaryFractions, signal),
+    ]);
+    const measureSamples = (beforeSamples: Uint8ClampedArray[], afterSamples: Uint8ClampedArray[]) => {
+      let changed = 0;
+      let pixels = 0;
+      for (let frame = 0; frame < beforeSamples.length; frame++) {
+        for (let index = 0; index < beforeSamples[frame].length; index += 4) {
+          const delta =
+            (Math.abs(beforeSamples[frame][index] - afterSamples[frame][index]) +
+              Math.abs(beforeSamples[frame][index + 1] - afterSamples[frame][index + 1]) +
+              Math.abs(beforeSamples[frame][index + 2] - afterSamples[frame][index + 2])) /
+            3;
+          if (delta > 8) changed++;
+          pixels++;
+        }
+      }
+      return { changed, pixels, ratio: pixels ? changed / pixels : 0 };
+    };
+    const midCheck = measureSamples(beforeMid, afterMid);
+    if (midCheck.ratio >= 0.01) {
+      return {
+        status: "review-required",
+        sampledFrames: 1,
+        changedPixelRatio: midCheck.ratio,
+      };
+    }
+
+    const tailFractions = [0.1, 0.9];
+    const [beforeTail, afterTail] = await Promise.all([
+      sampleRegion(file, rect, tailFractions, signal),
+      sampleRegion(blob, rect, tailFractions, signal),
+    ]);
+    const tailCheck = measureSamples(beforeTail, afterTail);
+    const totalPixels = midCheck.pixels + tailCheck.pixels;
+    const changedPixelRatio = totalPixels ? (midCheck.changed + tailCheck.changed) / totalPixels : 0;
     return {
       status: changedPixelRatio < 0.01 ? "unchanged" : "review-required",
-      sampledFrames: fractions.length,
+      sampledFrames: 3,
       changedPixelRatio,
     };
   } catch (error) {
@@ -197,64 +251,8 @@ async function readVideoShape(
   }
 }
 
-export type ProcessedFramePreview = {
-  url: string;
-  applied: boolean;
-  decisionTier: string | null;
-};
-
-type EngineWindow = Window & {
-  __gwrVideoCliProgress?: {
-    phase?: string;
-    progress?: number;
-    processedFrames?: number;
-    frameEstimate?: number;
-    aiDenoiseFrames?: number;
-    aiReuseFrames?: number;
-  };
-  __gwrVideoOverrideDenoiseBackend?: string;
-  __gwrVideoOverrideAdaptiveAlpha?: boolean;
-  __gwrVideoOverrideAllowLowConfidence?: boolean;
-  __gwrVideoOverrideHighQualityCleanup?: boolean;
-  __gwrVideoOverrideEdgeDenoiseStrength?: number;
-  __gwrVideoOverrideResidualCleanupStrength?: number;
-  __gwrVideoOverrideBitrate?: number;
-  DataTransfer: typeof DataTransfer;
-  File: typeof File;
-  Event: typeof Event;
-};
-
-const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
-
-function documentFor(frame: HTMLIFrameElement): Document {
-  const doc = frame.contentDocument;
-  if (!doc) throw new Error("The local video engine did not initialize.");
-  return doc;
-}
-
-function windowFor(frame: HTMLIFrameElement): EngineWindow {
-  const engineWindow = frame.contentWindow as EngineWindow | null;
-  if (!engineWindow) throw new Error("The local video engine is unavailable.");
-  return engineWindow;
-}
-
-async function waitUntil(
-  predicate: () => boolean,
-  timeoutMs: number,
-  signal?: AbortSignal,
-  timeoutMessage = "Local video processing timed out.",
-): Promise<void> {
-  const started = performance.now();
-  while (!predicate()) {
-    signal?.throwIfAborted();
-    if (performance.now() - started > timeoutMs) {
-      throw new Error(timeoutMessage);
-    }
-    await sleep(100);
-  }
-}
-
 export function assertBrowserVideoSupport(): void {
+  if (typeof window === "undefined") return;
   if (!("VideoDecoder" in window) || !("VideoEncoder" in window)) {
     throw new Error(
       "This local engine requires a current desktop version of Chrome or Edge with WebCodecs enabled.",
@@ -285,8 +283,13 @@ export async function createProcessedFramePreview(
   if (!context) throw new Error("Canvas frame processing is unavailable.");
   context.drawImage(video, 0, 0, width, height);
 
-  const { removeWatermarkFromImage } = await import("@pilio/gemini-watermark-remover/browser");
-  const result = await removeWatermarkFromImage(source, { adaptiveMode: "auto" });
+  const { removeWatermarkFromImage } = await import("@/lib/gwr-engine/sdk/browser.js");
+  const { getCachedImageWatermarkEngine } = await import("./gwrFdncnnRuntime");
+  const engine = await getCachedImageWatermarkEngine();
+  const result = await removeWatermarkFromImage(source, {
+    adaptiveMode: "auto",
+    engine: engine as never,
+  });
   if (!result.meta?.applied) {
     return { url: "", applied: false, decisionTier: result.meta?.decisionTier || null };
   }
@@ -311,259 +314,259 @@ export async function createProcessedFramePreview(
   };
 }
 
-export async function waitForGeminiEngine(
-  frame: HTMLIFrameElement,
-  signal?: AbortSignal,
-): Promise<void> {
-  await waitUntil(
-    () => {
-      try {
-        const doc = documentFor(frame);
-        // The controls exist before the blocking video-app.js script has executed.
-        // Sending the change event earlier loses the upload and later times out.
-        return Boolean(
-          doc.readyState === "complete" &&
-          doc.getElementById("fileInput") &&
-          doc.getElementById("processBtn"),
-        );
-      } catch {
-        return false;
-      }
-    },
-    45_000,
-    signal,
-    "The local video engine did not finish loading. Reload the page and try again.",
-  );
-}
-
-export async function loadVideoIntoGeminiEngine(
-  frame: HTMLIFrameElement,
-  file: File,
-  signal?: AbortSignal,
-): Promise<void> {
+export async function processWithGeminiEngine(
+  first: File | HTMLIFrameElement | null,
+  second?: File | ((progress: GeminiVideoProgress) => void),
+  third?: ((progress: GeminiVideoProgress) => void) | AbortSignal,
+  fourth?: AbortSignal | ((blob: Blob) => void),
+  fifth?: (blob: Blob) => void,
+): Promise<GeminiVideoResult> {
   assertBrowserVideoSupport();
-  await waitForGeminiEngine(frame, signal);
+
+  let file: File;
+  let onProgress: (progress: GeminiVideoProgress) => void;
+  let signal: AbortSignal | undefined;
+  let onFramePreview: ((blob: Blob) => void) | undefined;
+
+  if (first instanceof File) {
+    file = first;
+    onProgress = typeof second === "function" ? second : () => {};
+    signal = third instanceof AbortSignal ? third : undefined;
+    onFramePreview = typeof fourth === "function" ? fourth : undefined;
+  } else {
+    // Legacy signature compatibility: (frame, file, onProgress, signal, onFramePreview)
+    if (!(second instanceof File)) {
+      throw new Error("A video File must be provided to processWithGeminiEngine.");
+    }
+    file = second;
+    onProgress = typeof third === "function" ? third : () => {};
+    signal = fourth instanceof AbortSignal ? fourth : undefined;
+    onFramePreview = typeof fifth === "function" ? fifth : undefined;
+  }
+
   signal?.throwIfAborted();
 
-  const doc = documentFor(frame);
-  const engineWindow = windowFor(frame);
-  const input = doc.getElementById("fileInput") as HTMLInputElement | null;
-  if (!input) throw new Error("The local engine file input is unavailable.");
-
-  // MediaBunny intentionally checks `blob instanceof Blob`. A File created in
-  // the parent React window fails that check inside an iframe, so recreate the
-  // file in the engine realm before assigning it to the engine input.
-  const bytes = await file.arrayBuffer();
-  const engineFile = new engineWindow.File([bytes], file.name, {
-    type: file.type,
-    lastModified: file.lastModified,
+  onProgress({
+    phase: "loading-model",
+    progress: 0.02,
+    processedFrames: null,
+    frameEstimate: null,
+    message: "Initializing video engine...",
   });
-  const transfer = new engineWindow.DataTransfer();
-  transfer.items.add(engineFile);
-  input.files = transfer.files;
-  input.dispatchEvent(new engineWindow.Event("change", { bubbles: true }));
 
-  await waitUntil(
-    () => {
-      const video = doc.getElementById("originalVideo") as HTMLVideoElement | null;
-      const status = doc.getElementById("status");
-      if (status?.getAttribute("data-tone") === "error") {
-        throw new Error(
-          status.textContent?.trim() || "The local engine could not open this video.",
-        );
-      }
-      return Boolean(video?.src && video.readyState >= HTMLMediaElement.HAVE_METADATA);
-    },
-    30_000,
+  const {
+    detectGeminiVideoWatermark,
+    removeGeminiVideoWatermark,
+  } = await import("@/lib/gwr-engine/video/videoExport.js");
+  const {
+    createThrottledYieldToMainThread,
+    resolveVideoCleanupPlan,
+  } = await import("./gwrFdncnnRuntime");
+
+  signal?.throwIfAborted();
+
+  onProgress({
+    phase: "detecting",
+    progress: 0.05,
+    processedFrames: null,
+    frameEstimate: null,
+    message: "Scanning video for watermark...",
+  });
+
+  const yieldToMainThread = createThrottledYieldToMainThread(8);
+  const detected = await detectGeminiVideoWatermark(file, {
     signal,
-    "The local engine could not prepare this video. Check the file format and try again.",
+    fastDetection: true,
+    sampleCount: 12,
+    yieldToMainThread,
+    onProgress: (info: { progress?: number }) => {
+      signal?.throwIfAborted();
+      const raw = typeof info.progress === "number" ? Math.max(0, Math.min(1, info.progress)) : 0;
+      onProgress({
+        phase: "detecting",
+        progress: 0.05 + raw * 0.1,
+        processedFrames: null,
+        frameEstimate: null,
+        message: "Scanning video for watermark...",
+      });
+    },
+  });
+
+  signal?.throwIfAborted();
+  const cleanupPlan = await resolveVideoCleanupPlan(
+    detected?.detection,
+    detected?.metadata,
+    signal,
   );
-}
+  signal?.throwIfAborted();
 
-function mapProgress(engineWindow: EngineWindow, doc: Document): GeminiVideoProgress {
-  const raw = engineWindow.__gwrVideoCliProgress;
-  const upstreamPhase = raw?.phase;
-  const progress = Math.max(0, Math.min(1, Number(raw?.progress) || 0));
-  const processedFrames = Number.isFinite(raw?.processedFrames)
-    ? Number(raw?.processedFrames)
-    : null;
-  const frameEstimate = Number.isFinite(raw?.frameEstimate) ? Number(raw?.frameEstimate) : null;
+  let lastProgress = 0.15;
+  let lastProgressAt = 0;
 
-  if (!raw) {
-    return {
-      phase: "loading-model",
-      progress: 0.02,
-      processedFrames,
-      frameEstimate,
-      message: "Loading local cleanup model",
-    };
+  const result = await removeGeminiVideoWatermark(file, {
+    signal,
+    detection: detected,
+    fastDetection: true,
+    denoiseBackend: cleanupPlan.denoiseBackend,
+    edgeDenoiseStrength: cleanupPlan.edgeDenoiseStrength,
+    residualCleanupStrength: cleanupPlan.residualCleanupStrength,
+    allenkFdncnnRuntime: cleanupPlan.allenkFdncnnRuntime,
+    allenkFdncnnSigma: cleanupPlan.allenkFdncnnSigma,
+    allenkFdncnnPadding: cleanupPlan.allenkFdncnnPadding,
+    allenkFdncnnTemporalReuse: cleanupPlan.allenkFdncnnTemporalReuse,
+    fastEncoding: true,
+    requireAudioPreserved: true,
+    allowLowConfidence: cleanupPlan.allowLowConfidence,
+    yieldToMainThread,
+    onFramePreview: (blob: Blob) => {
+      if (!signal?.aborted) {
+        onFramePreview?.(blob);
+      }
+    },
+    onProgress: (info: {
+      phase?: string;
+      progress?: number;
+      processedFrames?: number;
+      frameEstimate?: number;
+    }) => {
+      signal?.throwIfAborted();
+      const rawProgress =
+        typeof info.progress === "number" ? Math.max(0, Math.min(1, info.progress)) : 0;
+      const processedFrames =
+        typeof info.processedFrames === "number" ? info.processedFrames : null;
+      const frameEstimate =
+        typeof info.frameEstimate === "number" ? info.frameEstimate : null;
+
+      let phase: GeminiVideoPhase = "processing";
+      let message = "Removing watermark...";
+
+      if (info.phase === "detect") {
+        phase = "detecting";
+        message = "Scanning video for watermark...";
+      } else if (info.phase === "export") {
+        if (rawProgress > 0.94) {
+          phase = "encoding";
+          message = "Finalizing video export...";
+        } else {
+          phase = "processing";
+          message =
+            frameEstimate && processedFrames
+              ? `Processing frame ${processedFrames} of ${frameEstimate}...`
+              : "Removing watermark...";
+        }
+      }
+
+      if (rawProgress !== lastProgress || processedFrames !== null) {
+        const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+        if (phase === "processing" && rawProgress < 0.99 && now - lastProgressAt < 90) {
+          return;
+        }
+        lastProgressAt = now;
+        lastProgress = rawProgress;
+        onProgress({
+          phase,
+          progress: rawProgress,
+          processedFrames,
+          frameEstimate,
+          message,
+        });
+      }
+    },
+  });
+
+  signal?.throwIfAborted();
+
+  const blob: Blob = result.blob;
+  if (!blob || !blob.size || !blob.type.includes("mp4")) {
+    throw new Error("The video engine returned an invalid MP4 export.");
   }
-  if (upstreamPhase === "detect") {
-    return {
-      phase: "detecting",
-      progress,
-      processedFrames,
-      frameEstimate,
-      message: "Detecting supported Gemini/Veo watermark tracks",
-    };
+
+  const processedFrames =
+    typeof result.processedFrames === "number" ? result.processedFrames : null;
+  const frameEstimate =
+    typeof result.metadata?.frameCountEstimate === "number"
+      ? result.metadata.frameCountEstimate
+      : processedFrames;
+
+  if (!processedFrames || processedFrames < 1) {
+    throw new Error("No video frames were exported.");
   }
-  if (upstreamPhase === "export") {
-    return {
-      phase: progress > 0.94 ? "encoding" : "processing",
-      progress,
-      processedFrames,
-      frameEstimate,
-      message: "Cleaning and encoding your video",
-    };
-  }
-  return {
-    phase: "analyzing",
-    progress,
+
+  onProgress({
+    phase: "validating",
+    progress: 0.99,
     processedFrames,
     frameEstimate,
-    message: "Analyzing your video",
+    message: "Validating exported MP4...",
+  });
+
+  const detectionPos = result.detection?.position;
+  const detectionStr = detectionPos
+    ? `位置 ${Math.round(detectionPos.x)}, ${Math.round(detectionPos.y)} 大小 ${Math.round(detectionPos.width)}x${Math.round(detectionPos.height)} (${result.detection?.candidate?.name || result.detection?.watermarkKind || "Gemini"})`
+    : result.detection?.watermarkKind || "Detected";
+
+  const hasDetectedShape =
+    typeof result.metadata?.width === "number" &&
+    result.metadata.width > 0 &&
+    typeof result.metadata?.height === "number" &&
+    result.metadata.height > 0 &&
+    Number.isFinite(result.metadata?.duration);
+
+  const [sourceShape, outputShape, qualityAudit] = await Promise.all([
+    hasDetectedShape
+      ? Promise.resolve({
+          duration: result.metadata.duration,
+          width: result.metadata.width,
+          height: result.metadata.height,
+        })
+      : readVideoShape(file, signal),
+    readVideoShape(blob, signal),
+    auditExportRegion(file, blob, detectionPos || detectionStr, signal),
+  ]);
+
+  if (
+    !Number.isFinite(sourceShape.duration) ||
+    !Number.isFinite(outputShape.duration) ||
+    outputShape.duration <= 0 ||
+    outputShape.width !== sourceShape.width ||
+    outputShape.height !== sourceShape.height ||
+    Math.abs(outputShape.duration - sourceShape.duration) >
+      Math.max(0.25, sourceShape.duration * 0.01)
+  ) {
+    throw new Error("Export duration or dimensions do not match the original video.");
+  }
+
+  if (qualityAudit.status === "unchanged") {
+    throw new Error(
+      "The exported watermark region matches the original in sampled frames. No cleaned result was accepted.",
+    );
+  }
+
+  return {
+    blob,
+    processedFrames,
+    frameEstimate,
+    status: "Completed",
+    detection: detectionStr,
+    qualityAudit,
   };
 }
 
-export async function processWithGeminiEngine(
-  frame: HTMLIFrameElement,
-  file: File,
-  onProgress: (progress: GeminiVideoProgress) => void,
-  signal?: AbortSignal,
-): Promise<GeminiVideoResult> {
-  await loadVideoIntoGeminiEngine(frame, file, signal);
-  const doc = documentFor(frame);
-  const engineWindow = windowFor(frame);
-
-  // High-performance calibrated inverse compositing + bilateral residual cleanup
-  // + temporal inter-frame stabilization for ultra-fast, smooth, blur-free exports.
-  engineWindow.__gwrVideoOverrideAllowLowConfidence = false;
-  engineWindow.__gwrVideoOverrideAdaptiveAlpha = true;
-  engineWindow.__gwrVideoOverrideDenoiseBackend = "canvas-temporal-stabilize";
-  engineWindow.__gwrVideoOverrideEdgeDenoiseStrength = 0.25;
-  engineWindow.__gwrVideoOverrideResidualCleanupStrength = 1.35;
-  engineWindow.__gwrVideoOverrideHighQualityCleanup = true;
-  engineWindow.__gwrVideoOverrideBitrate = 25_000_000;
-
-  // Mirror direct input state into the iframe form
-  try {
-    const allowLowInput = doc.getElementById("allowLowConfidence") as HTMLInputElement | null;
-    if (allowLowInput) allowLowInput.checked = false;
-    const hqInput = doc.getElementById("highQualityCleanup") as HTMLInputElement | null;
-    if (hqInput) hqInput.checked = true;
-    const adaptiveAlphaInput = doc.getElementById("adaptiveAlpha") as HTMLInputElement | null;
-    if (adaptiveAlphaInput) adaptiveAlphaInput.checked = true;
-    const denoiseInput = doc.getElementById("denoiseBackend") as HTMLSelectElement | null;
-    if (denoiseInput) {
-      denoiseInput.value = "canvas-temporal-stabilize";
-      denoiseInput.dispatchEvent(new engineWindow.Event("change", { bubbles: true }));
-    }
-    const edgeInput = doc.getElementById("edgeDenoiseStrength") as HTMLInputElement | null;
-    if (edgeInput) {
-      edgeInput.value = "0.25";
-      edgeInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
-    }
-    const residualInput = doc.getElementById("residualCleanup") as HTMLInputElement | null;
-    if (residualInput) {
-      residualInput.value = "1.35";
-      residualInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
-    }
-    const bitrateInput = doc.getElementById("videoBitrateMbps") as HTMLInputElement | null;
-    if (bitrateInput) {
-      bitrateInput.value = "25";
-      bitrateInput.dispatchEvent(new engineWindow.Event("input", { bubbles: true }));
-    }
-  } catch (syncErr) {
-    console.warn("Could not sync internal controls:", syncErr);
-  }
-
-  const processButton = doc.getElementById("processBtn") as HTMLButtonElement | null;
-  if (!processButton) throw new Error("The local engine process control is unavailable.");
-  processButton.click();
-
-  let lastProgress = -1;
-  while (true) {
-    signal?.throwIfAborted();
-    const download = doc.getElementById("downloadBtn") as HTMLAnchorElement | null;
-    const status = doc.getElementById("status");
-    const tone = status?.getAttribute("data-tone");
-    const progress = mapProgress(engineWindow, doc);
-    if (progress.progress !== lastProgress || progress.processedFrames !== null) {
-      onProgress(progress);
-      lastProgress = progress.progress;
-    }
-
-    if (tone === "error") {
-      throw new Error(
-        status?.textContent?.trim() || "The local video engine could not process this clip.",
-      );
-    }
-    if (download?.getAttribute("aria-disabled") === "false" && download.href) {
-      onProgress({
-        ...progress,
-        phase: "validating",
-        progress: 0.99,
-        message: "Validating the exported MP4",
-      });
-      const blob = await fetch(download.href).then((response) => response.blob());
-      if (!blob.size || !blob.type.includes("mp4")) {
-        throw new Error("The local engine returned an invalid MP4 export.");
-      }
-      const finalRaw = engineWindow.__gwrVideoCliProgress;
-      if (!finalRaw?.processedFrames || finalRaw.processedFrames < 1) {
-        throw new Error("No video frames were exported.");
-      }
-      const [sourceShape, outputShape] = await Promise.all([
-        readVideoShape(file, signal),
-        readVideoShape(blob, signal),
-      ]);
-      if (
-        !Number.isFinite(sourceShape.duration) ||
-        !Number.isFinite(outputShape.duration) ||
-        outputShape.duration <= 0 ||
-        outputShape.width !== sourceShape.width ||
-        outputShape.height !== sourceShape.height ||
-        Math.abs(outputShape.duration - sourceShape.duration) >
-          Math.max(0.25, sourceShape.duration * 0.01)
-      ) {
-        throw new Error("Export duration or dimensions do not match the original video.");
-      }
-      const detection = doc.getElementById("detection")?.textContent?.trim() || "";
-      const qualityAudit = await auditExportRegion(file, blob, detection, signal);
-      if (qualityAudit.status === "unchanged") {
-        throw new Error(
-          "The exported watermark region matches the original in sampled frames. No cleaned result was accepted.",
-        );
-      }
-      console.info("[Gemini video export diagnostic]", {
-        inputName: file.name,
-        inputBytes: file.size,
-        outputBytes: blob.size,
-        detector: detection || "unavailable",
-        processedFrames: finalRaw?.processedFrames ?? null,
-        frameEstimate: finalRaw?.frameEstimate ?? null,
-        outputUrl: download.href,
-        status: status?.textContent?.trim() || "unavailable",
-        qualityAudit,
-      });
-      return {
-        blob,
-        processedFrames: Number.isFinite(finalRaw?.processedFrames)
-          ? Number(finalRaw?.processedFrames)
-          : null,
-        frameEstimate: Number.isFinite(finalRaw?.frameEstimate)
-          ? Number(finalRaw?.frameEstimate)
-          : null,
-        status: status?.textContent?.trim() || "Completed",
-        detection,
-        qualityAudit,
-      };
-    }
-    await sleep(120);
-  }
+export function cancelGeminiEngine(_frame?: HTMLIFrameElement | null): void {
+  // Direct WebCodecs execution uses AbortSignal directly. Kept for backwards compatibility.
 }
 
-export function cancelGeminiEngine(frame: HTMLIFrameElement | null): void {
-  if (!frame?.contentDocument) return;
-  (frame.contentDocument.getElementById("cancelBtn") as HTMLButtonElement | null)?.click();
+export async function waitForGeminiEngine(
+  _frame?: HTMLIFrameElement | null,
+  _signal?: AbortSignal,
+): Promise<void> {
+  assertBrowserVideoSupport();
+}
+
+export async function loadVideoIntoGeminiEngine(
+  _frame: HTMLIFrameElement | null,
+  _file: File,
+  _signal?: AbortSignal,
+): Promise<void> {
+  assertBrowserVideoSupport();
 }
